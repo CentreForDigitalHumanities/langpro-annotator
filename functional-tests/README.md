@@ -1,6 +1,6 @@
 # LangPro Annotator functional tests
 
-An annotation tool for LangPro, a tableau-based theorem prover for natural logic and language
+An annotation tool for LangPro, a tableau-based theorem prover for natural logic and language.
 
 This is a functional test suite based on [pytest][1] and [Selenium WebDriver][2]. It is designed such that it can test any network-reachable instance of the LangPro Annotator application. While the tests are based on knowledge about the user interface of the application, no knowledge of its implementation is needed.
 

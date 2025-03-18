@@ -9,5 +9,5 @@ authors:
     website: 'https://cdh.uu.nl/about/research-software-lab/'
 repository-code: 'github:CentreForDigitalHumanities/langpro-annotator'
 abstract: >-
-  An annotation tool for LangPro, a tableau-based theorem prover for natural logic and language
+  An annotation tool for LangPro, a tableau-based theorem prover for natural logic and language.
 license: BSD-3

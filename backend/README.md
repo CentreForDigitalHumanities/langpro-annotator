@@ -1,6 +1,6 @@
 # LangPro Annotator backend
 
-An annotation tool for LangPro, a tableau-based theorem prover for natural logic and language
+An annotation tool for LangPro, a tableau-based theorem prover for natural logic and language.
 
 This is a server side web application based on [Django][1] and [Django REST framework][2] (DRF). Its primary purpose is to provide a JSON API with authentication and authorization, in order to support a separate frontend application.
 

@@ -2,7 +2,7 @@
 
 [![Actions Status](https://github.com/CentreForDigitalHumanities/langpro-annotator/workflows/Unit%20tests/badge.svg)](https://github.com/CentreForDigitalHumanities/langpro-annotator/actions)
 
-An annotation tool for LangPro, a tableau-based theorem prover for natural logic and language
+An annotation tool for LangPro, a tableau-based theorem prover for natural logic and language.
 
 *This repository is a work in progress, and the README is not yet complete!*
 

@@ -1,0 +1,895 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
+  <file source-language="en" datatype="plaintext" original="ng2.template" target-language="nl">
+    <body>
+      <trans-unit id="1208612987755769163" datatype="html">
+        <source>User details could not be verified.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/user/verify-email/verify-email.component.html</context>
+          <context context-type="linenumber">22</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="131761163657552131" datatype="html">
+        <source>Not signed in</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/guards/logged-on.guard.ts</context>
+          <context context-type="linenumber">20</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="1409585916089173371" datatype="html">
+        <source>toggle navigation</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/menu/menu.component.html</context>
+          <context context-type="linenumber">11</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="1431416938026210429" datatype="html">
+        <source>Password</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/user/login/login.component.html</context>
+          <context context-type="linenumber">24</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/user/register/register.component.html</context>
+          <context context-type="linenumber">46</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="1597115376439712916" datatype="html">
+        <source>Enter your details in the form below to create a new user account.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/user/register/register.component.html</context>
+          <context context-type="linenumber">3</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="1636934520301910285" datatype="html">
+        <source>Reset password</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/user/reset-password/reset-password.component.html</context>
+          <context context-type="linenumber">1</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="2002434861622689411" datatype="html">
+        <source>You must be signed in to view this page.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/guards/logged-on.guard.ts</context>
+          <context context-type="linenumber">21</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="215822783945511907" datatype="html">
+        <source>An email has been sent to you with instructions on how to reset your password.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/user/user-settings/user-settings.component.ts</context>
+          <context context-type="linenumber">88</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="2264352383042646653" datatype="html">
+        <source>Settings updated</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/user/user-settings/user-settings.component.ts</context>
+          <context context-type="linenumber">151</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="2280545060167503712" datatype="html">
+        <source>Sign in using the form below.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/user/login/login.component.html</context>
+          <context context-type="linenumber">3</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="2340726761180955545" datatype="html">
+        <source>Request new password</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/user/user-settings/user-settings.component.html</context>
+          <context context-type="linenumber">71</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="2347724151568473592" datatype="html">
+        <source>language</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/menu/menu.component.html</context>
+          <context context-type="linenumber">34</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="23824233174342473" datatype="html">
+        <source>Password reset email sent</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/user/user-settings/user-settings.component.ts</context>
+          <context context-type="linenumber">87</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="2565164139557117651" datatype="html">
+        <source>Password reset</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/user/reset-password/reset-password.component.ts</context>
+          <context context-type="linenumber">97</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="2608681899033561498" datatype="html">
+        <source> Please check the URL, refresh the page and request a new verification link if the problem persists. </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/user/verify-email/verify-email.component.html</context>
+          <context context-type="linenumber">24</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="2681755598773320678" datatype="html">
+        <source>Sign out successful</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/menu/user-menu/user-menu.component.ts</context>
+          <context context-type="linenumber">61</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="2709140321180243306" datatype="html">
+        <source>Centre for Digital Humanities, Utrecht University</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/footer/footer.component.html</context>
+          <context context-type="linenumber">17</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="2735699318201904816" datatype="html">
+        <source>Reset request failed</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/user/password-forgotten/password-forgotten.component.ts</context>
+          <context context-type="linenumber">61</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="2780779721076886897" datatype="html">
+        <source>Password reset request successful</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/user/password-forgotten/password-forgotten.component.ts</context>
+          <context context-type="linenumber">49</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="2821179408673282599" datatype="html">
+        <source>Home</source>
+        <target state="translated">Startpagina</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/home/home.component.html</context>
+          <context context-type="linenumber">1</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="2907733796351584017" datatype="html">
+        <source> Register </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/menu/user-menu/user-menu.component.html</context>
+          <context context-type="linenumber">53</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="2949848596707725099" datatype="html">
+        <source>Sign out</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/menu/user-menu/user-menu.component.html</context>
+          <context context-type="linenumber">28</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="2965983220733252511" datatype="html">
+        <source>Deleting account...</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/user/user-settings/user-settings.component.html</context>
+          <context context-type="linenumber">84</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="306733880709423201" datatype="html">
+        <source>Source code</source>
+        <target state="translated">Broncode</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/footer/footer.component.html</context>
+          <context context-type="linenumber">7</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="3241357959735682038" datatype="html">
+        <source>Confirm Password</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/user/register/register.component.html</context>
+          <context context-type="linenumber">64</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="3249041359616407541" datatype="html">
+        <source>Email address has been verified.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/user/verify-email/verify-email.component.ts</context>
+          <context context-type="linenumber">64</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="3301086086650990787" datatype="html">
+        <source>Register</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/user/register/register.component.html</context>
+          <context context-type="linenumber">1</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/user/register/register.component.html</context>
+          <context context-type="linenumber">88</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="3425043748015922556" datatype="html">
+        <source>Loading languages...</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/menu/menu.component.html</context>
+          <context context-type="linenumber">38</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="3586674587150281199" datatype="html">
+        <source>Last name</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/user/user-settings/user-settings.component.html</context>
+          <context context-type="linenumber">36</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="3588415639242079458" datatype="html">
+        <source>New password</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/user/reset-password/reset-password.component.html</context>
+          <context context-type="linenumber">7</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="3704810719431406831" datatype="html">
+        <source>Sign out failed</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/menu/user-menu/user-menu.component.ts</context>
+          <context context-type="linenumber">51</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="3713449669435436942" datatype="html">
+        <source>Registration successful</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/user/register/register.component.ts</context>
+          <context context-type="linenumber">97</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="3727714031056440474" datatype="html">
+        <source>Email verification failed</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/user/verify-email/verify-email.component.ts</context>
+          <context context-type="linenumber">53</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="3967269098753656610" datatype="html">
+        <source>Email address</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/user/password-forgotten/password-forgotten.component.html</context>
+          <context context-type="linenumber">10</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="4039896911663872024" datatype="html">
+        <source> Please confirm that <x id="START_LINK" ctype="x-a" equiv-text="&lt;a href=&quot;mailto:{{ userDetails.email }}&quot;&gt;"/><x id="INTERPOLATION" equiv-text="{{ userDetails.email }}"/><x id="CLOSE_LINK" ctype="x-a" equiv-text="&lt;/a&gt;"/> is an e-mail address for user <x id="INTERPOLATION_1" equiv-text="{{ userDetails.username }}"/>. </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/user/verify-email/verify-email.component.html</context>
+          <context context-type="linenumber">6</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="4107339131766312083" datatype="html">
+        <source>You have been successfully registered. Please check your email for a confirmation link.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/user/register/register.component.ts</context>
+          <context context-type="linenumber">98</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="4155808857787573790" datatype="html">
+        <source>Logging in...</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/user/login/login.component.html</context>
+          <context context-type="linenumber">50</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="4156335619306431761" datatype="html">
+        <source>Verifying email...</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/user/verify-email/verify-email.component.html</context>
+          <context context-type="linenumber">15</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="4200139793527060712" datatype="html">
+        <source>Your password has been successfully reset.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/user/reset-password/reset-password.component.ts</context>
+          <context context-type="linenumber">98</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="4222637323546169360" datatype="html">
+        <source>Email address verification failed.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/user/verify-email/verify-email.component.ts</context>
+          <context context-type="linenumber">43</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="4355024675181690227" datatype="html">
+        <source>Request to send password reset email failed. Please try again.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/user/password-forgotten/password-forgotten.component.ts</context>
+          <context context-type="linenumber">62</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="4608015944298801142" datatype="html">
+        <source>Switch to light mode</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/dark-mode-toggle/dark-mode-toggle.component.html</context>
+          <context context-type="linenumber">11</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="4690357502019299831" datatype="html">
+        <source>Updating password...</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/user/reset-password/reset-password.component.html</context>
+          <context context-type="linenumber">53</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="4768749765465246664" datatype="html">
+        <source>Email</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/user/register/register.component.html</context>
+          <context context-type="linenumber">29</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="4776676535134574443" datatype="html">
+        <source> Repeat your new password </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/user/reset-password/reset-password.component.html</context>
+          <context context-type="linenumber">26</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="4816475279838597990" datatype="html">
+        <source>Confirm e-mail address</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/user/verify-email/verify-email.component.html</context>
+          <context context-type="linenumber">1</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="4930506384627295710" datatype="html">
+        <source>Settings</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/menu/user-menu/user-menu.component.html</context>
+          <context context-type="linenumber">23</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="4956612354850048798" datatype="html">
+        <source>Failed to verify email address.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/user/verify-email/verify-email.component.ts</context>
+          <context context-type="linenumber">44</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/user/verify-email/verify-email.component.ts</context>
+          <context context-type="linenumber">54</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="4965948752741134654" datatype="html">
+        <source>There was an error signing you out. Please try again.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/menu/user-menu/user-menu.component.ts</context>
+          <context context-type="linenumber">52</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="5207635742003539443" datatype="html">
+        <source>Sign in</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/user/login/login.component.html</context>
+          <context context-type="linenumber">1</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/user/login/login.component.html</context>
+          <context context-type="linenumber">47</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/user/register/register.component.html</context>
+          <context context-type="linenumber">7</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="5248717555542428023" datatype="html">
+        <source>Username</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/user/login/login.component.html</context>
+          <context context-type="linenumber">7</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/user/register/register.component.html</context>
+          <context context-type="linenumber">12</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/user/user-settings/user-settings.component.html</context>
+          <context context-type="linenumber">8</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="5259385176347360377" datatype="html">
+        <source> LangPro Annotator </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/menu/menu.component.html</context>
+          <context context-type="linenumber">5</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="5277739594710154939" datatype="html">
+        <source>Already have an account?</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/user/register/register.component.html</context>
+          <context context-type="linenumber">6</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="5342432350421167093" datatype="html">
+        <source>First name</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/user/user-settings/user-settings.component.html</context>
+          <context context-type="linenumber">23</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="5347480640153588680" datatype="html">
+        <source>Use the form below to change your name or password.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/user/user-settings/user-settings.component.html</context>
+          <context context-type="linenumber">3</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="5528738371057192757" datatype="html">
+        <source>You have been successfully signed in.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/user/login/login.component.ts</context>
+          <context context-type="linenumber">72</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="5624927990396842810" datatype="html">
+        <source> Enter your email address in the form below. You will receive an email with instructions to reset your password. </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/user/password-forgotten/password-forgotten.component.html</context>
+          <context context-type="linenumber">4</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="5661225197241184592" datatype="html">
+        <source>An error occurred while deleting your account. Please try again later.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/user/user-settings/user-settings.component.ts</context>
+          <context context-type="linenumber">98</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="5737907676856882347" datatype="html">
+        <source>If your email address is known to us, an email has been sent containing a link to a page where you may reset your password.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/user/password-forgotten/password-forgotten.component.ts</context>
+          <context context-type="linenumber">50</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="5775897364163102609" datatype="html">
+        <source>(BSD 3-Clause License)</source>
+        <target state="translated">(BSD 3-clausule licentie)</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/footer/footer.component.html</context>
+          <context context-type="linenumber">7</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="6153797048311741939" datatype="html">
+        <source>User settings</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/user/user-settings/user-settings.component.html</context>
+          <context context-type="linenumber">1</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="6267525301152196009" datatype="html">
+        <source>Version: </source>
+        <target state="translated">Versie: </target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/footer/footer.component.html</context>
+          <context context-type="linenumber">10</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="6411901163227359492" datatype="html">
+        <source>Email verified</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/user/verify-email/verify-email.component.ts</context>
+          <context context-type="linenumber">63</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="6448875182658152810" datatype="html">
+        <source>LangPro Annotator</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/footer/footer.component.html</context>
+          <context context-type="linenumber">5</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="6663783128602596673" datatype="html">
+        <source> Sign in </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/menu/user-menu/user-menu.component.html</context>
+          <context context-type="linenumber">43</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="680481494075430628" datatype="html">
+        <source>Error deleting account</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/user/user-settings/user-settings.component.ts</context>
+          <context context-type="linenumber">97</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="7000649363168371045" datatype="html">
+        <source>Save changes</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/user/user-settings/user-settings.component.html</context>
+          <context context-type="linenumber">56</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="7048705342990084886" datatype="html">
+        <source> Saving user settings... </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/user/user-settings/user-settings.component.html</context>
+          <context context-type="linenumber">60</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="7151789623531412312" datatype="html">
+        <source>Loading user data...</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/menu/user-menu/user-menu.component.html</context>
+          <context context-type="linenumber">5</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="7231331613173227522" datatype="html">
+        <source>Your account has been successfully deleted.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/user/user-settings/user-settings.component.ts</context>
+          <context context-type="linenumber">108</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="7454163078324370068" datatype="html">
+        <source> Requesting password reset link... </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/user/password-forgotten/password-forgotten.component.html</context>
+          <context context-type="linenumber">31</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/user/user-settings/user-settings.component.html</context>
+          <context context-type="linenumber">75</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="7662015208795302518" datatype="html">
+        <source>Delete account</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/user/user-settings/user-settings.component.html</context>
+          <context context-type="linenumber">81</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="7829748319811897649" datatype="html">
+        <source>Your settings have been successfully updated.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/user/user-settings/user-settings.component.ts</context>
+          <context context-type="linenumber">152</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="7844706011418789951" datatype="html">
+        <source>Administration</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/menu/user-menu/user-menu.component.html</context>
+          <context context-type="linenumber">26</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="803131845720356706" datatype="html">
+        <source>Switch to dark mode</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/dark-mode-toggle/dark-mode-toggle.component.html</context>
+          <context context-type="linenumber">4</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="8186528254853673318" datatype="html">
+        <source>Signing out...</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/menu/user-menu/user-menu.component.html</context>
+          <context context-type="linenumber">59</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="8364309938383915497" datatype="html">
+        <source> Home </source>
+        <target state="translated"> Startpagina </target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/menu/menu.component.html</context>
+          <context context-type="linenumber">21</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="8490844939329149081" datatype="html">
+        <source>Forgotten your password?</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/user/password-forgotten/password-forgotten.component.html</context>
+          <context context-type="linenumber">1</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="8507166195543036644" datatype="html">
+        <source>Account deleted</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/user/user-settings/user-settings.component.ts</context>
+          <context context-type="linenumber">107</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="858848229301422786" datatype="html">
+        <source>Registering...</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/user/register/register.component.html</context>
+          <context context-type="linenumber">91</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="8599070997718721202" datatype="html">
+        <source>You have been successfully signed out.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/menu/user-menu/user-menu.component.ts</context>
+          <context context-type="linenumber">62</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="8778652664560731554" datatype="html">
+        <source>Enter your new password below to change your password.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/user/reset-password/reset-password.component.html</context>
+          <context context-type="linenumber">3</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="8953364026165717457" datatype="html">
+        <source> Forgotten your password? </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/user/login/login.component.html</context>
+          <context context-type="linenumber">58</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="9026432135520337294" datatype="html">
+        <source>Sign in successful</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/user/login/login.component.ts</context>
+          <context context-type="linenumber">71</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="9178182467454450952" datatype="html">
+        <source>Confirm</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/user/verify-email/verify-email.component.html</context>
+          <context context-type="linenumber">12</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="935187492052582731" datatype="html">
+        <source>Submit</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/user/password-forgotten/password-forgotten.component.html</context>
+          <context context-type="linenumber">27</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/user/reset-password/reset-password.component.html</context>
+          <context context-type="linenumber">50</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="dateFormat" datatype="html">
+        <source>MMMM dd, yyyy</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/footer/footer.component.ts</context>
+          <context context-type="linenumber">20</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="ngb.alert.close" datatype="html">
+        <source>Close</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">node_modules/src/alert/alert.ts</context>
+          <context context-type="linenumber">68</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="ngb.carousel.next" datatype="html">
+        <source>Next</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">node_modules/src/carousel/carousel.ts</context>
+          <context context-type="linenumber">194</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="ngb.carousel.previous" datatype="html">
+        <source>Previous</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">node_modules/src/carousel/carousel.ts</context>
+          <context context-type="linenumber">171</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="ngb.carousel.slide-number" datatype="html">
+        <source> Slide <x id="INTERPOLATION" equiv-text="config.wrap);"/> of <x id="INTERPOLATION_1" equiv-text="carouselId++}`;"/> </source>
+        <note priority="1" from="description">Currently selected slide number read by screen reader</note>
+        <context-group purpose="location">
+          <context context-type="sourcefile">node_modules/src/carousel/carousel.ts</context>
+          <context context-type="linenumber">147</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="ngb.datepicker.next-month" datatype="html">
+        <source>Next month</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">node_modules/src/datepicker/datepicker-navigation.ts</context>
+          <context context-type="linenumber">103</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">node_modules/src/datepicker/datepicker-navigation.ts</context>
+          <context context-type="linenumber">103</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="ngb.datepicker.previous-month" datatype="html">
+        <source>Previous month</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">node_modules/src/datepicker/datepicker-navigation.ts</context>
+          <context context-type="linenumber">93</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">node_modules/src/datepicker/datepicker-navigation.ts</context>
+          <context context-type="linenumber">103</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="ngb.datepicker.select-month" datatype="html">
+        <source>Select month</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">node_modules/src/datepicker/datepicker-navigation-select.ts</context>
+          <context context-type="linenumber">92</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">node_modules/src/datepicker/datepicker-navigation-select.ts</context>
+          <context context-type="linenumber">92</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="ngb.datepicker.select-year" datatype="html">
+        <source>Select year</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">node_modules/src/datepicker/datepicker-navigation-select.ts</context>
+          <context context-type="linenumber">92</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">node_modules/src/datepicker/datepicker-navigation-select.ts</context>
+          <context context-type="linenumber">92</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="ngb.pagination.first" datatype="html">
+        <source>««</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">node_modules/src/pagination/pagination.ts</context>
+          <context context-type="linenumber">291</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="ngb.pagination.first-aria" datatype="html">
+        <source>First</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">node_modules/src/pagination/pagination.ts</context>
+          <context context-type="linenumber">354</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="ngb.pagination.last" datatype="html">
+        <source>»»</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">node_modules/src/pagination/pagination.ts</context>
+          <context context-type="linenumber">335</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="ngb.pagination.last-aria" datatype="html">
+        <source>Last</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">node_modules/src/pagination/pagination.ts</context>
+          <context context-type="linenumber">407</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="ngb.pagination.next" datatype="html">
+        <source>»</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">node_modules/src/pagination/pagination.ts</context>
+          <context context-type="linenumber">322</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="ngb.pagination.next-aria" datatype="html">
+        <source>Next</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">node_modules/src/pagination/pagination.ts</context>
+          <context context-type="linenumber">396</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="ngb.pagination.previous" datatype="html">
+        <source>«</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">node_modules/src/pagination/pagination.ts</context>
+          <context context-type="linenumber">306</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="ngb.pagination.previous-aria" datatype="html">
+        <source>Previous</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">node_modules/src/pagination/pagination.ts</context>
+          <context context-type="linenumber">374</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="ngb.progressbar.value" datatype="html">
+        <source>
+          <x id="INTERPOLATION" equiv-text="ariaLabel = th"/>
+        </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">node_modules/src/progressbar/progressbar.ts</context>
+          <context context-type="linenumber">69</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="ngb.timepicker.decrement-hours" datatype="html">
+        <source>Decrement hours</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">node_modules/src/timepicker/timepicker.ts</context>
+          <context context-type="linenumber">332</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="ngb.timepicker.decrement-minutes" datatype="html">
+        <source>Decrement minutes</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">node_modules/src/timepicker/timepicker.ts</context>
+          <context context-type="linenumber">373</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="ngb.timepicker.decrement-seconds" datatype="html">
+        <source>Decrement seconds</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">node_modules/src/timepicker/timepicker.ts</context>
+          <context context-type="linenumber">441</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="ngb.timepicker.HH" datatype="html">
+        <source>HH</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">node_modules/src/timepicker/timepicker.ts</context>
+          <context context-type="linenumber">238</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="ngb.timepicker.hours" datatype="html">
+        <source>Hours</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">node_modules/src/timepicker/timepicker.ts</context>
+          <context context-type="linenumber">258</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="ngb.timepicker.increment-hours" datatype="html">
+        <source>Increment hours</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">node_modules/src/timepicker/timepicker.ts</context>
+          <context context-type="linenumber">310</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="ngb.timepicker.increment-minutes" datatype="html">
+        <source>Increment minutes</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">node_modules/src/timepicker/timepicker.ts</context>
+          <context context-type="linenumber">357</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="ngb.timepicker.increment-seconds" datatype="html">
+        <source>Increment seconds</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">node_modules/src/timepicker/timepicker.ts</context>
+          <context context-type="linenumber">437</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="ngb.timepicker.minutes" datatype="html">
+        <source>Minutes</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">node_modules/src/timepicker/timepicker.ts</context>
+          <context context-type="linenumber">296</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="ngb.timepicker.MM" datatype="html">
+        <source>MM</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">node_modules/src/timepicker/timepicker.ts</context>
+          <context context-type="linenumber">279</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="ngb.timepicker.PM" datatype="html">
+        <source>
+          <x id="INTERPOLATION"/>
+        </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">node_modules/src/timepicker/timepicker.ts</context>
+          <context context-type="linenumber">441</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="ngb.timepicker.seconds" datatype="html">
+        <source>Seconds</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">node_modules/src/timepicker/timepicker.ts</context>
+          <context context-type="linenumber">422</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="ngb.timepicker.SS" datatype="html">
+        <source>SS</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">node_modules/src/timepicker/timepicker.ts</context>
+          <context context-type="linenumber">396</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="ngb.toast.close-aria" datatype="html">
+        <source>Close</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">node_modules/src/toast/toast.ts</context>
+          <context context-type="linenumber">95</context>
+        </context-group>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>

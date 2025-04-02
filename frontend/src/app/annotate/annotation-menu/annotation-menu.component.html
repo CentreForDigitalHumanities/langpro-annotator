@@ -1,7 +1,7 @@
 <ul ngbNav #nav="ngbNav" [(activeId)]="active" class="nav-tabs">
     <li [ngbNavItem]="1">
         <button ngbNavLink>
-            <fa-icon [icon]="faKeyboard" class="me-2"></fa-icon>
+            <fa-icon [icon]="faKeyboard" class="me-2" aria-hidden="true" />
             <span i18n>Input</span>
         </button>
         <ng-template ngbNavContent>
@@ -10,7 +10,11 @@
     </li>
     <li [ngbNavItem]="2">
         <button ngbNavLink>
-            <fa-icon [icon]="faSquarePollHorizontal" class="me-2"></fa-icon>
+            <fa-icon
+                [icon]="faSquarePollHorizontal"
+                class="me-2"
+                aria-hidden="true"
+            />
             <span i18n>CCG / LLF</span>
         </button>
         <ng-template ngbNavContent>
@@ -19,7 +23,7 @@
     </li>
     <li [ngbNavItem]="3">
         <button ngbNavLink>
-            <fa-icon [icon]="faTree" class="me-2"></fa-icon>
+            <fa-icon [icon]="faTree" class="me-2" aria-hidden="true" />
             <span i18n>Tableau / Proof</span>
         </button>
         <ng-template ngbNavContent>
@@ -28,7 +32,7 @@
     </li>
     <li [ngbNavItem]="4">
         <button ngbNavLink>
-            <fa-icon [icon]="faPenNib" class="me-2"></fa-icon>
+            <fa-icon [icon]="faPenNib" class="me-2" aria-hidden="true" />
             <span i18n>Comments / History</span>
         </button>
         <ng-template ngbNavContent>

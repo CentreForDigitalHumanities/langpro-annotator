@@ -1,1 +1,91 @@
-<p>knowledge-base-form works!</p>
+<section class="card">
+    <header class="card-header">
+        <h3 class="h5" i18n>Knowledge Base</h3>
+    </header>
+    <div class="card-body">
+        <form [formGroup]="form" (ngSubmit)="onSubmit()">
+            <ul formArrayName="kbItems" class="ps-0 list-unstyled">
+                <li
+                    *ngFor="
+                        let kbItem of form.controls.kbItems.controls;
+                        let i = index
+                    "
+                    class="mb-3"
+                >
+                    <div [formGroupName]="i" class="input-group">
+                        <input
+                            type="text"
+                            class="form-control"
+                            formControlName="entity1"
+                            placeholder="Entity 1"
+                            required
+                        />
+                        <select
+                            class="form-select"
+                            formControlName="relationship"
+                        >
+                            <option value="" disabled selected i18n>
+                                Select Relationship
+                            </option>
+                            <option *ngFor="let relationship of relationshipTypes" [value]="relationship">
+                                {{ getRelationshipTypeName(relationship) }}
+                            </option>
+                            <!-- <option value="is equal to" i18n>
+                                is equal to
+                            </option>
+                            <option value="is not equal to" i18n>
+                                is not equal to
+                            </option> -->
+                        </select>
+                        <input
+                            type="text"
+                            class="form-control"
+                            formControlName="entity2"
+                            placeholder="Entity 2"
+                            required
+                        />
+                        <button
+                            type="button"
+                            class="btn btn-danger"
+                            (click)="removeKnowledgeBaseItem(i)"
+                            [disabled]="form.controls.kbItems.length === 1"
+                        >
+                            <fa-icon
+                                [icon]="faTrash"
+                                class="fa-sm"
+                                aria-hidden="true"
+                            ></fa-icon>
+                            <span class="ms-2" i18n>Remove</span>
+                        </button>
+                    </div>
+                </li>
+            </ul>
+            <div class="btn-group" role="group">
+                <button
+                    type="button"
+                    class="btn btn-primary"
+                    (click)="addKnowledgeBaseItem()"
+                >
+                    <fa-icon
+                        [icon]="faPlus"
+                        class="fa-sm"
+                        aria-hidden="true"
+                    ></fa-icon>
+                    <span class="ms-2" i18n>Add Item</span>
+                </button>
+                <button
+                    type="submit"
+                    class="btn btn-success"
+                    [disabled]="form.invalid"
+                >
+                    <fa-icon
+                        [icon]="faCheck"
+                        class="fa-sm"
+                        aria-hidden="true"
+                    ></fa-icon>
+                    <span class="ms-2" i18n>Submit</span>
+                </button>
+            </div>
+        </form>
+    </div>
+</section>

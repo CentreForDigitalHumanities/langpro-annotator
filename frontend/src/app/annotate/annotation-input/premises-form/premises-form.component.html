@@ -1,1 +1,81 @@
-<p>premises-form works!</p>
+<section class="card">
+    <header class="card-header">
+        <h3 class="h5" i18n>Premises and Conclusion</h3>
+    </header>
+    <div class="card-body">
+        <form [formGroup]="form" (ngSubmit)="onSubmit()">
+            <ul formArrayName="premises" class="ps-0 list-unstyled">
+                <li
+                    *ngFor="let premise of premises.controls; let i = index"
+                    class="mb-3"
+                >
+                    <label
+                        [attr.for]="'premise-' + i"
+                        class="form-label fw-bold"
+                        i18n
+                    >
+                        Premise {{ i + 1 }}
+                    </label>
+                    <div class="input-group">
+                        <input
+                            [id]="'premise-' + i"
+                            type="text"
+                            class="form-control"
+                            [formControlName]="i"
+                        />
+                        <button
+                            type="button"
+                            class="btn btn-danger"
+                            (click)="removePremise(i)"
+                            [disabled]="premises.length === 1"
+                        >
+                            <fa-icon
+                                [icon]="faTrash"
+                                class="fa-sm"
+                                aria-hidden="true"
+                            ></fa-icon>
+                            <span class="ms-2" i18n>Remove</span>
+                        </button>
+                    </div>
+                </li>
+            </ul>
+            <button
+                type="button"
+                class="btn btn-primary mb-3"
+                (click)="addPremise()"
+            >
+                <fa-icon
+                    [icon]="faPlus"
+                    class="fa-sm"
+                    aria-hidden="true"
+                ></fa-icon>
+                <span class="ms-2" i18n>Add Premise</span>
+            </button>
+
+            <div class="mb-3">
+                <label for="conclusion" class="form-label fw-bold" i18n>
+                    Conclusion
+                </label>
+                <input
+                    id="conclusion"
+                    type="text"
+                    class="form-control"
+                    formControlName="conclusion"
+                />
+            </div>
+
+            <button
+                type="submit"
+                class="btn btn-success"
+                [disabled]="form.invalid"
+            >
+                <fa-icon
+                    [icon]="faCheck"
+                    class="fa-sm"
+                    aria-hidden="true"
+                ></fa-icon>
+                <span class="ms-2" i18n>Submit</span>
+            </button>
+        </form>
+    </div>
+</section>

@@ -7,7 +7,7 @@
             ngbTooltip="First Problem"
             i18n-ngbTooltip
         >
-            <fa-icon [icon]="faAnglesLeft" class="me-2"></fa-icon>
+            <fa-icon [icon]="faAnglesLeft" class="me-2" aria-hidden="true" />
             <span i18n>First</span>
         </button>
         <button
@@ -17,15 +17,15 @@
             ngbTooltip="Previous Problem"
             i18n-ngbTooltip
         >
-            <fa-icon [icon]="faAngleLeft" class="me-2"></fa-icon>
+            <fa-icon [icon]="faAngleLeft" class="me-2" aria-hidden="true" />
             <span i18n>Previous</span>
         </button>
 
         <div class="problem-info d-flex flex-column align-items-center px-3">
             <span>{{ currentProblemIndex }} of {{ totalProblems }}</span>
-            <span class="badge bg-secondary mt-1" i18n
-                >ID: {{ currentProblemId }}</span
-            >
+            <span class="badge bg-secondary mt-1" i18n>
+                ID: {{ currentProblemId }}
+            </span>
         </div>
 
         <button
@@ -36,7 +36,7 @@
             i18n-ngbTooltip
         >
             <span i18n>Next</span>
-            <fa-icon [icon]="faAngleRight" class="ms-2"></fa-icon>
+            <fa-icon [icon]="faAngleRight" class="ms-2" aria-hidden="true" />
         </button>
         <button
             class="btn btn-outline-primary"
@@ -46,7 +46,7 @@
             i18n-ngbTooltip
         >
             <span i18n>Last</span>
-            <fa-icon [icon]="faAnglesRight" class="ms-2"></fa-icon>
+            <fa-icon [icon]="faAnglesRight" class="ms-2" aria-hidden="true" />
         </button>
         <button
             class="btn btn-outline-secondary"

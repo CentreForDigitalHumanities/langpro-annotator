@@ -3,6 +3,7 @@ import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { HttpClientTestingModule } from "@angular/common/http/testing";
 
 import { MenuComponent } from "./menu.component";
+import { provideRouter } from "@angular/router";
 
 describe("MenuComponent", () => {
     let component: MenuComponent;
@@ -15,6 +16,7 @@ describe("MenuComponent", () => {
                 NoopAnimationsModule,
                 HttpClientTestingModule,
             ],
+            providers: [provideRouter([])]
         }).compileComponents();
     }));
 

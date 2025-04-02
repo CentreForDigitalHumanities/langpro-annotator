@@ -1,49 +1,60 @@
-import { Routes } from '@angular/router';
+import { Routes } from "@angular/router";
 
-import { HomeComponent } from './home/home.component';import { LoginComponent } from './user/login/login.component';
-import { RegisterComponent } from './user/register/register.component';
-import { VerifyEmailComponent } from './user/verify-email/verify-email.component';
-import { PasswordForgottenComponent } from './user/password-forgotten/password-forgotten.component';
-import { ResetPasswordComponent } from './user/reset-password/reset-password.component';
-import { UserSettingsComponent } from './user/user-settings/user-settings.component';
-import { LoggedOnGuard } from './guards/logged-on.guard';
-
+import { HomeComponent } from "./home/home.component";
+import { LoginComponent } from "./user/login/login.component";
+import { RegisterComponent } from "./user/register/register.component";
+import { VerifyEmailComponent } from "./user/verify-email/verify-email.component";
+import { PasswordForgottenComponent } from "./user/password-forgotten/password-forgotten.component";
+import { ResetPasswordComponent } from "./user/reset-password/reset-password.component";
+import { UserSettingsComponent } from "./user/user-settings/user-settings.component";
+import { LoggedOnGuard } from "./guards/logged-on.guard";
+import { AnnotateComponent } from "./annotate/annotate.component";
+import { AboutComponent } from "./about/about.component";
 
 const routes: Routes = [
     {
-        path: 'home',
+        path: "home",
         component: HomeComponent,
-    },{
-        path: 'login',
+    },
+    {
+        path: "login",
         component: LoginComponent,
     },
     {
-        path: 'register',
+        path: "register",
         component: RegisterComponent,
     },
     {
-        path: 'confirm-email/:key',
+        path: "confirm-email/:key",
         component: VerifyEmailComponent,
     },
     {
-        path: 'password-forgotten',
-        component: PasswordForgottenComponent
+        path: "password-forgotten",
+        component: PasswordForgottenComponent,
     },
     {
-        path: 'reset-password/:uid/:token',
-        component: ResetPasswordComponent
+        path: "reset-password/:uid/:token",
+        component: ResetPasswordComponent,
     },
     {
-        path: 'user-settings',
+        path: "user-settings",
         canActivate: [LoggedOnGuard],
-        component: UserSettingsComponent
+        component: UserSettingsComponent,
     },
-    
     {
-        path: '',
-        redirectTo: '/home',
-        pathMatch: 'full'
-    }
+        path: "annotate",
+        canActivate: [LoggedOnGuard],
+        component: AnnotateComponent,
+    },
+    {
+        path: "about",
+        component: AboutComponent,
+    },
+    {
+        path: "",
+        redirectTo: "/home",
+        pathMatch: "full",
+    },
 ];
 
 export { routes };

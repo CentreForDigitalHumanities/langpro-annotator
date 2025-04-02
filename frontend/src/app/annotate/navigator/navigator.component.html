@@ -1,0 +1,61 @@
+<div class="navigator-container">
+    <div class="d-flex justify-content-center align-items-center gap-2 mb-3">
+        <button
+            class="btn btn-outline-primary"
+            (click)="goToFirst()"
+            [disabled]="isFirstProblem"
+            ngbTooltip="First Problem"
+            i18n-ngbTooltip
+        >
+            <fa-icon [icon]="faAnglesLeft" class="me-2"></fa-icon>
+            <span i18n>First</span>
+        </button>
+        <button
+            class="btn btn-outline-primary"
+            (click)="goToPrevious()"
+            [disabled]="isFirstProblem"
+            ngbTooltip="Previous Problem"
+            i18n-ngbTooltip
+        >
+            <fa-icon [icon]="faAngleLeft" class="me-2"></fa-icon>
+            <span i18n>Previous</span>
+        </button>
+
+        <div class="problem-info d-flex flex-column align-items-center px-3">
+            <span>{{ currentProblemIndex }} of {{ totalProblems }}</span>
+            <span class="badge bg-secondary mt-1" i18n
+                >ID: {{ currentProblemId }}</span
+            >
+        </div>
+
+        <button
+            class="btn btn-outline-primary"
+            (click)="goToNext()"
+            [disabled]="isLastProblem"
+            ngbTooltip="Next Problem"
+            i18n-ngbTooltip
+        >
+            <span i18n>Next</span>
+            <fa-icon [icon]="faAngleRight" class="ms-2"></fa-icon>
+        </button>
+        <button
+            class="btn btn-outline-primary"
+            (click)="goToLast()"
+            [disabled]="isLastProblem"
+            ngbTooltip="Last Problem"
+            i18n-ngbTooltip
+        >
+            <span i18n>Last</span>
+            <fa-icon [icon]="faAnglesRight" class="ms-2"></fa-icon>
+        </button>
+        <button
+            class="btn btn-outline-secondary"
+            (click)="goToRandom()"
+            ngbTooltip="Random Problem"
+            i18n-ngbTooltip
+        >
+            <span i18n>Random</span>
+            <fa-icon [icon]="faShuffle" class="ms-2"></fa-icon>
+        </button>
+    </div>
+</div>

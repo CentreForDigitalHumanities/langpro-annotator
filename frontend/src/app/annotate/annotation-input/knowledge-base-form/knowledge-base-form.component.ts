@@ -12,7 +12,7 @@ const KnowledgeBaseRelationships = [
     "SUPERSET",
 ] as const;
 
-type KnowledgeBaseRelationship = typeof KnowledgeBaseRelationships[number];
+type KnowledgeBaseRelationship = (typeof KnowledgeBaseRelationships)[number];
 
 const relationshipDisplayMapping: Record<KnowledgeBaseRelationship, string> = {
     EQUAL: "is equal to",
@@ -65,17 +65,30 @@ export class KnowledgeBaseFormComponent {
 
     constructor() {}
 
-    public addKnowledgeBaseItem(): void {
+    public addKnowledgeBaseItem(
+        form: {
+            entity1: string;
+            relationship: KnowledgeBaseRelationship;
+            entity2: string;
+        } = {
+            entity1: "",
+            relationship: "EQUAL",
+            entity2: "",
+        }
+    ): void {
         const newItem = new FormGroup<KnowledgeBaseForm>({
-            entity1: new FormControl<string>("", {
+            entity1: new FormControl<string>(form.entity1, {
                 validators: [Validators.required],
                 nonNullable: true,
             }),
-            relationship: new FormControl<KnowledgeBaseRelationship>("EQUAL", {
-                validators: [Validators.required],
-                nonNullable: true,
-            }),
-            entity2: new FormControl<string>("", {
+            relationship: new FormControl<KnowledgeBaseRelationship>(
+                form.relationship,
+                {
+                    validators: [Validators.required],
+                    nonNullable: true,
+                }
+            ),
+            entity2: new FormControl<string>(form.entity2, {
                 validators: [Validators.required],
                 nonNullable: true,
             }),

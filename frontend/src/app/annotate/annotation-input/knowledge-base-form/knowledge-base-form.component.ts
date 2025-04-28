@@ -50,7 +50,7 @@ export class KnowledgeBaseFormComponent {
                     }
                 ),
                 entity2: new FormControl<string>("", {
-                    validators: Validators.required,
+                    validators: [Validators.required],
                     nonNullable: true,
                 }),
             }),

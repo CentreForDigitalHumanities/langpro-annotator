@@ -1,14 +1,5 @@
-<ul ngbNav #nav="ngbNav" [(activeId)]="active" class="nav-tabs">
+<ul ngbNav #nav="ngbNav" [(activeId)]="active" class="nav-tabs flex-nowrap">
     <li [ngbNavItem]="1">
-        <button ngbNavLink>
-            <fa-icon [icon]="faKeyboard" class="me-2" aria-hidden="true" />
-            <span i18n>Input</span>
-        </button>
-        <ng-template ngbNavContent>
-            <la-annotation-input />
-        </ng-template>
-    </li>
-    <li [ngbNavItem]="2">
         <button ngbNavLink>
             <fa-icon
                 [icon]="faSquarePollHorizontal"
@@ -21,7 +12,7 @@
             <la-annotation-parse-results />
         </ng-template>
     </li>
-    <li [ngbNavItem]="3">
+    <li [ngbNavItem]="2">
         <button ngbNavLink>
             <fa-icon [icon]="faTree" class="me-2" aria-hidden="true" />
             <span i18n>Tableau / Proof</span>
@@ -30,7 +21,7 @@
             <la-annotation-tableau />
         </ng-template>
     </li>
-    <li [ngbNavItem]="4">
+    <li [ngbNavItem]="3">
         <button ngbNavLink>
             <fa-icon [icon]="faPenNib" class="me-2" aria-hidden="true" />
             <span i18n>Comments / History</span>

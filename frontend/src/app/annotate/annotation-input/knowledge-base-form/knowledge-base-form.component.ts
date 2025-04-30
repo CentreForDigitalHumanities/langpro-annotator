@@ -5,14 +5,12 @@ import { ReactiveFormsModule } from "@angular/forms";
 import { FontAwesomeModule } from "@fortawesome/angular-fontawesome";
 import { faCheck, faPlus, faTrash } from "@fortawesome/free-solid-svg-icons";
 
-const KnowledgeBaseRelationships = [
-    "EQUAL",
-    "NOT_EQUAL",
-    "SUBSET",
-    "SUPERSET",
-] as const;
-
-type KnowledgeBaseRelationship = (typeof KnowledgeBaseRelationships)[number];
+enum KnowledgeBaseRelationship {
+    EQUAL = "EQUAL",
+    NOT_EQUAL = "NOT_EQUAL",
+    SUBSET = "SUBSET",
+    SUPERSET = "SUPERSET",
+}
 
 const relationshipDisplayMapping: Record<KnowledgeBaseRelationship, string> = {
     EQUAL: "is equal to",
@@ -43,7 +41,7 @@ export class KnowledgeBaseFormComponent {
                     nonNullable: true,
                 }),
                 relationship: new FormControl<KnowledgeBaseRelationship>(
-                    "EQUAL",
+                    KnowledgeBaseRelationship.EQUAL,
                     {
                         validators: [Validators.required],
                         nonNullable: true,
@@ -57,7 +55,7 @@ export class KnowledgeBaseFormComponent {
         ]),
     });
 
-    public relationshipTypes = KnowledgeBaseRelationships;
+    public relationshipTypes = Object.values(KnowledgeBaseRelationship);
 
     public faCheck = faCheck;
     public faPlus = faPlus;
@@ -72,7 +70,7 @@ export class KnowledgeBaseFormComponent {
             entity2: string;
         } = {
             entity1: "",
-            relationship: "EQUAL",
+            relationship: KnowledgeBaseRelationship.EQUAL,
             entity2: "",
         }
     ): void {

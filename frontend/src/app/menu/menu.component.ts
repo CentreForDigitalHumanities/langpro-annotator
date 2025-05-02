@@ -3,7 +3,7 @@ import {
     DestroyRef,
     LOCALE_ID,
     Inject,
-    OnInit
+    OnInit,
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { CommonModule } from "@angular/common";
@@ -12,9 +12,12 @@ import { FontAwesomeModule } from "@fortawesome/angular-fontawesome";
 import { faGlobe } from "@fortawesome/free-solid-svg-icons";
 import { DarkModeToggleComponent } from "../dark-mode-toggle/dark-mode-toggle.component";
 import { LanguageInfo, LanguageService } from "../services/language.service";
-import { NgbCollapseModule, NgbDropdownModule } from "@ng-bootstrap/ng-bootstrap";import { UserMenuComponent } from "./user-menu/user-menu.component";
-import { ToastContainerComponent } from "../toast-container/toast-container.component";
-
+import {
+    NgbCollapseModule,
+    NgbDropdownModule,
+} from "@ng-bootstrap/ng-bootstrap";
+import { UserMenuComponent } from "./user-menu/user-menu.component";
+import { AuthService } from "../services/auth.service";
 
 @Component({
     selector: "la-menu",
@@ -28,10 +31,9 @@ import { ToastContainerComponent } from "../toast-container/toast-container.comp
         DarkModeToggleComponent,
         NgbCollapseModule,
         RouterModule,
-        NgbDropdownModule,UserMenuComponent,
-        ToastContainerComponent,
-        
-    ]
+        NgbDropdownModule,
+        UserMenuComponent,
+    ],
 })
 export class MenuComponent implements OnInit {
     burgerActive = false;
@@ -45,10 +47,14 @@ export class MenuComponent implements OnInit {
      */
     languages?: LanguageInfo["supported"];
 
+    public loggedIn$ = this.authService.isAuthenticated$;
+
     constructor(
         @Inject(LOCALE_ID) private localeId: string,
         private destroyRef: DestroyRef,
-        private languageService: LanguageService) {
+        private languageService: LanguageService,
+        private authService: AuthService,
+    ) {
         this.currentLanguage = this.localeId;
     }
 

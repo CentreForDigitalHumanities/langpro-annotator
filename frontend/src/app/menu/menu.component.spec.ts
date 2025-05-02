@@ -1,11 +1,11 @@
-import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing';
-import { NoopAnimationsModule } from '@angular/platform-browser/animations';
-import { RouterTestingModule } from '@angular/router/testing';
-import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { waitForAsync, ComponentFixture, TestBed } from "@angular/core/testing";
+import { NoopAnimationsModule } from "@angular/platform-browser/animations";
+import { HttpClientTestingModule } from "@angular/common/http/testing";
 
-import { MenuComponent } from './menu.component';
+import { MenuComponent } from "./menu.component";
+import { provideRouter } from "@angular/router";
 
-describe('MenuComponent', () => {
+describe("MenuComponent", () => {
     let component: MenuComponent;
     let fixture: ComponentFixture<MenuComponent>;
 
@@ -14,8 +14,9 @@ describe('MenuComponent', () => {
             imports: [
                 MenuComponent,
                 NoopAnimationsModule,
-                RouterTestingModule,
-                HttpClientTestingModule]
+                HttpClientTestingModule,
+            ],
+            providers: [provideRouter([])]
         }).compileComponents();
     }));
 
@@ -25,7 +26,7 @@ describe('MenuComponent', () => {
         fixture.detectChanges();
     });
 
-    it('should create', () => {
+    it("should create", () => {
         expect(component).toBeTruthy();
     });
 });

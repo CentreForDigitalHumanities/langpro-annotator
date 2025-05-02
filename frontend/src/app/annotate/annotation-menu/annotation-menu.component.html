@@ -1,0 +1,35 @@
+<ul ngbNav #nav="ngbNav" [(activeId)]="active" class="nav-tabs flex-nowrap">
+    <li [ngbNavItem]="1">
+        <button ngbNavLink>
+            <fa-icon
+                [icon]="faSquarePollHorizontal"
+                class="me-2"
+                aria-hidden="true"
+            />
+            <span i18n>CCG / LLF</span>
+        </button>
+        <ng-template ngbNavContent>
+            <la-annotation-parse-results />
+        </ng-template>
+    </li>
+    <li [ngbNavItem]="2">
+        <button ngbNavLink>
+            <fa-icon [icon]="faTree" class="me-2" aria-hidden="true" />
+            <span i18n>Tableau / Proof</span>
+        </button>
+        <ng-template ngbNavContent>
+            <la-annotation-tableau />
+        </ng-template>
+    </li>
+    <li [ngbNavItem]="3">
+        <button ngbNavLink>
+            <fa-icon [icon]="faPenNib" class="me-2" aria-hidden="true" />
+            <span i18n>Comments / History</span>
+        </button>
+        <ng-template ngbNavContent>
+            <la-annotation-comments />
+        </ng-template>
+    </li>
+</ul>
+
+<div [ngbNavOutlet]="nav" class="mt-2"></div>

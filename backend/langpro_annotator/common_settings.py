@@ -16,9 +16,8 @@ INSTALLED_APPS = [
     # cf. https://github.com/iMerica/dj-rest-auth/pull/110.
     'allauth.socialaccount',
     'user',
-
     'revproxy',
-    'example'
+    'problem',
 ]
 
 MIDDLEWARE = [

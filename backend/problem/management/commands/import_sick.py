@@ -20,7 +20,7 @@ class Command(BaseCommand):
         sick_path = options["sick_path"]
         self.import_sick_problems(sick_path)
 
-    def import_sick_problems(self, sick_path: str = "./SICK.txt") -> None:
+    def import_sick_problems(self, sick_path: str) -> None:
         """
         Import SICK problems from SICK.txt (a TSV file) and enter them into the database.
         """

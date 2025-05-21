@@ -1,0 +1,27 @@
+<svg:g>
+    @for (node of tree.nodes; track tree.nodes; let i = $index) {
+        <svg:g attr.transform="translate(0, {{ nodeY(i) }})">
+            <svg:g term [idx]="node.idx" [term]="node.term" [label]="node.label" (onSize)="updateDimensions($event)" [rule]="node.rule"></svg:g>
+            @if (i < tree.nodes.length - 1) {
+                <svg:path attr.d="M 0 {{ nodeHeight(node) - 15 }} l 0 15" stroke="blue" fill="none"/>
+            }
+        </svg:g>
+    }
+
+    @if (tree.subtrees) {
+        @for (subtree of tree.subtrees; track tree.subtrees; let i = $index) {
+            <svg:path attr.d="
+                M 0 {{ totalNodeHeight() - 15 }}
+                q 0 {{levelHeight/2}} {{subtreePosition(i)/2 }} {{levelHeight/2}}
+                q {{subtreePosition(i)/2}} 0 {{subtreePosition(i)/2}} {{levelHeight/2}}
+            " stroke="blue" fill="none"/>
+        }
+    }
+
+    <svg:g attr.transform="translate(0, {{ totalNodeHeight() + levelHeight }})">
+        @for (subtree of tree.subtrees; track tree.subtrees; let i = $index) {
+            <svg:g tableau-tree [tree]="subtree" attr.transform="translate({{subtreePosition(i)}}, 0)"
+            (onSize)="updateSubDimensions($event)"></svg:g>
+        }
+    </svg:g>
+</svg:g>

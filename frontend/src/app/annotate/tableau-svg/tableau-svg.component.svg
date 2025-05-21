@@ -1,0 +1,3 @@
+<svg style="width: 100%; min-height: {{treeDimensions.height! + 10}}px;">
+  <g tableau-tree [tree]="tree" attr.transform="translate({{treeDimensions.width!/2}}, 10)" (onSize)="onTreeSize($event)"></g>
+</svg>

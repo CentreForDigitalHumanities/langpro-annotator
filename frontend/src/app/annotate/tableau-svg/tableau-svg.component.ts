@@ -1,4 +1,6 @@
-import { Component, ElementRef, Input, Output, ViewChild, EventEmitter } from "@angular/core";
+import { Component, ElementRef, Input, Output, ViewChild, EventEmitter, ChangeDetectorRef} from '@angular/core';
+import { CommonModule } from "@angular/common";
+import { BehaviorSubject, Subject } from "rxjs";
 
 interface Dimensions {
     width?: number;
@@ -28,7 +30,7 @@ export class TableauTerm {
     idxText?: ElementRef<SVGTextElement>;
 
     @ViewChild('termText')
-    termText!: ElementRef<SVGTextElement>;
+    termText?: ElementRef<SVGTextElement>;
 
     @ViewChild('labelText')
     labelText?: ElementRef<SVGTextElement>;
@@ -47,8 +49,8 @@ export class TableauTerm {
         this.idxW = this.idxText ? this.idxText.nativeElement.getComputedTextLength() + this.padding : 0;
         this.labelW = this.labelText ? this.labelText.nativeElement.getComputedTextLength() + this.padding : 0;
         this.termX = this.idxW;
-        this.labelX = this.termX + this.termText.nativeElement.getComputedTextLength() + this.padding;
-        this.totalW = this.labelW + this.idxW + this.termText.nativeElement.getComputedTextLength();
+        this.labelX = this.termText ? this.termX + this.termText.nativeElement.getComputedTextLength() + this.padding : 0;
+        this.totalW = this.termText ? this.labelW + this.idxW + this.termText.nativeElement.getComputedTextLength() : 0;
 
         this.onSize.emit({width: this.totalW});
     }
@@ -113,16 +115,24 @@ export class TableauTree {
 @Component({
     selector: "la-tableau-svg",
     standalone: true,
-    imports: [TableauTree],
+    imports: [CommonModule, TableauTree],
     templateUrl: "./tableau-svg.component.svg",
     styleUrl: "./tableau-svg.component.scss",
 })
 export class TableauSVG {
 
-    treeDimensions: Dimensions = {width: 0, height: 0};
+    treeDimensions$: Subject<Dimensions> = new Subject();
+    treeDimensions: Dimensions = {width:0, height: 0};
+
+    constructor(private cdref: ChangeDetectorRef) {}
 
     onTreeSize(size: Dimensions) {
         this.treeDimensions = size;
+    }
+
+    ngAfterViewChecked() {
+        this.treeDimensions$.next(this.treeDimensions);
+        this.cdref.detectChanges();
     }
 
     tree: any = {

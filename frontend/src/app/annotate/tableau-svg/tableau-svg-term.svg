@@ -1,6 +1,6 @@
 <svg:g attr.transform="translate({{-totalW/2}}, 0)">
 <svg:rect [attr.x]="-padding/2" y="0" [attr.width]="idxW" [attr.height]="padding * 2" fill="none" stroke="red"></svg:rect>
-@if(idx) { <svg:text #idxText [attr.x]="0" y="10" dominant-baseline="middle">{{ idx }}</svg:text> }
+@if(idx) { <svg:text #idxText x="0" y="10" dominant-baseline="middle">{{ idx }}</svg:text> }
 <svg:text #termText [attr.x]="termX" y="10" dominant-baseline="middle">{{ term }}</svg:text>
 @if(label) { <svg:text #labelText [attr.x]="labelX" y="10" dominant-baseline="middle">{{ label }}</svg:text> }
 

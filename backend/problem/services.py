@@ -1,4 +1,5 @@
 import json
+from typing import Tuple
 from langpro_annotator.logger import logger
 from problem.models import Problem
 from problem.types import CombinedProblem, FracasProblem, SickProblem
@@ -18,9 +19,7 @@ def instance_to_sick_problem(instance: Problem) -> SickProblem | None:
             relatedness_score=float(content["relatedness_score"]),
         )
     except json.JSONDecodeError as e:
-        logger.warning(
-            f"Could not decode JSON for Problem ID {instance.id}: {e}"
-        )
+        logger.warning(f"Could not decode JSON for Problem ID {instance.id}: {e}")
         return None
     except (KeyError, TypeError) as e:
         logger.warning(
@@ -48,9 +47,7 @@ def instance_to_fracas_problem(instance: Problem) -> FracasProblem | None:
             premises=instance.content.get("premises", []),
         )
     except json.JSONDecodeError as e:
-        logger.warning(
-            f"Could not decode JSON for Problem ID {instance.id}: {e}"
-        )
+        logger.warning(f"Could not decode JSON for Problem ID {instance.id}: {e}")
         return None
     except (KeyError, TypeError) as e:
         logger.warning(
@@ -84,15 +81,12 @@ def get_fracas_problems() -> list[FracasProblem]:
         if (converted := instance_to_fracas_problem(problem)) is not None
     ]
 
-def get_problem_by_id(problem_id: int) -> CombinedProblem | None:
-    """
-    Retrieves a Problem object by its ID from the database.
-    """
-    try:
-        problem = Problem.objects.get(id=problem_id)
-    except Problem.DoesNotExist:
-        return None
 
+def convert_to_subtype(problem: Problem) -> CombinedProblem | None:
+    """
+    Converts a Django Problem model instance to a specific subtype (dataclass)
+    based on its type.
+    """
     if problem.type == Problem.ProblemType.SICK:
         return instance_to_sick_problem(problem)
     elif problem.type == Problem.ProblemType.FRACAS:
@@ -101,3 +95,23 @@ def get_problem_by_id(problem_id: int) -> CombinedProblem | None:
         return None
 
 
+def get_related_problem_ids(problem_id: int) -> Tuple[int, int, int]:
+    """
+    Retrieves the IDs of the next, previous, and random Problem objects
+    in the database relative to the given problem ID.
+    """
+    try:
+        problem = Problem.objects.get(id=problem_id)
+    except Problem.DoesNotExist:
+        logger.warning(f"Problem ID {problem_id} does not exist.")
+        return None, None, None
+
+    next_problem = Problem.objects.filter(id__gt=problem.id).order_by("id").first()
+    previous_problem = Problem.objects.filter(id__lt=problem.id).order_by("-id").first()
+    random_problem = Problem.objects.exclude(id=problem.id).order_by("?").first()
+
+    return (
+        next_problem.id if next_problem else None,
+        previous_problem.id if previous_problem else None,
+        random_problem.id if random_problem else None,
+    )

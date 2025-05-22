@@ -1,9 +1,10 @@
 <div class="navigator-container">
+    @if (problem$ | async; as problem) {
     <div class="d-flex justify-content-center align-items-center gap-2 mb-3">
         <button
             class="btn btn-outline-primary"
-            (click)="goToFirst()"
-            [disabled]="isFirstProblem"
+            (click)="problem.previous && navigateToProblem(problem.previous)"
+            [disabled]="problem.previous === null"
             ngbTooltip="First Problem"
             i18n-ngbTooltip
         >
@@ -12,8 +13,8 @@
         </button>
         <button
             class="btn btn-outline-primary"
-            (click)="goToPrevious()"
-            [disabled]="isFirstProblem"
+            (click)="problem.previous && navigateToProblem(problem.previous)"
+            [disabled]="problem.previous === null"
             ngbTooltip="Previous Problem"
             i18n-ngbTooltip
         >
@@ -22,16 +23,16 @@
         </button>
 
         <div class="problem-info d-flex flex-column align-items-center px-3">
-            <span>{{ currentProblemIndex }} of {{ totalProblems }}</span>
+            <span>{{ problem.problemId }} of {{ 99999 }}</span>
             <span class="badge bg-secondary mt-1" i18n>
-                ID: {{ currentProblemId }}
+                ID: {{ problem.problemId }}
             </span>
         </div>
 
         <button
             class="btn btn-outline-primary"
-            (click)="goToNext()"
-            [disabled]="isLastProblem"
+            (click)="problem.next && navigateToProblem(problem.next)"
+            [disabled]="problem.next === null"
             ngbTooltip="Next Problem"
             i18n-ngbTooltip
         >
@@ -40,8 +41,8 @@
         </button>
         <button
             class="btn btn-outline-primary"
-            (click)="goToLast()"
-            [disabled]="isLastProblem"
+            (click)="problem.next && navigateToProblem(problem.next)"
+            [disabled]="problem.next === null"
             ngbTooltip="Last Problem"
             i18n-ngbTooltip
         >
@@ -50,7 +51,7 @@
         </button>
         <button
             class="btn btn-outline-secondary"
-            (click)="goToRandom()"
+            (click)="problem.random && navigateToProblem(problem.random)"
             ngbTooltip="Random Problem"
             i18n-ngbTooltip
         >
@@ -58,4 +59,5 @@
             <fa-icon [icon]="faShuffle" class="ms-2"></fa-icon>
         </button>
     </div>
+    }
 </div>

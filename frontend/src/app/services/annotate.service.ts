@@ -1,5 +1,19 @@
 import { Injectable } from "@angular/core";
-import { Observable, of } from "rxjs";
+import {
+    catchError,
+    map,
+    merge,
+    Observable,
+    of,
+    ReplaySubject,
+    share,
+    Subject,
+    switchMap,
+    tap,
+} from "rxjs";
+import { HttpClient } from "@angular/common/http";
+import { ProblemResponse, ProofBankStats } from "../types";
+import { ActivatedRoute } from "@angular/router";
 
 interface Premises {
     premises: string[];
@@ -10,14 +24,42 @@ interface Premises {
     providedIn: "root",
 })
 export class AnnotateService {
-    public currentProblemId: string = "problem1";
+    // Global database state
+    public firstProblemId: string | null = null;
+    public lastProblemId: string | null = null;
     public totalProblems: number = 1000;
-    public currentProblemIndex: number = 0;
 
-    constructor() {}
+    public problemId$ = new ReplaySubject<string>();
+
+    public problem$ = this.problemId$.pipe(
+        switchMap((id) => {
+            if (!id) {
+                console.log("No problem ID provided");
+                return of(null);
+            }
+            return this.http.get<ProblemResponse>(`/api/problem/${id}`).pipe(
+                catchError(() => {
+                    console.log("Error fetching problem");
+                    return of(null);
+                })
+            );
+        }),
+        share()
+    );
+
+    public proofBankStats$: Observable<ProofBankStats | null> = this.http
+        .get<ProofBankStats>("/api/proofbank-stats")
+        .pipe(
+            catchError(() => {
+                console.log("Error fetching proof bank stats");
+                return of(null);
+            })
+        );
+
+    constructor(private http: HttpClient) {}
 
     public navigateToProblem(id: string): void {
-        console.log("Navigating to problem!", id);
+        this.problemId$.next(id);
     }
 
     public getPremises(): Observable<Premises> {

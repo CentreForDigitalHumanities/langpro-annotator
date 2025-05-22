@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from "@angular/core";
+import { Component } from "@angular/core";
 import { AnnotateService } from "../../services/annotate.service";
 import { FontAwesomeModule } from "@fortawesome/angular-fontawesome";
 import {
@@ -8,21 +8,26 @@ import {
     faAnglesRight,
     faShuffle,
 } from "@fortawesome/free-solid-svg-icons";
+import { map } from "rxjs";
+import { CommonModule } from "@angular/common";
+import { ActivatedRoute } from "@angular/router";
 
 @Component({
     selector: "la-navigator",
     standalone: true,
-    imports: [FontAwesomeModule],
+    imports: [FontAwesomeModule, CommonModule],
     templateUrl: "./navigator.component.html",
     styleUrl: "./navigator.component.scss",
 })
 export class NavigatorComponent {
-    public isFirstProblem = false;
-    public isLastProblem = false;
+    private problemId$ = this.route.params.pipe(
+        map((params) => params["problemId"])
+    );
 
-    public currentProblemId = this.annotateService.currentProblemId;
-    public totalProblems = this.annotateService.totalProblems;
-    public currentProblemIndex = this.annotateService.currentProblemIndex;
+    public problem$ = this.annotateService.problem$;
+
+    // TODO
+    public proofBankStats$ = this.annotateService.proofBankStats$;
 
     public faAnglesLeft = faAnglesLeft;
     public faAnglesRight = faAnglesRight;
@@ -30,25 +35,18 @@ export class NavigatorComponent {
     public faAngleRight = faAngleRight;
     public faShuffle = faShuffle;
 
-    constructor(private annotateService: AnnotateService) {}
+    constructor(
+        private route: ActivatedRoute,
+        private annotateService: AnnotateService
+    ) {}
 
-    public goToFirst(): void {
-        console.log("Going to first problem!");
+    ngOnInit(): void {
+        this.problemId$.subscribe((problemId) => {
+            this.annotateService.navigateToProblem(problemId);
+        });
     }
 
-    public goToLast(): void {
-        console.log("Going to last problem!");
-    }
-
-    public goToNext(): void {
-        console.log("Going to next problem!");
-    }
-
-    public goToPrevious(): void {
-        console.log("Going to previous problem!");
-    }
-
-    public goToRandom(): void {
-        console.log("Going to random problem!");
+    public navigateToProblem(id: string): void {
+        this.annotateService.navigateToProblem(id);
     }
 }

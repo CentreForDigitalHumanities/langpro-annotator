@@ -11,4 +11,4 @@ class Problem(models.Model):
         choices=ProblemType.choices,
     )
 
-    content = models.TextField()
+    content = models.JSONField()

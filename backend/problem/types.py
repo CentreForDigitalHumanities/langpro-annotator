@@ -24,6 +24,4 @@ class FracasProblem:
     subsection_name: str
     premises: list[str] = field(default_factory=list)
 
-
-
-
+type CombinedProblem = SickProblem | FracasProblem

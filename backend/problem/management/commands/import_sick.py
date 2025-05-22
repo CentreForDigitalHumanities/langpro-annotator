@@ -1,8 +1,12 @@
 import csv
+import json
 
 from django.core.management.base import BaseCommand
-from problem.utils import progress
-from problem.models import SickProblem
+from tqdm import tqdm
+
+from langpro_annotator.logger import logger
+from problem.models import Problem
+from problem.services import get_sick_problems
 
 
 class Command(BaseCommand):
@@ -25,30 +29,27 @@ class Command(BaseCommand):
         Import SICK problems from SICK.txt (a TSV file) and enter them into the database.
         """
 
-        print("Importing SICK problems...")
-
         skipped = 0
+        created = 0
+
+        existing_sick_problems = get_sick_problems()
+        existing_pair_ids = {p.pair_id for p in existing_sick_problems}
 
         with open(sick_path, "r", encoding="utf-8") as file:
             reader = csv.DictReader(file, delimiter="\t")
             problem_list = list(reader)
 
-            total = len(problem_list)
-            n = 1
-
-            for row in problem_list:
-                progress(n, total)
-                n += 1
-                if SickProblem.objects.filter(pair_id=row["pair_ID"]).exists():
+            for problem in tqdm(problem_list, desc="Importing SICK problems"):
+                if problem["pair_ID"] in existing_pair_ids:
                     skipped += 1
                     continue
 
-                SickProblem.objects.create(
-                    pair_id=row["pair_ID"],
-                    sentence_one=row["sentence_A"],
-                    sentence_two=row["sentence_B"],
-                    entailment_label=row["entailment_label"],
-                    relatedness_score=row["relatedness_score"],
+                created += 1
+                Problem.objects.create(
+                    type=Problem.ProblemType.SICK,
+                    content=json.dumps(problem),
                 )
 
-            print(f"SICK problems import complete! Total: {total} | Skipped: {skipped}")
+            logger.info(
+                f"SICK problems import complete! Created: {created} | Skipped: {skipped}"
+            )

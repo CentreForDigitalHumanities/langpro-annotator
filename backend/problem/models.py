@@ -1,5 +1,5 @@
 from django.db import models
-from django.core.validators import MinValueValidator
+from django.core.validators import MinValueValidator, MaxValueValidator
 
 
 class SickProblem(models.Model):
@@ -23,7 +23,10 @@ class SickProblem(models.Model):
     relatedness_score = models.DecimalField(
         max_digits=4,
         decimal_places=3,
-        validators=[MinValueValidator(1), MinValueValidator(5)],
+        validators=[
+            MinValueValidator(1),
+            MaxValueValidator(5),
+        ],
     )
 
 

@@ -8,19 +8,46 @@ class Migration(migrations.Migration):
 
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='SickProblem',
+            name="SickProblem",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('pair_id', models.IntegerField(unique=True)),
-                ('sentence_one', models.CharField(max_length=255)),
-                ('sentence_two', models.CharField(max_length=255)),
-                ('entailment_label', models.CharField(choices=[('neutral', 'Neutral'), ('contradiction', 'Contradiction'), ('entailment', 'Entailment')], max_length=20)),
-                ('relatedness_score', models.DecimalField(decimal_places=3, max_digits=4, validators=[django.core.validators.MinValueValidator(1), django.core.validators.MinValueValidator(5)])),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("pair_id", models.IntegerField(unique=True)),
+                ("sentence_one", models.CharField(max_length=255)),
+                ("sentence_two", models.CharField(max_length=255)),
+                (
+                    "entailment_label",
+                    models.CharField(
+                        choices=[
+                            ("neutral", "Neutral"),
+                            ("contradiction", "Contradiction"),
+                            ("entailment", "Entailment"),
+                        ],
+                        max_length=20,
+                    ),
+                ),
+                (
+                    "relatedness_score",
+                    models.DecimalField(
+                        decimal_places=3,
+                        max_digits=4,
+                        validators=[
+                            django.core.validators.MinValueValidator(1),
+                            django.core.validators.MinValueValidator(5),
+                        ],
+                    ),
+                ),
             ],
         ),
     ]

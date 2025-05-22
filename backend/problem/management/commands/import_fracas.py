@@ -36,7 +36,10 @@ class Command(BaseCommand):
                 element.tag == "comment" and element.attrib.get("class") == "subsection"
             ):
                 current_subsection = element.text.strip()
-            elif element.tag == "comment" and element.attrib.get("class") == "subsubsection":
+            elif (
+                element.tag == "comment"
+                and element.attrib.get("class") == "subsubsection"
+            ):
                 current_subsubsection = element.text.strip()
             elif element.tag == "problem":
                 if current_section:

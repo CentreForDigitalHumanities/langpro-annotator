@@ -25,8 +25,6 @@ export class NavigatorComponent {
     );
 
     public problem$ = this.annotateService.problem$;
-
-    // TODO
     public proofBankStats$ = this.annotateService.proofBankStats$;
 
     public faAnglesLeft = faAnglesLeft;
@@ -46,7 +44,10 @@ export class NavigatorComponent {
         });
     }
 
-    public navigateToProblem(id: string): void {
+    public navigateToProblem(id: string | null | undefined): void {
+        if (!id) {
+            return;
+        }
         this.annotateService.navigateToProblem(id);
     }
 }

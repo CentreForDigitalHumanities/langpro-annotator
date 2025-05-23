@@ -1,10 +1,12 @@
+@let problem = problem$ | async;
+@let proofBankStats = proofBankStats$ | async;
+
 <div class="navigator-container">
-    @if (problem$ | async; as problem) {
     <div class="d-flex justify-content-center align-items-center gap-2 mb-3">
         <button
             class="btn btn-outline-primary"
-            (click)="problem.previous && navigateToProblem(problem.previous)"
-            [disabled]="problem.previous === null"
+            (click)="navigateToProblem(proofBankStats?.firstProblemId)"
+            [disabled]="problem?.problemId === proofBankStats?.firstProblemId"
             ngbTooltip="First Problem"
             i18n-ngbTooltip
         >
@@ -13,8 +15,8 @@
         </button>
         <button
             class="btn btn-outline-primary"
-            (click)="problem.previous && navigateToProblem(problem.previous)"
-            [disabled]="problem.previous === null"
+            (click)="navigateToProblem(problem?.previous)"
+            [disabled]="problem?.previous === null"
             ngbTooltip="Previous Problem"
             i18n-ngbTooltip
         >
@@ -23,16 +25,16 @@
         </button>
 
         <div class="problem-info d-flex flex-column align-items-center px-3">
-            <span>{{ problem.problemId }} of {{ 99999 }}</span>
+            <span>{{ problem?.problemId }} of {{ proofBankStats?.totalProblems }}</span>
             <span class="badge bg-secondary mt-1" i18n>
-                ID: {{ problem.problemId }}
+                ID: {{ problem?.problemId }}
             </span>
         </div>
 
         <button
             class="btn btn-outline-primary"
-            (click)="problem.next && navigateToProblem(problem.next)"
-            [disabled]="problem.next === null"
+            (click)="navigateToProblem(problem?.next)"
+            [disabled]="problem?.next === null"
             ngbTooltip="Next Problem"
             i18n-ngbTooltip
         >
@@ -41,8 +43,8 @@
         </button>
         <button
             class="btn btn-outline-primary"
-            (click)="problem.next && navigateToProblem(problem.next)"
-            [disabled]="problem.next === null"
+            (click)="navigateToProblem(proofBankStats?.lastProblemId)"
+            [disabled]="problem?.problemId === proofBankStats?.lastProblemId"
             ngbTooltip="Last Problem"
             i18n-ngbTooltip
         >
@@ -51,7 +53,7 @@
         </button>
         <button
             class="btn btn-outline-secondary"
-            (click)="problem.random && navigateToProblem(problem.random)"
+            (click)="navigateToProblem(problem?.random)"
             ngbTooltip="Random Problem"
             i18n-ngbTooltip
         >
@@ -59,5 +61,4 @@
             <fa-icon [icon]="faShuffle" class="ms-2"></fa-icon>
         </button>
     </div>
-    }
 </div>

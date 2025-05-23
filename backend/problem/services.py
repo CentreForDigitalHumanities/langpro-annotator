@@ -35,16 +35,16 @@ def instance_to_fracas_problem(instance: Problem) -> FracasProblem | None:
     try:
         content = json.loads(instance.content)
         return FracasProblem(
-            fracas_id=instance.content["fracas_id"],
-            question=instance.content["question"],
-            hypothesis=instance.content["hypothesis"],
-            answer=instance.content["answer"],
-            fracas_answer=instance.content["fracas_answer"],
-            fracas_non_standard=instance.content["fracas_non_standard"],
-            note=instance.content["note"],
-            section_name=instance.content["section_name"],
-            subsection_name=instance.content["subsection_name"],
-            premises=instance.content.get("premises", []),
+            fracas_id=content["fracas_id"],
+            question=content["question"],
+            hypothesis=content["hypothesis"],
+            answer=content["answer"],
+            fracas_answer=content["fracas_answer"],
+            fracas_non_standard=content["fracas_non_standard"],
+            note=content["note"],
+            section_name=content["section_name"],
+            subsection_name=content["subsection_name"],
+            premises=content.get("premises", []),
         )
     except json.JSONDecodeError as e:
         logger.warning(f"Could not decode JSON for Problem ID {instance.id}: {e}")

@@ -12,8 +12,8 @@ import { DarkModeService } from './services/dark-mode.service';import { ToastCon
     imports: [
         RouterOutlet,
         MenuComponent,
-        FooterComponent,ToastContainerComponent
-        
+        FooterComponent,
+        ToastContainerComponent
     ],
     templateUrl: './app.component.html',
     styleUrl: './app.component.scss'
@@ -21,7 +21,10 @@ import { DarkModeService } from './services/dark-mode.service';import { ToastCon
 export class AppComponent {
     title = 'LangPro Annotator';
 
-    constructor(@Inject(DOCUMENT) private document: Document, private darkModeService: DarkModeService) {
+    constructor(
+        @Inject(DOCUMENT) private document: Document,
+        private darkModeService: DarkModeService
+    ) {
         // Using the DOM API to only render on the browser instead of on the server
         afterRender(() => {
             const style = this.document.createElement('link');
@@ -34,5 +37,4 @@ export class AppComponent {
             });
         });
     }
-
 }

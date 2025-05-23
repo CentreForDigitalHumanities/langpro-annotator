@@ -48,7 +48,7 @@ export class AnnotateService {
     );
 
     public proofBankStats$: Observable<ProofBankStats | null> = this.http
-        .get<ProofBankStats>("/api/proofbank-stats")
+        .get<ProofBankStats>("/api/problem/proofbank-stats")
         .pipe(
             catchError(() => {
                 console.log("Error fetching proof bank stats");

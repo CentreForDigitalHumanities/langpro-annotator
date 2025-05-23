@@ -1,12 +1,16 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { RegisterComponent } from "./register.component";
 import {
-    HttpClientTestingModule,
     HttpTestingController,
+    provideHttpClientTesting,
 } from "@angular/common/http/testing";
 import { Router } from "@angular/router";
 import { ToastService } from "../../services/toast.service";
 import { toSignal } from "@angular/core/rxjs-interop";
+import {
+    provideHttpClient,
+    withInterceptorsFromDi,
+} from "@angular/common/http";
 
 describe("RegisterComponent", () => {
     let component: RegisterComponent;
@@ -17,7 +21,10 @@ describe("RegisterComponent", () => {
 
     beforeEach(() => {
         TestBed.configureTestingModule({
-            imports: [HttpClientTestingModule],
+            providers: [
+                provideHttpClient(withInterceptorsFromDi()),
+                provideHttpClientTesting(),
+            ],
         });
         httpTestingController = TestBed.inject(HttpTestingController);
         toastService = TestBed.inject(ToastService);

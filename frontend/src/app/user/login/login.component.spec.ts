@@ -4,11 +4,15 @@ import { LoginComponent } from "./login.component";
 import { AuthService } from "../../services/auth.service";
 import { provideRouter, Router } from "@angular/router";
 import {
-    HttpClientTestingModule,
     HttpTestingController,
+    provideHttpClientTesting,
 } from "@angular/common/http/testing";
 import { ToastService } from "../../services/toast.service";
 import { toSignal } from "@angular/core/rxjs-interop";
+import {
+    provideHttpClient,
+    withInterceptorsFromDi,
+} from "@angular/common/http";
 
 describe("LoginComponent", () => {
     let component: LoginComponent;
@@ -19,8 +23,13 @@ describe("LoginComponent", () => {
 
     beforeEach(() => {
         TestBed.configureTestingModule({
-            imports: [HttpClientTestingModule],
-            providers: [ToastService, AuthService, provideRouter([])],
+            providers: [
+                ToastService,
+                AuthService,
+                provideRouter([]),
+                provideHttpClient(withInterceptorsFromDi()),
+                provideHttpClientTesting(),
+            ],
         });
         httpTestingController = TestBed.inject(HttpTestingController);
         toastService = TestBed.inject(ToastService);

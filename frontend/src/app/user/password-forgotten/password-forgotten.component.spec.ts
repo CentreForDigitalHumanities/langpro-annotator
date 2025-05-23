@@ -2,11 +2,15 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 
 import { PasswordForgottenComponent } from "./password-forgotten.component";
 import {
-    HttpClientTestingModule,
     HttpTestingController,
+    provideHttpClientTesting,
 } from "@angular/common/http/testing";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { ToastService } from "../../services/toast.service";
+import {
+    provideHttpClient,
+    withInterceptorsFromDi,
+} from "@angular/common/http";
 
 describe("PasswordForgottenComponent", () => {
     let component: PasswordForgottenComponent;
@@ -16,7 +20,10 @@ describe("PasswordForgottenComponent", () => {
 
     beforeEach(() => {
         TestBed.configureTestingModule({
-            imports: [HttpClientTestingModule],
+            providers: [
+                provideHttpClient(withInterceptorsFromDi()),
+                provideHttpClientTesting(),
+            ],
         });
         fixture = TestBed.createComponent(PasswordForgottenComponent);
         httpTestingController = TestBed.inject(HttpTestingController);

@@ -4,7 +4,10 @@ import { provideHttpClientTesting } from "@angular/common/http/testing";
 
 import { MenuComponent } from "./menu.component";
 import { provideRouter } from "@angular/router";
-import { provideHttpClient, withInterceptorsFromDi } from "@angular/common/http";
+import {
+    provideHttpClient,
+    withInterceptorsFromDi,
+} from "@angular/common/http";
 
 describe("MenuComponent", () => {
     let component: MenuComponent;
@@ -12,10 +15,13 @@ describe("MenuComponent", () => {
 
     beforeEach(waitForAsync(() => {
         TestBed.configureTestingModule({
-    imports: [MenuComponent,
-        NoopAnimationsModule],
-    providers: [provideRouter([]), provideHttpClient(withInterceptorsFromDi()), provideHttpClientTesting()]
-}).compileComponents();
+            imports: [MenuComponent, NoopAnimationsModule],
+            providers: [
+                provideRouter([]),
+                provideHttpClient(withInterceptorsFromDi()),
+                provideHttpClientTesting(),
+            ],
+        }).compileComponents();
     }));
 
     beforeEach(() => {

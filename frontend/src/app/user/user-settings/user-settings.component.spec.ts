@@ -39,7 +39,6 @@ describe("UserSettingsComponent", () => {
 
     beforeEach(() => {
         TestBed.configureTestingModule({
-            imports: [],
             providers: [
                 {
                     provide: AuthService,

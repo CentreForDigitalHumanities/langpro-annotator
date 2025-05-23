@@ -21,7 +21,6 @@ describe("ResetPasswordComponent", () => {
 
     beforeEach(() => {
         TestBed.configureTestingModule({
-            imports: [],
             providers: [
                 provideRouter([]),
                 provideHttpClient(withInterceptorsFromDi()),

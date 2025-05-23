@@ -3,15 +3,22 @@ import { TestBed } from "@angular/core/testing";
 
 import { AuthService } from "./auth.service";
 import { SessionService } from "./session.service";
-import { provideHttpClient, withInterceptorsFromDi } from "@angular/common/http";
+import {
+    provideHttpClient,
+    withInterceptorsFromDi,
+} from "@angular/common/http";
 
 describe("AuthService", () => {
     let service: AuthService;
 
     beforeEach(() => {
         TestBed.configureTestingModule({
-    providers: [SessionService, provideHttpClient(withInterceptorsFromDi()), provideHttpClientTesting()]
-});
+            providers: [
+                SessionService,
+                provideHttpClient(withInterceptorsFromDi()),
+                provideHttpClientTesting(),
+            ],
+        });
         service = TestBed.inject(AuthService);
     });
 

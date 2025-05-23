@@ -23,7 +23,6 @@ describe("LoginComponent", () => {
 
     beforeEach(() => {
         TestBed.configureTestingModule({
-            imports: [],
             providers: [
                 ToastService,
                 AuthService,

@@ -23,7 +23,6 @@ describe("VerifyEmailComponent", () => {
 
     beforeEach(() => {
         TestBed.configureTestingModule({
-            imports: [],
             providers: [
                 AuthService,
                 provideRouter([]),

@@ -1,6 +1,8 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 
 import { AnnotationInputComponent } from "./annotation-input.component";
+import { provideHttpClientTesting } from "@angular/common/http/testing";
+import { provideHttpClient } from "@angular/common/http";
 
 describe("AnnotationInputComponent", () => {
     let component: AnnotationInputComponent;
@@ -9,6 +11,7 @@ describe("AnnotationInputComponent", () => {
     beforeEach(async () => {
         await TestBed.configureTestingModule({
             imports: [AnnotationInputComponent],
+            providers: [provideHttpClient(), provideHttpClientTesting()],
         }).compileComponents();
 
         fixture = TestBed.createComponent(AnnotationInputComponent);

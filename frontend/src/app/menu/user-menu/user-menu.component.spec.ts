@@ -2,12 +2,10 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { UserMenuComponent } from "./user-menu.component";
 import { AuthService } from "../../services/auth.service";
-import {
-    HttpClientTestingModule,
-    HttpTestingController,
-} from "@angular/common/http/testing";
+import { HttpTestingController, provideHttpClientTesting } from "@angular/common/http/testing";
 import { UserResponse } from "../../user/models/user";
 import { provideRouter } from "@angular/router";
+import { provideHttpClient, withInterceptorsFromDi } from "@angular/common/http";
 
 const fakeUserResponse: UserResponse = {
     id: 1,
@@ -40,9 +38,9 @@ describe("UserMenuComponent", () => {
 
     beforeEach(() => {
         TestBed.configureTestingModule({
-            imports: [HttpClientTestingModule],
-            providers: [AuthService, provideRouter([])],
-        });
+    imports: [],
+    providers: [AuthService, provideRouter([]), provideHttpClient(withInterceptorsFromDi()), provideHttpClientTesting()]
+});
         httpTestingController = TestBed.inject(HttpTestingController);
         fixture = TestBed.createComponent(UserMenuComponent);
         component = fixture.componentInstance;

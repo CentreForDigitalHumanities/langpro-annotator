@@ -3,11 +3,15 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { ResetPasswordComponent } from "./reset-password.component";
 import { ToastService } from "../../services/toast.service";
 import {
-    HttpClientTestingModule,
     HttpTestingController,
+    provideHttpClientTesting,
 } from "@angular/common/http/testing";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { provideRouter } from "@angular/router";
+import {
+    provideHttpClient,
+    withInterceptorsFromDi,
+} from "@angular/common/http";
 
 describe("ResetPasswordComponent", () => {
     let component: ResetPasswordComponent;
@@ -17,8 +21,12 @@ describe("ResetPasswordComponent", () => {
 
     beforeEach(() => {
         TestBed.configureTestingModule({
-            imports: [HttpClientTestingModule],
-            providers: [provideRouter([])],
+            imports: [],
+            providers: [
+                provideRouter([]),
+                provideHttpClient(withInterceptorsFromDi()),
+                provideHttpClientTesting(),
+            ],
         });
         toastService = TestBed.inject(ToastService);
         httpTestingController = TestBed.inject(HttpTestingController);

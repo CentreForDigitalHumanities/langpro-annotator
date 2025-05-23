@@ -4,13 +4,17 @@ import { UserSettingsComponent } from "./user-settings.component";
 import { ToastService } from "../../services/toast.service";
 import { AuthService } from "../../services/auth.service";
 import {
-    HttpClientTestingModule,
     HttpTestingController,
+    provideHttpClientTesting,
 } from "@angular/common/http/testing";
 import { User } from "../models/user";
 import { Observable, of } from "rxjs";
 import { Injectable } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
+import {
+    provideHttpClient,
+    withInterceptorsFromDi,
+} from "@angular/common/http";
 
 const fakeUser: User = {
     id: 1,
@@ -35,12 +39,14 @@ describe("UserSettingsComponent", () => {
 
     beforeEach(() => {
         TestBed.configureTestingModule({
-            imports: [HttpClientTestingModule],
+            imports: [],
             providers: [
                 {
                     provide: AuthService,
                     useClass: AuthServiceMock,
                 },
+                provideHttpClient(withInterceptorsFromDi()),
+                provideHttpClientTesting(),
             ],
         });
         toastService = TestBed.inject(ToastService);

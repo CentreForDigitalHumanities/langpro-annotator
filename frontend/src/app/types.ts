@@ -20,7 +20,7 @@ export interface FracasProblem {
 }
 
 interface ProblemResponseBase {
-    problemId: string;
+    id: string;
     error: string | null;
     next: string | null;
     previous: string | null;

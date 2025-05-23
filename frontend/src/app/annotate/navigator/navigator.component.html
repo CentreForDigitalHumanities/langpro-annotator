@@ -1,12 +1,11 @@
-@let problem = problem$ | async;
-@let proofBankStats = proofBankStats$ | async;
+@let problem = problem$ | async; @let proofBankStats = proofBankStats$ | async;
 
 <div class="navigator-container">
     <div class="d-flex justify-content-center align-items-center gap-2 mb-3">
         <button
             class="btn btn-outline-primary"
             (click)="navigateToProblem(proofBankStats?.firstProblemId)"
-            [disabled]="problem?.problemId === proofBankStats?.firstProblemId"
+            [disabled]="problem?.id === proofBankStats?.firstProblemId"
             ngbTooltip="First Problem"
             i18n-ngbTooltip
         >
@@ -25,9 +24,12 @@
         </button>
 
         <div class="problem-info d-flex flex-column align-items-center px-3">
-            <span>{{ problem?.problemId }} of {{ proofBankStats?.totalProblems }}</span>
+            <span
+                >{{ problem?.id }} of
+                {{ proofBankStats?.totalProblems }}</span
+            >
             <span class="badge bg-secondary mt-1" i18n>
-                ID: {{ problem?.problemId }}
+                {{ problem && getProblemLabel(problem) }}
             </span>
         </div>
 
@@ -44,7 +46,7 @@
         <button
             class="btn btn-outline-primary"
             (click)="navigateToProblem(proofBankStats?.lastProblemId)"
-            [disabled]="problem?.problemId === proofBankStats?.lastProblemId"
+            [disabled]="problem?.id === proofBankStats?.lastProblemId"
             ngbTooltip="Last Problem"
             i18n-ngbTooltip
         >

@@ -11,6 +11,7 @@ import {
 import { map } from "rxjs";
 import { CommonModule } from "@angular/common";
 import { ActivatedRoute } from "@angular/router";
+import { FracasProblem, ProblemResponse, SickProblem } from "../../types";
 
 @Component({
     selector: "la-navigator",
@@ -49,5 +50,16 @@ export class NavigatorComponent {
             return;
         }
         this.annotateService.navigateToProblem(id);
+    }
+
+    public getProblemLabel(problem: ProblemResponse): string {
+        const type = problem.type;
+        let id: string | null = null;
+        if (type === 'sick') {
+            id = problem.problem?.pairId?.toString() ?? null;
+        } else if (type === 'fracas') {
+            id = problem.problem?.fracasId?.toString() ?? null;
+        }
+        return id ? `${type}-${id}` : type;
     }
 }

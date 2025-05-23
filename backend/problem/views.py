@@ -13,9 +13,9 @@ from problem.services import (
 
 @dataclass
 class ProblemResponse:
+    id: int | None = None
+    type: Literal["sick", "fracas"] | None = None
     problem: CombinedProblem | None = None
-    problem_id: int | None = None
-    problem_type: Literal["sick", "fracas"] | None = None
     error: str | None = None
     next: str | None = None
     previous: str | None = None
@@ -24,9 +24,9 @@ class ProblemResponse:
     def json_response(self, status=200) -> JsonResponse:
         return JsonResponse(
             {
+                "id": self.id,
+                "type": self.type,
                 "problem": self.problem.serialize() if self.problem else None,
-                "problemId": self.problem_id,
-                "problemType": self.problem_type,
                 "error": self.error,
                 "next": self.next,
                 "previous": self.previous,
@@ -74,9 +74,9 @@ class ProblemView(APIView):
         )
 
         return ProblemResponse(
+            id=problem.id,
+            type=problem.type,
             problem=converted_problem,
-            problem_id=problem.id,
-            problem_type=problem.type,
             next=next_problem_id,
             previous=previous_problem_id,
             random=random_problem_id,

@@ -1,24 +1,15 @@
 import { Injectable } from "@angular/core";
 import {
     catchError,
-    map,
-    merge,
     Observable,
     of,
     ReplaySubject,
     share,
-    Subject,
     switchMap,
-    tap,
 } from "rxjs";
 import { HttpClient } from "@angular/common/http";
 import { ProblemResponse, ProofBankStats } from "../types";
-import { ActivatedRoute } from "@angular/router";
 
-interface Premises {
-    premises: string[];
-    conclusion: string;
-}
 
 @Injectable({
     providedIn: "root",
@@ -57,18 +48,4 @@ export class AnnotateService {
         );
 
     constructor(private http: HttpClient) {}
-
-    public navigateToProblem(id: string): void {
-        this.problemId$.next(id);
-    }
-
-    public getPremises(): Observable<Premises> {
-        return of({
-            premises: [
-                "All Italian men want to be a great tenor.",
-                "Pavarotti is an Italian man.",
-            ],
-            conclusion: "Pavarotti wants to be a great tenor.",
-        });
-    }
 }

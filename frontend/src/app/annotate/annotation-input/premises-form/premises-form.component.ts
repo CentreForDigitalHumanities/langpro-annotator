@@ -1,15 +1,18 @@
-import { Component, OnInit } from "@angular/core";
+import { Component, input } from "@angular/core";
 import {
-    FormGroup,
-    FormArray,
+    ReactiveFormsModule,
     FormControl,
     Validators,
-    ReactiveFormsModule,
 } from "@angular/forms";
 import { CommonModule } from "@angular/common";
-import { AnnotateService } from "../../../services/annotate.service";
 import { FontAwesomeModule } from "@fortawesome/angular-fontawesome";
 import { faCheck, faPlus, faTrash } from "@fortawesome/free-solid-svg-icons";
+import { AnnotationInputForm } from "../annotation-input.component";
+
+export interface Premises {
+    premises: string[];
+    conclusion: string;
+}
 
 @Component({
     selector: "la-premises-form",
@@ -18,60 +21,29 @@ import { faCheck, faPlus, faTrash } from "@fortawesome/free-solid-svg-icons";
     templateUrl: "./premises-form.component.html",
     styleUrl: "./premises-form.component.scss",
 })
-export class PremisesFormComponent implements OnInit {
-    public form = new FormGroup({
-        premises: new FormArray([
-            new FormControl("", {
-                nonNullable: true,
-                validators: [Validators.required],
-            }),
-        ]),
-        conclusion: new FormControl("", {
-            nonNullable: true,
-            validators: [Validators.required],
-        }),
-    });
+export class PremisesFormComponent {
+    public form = input.required<AnnotationInputForm>();
 
     public faCheck = faCheck;
     public faPlus = faPlus;
     public faTrash = faTrash;
 
-    get premises(): FormArray {
-        return this.form.controls.premises;
-    }
-
-    constructor(private annotationService: AnnotateService) {}
-
-    ngOnInit(): void {
-        this.annotationService.getPremises().subscribe((data) => {
-            this.setFormData(data);
-        });
-    }
+    constructor() {}
 
     public addPremise(value: string = ""): void {
-        this.premises.push(
+        const premisesArray = this.form().controls.premises;
+        premisesArray.push(
             new FormControl(value, {
                 nonNullable: true,
+                validators: [Validators.required],
             })
         );
     }
 
     public removePremise(index: number): void {
-        if (this.premises.length > 1) {
-            this.premises.removeAt(index);
+        const premisesArray = this.form().controls.premises;
+        if (premisesArray.length > 1) {
+            premisesArray.removeAt(index);
         }
-    }
-
-    public onSubmit(): void {
-        console.log("submitting!");
-    }
-
-    private setFormData(data: {
-        premises: string[];
-        conclusion: string;
-    }): void {
-        this.premises.clear();
-        data.premises.forEach((premise) => this.addPremise(premise));
-        this.form.controls.conclusion.setValue(data.conclusion);
     }
 }

@@ -1,10 +1,35 @@
-import { Component } from "@angular/core";
+import { Component, computed } from "@angular/core";
 import { CommonModule } from "@angular/common";
-import { PremisesFormComponent } from "./premises-form/premises-form.component";
-import { KnowledgeBaseFormComponent } from "./knowledge-base-form/knowledge-base-form.component";
+import {
+    FormArray,
+    FormControl,
+    FormGroup,
+    ReactiveFormsModule,
+    Validators,
+} from "@angular/forms";
+import {
+    Premises,
+    PremisesFormComponent,
+} from "./premises-form/premises-form.component";
+import {
+    KnowledgeBaseFormComponent,
+    KnowledgeBaseRelationship,
+} from "./knowledge-base-form/knowledge-base-form.component";
 import { AnnotateService } from "../../services/annotate.service";
-import { SickProblemFormComponent } from "./sick-problem-form/sick-problem-form.component";
-import { FracasProblemFormComponent } from "./fracas-problem-form/fracas-problem-form.component";
+import { toSignal } from "@angular/core/rxjs-interop";
+import { ProblemResponse } from "../../types";
+
+export type AnnotationInputForm = FormGroup<{
+    premises: FormArray<FormControl<string>>;
+    conclusion: FormControl<string>;
+    kbItems: FormArray<
+        FormGroup<{
+            entity1: FormControl<string>;
+            relationship: FormControl<KnowledgeBaseRelationship>;
+            entity2: FormControl<string>;
+        }>
+    >;
+}>;
 
 @Component({
     selector: "la-annotation-input",
@@ -13,14 +38,90 @@ import { FracasProblemFormComponent } from "./fracas-problem-form/fracas-problem
         CommonModule,
         PremisesFormComponent,
         KnowledgeBaseFormComponent,
-        SickProblemFormComponent,
-        FracasProblemFormComponent,
+        ReactiveFormsModule,
     ],
     templateUrl: "./annotation-input.component.html",
     styleUrl: "./annotation-input.component.scss",
 })
 export class AnnotationInputComponent {
-    public problemResponse$ = this.annotateService.problem$;
+    private problemResponse = toSignal(this.annotateService.problem$);
+
+    public form = computed<AnnotationInputForm | null>(() => {
+        const problem = this.problemResponse();
+        if (!problem) {
+            return null;
+        }
+        const { premises, conclusion } = this.getPremisesAndConclusion(problem);
+        return new FormGroup({
+            premises: new FormArray(
+                premises.map(
+                    (premise) =>
+                        new FormControl<string>(premise, {
+                            validators: [Validators.required],
+                            nonNullable: true,
+                        })
+                )
+            ),
+            conclusion: new FormControl<string>(conclusion, {
+                validators: [Validators.required],
+                nonNullable: true,
+            }),
+            kbItems: new FormArray([
+                new FormGroup({
+                    entity1: new FormControl<string>("", {
+                        validators: [Validators.required],
+                        nonNullable: true,
+                    }),
+                    relationship: new FormControl<KnowledgeBaseRelationship>(
+                        KnowledgeBaseRelationship.EQUAL,
+                        {
+                            validators: [Validators.required],
+                            nonNullable: true,
+                        }
+                    ),
+                    entity2: new FormControl<string>("", {
+                        validators: [Validators.required],
+                        nonNullable: true,
+                    }),
+                }),
+            ]),
+        });
+    });
 
     constructor(private annotateService: AnnotateService) {}
+
+    public onSubmit(): void {
+        const form = this.form();
+        if (!form) {
+            return;
+        }
+        if (form.valid) {
+            console.log(
+                "submitting from AnnotationInputComponent!",
+                form.value
+            );
+        }
+    }
+
+    private getPremisesAndConclusion(problem: ProblemResponse): Premises {
+        if (!problem.problem || !problem.type) {
+            return {
+                premises: [],
+                conclusion: "",
+            };
+        }
+
+        if (problem.type === "sick") {
+            return {
+                premises: [problem.problem.sentenceOne],
+                conclusion: problem.problem.sentenceTwo,
+            };
+        }
+
+        // FraCaS
+        return {
+            premises: problem.problem.premises,
+            conclusion: problem.problem.hypothesis,
+        };
+    }
 }

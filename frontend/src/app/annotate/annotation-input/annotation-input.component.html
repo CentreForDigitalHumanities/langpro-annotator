@@ -1,5 +1,3 @@
-@let problemResponse = problemResponse$ | async;
-
 <h2 i18n>Parser input</h2>
 
 <p i18n>
@@ -8,14 +6,12 @@
 </p>
 
 <div class="d-flex flex-column gap-5">
-    @if (problemResponse) {
-        @if (problemResponse.type === 'sick' && problemResponse.problem) {
-            <la-sick-problem-form [problem]="problemResponse.problem" />
-        } @else if (problemResponse.type === 'fracas' && problemResponse.problem) {
-            <la-fracas-problem-form [problem]="problemResponse.problem" />
-        }
-    } @else {
-        <la-premises-form />
+    @if (form(); as inputForm) {
+        <la-premises-form
+            [form]="inputForm"
+        />
+        <la-knowledge-base-form
+            [form]="inputForm"
+        />
     }
-    <la-knowledge-base-form />
 </div>

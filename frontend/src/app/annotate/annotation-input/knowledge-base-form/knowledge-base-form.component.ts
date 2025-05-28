@@ -1,9 +1,9 @@
 import { Component, input } from "@angular/core";
-import { FormArray, FormGroup, Validators, FormControl } from "@angular/forms";
+import { FormGroup, Validators, FormControl } from "@angular/forms";
 import { CommonModule } from "@angular/common";
 import { ReactiveFormsModule } from "@angular/forms";
 import { FontAwesomeModule } from "@fortawesome/angular-fontawesome";
-import { faCheck, faPlus, faTrash } from "@fortawesome/free-solid-svg-icons";
+import { faPlus, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { AnnotationInputForm } from "../annotation-input.component";
 
 export enum KnowledgeBaseRelationship {
@@ -32,7 +32,6 @@ export class KnowledgeBaseFormComponent {
 
     public relationshipTypes = Object.values(KnowledgeBaseRelationship);
 
-    public faCheck = faCheck;
     public faPlus = faPlus;
     public faTrash = faTrash;
 

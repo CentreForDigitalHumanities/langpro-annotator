@@ -18,17 +18,19 @@ import {
 import { AnnotateService } from "../../services/annotate.service";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { ProblemResponse } from "../../types";
+import { FontAwesomeModule } from "@fortawesome/angular-fontawesome";
+import { faCheck } from "@fortawesome/free-solid-svg-icons";
+
+type KnowledgeBaseItemsForm = FormGroup<{
+    entity1: FormControl<string>;
+    relationship: FormControl<KnowledgeBaseRelationship>;
+    entity2: FormControl<string>;
+}>;
 
 export type AnnotationInputForm = FormGroup<{
     premises: FormArray<FormControl<string>>;
     conclusion: FormControl<string>;
-    kbItems: FormArray<
-        FormGroup<{
-            entity1: FormControl<string>;
-            relationship: FormControl<KnowledgeBaseRelationship>;
-            entity2: FormControl<string>;
-        }>
-    >;
+    kbItems: FormArray<KnowledgeBaseItemsForm>;
 }>;
 
 @Component({
@@ -39,6 +41,7 @@ export type AnnotationInputForm = FormGroup<{
         PremisesFormComponent,
         KnowledgeBaseFormComponent,
         ReactiveFormsModule,
+        FontAwesomeModule,
     ],
     templateUrl: "./annotation-input.component.html",
     styleUrl: "./annotation-input.component.scss",
@@ -66,27 +69,11 @@ export class AnnotationInputComponent {
                 validators: [Validators.required],
                 nonNullable: true,
             }),
-            kbItems: new FormArray([
-                new FormGroup({
-                    entity1: new FormControl<string>("", {
-                        validators: [Validators.required],
-                        nonNullable: true,
-                    }),
-                    relationship: new FormControl<KnowledgeBaseRelationship>(
-                        KnowledgeBaseRelationship.EQUAL,
-                        {
-                            validators: [Validators.required],
-                            nonNullable: true,
-                        }
-                    ),
-                    entity2: new FormControl<string>("", {
-                        validators: [Validators.required],
-                        nonNullable: true,
-                    }),
-                }),
-            ]),
+            kbItems: new FormArray<KnowledgeBaseItemsForm>([]),
         });
     });
+
+    public faCheck = faCheck;
 
     constructor(private annotateService: AnnotateService) {}
 

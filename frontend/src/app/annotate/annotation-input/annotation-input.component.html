@@ -5,13 +5,13 @@
     below.
 </p>
 
-<div class="d-flex flex-column gap-5">
-    @if (form(); as inputForm) {
-        <la-premises-form
-            [form]="inputForm"
-        />
-        <la-knowledge-base-form
-            [form]="inputForm"
-        />
-    }
+@if (form(); as inputForm) {
+<div class="d-flex flex-row gap-5">
+    <la-premises-form class="w-50" [form]="inputForm" />
+    <la-knowledge-base-form class="w-50" [form]="inputForm" />
 </div>
+<button type="submit" class="btn btn-success" [disabled]="inputForm?.invalid">
+    <fa-icon [icon]="faCheck" class="fa-sm" aria-hidden="true"></fa-icon>
+    <span class="ms-2" i18n>Submit</span>
+</button>
+}

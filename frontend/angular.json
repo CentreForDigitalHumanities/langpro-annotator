@@ -129,13 +129,11 @@
             },
             "i18n": {
                 "sourceLocale": {
-                    "code": "en",
-                    "baseHref": "/en/"
+                    "code": "en"
                 },
                 "locales": {
                     "nl": {
-                        "translation": "locale/messages.nl.xlf",
-                        "baseHref": "/nl/"
+                        "translation": "locale/messages.nl.xlf"
                     }
                 }
             }

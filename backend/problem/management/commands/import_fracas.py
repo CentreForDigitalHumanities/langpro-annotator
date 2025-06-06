@@ -101,25 +101,24 @@ class Command(BaseCommand):
             premise_nodes = problem.findall("p")
             premises = [node.text.strip() for node in premise_nodes if node.text]
 
-            with transaction.atomic():
-                Problem.objects.create(
-                    type=Problem.ProblemType.FRACAS,
-                    content=json.dumps(
-                        {
-                            "fracas_id": int(problem_id),
-                            "question": question,
-                            "hypothesis": hypothesis,
-                            "answer": answer,
-                            "fracas_answer": fracas_answer,
-                            "fracas_non_standard": fracas_nonstandard,
-                            "note": note,
-                            "section_name": section,
-                            "subsection_name": subsection,
-                            "premises": premises,
-                        }
-                    ),
-                )
-                created += 1
+            Problem.objects.create(
+                type=Problem.ProblemType.FRACAS,
+                content=json.dumps(
+                    {
+                        "fracas_id": int(problem_id),
+                        "question": question,
+                        "hypothesis": hypothesis,
+                        "answer": answer,
+                        "fracas_answer": fracas_answer,
+                        "fracas_non_standard": fracas_nonstandard,
+                        "note": note,
+                        "section_name": section,
+                        "subsection_name": subsection,
+                        "premises": premises,
+                    }
+                ),
+            )
+            created += 1
 
         logger.info(
             f"FraCaS problems import complete! Total: {created} | Skipped: {skipped}"

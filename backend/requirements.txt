@@ -13,7 +13,9 @@ certifi==2025.1.31
 charset-normalizer==3.4.1
     # via requests
 colorama==0.4.6
-    # via pytest
+    # via
+    #   pytest
+    #   tqdm
 dj-rest-auth==7.0.1
     # via -r requirements.in
 django==4.2.20
@@ -65,6 +67,8 @@ sqlparse==0.5.3
     # via django
 tornado==6.4.2
     # via django-livereload-server
+tqdm==4.67.1
+    # via -r requirements.in
 tzdata==2025.1
     # via django
 urllib3==2.3.0

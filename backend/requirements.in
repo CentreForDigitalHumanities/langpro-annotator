@@ -6,7 +6,7 @@ psycopg2
 pytest
 pytest-django
 pytest-xdist
-
 dj_rest_auth
 django-allauth
 requests-oauthlib
+tqdm

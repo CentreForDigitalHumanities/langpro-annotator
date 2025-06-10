@@ -1,5 +1,11 @@
 # LangPro Annotator frontend
 
+## Before you start
+You need to install the following software:
+ - Node ^18.19.1 || ^20.11.1 || >=22.0.0
+
+Run `yarn` to install the requirements for the frontend.
+
 ## Import ProofBank data
 
 LangPro Annotator can be used to browse and annotate problems from the ProofBank dataset, which is a collection of problems from both the [SICK (Sentences Involving Compositional Knowledge)][1] and FraCaS (Framework for Computational Semantics) datasets. For more information about these datasets, see the [References](#references) section below.

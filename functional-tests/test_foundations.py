@@ -1,6 +1,5 @@
-def test_langpro_annotator_frontend(browser, base_address):
-    print('Base address:', base_address)
-    browser.get(base_address)
+def test_langpro_annotator_frontend(browser, frontend_address):
+    browser.get(frontend_address)
     try:
         assert 'LangPro Annotator' in browser.title
     except:

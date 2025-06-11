@@ -17,9 +17,13 @@ import {
 } from "./knowledge-base-form/knowledge-base-form.component";
 import { AnnotateService } from "../../services/annotate.service";
 import { toSignal } from "@angular/core/rxjs-interop";
-import { ProblemResponse } from "../../types";
+import { Judgement, ProblemResponse } from "../../types";
 import { FontAwesomeModule } from "@fortawesome/angular-fontawesome";
 import { faCheck } from "@fortawesome/free-solid-svg-icons";
+import {
+    ProblemDetails,
+    ProblemDetailsComponent,
+} from "./problem-details/problem-details.component";
 
 type KnowledgeBaseItemsForm = FormGroup<{
     entity1: FormControl<string>;
@@ -42,6 +46,7 @@ export type AnnotationInputForm = FormGroup<{
         KnowledgeBaseFormComponent,
         ReactiveFormsModule,
         FontAwesomeModule,
+        ProblemDetailsComponent,
     ],
     templateUrl: "./annotation-input.component.html",
     styleUrl: "./annotation-input.component.scss",
@@ -50,11 +55,13 @@ export class AnnotationInputComponent {
     private problemResponse = toSignal(this.annotateService.problem$);
 
     public form = computed<AnnotationInputForm | null>(() => {
-        const problem = this.problemResponse();
-        if (!problem) {
+        const response = this.problemResponse();
+        if (!response) {
             return null;
         }
-        const { premises, conclusion } = this.getPremisesAndConclusion(problem);
+
+        const { premises, conclusion } =
+            this.getPremisesAndConclusion(response);
         return new FormGroup({
             premises: new FormArray(
                 premises.map(
@@ -72,6 +79,63 @@ export class AnnotationInputComponent {
             kbItems: new FormArray<KnowledgeBaseItemsForm>([]),
         });
     });
+
+    public problemDetails = computed<ProblemDetails | null>(() => {
+        const response = this.problemResponse();
+        if (!response || !response.problem) {
+            return null;
+        }
+        const judgement = this.getJudgement(response);
+        if (response.type === "sick") {
+            return {
+                problemId: response.problem.pairId.toString(),
+                dataset: response.type,
+                judgement,
+                section: null,
+                subsection: null,
+                comment: null,
+            };
+        }
+        // FraCaS
+        return {
+            problemId: response.problem.fracasId.toString(),
+            dataset: response.type,
+            judgement,
+            section: response.problem.sectionName,
+            subsection: response.problem.subsectionName,
+            comment: response.problem.note || null,
+        };
+    });
+
+    private getJudgement(problem: ProblemResponse): Judgement {
+        if (!problem.problem) {
+            return Judgement.UNKNOWN;
+        }
+        if (problem.type === "sick") {
+            switch (problem.problem.entailmentLabel) {
+                case "ENTAILMENT":
+                    return Judgement.ENTAILMENT;
+                case "CONTRADICTION":
+                    return Judgement.CONTRADICTION;
+                case "NEUTRAL":
+                    return Judgement.NEUTRAL;
+                default:
+                    return Judgement.UNKNOWN;
+            }
+        }
+        // FraCaS
+        switch (problem.problem.fracasAnswer) {
+            case "yes":
+                return Judgement.ENTAILMENT;
+            case "no":
+                return Judgement.CONTRADICTION;
+            case "unknown":
+                return Judgement.NEUTRAL;
+            // Also includes case "undefined"
+            default:
+                return Judgement.UNKNOWN;
+        }
+    }
 
     public faCheck = faCheck;
 

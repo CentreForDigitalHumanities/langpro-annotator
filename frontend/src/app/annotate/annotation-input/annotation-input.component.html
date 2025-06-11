@@ -6,12 +6,29 @@
 </p>
 
 @if (form(); as inputForm) {
-<div class="d-flex flex-row gap-5">
-    <la-premises-form class="w-50" [form]="inputForm" />
-    <la-knowledge-base-form class="w-50" [form]="inputForm" />
+<div class="card">
+    <div class="card-body">
+        @if (problemDetails(); as details) {
+        <la-problem-details [problemDetails]="details" />
+        }
+        <div class="d-flex flex-row gap-5">
+            <la-premises-form class="w-50" [form]="inputForm" />
+            <la-knowledge-base-form class="w-50" [form]="inputForm" />
+        </div>
+    </div>
+    <div class="mb-3 d-flex justify-content-center">
+        <button
+            type="submit"
+            class="btn btn-success"
+            [disabled]="inputForm?.invalid"
+        >
+            <fa-icon
+                [icon]="faCheck"
+                class="fa-sm"
+                aria-hidden="true"
+            ></fa-icon>
+            <span class="ms-2" i18n>Submit</span>
+        </button>
+    </div>
 </div>
-<button type="submit" class="btn btn-success" [disabled]="inputForm?.invalid">
-    <fa-icon [icon]="faCheck" class="fa-sm" aria-hidden="true"></fa-icon>
-    <span class="ms-2" i18n>Submit</span>
-</button>
 }

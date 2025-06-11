@@ -60,15 +60,4 @@ export class NavigatorComponent {
         }
         this.router.navigate(["/annotate", id]);
     }
-
-    public getProblemLabel(problem: ProblemResponse): string {
-        const type = problem.type;
-        let id: string | null = null;
-        if (type === 'sick') {
-            id = problem.problem?.pairId?.toString() ?? null;
-        } else if (type === 'fracas') {
-            id = problem.problem?.fracasId?.toString() ?? null;
-        }
-        return id ? `${type}-${id}` : type;
-    }
 }

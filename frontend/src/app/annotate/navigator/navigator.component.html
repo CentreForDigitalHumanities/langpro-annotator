@@ -23,13 +23,9 @@
             <span i18n>Previous</span>
         </button>
 
-        <div class="problem-info d-flex flex-column align-items-center px-3">
-            <span
-                >{{ problem?.id }} of
-                {{ proofBankStats?.totalProblems }}</span
-            >
-            <span class="badge bg-secondary mt-1" i18n>
-                {{ problem && getProblemLabel(problem) }}
+        <div class="px-3">
+            <span i18n>
+                {{ problem?.id }} of {{ proofBankStats?.totalProblems }}
             </span>
         </div>
 

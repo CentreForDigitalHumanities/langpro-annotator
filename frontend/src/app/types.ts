@@ -2,7 +2,7 @@ export interface SickProblem {
     pairId: number;
     sentenceOne: string;
     sentenceTwo: string;
-    entailmentLabel: "neutral" | "contradiction" | "entailment";
+    entailmentLabel: "NEUTRAL" | "CONTRADICTION" | "ENTAILMENT";
     relatednessScore: number;
 }
 
@@ -29,12 +29,12 @@ interface ProblemResponseBase {
 
 interface SickProblemResponse extends ProblemResponseBase {
     problem: SickProblem | null;
-    type: "sick";
+    type: Dataset.SICK;
 }
 
 interface FracasProblemResponse extends ProblemResponseBase {
     problem: FracasProblem | null;
-    type: "fracas";
+    type: Dataset.FRACAS;
 }
 
 export type ProblemResponse = SickProblemResponse | FracasProblemResponse;
@@ -43,4 +43,16 @@ export interface ProofBankStats {
     firstProblemId: string;
     lastProblemId: string;
     totalProblems: number;
+}
+
+export enum Dataset {
+    SICK = "sick",
+    FRACAS = "fracas",
+}
+
+export enum Judgement {
+    ENTAILMENT = "entailment",
+    CONTRADICTION = "contradiction",
+    NEUTRAL = "neutral",
+    UNKNOWN = "unknown",
 }

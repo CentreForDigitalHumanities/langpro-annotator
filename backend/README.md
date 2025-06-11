@@ -51,7 +51,7 @@ Create and activate a virtualenv. Ensure your working directory is the one that 
 ```console
 $ psql -f create_db.sql
 $ pip install pip-tools
-$ pip sync
+$ pip-sync
 $ python manage.py migrate
 $ python manage.py createsuperuser
 ```

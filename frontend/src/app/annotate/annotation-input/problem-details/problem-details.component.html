@@ -16,10 +16,12 @@
                 <td class="text-muted" i18n>Dataset:</td>
                 <td>{{ problemDetails().dataset }}</td>
             </tr>
-            <tr>
-                <td class="text-muted" i18n>Section:</td>
-                <td>{{ sectionString() }}</td>
-            </tr>
+            @if (sectionString()) {
+                <tr>
+                    <td class="text-muted" i18n>Section:</td>
+                    <td>{{ sectionString() }}</td>
+                </tr>
+            }
             @if (problemDetails().comment) {
             <tr>
                 <td class="text-muted">

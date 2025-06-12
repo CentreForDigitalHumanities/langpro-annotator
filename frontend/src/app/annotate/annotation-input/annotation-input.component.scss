@@ -1,0 +1,21 @@
+.input-form-container {
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+    margin-top: 20px;
+
+    .subform {
+        width: 50%;
+    }
+}
+
+@media screen and (max-width: 1200px) {
+    .input-form-container {
+        flex-direction: column;
+        align-items: stretch;
+
+        .subform {
+            width: 100%;
+        }
+    }
+}

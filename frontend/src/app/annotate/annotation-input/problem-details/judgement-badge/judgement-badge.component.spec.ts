@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 
 import { JudgementBadgeComponent } from "./judgement-badge.component";
+import { Judgement } from "../../../../types";
 
 describe("JudgementBadgeComponent", () => {
     let component: JudgementBadgeComponent;
@@ -13,6 +14,8 @@ describe("JudgementBadgeComponent", () => {
 
         fixture = TestBed.createComponent(JudgementBadgeComponent);
         component = fixture.componentInstance;
+        const componentRef = fixture.componentRef;
+        componentRef.setInput("judgement", Judgement.ENTAILMENT);
         fixture.detectChanges();
     });
 

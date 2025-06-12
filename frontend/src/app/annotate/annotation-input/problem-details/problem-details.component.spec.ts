@@ -13,6 +13,15 @@ describe("ProblemDetailsComponent", () => {
 
         fixture = TestBed.createComponent(ProblemDetailsComponent);
         component = fixture.componentInstance;
+        const componentRef = fixture.componentRef;
+        componentRef.setInput("problemDetails", {
+            problemId: "1",
+            dataset: "sick",
+            judgement: "ENTAILMENT",
+            section: "Test Section",
+            subsection: "Test Subsection",
+            comment: "This is a test comment.",
+        });
         fixture.detectChanges();
     });
 

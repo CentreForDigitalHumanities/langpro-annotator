@@ -1,4 +1,4 @@
-from typing import Literal
+from typing import Literal, Union
 from dataclasses import dataclass, field
 
 
@@ -48,4 +48,4 @@ class FracasProblem:
         }
 
 
-type CombinedProblem = SickProblem | FracasProblem
+type CombinedProblem = Union[SickProblem, FracasProblem]

@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Literal, Optional
+from typing import Literal
 from django.http import JsonResponse
 from rest_framework.views import APIView
 
@@ -13,13 +13,13 @@ from problem.services import (
 
 @dataclass
 class ProblemResponse:
-    id: Optional[int] = None
-    type: Optional[Literal["sick", "fracas"]] = None
-    problem: Optional[CombinedProblem] = None
-    error: Optional[str] = None
-    next: Optional[str] = None
-    previous: Optional[str] = None
-    random: Optional[str] = None
+    id: int | None = None
+    type: Literal["sick", "fracas"] | None = None
+    problem: CombinedProblem | None = None
+    error: str | None = None
+    next: str | None = None
+    previous: str | None = None
+    random: str | None = None
 
     def json_response(self, status=200) -> JsonResponse:
         return JsonResponse(
@@ -38,10 +38,10 @@ class ProblemResponse:
 
 @dataclass
 class ProofBankStatsResponse:
-    error: Optional[str] = None
-    first_problem_id: Optional[int] = None
-    last_problem_id: Optional[int] = None
-    total_problems: Optional[int] = None
+    error: str | None = None
+    first_problem_id: int | None = None
+    last_problem_id: int | None = None
+    total_problems: int | None = None
 
     def json_response(self, status=200) -> JsonResponse:
         return JsonResponse(

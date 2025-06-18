@@ -1,11 +1,11 @@
 import json
-from typing import Optional, Tuple
+from typing import Tuple
 from langpro_annotator.logger import logger
 from problem.models import Problem
 from problem.types import CombinedProblem, FracasProblem, SickProblem
 
 
-def instance_to_sick_problem(instance: Problem) -> Optional[SickProblem]:
+def instance_to_sick_problem(instance: Problem) -> SickProblem | None:
     """
     Converts a Problem instance to a SickProblem object.
     """
@@ -28,7 +28,7 @@ def instance_to_sick_problem(instance: Problem) -> Optional[SickProblem]:
         return None
 
 
-def instance_to_fracas_problem(instance: Problem) -> Optional[FracasProblem]:
+def instance_to_fracas_problem(instance: Problem) -> FracasProblem | None:
     """
     Converts a Problem instance to a FracasProblem object.
     """
@@ -82,7 +82,7 @@ def get_fracas_problems() -> list[FracasProblem]:
     ]
 
 
-def convert_to_subtype(problem: Problem) -> Optional[CombinedProblem]:
+def convert_to_subtype(problem: Problem) -> CombinedProblem | None:
     """
     Converts a Django Problem model instance to a specific subtype (dataclass)
     based on its type.

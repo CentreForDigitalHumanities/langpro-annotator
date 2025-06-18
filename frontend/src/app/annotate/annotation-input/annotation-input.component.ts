@@ -119,8 +119,6 @@ export class AnnotationInputComponent {
                     return Judgement.CONTRADICTION;
                 case "NEUTRAL":
                     return Judgement.NEUTRAL;
-                default:
-                    return Judgement.UNKNOWN;
             }
         }
         // FraCaS
@@ -131,8 +129,7 @@ export class AnnotationInputComponent {
                 return Judgement.CONTRADICTION;
             case "unknown":
                 return Judgement.NEUTRAL;
-            // Also includes case "undefined"
-            default:
+            case "undefined":
                 return Judgement.UNKNOWN;
         }
     }

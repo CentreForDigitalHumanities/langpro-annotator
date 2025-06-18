@@ -21,7 +21,6 @@ export class JudgementBadgeComponent {
             case Judgement.NEUTRAL:
                 return "Neutral";
             case Judgement.UNKNOWN:
-            default:
                 return "Unknown";
         }
     });
@@ -37,8 +36,6 @@ export class JudgementBadgeComponent {
                 return "badge text-bg-secondary";
             case Judgement.UNKNOWN:
                 return "badge text-bg-warning";
-            default:
-                return "badge text-bg-secondary";
         }
     });
 }

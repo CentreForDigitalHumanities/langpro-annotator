@@ -5,10 +5,10 @@
     below.
 </p>
 
-@if (form(); as inputForm) {
+@if (form$ | async; as inputForm) {
 <div class="card">
     <div class="card-body">
-        @if (problemDetails(); as details) {
+        @if (problemDetails$ | async; as details) {
         <la-problem-details [problemDetails]="details" />
         }
         <div class="input-form-container">

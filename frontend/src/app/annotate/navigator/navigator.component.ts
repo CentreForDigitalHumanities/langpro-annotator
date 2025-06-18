@@ -1,4 +1,4 @@
-import { Component, DestroyRef } from "@angular/core";
+import { Component } from "@angular/core";
 import { AnnotateService } from "../../services/annotate.service";
 import { FontAwesomeModule } from "@fortawesome/angular-fontawesome";
 import {
@@ -8,11 +8,9 @@ import {
     faAnglesRight,
     faShuffle,
 } from "@fortawesome/free-solid-svg-icons";
-import { map } from "rxjs";
+import { map, switchMap } from "rxjs";
 import { CommonModule } from "@angular/common";
 import { ActivatedRoute, Router } from "@angular/router";
-import { ProblemResponse } from "../../types";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 
 @Component({
     selector: "la-navigator",
@@ -22,11 +20,10 @@ import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
     styleUrl: "./navigator.component.scss",
 })
 export class NavigatorComponent {
-    private problemId$ = this.route.params.pipe(
-        map((params) => params["problemId"])
+    public problem$ = this.route.params.pipe(
+        map((params) => params["problemId"]),
+        switchMap((id) => this.annotateService.problem$(id))
     );
-
-    public problem$ = this.annotateService.problem$;
     public proofBankStats$ = this.annotateService.proofBankStats$;
 
     public faAnglesLeft = faAnglesLeft;
@@ -36,23 +33,10 @@ export class NavigatorComponent {
     public faShuffle = faShuffle;
 
     constructor(
-        private destroyRef: DestroyRef,
         private router: Router,
         private route: ActivatedRoute,
         private annotateService: AnnotateService
     ) {}
-
-    ngOnInit(): void {
-        this.route.params.pipe(
-            map((params) => params["problemId"]),
-            takeUntilDestroyed(this.destroyRef)
-        ).subscribe((problemId) => {
-            if (!problemId) {
-                return;
-            }
-            this.annotateService.problemId$.next(problemId);
-        });
-    }
 
     public navigateToProblem(id: string | null | undefined): void {
         if (!id) {

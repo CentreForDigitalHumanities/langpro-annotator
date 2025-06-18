@@ -24,6 +24,8 @@ import {
     ProblemDetails,
     ProblemDetailsComponent,
 } from "./problem-details/problem-details.component";
+import { ActivatedRoute } from "@angular/router";
+import { map, Subject, switchMap } from "rxjs";
 
 type KnowledgeBaseItemsForm = FormGroup<{
     entity1: FormControl<string>;
@@ -52,60 +54,24 @@ export type AnnotationInputForm = FormGroup<{
     styleUrl: "./annotation-input.component.scss",
 })
 export class AnnotationInputComponent {
-    private problemResponse = toSignal(this.annotateService.problem$);
+    private problem$ = this.route.params.pipe(
+        map((params) => params["problemId"]),
+        switchMap((problemId) => this.annotateService.problem$(problemId))
+    );
 
-    public form = computed<AnnotationInputForm | null>(() => {
-        const response = this.problemResponse();
-        if (!response) {
-            return null;
-        }
+    public form$ = this.problem$.pipe(
+        map((response) => this.buildForm(response))
+    );
 
-        const { premises, conclusion } =
-            this.getPremisesAndConclusion(response);
-        return new FormGroup({
-            premises: new FormArray(
-                premises.map(
-                    (premise) =>
-                        new FormControl<string>(premise, {
-                            validators: [Validators.required],
-                            nonNullable: true,
-                        })
-                )
-            ),
-            conclusion: new FormControl<string>(conclusion, {
-                validators: [Validators.required],
-                nonNullable: true,
-            }),
-            kbItems: new FormArray<KnowledgeBaseItemsForm>([]),
-        });
+    private formSignal = toSignal(this.form$, {
+        initialValue: null,
     });
 
-    public problemDetails = computed<ProblemDetails | null>(() => {
-        const response = this.problemResponse();
-        if (!response?.problem) {
-            return null;
-        }
-        const judgement = this.getJudgement(response);
-        if (response.type === "sick") {
-            return {
-                problemId: response.problem.pairId.toString(),
-                dataset: response.type,
-                judgement,
-                section: null,
-                subsection: null,
-                comment: null,
-            };
-        }
-        // FraCaS
-        return {
-            problemId: response.problem.fracasId.toString(),
-            dataset: response.type,
-            judgement,
-            section: response.problem.sectionName,
-            subsection: response.problem.subsectionName,
-            comment: response.problem.note || null,
-        };
-    });
+    public problemDetails$ = this.problem$.pipe(
+        map((response) => this.extractDetails(response))
+    );
+
+    public submit$ = new Subject<void>();
 
     private getJudgement(response: ProblemResponse): Judgement {
         // This should never happen, as we check for a problem in the calling
@@ -138,10 +104,13 @@ export class AnnotationInputComponent {
 
     public faCheck = faCheck;
 
-    constructor(private annotateService: AnnotateService) {}
+    constructor(
+        private annotateService: AnnotateService,
+        private route: ActivatedRoute
+    ) {}
 
     public onSubmit(): void {
-        const form = this.form();
+        const form = this.formSignal();
         if (!form) {
             return;
         }
@@ -172,6 +141,61 @@ export class AnnotationInputComponent {
         return {
             premises: problem.problem.premises,
             conclusion: problem.problem.hypothesis,
+        };
+    }
+
+    private buildForm(
+        response: ProblemResponse | null
+    ): AnnotationInputForm | null {
+        if (!response) {
+            return null;
+        }
+
+        const { premises, conclusion } =
+            this.getPremisesAndConclusion(response);
+        return new FormGroup({
+            premises: new FormArray(
+                premises.map(
+                    (premise) =>
+                        new FormControl<string>(premise, {
+                            validators: [Validators.required],
+                            nonNullable: true,
+                        })
+                )
+            ),
+            conclusion: new FormControl<string>(conclusion, {
+                validators: [Validators.required],
+                nonNullable: true,
+            }),
+            kbItems: new FormArray<KnowledgeBaseItemsForm>([]),
+        });
+    }
+
+    private extractDetails(
+        response: ProblemResponse | null
+    ): ProblemDetails | null {
+        if (!response?.problem) {
+            return null;
+        }
+        const judgement = this.getJudgement(response);
+        if (response.type === "sick") {
+            return {
+                problemId: response.problem.pairId.toString(),
+                dataset: response.type,
+                judgement,
+                section: null,
+                subsection: null,
+                comment: null,
+            };
+        }
+        // FraCaS
+        return {
+            problemId: response.problem.fracasId.toString(),
+            dataset: response.type,
+            judgement,
+            section: response.problem.sectionName,
+            subsection: response.problem.subsectionName,
+            comment: response.problem.note || null,
         };
     }
 }

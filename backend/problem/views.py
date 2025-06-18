@@ -64,7 +64,7 @@ class ProblemView(APIView):
 
         converted_problem = convert_to_subtype(problem)
 
-        if problem is None:
+        if converted_problem is None:
             return ProblemResponse(
                 error="Problem not found",
             ).json_response(status=404)

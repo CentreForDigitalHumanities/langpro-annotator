@@ -82,7 +82,7 @@ export class AnnotationInputComponent {
 
     public problemDetails = computed<ProblemDetails | null>(() => {
         const response = this.problemResponse();
-        if (!response || !response.problem) {
+        if (!response?.problem) {
             return null;
         }
         const judgement = this.getJudgement(response);
@@ -107,12 +107,14 @@ export class AnnotationInputComponent {
         };
     });
 
-    private getJudgement(problem: ProblemResponse): Judgement {
-        if (!problem.problem) {
+    private getJudgement(response: ProblemResponse): Judgement {
+        // This should never happen, as we check for a problem in the calling
+        // function, but TypeScript does not know this.
+        if (!response.problem) {
             return Judgement.UNKNOWN;
         }
-        if (problem.type === "sick") {
-            switch (problem.problem.entailmentLabel) {
+        if (response.type === "sick") {
+            switch (response.problem.entailmentLabel) {
                 case "ENTAILMENT":
                     return Judgement.ENTAILMENT;
                 case "CONTRADICTION":
@@ -122,7 +124,7 @@ export class AnnotationInputComponent {
             }
         }
         // FraCaS
-        switch (problem.problem.fracasAnswer) {
+        switch (response.problem.fracasAnswer) {
             case "yes":
                 return Judgement.ENTAILMENT;
             case "no":

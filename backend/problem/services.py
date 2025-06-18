@@ -21,7 +21,7 @@ def instance_to_sick_problem(instance: Problem) -> Optional[SickProblem]:
     except json.JSONDecodeError as e:
         logger.warning(f"Could not decode JSON for Problem ID {instance.id}: {e}")
         return None
-    except (KeyError, TypeError) as e:
+    except Exception as e:
         logger.warning(
             f"Could not convert Problem ID {instance.id} to SickProblem: {e}"
         )

@@ -60,7 +60,9 @@ class ProblemView(APIView):
         try:
             problem = Problem.objects.get(id=problem_id)
         except Problem.DoesNotExist:
-            return None
+            return ProblemResponse(
+                error="Problem not found",
+            ).json_response(status=404)
 
         converted_problem = convert_to_subtype(problem)
 

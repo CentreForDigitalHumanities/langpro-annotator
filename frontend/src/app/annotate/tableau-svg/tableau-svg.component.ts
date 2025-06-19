@@ -21,6 +21,9 @@ export class TableauTerm {
     public label?: String;
 
     @Input()
+    public bg?: String;
+
+    @Input()
     public term: String = '';
 
     @Input()
@@ -38,8 +41,10 @@ export class TableauTerm {
     @Output()
     public onSize = new EventEmitter<Dimensions>();
 
-    padding = 10;
+    padding = 5;
+    height = 20;
     termX: number = 0;
+    termW: number = 0;
     labelX: number = 0;
     idxW: number = 0;
     labelW: number = 0;
@@ -49,7 +54,8 @@ export class TableauTerm {
         this.idxW = this.idxText ? this.idxText.nativeElement.getComputedTextLength() + this.padding : 0;
         this.labelW = this.labelText ? this.labelText.nativeElement.getComputedTextLength() + this.padding : 0;
         this.termX = this.idxW;
-        this.labelX = this.termText ? this.termX + this.termText.nativeElement.getComputedTextLength() + this.padding : 0;
+        this.termW = this.termText ? this.termText.nativeElement.getComputedTextLength() : 0;
+        this.labelX =  this.termX + this.termW + this.padding;
         this.totalW = this.termText ? this.labelW + this.idxW + this.termText.nativeElement.getComputedTextLength() : 0;
 
         this.onSize.emit({width: this.totalW});
@@ -137,33 +143,33 @@ export class TableauSVG {
 
     tree: any = {
         nodes: [
-            {idx: 1, term: 'every@man@(be@work)'},
-            {idx: 2, term: 'every@(who@(be@work)@person)@(λ1,a@(expensive@car)@(λ2,have@2@1))'},
-            {idx: 3, term: 'every@man@(λ3,a@car@(λ2,own@2@3))'},
-            {idx: 4, term: 'be@work', label: 'c1', rule: 'up_mon_fun_some[1,3]'},
-            {idx: 5, term: '(λ3,a@car@(λ2,own@2@3))', label: 'c1', rule: 'up_mon_fun_some[1,3]'},
-            {idx: 6, term: 'man', label: 'c1', rule: 'up_mon_fun_some[1,3]'},
-            {idx: 7, term: 'a@car@(λ2,own@2@c1)', rule: 'pull_arg[5]'},
-            {idx: 8, term: 'work', label: 'c1', rule: 'aux_verb[4]'},
-            {idx: 9, term: 'be@work', label: 'c1', rule: 'tr_every_c[1,6], [c1]'},
-            {idx: 8, term: 'work', label: 'c1', rule: 'aux_verb[9]'},
+            {idx: 1, term: 'every@man@(be@work)', bg: 'honeydew'},
+            {idx: 2, term: 'every@(who@(be@work)@person)@(λ1,a@(expensive@car)@(λ2,have@2@1))', bg: 'honeydew'},
+            {idx: 3, term: 'every@man@(λ3,a@car@(λ2,own@2@3))', bg: 'mistyrose'},
+            {idx: 4, term: 'be@work', label: 'c1', rule: 'up_mon_fun_some[1,3]', bg: 'honeydew'},
+            {idx: 5, term: '(λ3,a@car@(λ2,own@2@3))', label: 'c1', rule: 'up_mon_fun_some[1,3]', bg: 'mistyrose'},
+            {idx: 6, term: 'man', label: 'c1', rule: 'up_mon_fun_some[1,3]', bg: 'honeydew'},
+            {idx: 7, term: 'a@car@(λ2,own@2@c1)', rule: 'pull_arg[5]', bg: 'mistyrose'},
+            {idx: 8, term: 'work', label: 'c1', rule: 'aux_verb[4]', bg: 'honeydew'},
+            {idx: 9, term: 'be@work', label: 'c1', rule: 'tr_every_c[1,6], [c1]', bg: 'honeydew'},
+            {idx: 8, term: 'work', label: 'c1', rule: 'aux_verb[9]', bg: 'honeydew'},
         ],
         subtrees: [
             {
                 nodes: [
-                    {idx: 10, term: 'who@(be@work)@person', label: 'c1', rule: 'tr_every[2],[c1]'},
+                    {idx: 10, term: 'who@(be@work)@person', label: 'c1', rule: 'tr_every[2],[c1]', bg: 'mistyrose'},
                 ],
                 subtrees: [
                     {
                         nodes: [
-                            {idx: 13, term: 'be@work', label: 'c1', rule: 'fl_conj_who[10]'},
-                            {idx: 16, term: 'work', label: 'c1', rule: 'aux_verb[13]'},
+                            {idx: 13, term: 'be@work', label: 'c1', rule: 'fl_conj_who[10]', bg: 'mistyrose'},
+                            {idx: 16, term: 'work', label: 'c1', rule: 'aux_verb[13]', bg: 'mistyrose'},
                             {term: 'X', rule: 'cl_subcat[16,8]'}
                         ],
                     },
                     {
                         nodes: [
-                            {idx: 14, term: 'person', label: 'c1', rule: 'fl_conj_who[10]'},
+                            {idx: 14, term: 'person', label: 'c1', rule: 'fl_conj_who[10]', bg: 'mistyrose'},
                             {term: 'X', rule: 'cl_subsumption[14,6]'}
                         ]
                     }
@@ -171,18 +177,18 @@ export class TableauSVG {
             },
             {
                 nodes: [
-                    {idx: 11, term: 'who@(be@work)@person', label: 'c1', rule: 'tr_every[2],[c1]'},
-                    {idx: 12, term: '(λ1,a@(expensive@car)@(λ2,have@2@1))', label: 'c1', rule: 'tr_every[2],[c1]'},
-                    {idx: 15, term: 'a@(expensive@car)@(λ2,have@2@c1)', label: 'c1', rule: 'pull_arg[12]'},
-                    {idx: 17, term: 'be@work', label: 'c1', rule: 'tr_conj_who[11]'},
-                    {idx: 18, term: 'person', label: 'c1', rule: 'tr_conj_who[11]' },
-                    {idx: 8, term: 'work', label: 'c1', rule: 'aux_verb[17]'},
-                    {idx: 19, term: 'a@(expensive@car)', label: '(λ2,have@2@c1)', rule: 'same_args[15,7]'},
-                    {idx: 20, term: 'a@car', label: '(λ2,have@2@c1)', rule: 'same_args[15,7]'},
-                    {idx: 21, term: 'expensive@car', label: 'c2', rule: 'up_mon_fun[19,20]'},
-                    {idx: 22, term: 'car', label: 'c2', rule: 'up_mon_fun[19,20]'},
-                    {idx: 23, term: 'car', label: 'c2', rule:'int_mod_tr[21]'},
-                    {idx: 24, term: 'expensive', label: 'c2', rule:'int_mod_tr[21]'},
+                    {idx: 11, term: 'who@(be@work)@person', label: 'c1', rule: 'tr_every[2],[c1]', bg: 'honeydew'},
+                    {idx: 12, term: '(λ1,a@(expensive@car)@(λ2,have@2@1))', label: 'c1', rule: 'tr_every[2],[c1]', bg: 'honeydew'},
+                    {idx: 15, term: 'a@(expensive@car)@(λ2,have@2@c1)', label: 'c1', rule: 'pull_arg[12]', bg: 'honeydew'},
+                    {idx: 17, term: 'be@work', label: 'c1', rule: 'tr_conj_who[11]', bg: 'honeydew'},
+                    {idx: 18, term: 'person', label: 'c1', rule: 'tr_conj_who[11]' , bg: 'honeydew'},
+                    {idx: 8, term: 'work', label: 'c1', rule: 'aux_verb[17]', bg: 'honeydew'},
+                    {idx: 19, term: 'a@(expensive@car)', label: '(λ2,have@2@c1)', rule: 'same_args[15,7]', bg: 'honeydew'},
+                    {idx: 20, term: 'a@car', label: '(λ2,have@2@c1)', rule: 'same_args[15,7]', bg: 'mistyrose'},
+                    {idx: 21, term: 'expensive@car', label: 'c2', rule: 'up_mon_fun[19,20]', bg: 'honeydew'},
+                    {idx: 22, term: 'car', label: 'c2', rule: 'up_mon_fun[19,20]', bg: 'mistyrose'},
+                    {idx: 23, term: 'car', label: 'c2', rule:'int_mod_tr[21]', bg: 'honeydew'},
+                    {idx: 24, term: 'expensive', label: 'c2', rule:'int_mod_tr[21]', bg: 'honeydew'},
                     {term: 'X', rule: 'cl_subsmption[23,22]'}
                 ]
             }

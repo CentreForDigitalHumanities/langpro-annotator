@@ -1,12 +1,21 @@
 <svg:g attr.transform="translate({{-totalW/2}}, 0)">
-<svg:rect [attr.x]="-padding/2" y="0" [attr.width]="idxW" [attr.height]="padding * 2" fill="none" stroke="red"></svg:rect>
-@if(idx) { <svg:text #idxText x="0" y="10" dominant-baseline="middle">{{ idx }}</svg:text> }
+@if(idx) {
+    <svg:rect [attr.x]="-padding/2" y="0" [attr.width]="idxW" [attr.height]="height" fill="silver"></svg:rect>
+    <svg:text #idxText x="0" y="10" dominant-baseline="middle" fill="white">{{ idx }}</svg:text>
+}
+
+@if(bg) {
+    <svg:rect [attr.x]="termX" [attr.width]="termW" [attr.height]="height" [attr.fill]="bg"></svg:rect>
+}
 <svg:text #termText [attr.x]="termX" y="10" dominant-baseline="middle">{{ term }}</svg:text>
-@if(label) { <svg:text #labelText [attr.x]="labelX" y="10" dominant-baseline="middle">{{ label }}</svg:text> }
+
+@if(label) {
+    <svg:rect [attr.x]="labelX - padding/2" [attr.width]="labelW" [attr.height]="height" fill="khaki"></svg:rect>
+    <svg:text #labelText [attr.x]="labelX" y="10" dominant-baseline="middle">{{ label }}</svg:text>
+}
 
 @if(rule) {
 <svg:text [attr.x]="totalW/2" y="30" style="font-size:.8em;" text-anchor="middle" dominant-baseline="middle">{{ rule }}</svg:text>
 }
 
-<svg:rect [attr.x]="labelX - padding/2" [attr.width]="labelW" [attr.height]="padding * 2" fill="none" stroke="red"></svg:rect>
 </svg:g>

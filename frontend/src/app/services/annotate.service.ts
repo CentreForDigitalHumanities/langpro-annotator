@@ -1,32 +1,37 @@
 import { Injectable } from "@angular/core";
-import { Observable, of } from "rxjs";
-
-interface Premises {
-    premises: string[];
-    conclusion: string;
-}
+import {
+    catchError,
+    Observable,
+    of,
+} from "rxjs";
+import { HttpClient } from "@angular/common/http";
+import { ProblemResponse, ProofBankStats } from "../types";
 
 @Injectable({
     providedIn: "root",
 })
 export class AnnotateService {
-    public currentProblemId: string = "problem1";
-    public totalProblems: number = 1000;
-    public currentProblemIndex: number = 0;
-
-    constructor() {}
-
-    public navigateToProblem(id: string): void {
-        console.log("Navigating to problem!", id);
+    public problem$(problemId: string): Observable<ProblemResponse | null> {
+        if (!problemId) {
+            console.log("No problem ID provided");
+            return of(null);
+        }
+        return this.http.get<ProblemResponse>(`/api/problem/${problemId}`).pipe(
+            catchError(() => {
+                console.log("Error fetching problem");
+                return of(null);
+            })
+        );
     }
 
-    public getPremises(): Observable<Premises> {
-        return of({
-            premises: [
-                "All Italian men want to be a great tenor.",
-                "Pavarotti is an Italian man.",
-            ],
-            conclusion: "Pavarotti wants to be a great tenor.",
-        });
-    }
+    public proofBankStats$: Observable<ProofBankStats | null> = this.http
+        .get<ProofBankStats>("/api/problem/proofbank-stats")
+        .pipe(
+            catchError(() => {
+                console.log("Error fetching proof bank stats");
+                return of(null);
+            })
+        );
+
+    constructor(private http: HttpClient) {}
 }

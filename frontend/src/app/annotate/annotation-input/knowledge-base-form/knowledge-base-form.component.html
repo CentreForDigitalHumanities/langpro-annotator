@@ -1,12 +1,13 @@
+@if (form().controls.kbItems.controls.length > 0) {
 <section class="card">
     <header class="card-header">
         <h3 class="h5" i18n>Knowledge Base</h3>
     </header>
     <div class="card-body">
-        <form [formGroup]="form" (ngSubmit)="onSubmit()">
+        <form [formGroup]="form()" (ngSubmit)="onSubmit()">
             <ul formArrayName="kbItems" class="ps-0 list-unstyled">
-                @for (kbItem of form.controls.kbItems.controls; let i = $index;
-                track $index) {
+                @for (kbItem of form().controls.kbItems.controls; let i =
+                $index; track $index) {
                 <li class="mb-3">
                     <div [formGroupName]="i" class="input-group">
                         <input
@@ -41,7 +42,7 @@
                             type="button"
                             class="btn btn-danger"
                             (click)="removeKnowledgeBaseItem(i)"
-                            [disabled]="form.controls.kbItems.length === 1"
+                            [disabled]="form().controls.kbItems.length === 1"
                         >
                             <fa-icon
                                 [icon]="faTrash"
@@ -54,32 +55,30 @@
                 </li>
                 }
             </ul>
-            <div class="btn-group" role="group">
-                <button
-                    type="button"
-                    class="btn btn-primary"
-                    (click)="addKnowledgeBaseItem()"
-                >
-                    <fa-icon
-                        [icon]="faPlus"
-                        class="fa-sm"
-                        aria-hidden="true"
-                    ></fa-icon>
-                    <span class="ms-2" i18n>Add Item</span>
-                </button>
-                <button
-                    type="submit"
-                    class="btn btn-success"
-                    [disabled]="form.invalid"
-                >
-                    <fa-icon
-                        [icon]="faCheck"
-                        class="fa-sm"
-                        aria-hidden="true"
-                    ></fa-icon>
-                    <span class="ms-2" i18n>Submit</span>
-                </button>
-            </div>
+            <button
+                type="button"
+                class="btn btn-primary"
+                (click)="addKnowledgeBaseItem()"
+            >
+                <fa-icon
+                    [icon]="faPlus"
+                    class="fa-sm"
+                    aria-hidden="true"
+                ></fa-icon>
+                <span class="ms-2" i18n>Add Item</span>
+            </button>
         </form>
     </div>
 </section>
+} @else {
+<section>
+    <button
+        type="button"
+        class="btn btn-primary"
+        (click)="addKnowledgeBaseItem()"
+    >
+        <fa-icon [icon]="faPlus" class="fa-sm" aria-hidden="true"></fa-icon>
+        <span class="ms-2" i18n>Add knowledge base item</span>
+    </button>
+</section>
+}

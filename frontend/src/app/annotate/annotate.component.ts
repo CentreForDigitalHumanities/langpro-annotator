@@ -6,8 +6,12 @@ import { AnnotationInputComponent } from "./annotation-input/annotation-input.co
 @Component({
     selector: "la-annotate",
     standalone: true,
-    imports: [AnnotationMenuComponent, NavigatorComponent, AnnotationInputComponent],
+    imports: [
+        AnnotationMenuComponent,
+        NavigatorComponent,
+        AnnotationInputComponent,
+    ],
     templateUrl: "./annotate.component.html",
     styleUrl: "./annotate.component.scss",
 })
-export class AnnotateComponent {}
+export class AnnotateComponent { }

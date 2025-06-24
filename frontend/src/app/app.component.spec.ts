@@ -8,6 +8,7 @@ import {
     withInterceptorsFromDi,
 } from "@angular/common/http";
 import { ActivatedRoute } from "@angular/router";
+import { of } from "rxjs";
 
 describe("AppComponent", () => {
     beforeEach(waitForAsync(() => {
@@ -18,7 +19,9 @@ describe("AppComponent", () => {
                 provideHttpClientTesting(),
                 {
                     provide: ActivatedRoute,
-                    useValue: {},
+                    useValue: {
+                        params: of({ problemId: "1" }),
+                    },
                 },
             ],
         }).compileComponents();

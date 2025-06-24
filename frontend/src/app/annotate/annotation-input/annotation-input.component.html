@@ -1,11 +1,34 @@
-
 <h2 i18n>Parser input</h2>
 
 <p i18n>
-    Edit the premises, conclusion and associated Knowledge Bases using the forms below.
+    Edit the premises, conclusion and associated Knowledge Bases using the forms
+    below.
 </p>
 
-<div class="d-flex flex-column gap-5">
-    <la-premises-form />
-    <la-knowledge-base-form />
+@if (form$ | async; as inputForm) {
+<div class="card">
+    <div class="card-body">
+        @if (problemDetails$ | async; as details) {
+        <la-problem-details [problemDetails]="details" />
+        }
+        <div class="input-form-container">
+            <la-premises-form class="subform" [form]="inputForm" />
+            <la-knowledge-base-form class="subform" [form]="inputForm" />
+        </div>
+    </div>
+    <div class="mb-3 d-flex justify-content-center">
+        <button
+            type="submit"
+            class="btn btn-success"
+            [disabled]="inputForm?.invalid"
+        >
+            <fa-icon
+                [icon]="faCheck"
+                class="fa-sm"
+                aria-hidden="true"
+            ></fa-icon>
+            <span class="ms-2" i18n>Submit</span>
+        </button>
+    </div>
 </div>
+}

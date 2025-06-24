@@ -1,13 +1,14 @@
+@let premiseControls = form().controls.premises.controls;
+
 <section class="card">
     <header class="card-header">
         <h3 class="h5" i18n>Premises and Conclusion</h3>
     </header>
     <div class="card-body">
-        <form [formGroup]="form" (ngSubmit)="onSubmit()">
+        <form [formGroup]="form()">
             <ul formArrayName="premises" class="ps-0 list-unstyled">
-                @for (premise of premises.controls; let i = $index; track
-                $index) {
-
+                @for (control of form().controls.premises.controls; let i = $index; track $index)
+                {
                 <li class="mb-3">
                     <label
                         [attr.for]="'premise-' + i"
@@ -27,7 +28,7 @@
                             type="button"
                             class="btn btn-danger"
                             (click)="removePremise(i)"
-                            [disabled]="premises.length === 1"
+                            [disabled]="premiseControls.length === 1"
                         >
                             <fa-icon
                                 [icon]="faTrash"
@@ -61,22 +62,9 @@
                     id="conclusion"
                     type="text"
                     class="form-control"
-                    formControlName="conclusion"
+                    [formControl]="form().controls.conclusion"
                 />
             </div>
-
-            <button
-                type="submit"
-                class="btn btn-success"
-                [disabled]="form.invalid"
-            >
-                <fa-icon
-                    [icon]="faCheck"
-                    class="fa-sm"
-                    aria-hidden="true"
-                ></fa-icon>
-                <span class="ms-2" i18n>Submit</span>
-            </button>
         </form>
     </div>
 </section>

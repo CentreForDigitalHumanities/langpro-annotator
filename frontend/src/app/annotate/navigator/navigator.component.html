@@ -1,9 +1,11 @@
+@let problem = problem$ | async; @let proofBankStats = proofBankStats$ | async;
+
 <div class="navigator-container">
     <div class="d-flex justify-content-center align-items-center gap-2 mb-3">
         <button
             class="btn btn-outline-primary"
-            (click)="goToFirst()"
-            [disabled]="isFirstProblem"
+            (click)="navigateToProblem(proofBankStats?.firstProblemId)"
+            [disabled]="problem?.id === proofBankStats?.firstProblemId"
             ngbTooltip="First Problem"
             i18n-ngbTooltip
         >
@@ -12,8 +14,8 @@
         </button>
         <button
             class="btn btn-outline-primary"
-            (click)="goToPrevious()"
-            [disabled]="isFirstProblem"
+            (click)="navigateToProblem(problem?.previous)"
+            [disabled]="problem?.previous === null"
             ngbTooltip="Previous Problem"
             i18n-ngbTooltip
         >
@@ -21,17 +23,16 @@
             <span i18n>Previous</span>
         </button>
 
-        <div class="problem-info d-flex flex-column align-items-center px-3">
-            <span>{{ currentProblemIndex }} of {{ totalProblems }}</span>
-            <span class="badge bg-secondary mt-1" i18n>
-                ID: {{ currentProblemId }}
+        <div class="px-3">
+            <span i18n>
+                {{ problem?.id }} of {{ proofBankStats?.totalProblems }}
             </span>
         </div>
 
         <button
             class="btn btn-outline-primary"
-            (click)="goToNext()"
-            [disabled]="isLastProblem"
+            (click)="navigateToProblem(problem?.next)"
+            [disabled]="problem?.next === null"
             ngbTooltip="Next Problem"
             i18n-ngbTooltip
         >
@@ -40,8 +41,8 @@
         </button>
         <button
             class="btn btn-outline-primary"
-            (click)="goToLast()"
-            [disabled]="isLastProblem"
+            (click)="navigateToProblem(proofBankStats?.lastProblemId)"
+            [disabled]="problem?.id === proofBankStats?.lastProblemId"
             ngbTooltip="Last Problem"
             i18n-ngbTooltip
         >
@@ -50,7 +51,7 @@
         </button>
         <button
             class="btn btn-outline-secondary"
-            (click)="goToRandom()"
+            (click)="navigateToProblem(problem?.random)"
             ngbTooltip="Random Problem"
             i18n-ngbTooltip
         >

@@ -10,6 +10,15 @@ class SickProblem:
     entailment_label: Literal["neutral", "contradiction", "entailment"]
     relatedness_score: float
 
+    def serialize(self) -> dict:
+        return {
+            "pairId": self.pair_id,
+            "sentenceOne": self.sentence_one,
+            "sentenceTwo": self.sentence_two,
+            "entailmentLabel": self.entailment_label,
+            "relatednessScore": self.relatedness_score,
+        }
+
 
 @dataclass(frozen=True)
 class FracasProblem:
@@ -24,6 +33,19 @@ class FracasProblem:
     subsection_name: str
     premises: list[str] = field(default_factory=list)
 
+    def serialize(self) -> dict:
+        return {
+            "fracasId": self.fracas_id,
+            "question": self.question,
+            "hypothesis": self.hypothesis,
+            "answer": self.answer,
+            "fracasAnswer": self.fracas_answer,
+            "fracasNonStandard": self.fracas_non_standard,
+            "note": self.note,
+            "sectionName": self.section_name,
+            "subsectionName": self.subsection_name,
+            "premises": self.premises,
+        }
 
 
-
+type CombinedProblem = SickProblem | FracasProblem

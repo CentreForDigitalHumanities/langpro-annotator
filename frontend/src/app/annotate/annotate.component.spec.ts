@@ -1,6 +1,10 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 
 import { AnnotateComponent } from "./annotate.component";
+import { ActivatedRoute } from "@angular/router";
+import { of } from "rxjs";
+import { provideHttpClient } from "@angular/common/http";
+import { provideHttpClientTesting } from "@angular/common/http/testing";
 
 describe("AnnotateComponent", () => {
     let component: AnnotateComponent;
@@ -9,6 +13,16 @@ describe("AnnotateComponent", () => {
     beforeEach(async () => {
         await TestBed.configureTestingModule({
             imports: [AnnotateComponent],
+            providers: [
+                provideHttpClient(),
+                provideHttpClientTesting(),
+                {
+                    provide: ActivatedRoute,
+                    useValue: {
+                        params: of({ problemId: "1" }),
+                    }
+                }
+            ]
         }).compileComponents();
 
         fixture = TestBed.createComponent(AnnotateComponent);

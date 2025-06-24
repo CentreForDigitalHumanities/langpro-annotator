@@ -19,7 +19,7 @@
         "startapp": "yarn back django-admin startapp --settings langpro_annotator.settings --pythonpath .",
         "test-front": "yarn front yarn test-once",
         "test-back": "yarn back pytest",
-        "test-func": "yarn func pytest",
+        "test-func": " yarn start-front-func-test && yarn func pytest",
         "test": "yarn test-back && yarn test-front && yarn test-func",
         "start-front": "yarn front yarn serve",
         "start-back": "cd backend && python manage.py runserver --settings glue --pythonpath ..",
@@ -36,6 +36,7 @@
         "watch-front-p": "yarn front yarn watch",
         "start-back-p": "cd backend && python manage.py runserver --settings settings --pythonpath ../private",
         "start-back-p-local": "cd backend && python manage.py runserver --settings production --insecure --pythonpath ..",
+        "start-front-func-test": "cd frontend && ng serve --port 4200 & while ! nc -z localhost 4200; do sleep 1; done",
         "start-p": "yarn start-back-p & sleep 5 && yarn static-p && yarn watch-front-p",
         "stop-back": "lsof -t -i tcp:8000 | xargs kill -9 || echo \"not running\""
     },

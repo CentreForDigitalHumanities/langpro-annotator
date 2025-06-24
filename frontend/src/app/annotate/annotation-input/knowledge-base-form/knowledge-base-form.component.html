@@ -5,13 +5,9 @@
     <div class="card-body">
         <form [formGroup]="form" (ngSubmit)="onSubmit()">
             <ul formArrayName="kbItems" class="ps-0 list-unstyled">
-                <li
-                    *ngFor="
-                        let kbItem of form.controls.kbItems.controls;
-                        let i = index
-                    "
-                    class="mb-3"
-                >
+                @for (kbItem of form.controls.kbItems.controls; let i = $index;
+                track $index) {
+                <li class="mb-3">
                     <div [formGroupName]="i" class="input-group">
                         <input
                             type="text"
@@ -27,9 +23,12 @@
                             <option value="" disabled selected i18n>
                                 Select Relationship
                             </option>
-                            <option *ngFor="let relationship of relationshipTypes" [value]="relationship">
+                            @for (relationship of relationshipTypes; track
+                            $index) {
+                            <option [value]="relationship">
                                 {{ getRelationshipTypeName(relationship) }}
                             </option>
+                            }
                         </select>
                         <input
                             type="text"
@@ -53,6 +52,7 @@
                         </button>
                     </div>
                 </li>
+                }
             </ul>
             <div class="btn-group" role="group">
                 <button

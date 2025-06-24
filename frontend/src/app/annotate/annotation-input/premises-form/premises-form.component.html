@@ -5,10 +5,10 @@
     <div class="card-body">
         <form [formGroup]="form" (ngSubmit)="onSubmit()">
             <ul formArrayName="premises" class="ps-0 list-unstyled">
-                <li
-                    *ngFor="let premise of premises.controls; let i = index"
-                    class="mb-3"
-                >
+                @for (premise of premises.controls; let i = $index; track
+                $index) {
+
+                <li class="mb-3">
                     <label
                         [attr.for]="'premise-' + i"
                         class="form-label fw-bold"
@@ -38,6 +38,7 @@
                         </button>
                     </div>
                 </li>
+                }
             </ul>
             <button
                 type="button"

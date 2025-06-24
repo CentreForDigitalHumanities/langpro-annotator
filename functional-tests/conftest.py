@@ -4,6 +4,7 @@ from selenium import webdriver
 
 WEBDRIVER_INI_NAME = 'webdriver'
 BASE_ADDRESS_OPTION_NAME = 'base_address'
+FRONTEND_ADDRESS_OPTION_NAME = 'frontend_address'
 
 
 def pytest_addoption(parser):
@@ -17,8 +18,14 @@ def pytest_addoption(parser):
     parser.addoption(
         '--base-address',
         default='http://localhost:8000/',
-        help='specifies the base address where the application is running',
+        help='specifies the base address where the backend of the application is running',
         dest=BASE_ADDRESS_OPTION_NAME,
+    )
+    parser.addoption(
+        '--frontend-address',
+        default='http://localhost:4200/',
+        help='specifies the base address where the frontend of the application is running',
+        dest=FRONTEND_ADDRESS_OPTION_NAME,
     )
 
 
@@ -65,6 +72,11 @@ def browser(webdriver_instance):
 @pytest.fixture(scope='session')
 def base_address(pytestconfig):
     return pytestconfig.getoption(BASE_ADDRESS_OPTION_NAME)
+
+@pytest.fixture(scope='session')
+def frontend_address(pytestconfig):
+    return pytestconfig.getoption(FRONTEND_ADDRESS_OPTION_NAME)
+
 
 
 @pytest.fixture

@@ -4,12 +4,16 @@ import { VerifyEmailComponent } from "./verify-email.component";
 import { AuthService } from "../../services/auth.service";
 import { ToastService } from "../../services/toast.service";
 import {
-    HttpClientTestingModule,
     HttpTestingController,
+    provideHttpClientTesting,
 } from "@angular/common/http/testing";
 import { By } from "@angular/platform-browser";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { provideRouter } from "@angular/router";
+import {
+    provideHttpClient,
+    withInterceptorsFromDi,
+} from "@angular/common/http";
 
 describe("VerifyEmailComponent", () => {
     let component: VerifyEmailComponent;
@@ -19,8 +23,12 @@ describe("VerifyEmailComponent", () => {
 
     beforeEach(() => {
         TestBed.configureTestingModule({
-            imports: [HttpClientTestingModule],
-            providers: [AuthService, provideRouter([])],
+            providers: [
+                AuthService,
+                provideRouter([]),
+                provideHttpClient(withInterceptorsFromDi()),
+                provideHttpClientTesting(),
+            ],
         });
         toastService = TestBed.inject(ToastService);
         httpTestingController = TestBed.inject(HttpTestingController);

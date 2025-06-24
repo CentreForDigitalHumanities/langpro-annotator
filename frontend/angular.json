@@ -23,9 +23,7 @@
                         "outputPath": "dist",
                         "index": "src/index.html",
                         "browser": "src/main.ts",
-                        "polyfills": [
-                            "zone.js"
-                        ],
+                        "polyfills": ["zone.js", "@angular/localize/init"],
                         "tsConfig": "tsconfig.app.json",
                         "inlineStyleLanguage": "scss",
                         "assets": [
@@ -49,9 +47,7 @@
                         "scripts": [],
                         "server": "src/main.server.ts",
                         "prerender": true,
-                        "ssr": {
-                            "entry": "server.ts"
-                        },
+                        "ssr": false,
                         "baseHref": "/"
                     },
                     "configurations": {
@@ -77,9 +73,7 @@
                             "sourceMap": true
                         },
                         "nl": {
-                            "localize": [
-                                "nl"
-                            ]
+                            "localize": ["nl"]
                         }
                     },
                     "defaultConfiguration": "production"
@@ -109,9 +103,7 @@
                         "format": "xlf",
                         "outputPath": "locale",
                         "includeContext": true,
-                        "targetFiles": [
-                            "messages.nl.xlf"
-                        ]
+                        "targetFiles": ["messages.nl.xlf"]
                     }
                 },
                 "test": {
@@ -119,7 +111,8 @@
                     "options": {
                         "polyfills": [
                             "zone.js",
-                            "zone.js/testing"
+                            "zone.js/testing",
+                            "@angular/localize/init"
                         ],
                         "tsConfig": "tsconfig.spec.json",
                         "inlineStyleLanguage": "scss",
@@ -128,9 +121,7 @@
                             "src/favicon.svg",
                             "src/assets"
                         ],
-                        "styles": [
-                            "src/styles.scss"
-                        ],
+                        "styles": ["src/styles.scss"],
                         "scripts": [],
                         "karmaConfig": "karma.conf.js"
                     }
@@ -138,13 +129,11 @@
             },
             "i18n": {
                 "sourceLocale": {
-                    "code": "en",
-                    "baseHref": "/en/"
+                    "code": "en"
                 },
                 "locales": {
                     "nl": {
-                        "translation": "locale/messages.nl.xlf",
-                        "baseHref": "/nl/"
+                        "translation": "locale/messages.nl.xlf"
                     }
                 }
             }

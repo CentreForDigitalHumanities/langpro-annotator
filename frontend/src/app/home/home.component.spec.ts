@@ -1,16 +1,23 @@
-import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing';
-import { HttpClientTestingModule } from '@angular/common/http/testing';
-import { HomeComponent } from './home.component';
+import { waitForAsync, ComponentFixture, TestBed } from "@angular/core/testing";
+import { provideHttpClientTesting } from "@angular/common/http/testing";
+import { HomeComponent } from "./home.component";
+import {
+    provideHttpClient,
+    withInterceptorsFromDi,
+} from "@angular/common/http";
 
-describe('HomeComponent', () => {
+describe("HomeComponent", () => {
     let component: HomeComponent;
     let fixture: ComponentFixture<HomeComponent>;
 
     beforeEach(waitForAsync(() => {
         TestBed.configureTestingModule({
-            imports: [HomeComponent, HttpClientTestingModule]
-        })
-            .compileComponents();
+            imports: [HomeComponent],
+            providers: [
+                provideHttpClient(withInterceptorsFromDi()),
+                provideHttpClientTesting(),
+            ],
+        }).compileComponents();
     }));
 
     beforeEach(() => {
@@ -19,7 +26,7 @@ describe('HomeComponent', () => {
         fixture.detectChanges();
     });
 
-    it('should create', () => {
+    it("should create", () => {
         expect(component).toBeTruthy();
     });
 });

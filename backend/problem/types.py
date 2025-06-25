@@ -48,4 +48,24 @@ class FracasProblem:
         }
 
 
-type CombinedProblem = SickProblem | FracasProblem
+@dataclass(frozen=True)
+class SNLIProblem:
+    pair_id: str
+    subset: Literal["train", "dev", "test"]
+    sentence_one: str
+    sentence_two: str
+    gold_label: Literal["neutral", "contradiction", "entailment", "none"]
+    labels: list[Literal["neutral", "contradiction", "entailment", "none"]]
+
+    def serialize(self) -> dict:
+        return {
+            "pairId": self.pair_id,
+            "subset": self.subset,
+            "sentenceOne": self.sentence_one,
+            "sentenceTwo": self.sentence_two,
+            "goldLabel": self.gold_label,
+            "labels": self.labels,
+        }
+
+
+type CombinedProblem = SickProblem | FracasProblem | SNLIProblem

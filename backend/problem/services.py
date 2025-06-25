@@ -2,7 +2,7 @@ import json
 from typing import Tuple
 from langpro_annotator.logger import logger
 from problem.models import Problem
-from problem.types import CombinedProblem, FracasProblem, SickProblem
+from problem.types import CombinedProblem, FracasProblem, SNLIProblem, SickProblem
 
 
 def instance_to_sick_problem(instance: Problem) -> SickProblem | None:
@@ -49,9 +49,39 @@ def instance_to_fracas_problem(instance: Problem) -> FracasProblem | None:
     except json.JSONDecodeError as e:
         logger.warning(f"Could not decode JSON for Problem ID {instance.id}: {e}")
         return None
-    except (KeyError, TypeError) as e:
+    except Exception as e:
         logger.warning(
             f"Could not convert Problem ID {instance.id} to FracasProblem: {e}"
+        )
+        return None
+
+
+def instance_to_snli_problem(instance: Problem) -> SNLIProblem | None:
+    """
+    Converts a Problem instance to a SNLIProblem object.
+    """
+    try:
+        content: dict = json.loads(instance.content)
+        return SNLIProblem(
+            pair_id=content["pairID"],
+            subset=content["subset"],
+            sentence_one=content["sentence1"],
+            sentence_two=content["sentence2"],
+            gold_label=content["gold_label"],
+            labels=[
+                content["label1"],
+                content["label2"],
+                content["label3"],
+                content["label4"],
+                content["label5"],
+            ]
+        )
+    except json.JSONDecodeError as e:
+        logger.warning(f"Could not decode JSON for Problem ID {instance.id}: {e}")
+        return None
+    except Exception as e:
+        logger.warning(
+            f"Could not convert Problem ID {instance.id} to SNLIProblem: {e}"
         )
         return None
 
@@ -81,6 +111,17 @@ def get_fracas_problems() -> list[FracasProblem]:
         if (converted := instance_to_fracas_problem(problem)) is not None
     ]
 
+def get_snli_problems() -> list[SNLIProblem]:
+    """
+    Retrieves all Problem objects of type 'SNLI' from the database
+    and converts them into SNLIProblem instances.
+    """
+    problems = Problem.objects.filter(type=Problem.ProblemType.SNLI)
+    return [
+        converted
+        for problem in problems
+        if (converted := instance_to_snli_problem(problem)) is not None
+    ]
 
 def convert_to_subtype(problem: Problem) -> CombinedProblem | None:
     """
@@ -91,6 +132,8 @@ def convert_to_subtype(problem: Problem) -> CombinedProblem | None:
         return instance_to_sick_problem(problem)
     elif problem.type == Problem.ProblemType.FRACAS:
         return instance_to_fracas_problem(problem)
+    elif problem.type == Problem.ProblemType.SNLI:
+        return instance_to_snli_problem(problem)
     else:
         return None
 

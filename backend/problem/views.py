@@ -14,7 +14,8 @@ from problem.services import (
 @dataclass
 class ProblemResponse:
     id: int | None = None
-    type: Literal["sick", "fracas"] | None = None
+    index: int | None = None
+    type: Literal["sick", "fracas", "snli"] | None = None
     problem: CombinedProblem | None = None
     error: str | None = None
     next: str | None = None
@@ -25,6 +26,7 @@ class ProblemResponse:
         return JsonResponse(
             {
                 "id": self.id,
+                "index": self.index,
                 "type": self.type,
                 "problem": self.problem.serialize() if self.problem else None,
                 "error": self.error,
@@ -66,6 +68,8 @@ class ProblemView(APIView):
 
         converted_problem = convert_to_subtype(problem)
 
+        problem_index = problem.get_index()
+
         if converted_problem is None:
             return ProblemResponse(
                 error="Problem not found",
@@ -77,6 +81,7 @@ class ProblemView(APIView):
 
         return ProblemResponse(
             id=problem.id,
+            index=problem_index,
             type=problem.type,
             problem=converted_problem,
             next=next_problem_id,

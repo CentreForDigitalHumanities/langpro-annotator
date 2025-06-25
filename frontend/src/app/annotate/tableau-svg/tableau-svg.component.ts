@@ -1,6 +1,6 @@
 import { Component, ElementRef, Input, Output, ViewChild, EventEmitter, ChangeDetectorRef} from '@angular/core';
 import { CommonModule } from "@angular/common";
-import { BehaviorSubject, Subject } from "rxjs";
+import { Subject } from "rxjs";
 
 interface Dimensions {
     width?: number;
@@ -20,6 +20,7 @@ export class TableauTerm {
     @Input()
     public label?: String;
 
+    /* background color, should probably be replaced by an enum type with the color lookup done elsewhere */
     @Input()
     public bg?: String;
 
@@ -44,12 +45,13 @@ export class TableauTerm {
     @Output()
     public onSize = new EventEmitter<Dimensions>();
 
-    padding = 5;
-    height = 20;
+    padding: number = 5;
+    height: number = 20;
+
+    idxW: number = 0;
     termX: number = 0;
     termW: number = 0;
     labelX: number = 0;
-    idxW: number = 0;
     labelW: number = 0;
     totalW: number = 0;
 
@@ -78,7 +80,13 @@ export class TableauTree {
 
     levelHeight = 40;
 
+    /* Width of the tree node, has to be determined dynamically via onSize events from terms */
     width: number = 0;
+    /* Height isn't stored in a member variable, because it can be computed as needed */
+
+    /* Dimensions of the biggest subtree.
+       Width is used to align all subtrees.
+       Height is used to determine the overall height of the tree. */
     subWidth: number = 0;
     subHeight: number = 0;
 
@@ -90,6 +98,7 @@ export class TableauTree {
         this.emitSize();
     }
 
+    /* keep track of the current node's biggest subtree using onSize events */
     updateSubDimensions(size: Dimensions) {
         this.subWidth = Math.max(this.subWidth, size.width!);
         this.subHeight = Math.max(this.subHeight, size.height!);
@@ -99,13 +108,26 @@ export class TableauTree {
     emitSize() {
         this.onSize.emit({
             width: Math.max(this.subWidth * (this.tree.subtrees?.length ?? 0), this.width),
-            height: this.subHeight + 70 * this.tree.nodes.length,
+            height: this.subHeight + this.totalNodeHeight()
         });
     }
 
+    /* Determines the X coordinate of where subtree of index `idx` should be drawn */
     subtreePosition(idx: number) {
         let widthWithPadding = 1.15 * this.subWidth;
         return widthWithPadding * idx - (widthWithPadding / 2) * (this.tree.subtrees.length - 1);
+    }
+
+    /* Generates a path definition for linking the end of the current node to subtree index `idx` */
+    subtreeLinkPath(idx: number) {
+        return [
+            // move to end of current node
+            `M 0 ${this.totalNodeHeight() - 15 }`,
+            // curve to half-way to subtree
+            `q 0 ${this.levelHeight/2} ${this.subtreePosition(idx)/2 } ${this.levelHeight/2}`,
+            // curve from half-way to subtree, to subtree position
+            `q ${this.subtreePosition(idx)/2} 0 ${this.subtreePosition(idx)/2} ${this.levelHeight/2}`
+        ].join(' ');
     }
 
     nodeHeight(node: any) {
@@ -117,9 +139,11 @@ export class TableauTree {
     }
 
     nodeY(idx: number) {
+        // y position of a given node is the sum of heights of all preceeding nodes
         return this.tree.nodes.slice(0, idx).map(this.nodeHeight).reduce((sum: number, h: number) => sum + h, 0);
     }
 }
+
 
 @Component({
     selector: "la-tableau-svg",

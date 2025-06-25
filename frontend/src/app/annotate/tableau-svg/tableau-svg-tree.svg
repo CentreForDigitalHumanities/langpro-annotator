@@ -11,11 +11,7 @@
 
     @if (tree.subtrees) {
         @for (subtree of tree.subtrees; track tree.subtrees; let i = $index) {
-            <svg:path attr.d="
-                M 0 {{ totalNodeHeight() - 15 }}
-                q 0 {{levelHeight/2}} {{subtreePosition(i)/2 }} {{levelHeight/2}}
-                q {{subtreePosition(i)/2}} 0 {{subtreePosition(i)/2}} {{levelHeight/2}}
-            " stroke="steelblue" fill="none"/>
+            <svg:path [attr.d]="subtreeLinkPath(i)" stroke="steelblue" fill="none"/>
         }
     }
 

@@ -1,9 +1,10 @@
 <svg:g>
     @for (node of tree.nodes; track tree.nodes; let i = $index) {
         <svg:g attr.transform="translate(0, {{ nodeY(i) }})">
-            <svg:g term [idx]="node.idx" [term]="node.term" [label]="node.label" [bg]="node.bg" (onSize)="updateDimensions($event)" [rule]="node.rule"></svg:g>
+            <svg:g term [idx]="node.idx" [term]="node.term" [label]="node.label" [end]="node.end"
+                        [bg]="node.bg" (onSize)="updateDimensions($event)" [rule]="node.rule"></svg:g>
             @if (i < tree.nodes.length - 1) {
-                <svg:path attr.d="M 0 {{ nodeHeight(node) - 15 }} l 0 15" stroke="blue" fill="none"/>
+                <svg:path attr.d="M 0 {{ nodeHeight(node) - 15 }} l 0 15" stroke="steelblue" fill="none"/>
             }
         </svg:g>
     }
@@ -14,7 +15,7 @@
                 M 0 {{ totalNodeHeight() - 15 }}
                 q 0 {{levelHeight/2}} {{subtreePosition(i)/2 }} {{levelHeight/2}}
                 q {{subtreePosition(i)/2}} 0 {{subtreePosition(i)/2}} {{levelHeight/2}}
-            " stroke="blue" fill="none"/>
+            " stroke="steelblue" fill="none"/>
         }
     }
 

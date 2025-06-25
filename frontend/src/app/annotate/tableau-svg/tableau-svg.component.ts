@@ -27,6 +27,9 @@ export class TableauTerm {
     public term: String = '';
 
     @Input()
+    public end: boolean = false;
+
+    @Input()
     public rule?: String;
 
     @ViewChild('idxText')
@@ -164,13 +167,13 @@ export class TableauSVG {
                         nodes: [
                             {idx: 13, term: 'be@work', label: 'c1', rule: 'fl_conj_who[10]', bg: 'mistyrose'},
                             {idx: 16, term: 'work', label: 'c1', rule: 'aux_verb[13]', bg: 'mistyrose'},
-                            {term: 'X', rule: 'cl_subcat[16,8]'}
+                            {end: true, rule: 'cl_subcat[16,8]'}
                         ],
                     },
                     {
                         nodes: [
                             {idx: 14, term: 'person', label: 'c1', rule: 'fl_conj_who[10]', bg: 'mistyrose'},
-                            {term: 'X', rule: 'cl_subsumption[14,6]'}
+                            {end: true, rule: 'cl_subsumption[14,6]'}
                         ]
                     }
                 ]
@@ -189,7 +192,7 @@ export class TableauSVG {
                     {idx: 22, term: 'car', label: 'c2', rule: 'up_mon_fun[19,20]', bg: 'mistyrose'},
                     {idx: 23, term: 'car', label: 'c2', rule:'int_mod_tr[21]', bg: 'honeydew'},
                     {idx: 24, term: 'expensive', label: 'c2', rule:'int_mod_tr[21]', bg: 'honeydew'},
-                    {term: 'X', rule: 'cl_subsmption[23,22]'}
+                    {end: true, rule: 'cl_subsmption[23,22]'}
                 ]
             }
         ]

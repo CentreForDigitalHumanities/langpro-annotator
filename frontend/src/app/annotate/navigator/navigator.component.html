@@ -24,9 +24,12 @@
         </button>
 
         <div class="px-3">
+            @if (problem && problem.index !== null && proofBankStats &&
+            proofBankStats.totalProblems) {
             <span i18n>
-                {{ problem?.id }} of {{ proofBankStats?.totalProblems }}
+                {{ problem.index }} of {{ proofBankStats.totalProblems }}
             </span>
+            }
         </div>
 
         <button

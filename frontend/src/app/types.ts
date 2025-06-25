@@ -19,8 +19,20 @@ export interface FracasProblem {
     premises: string[];
 }
 
+type SNLILabel = "neutral" | "contradiction" | "entailment" | "none";
+
+export interface SNLIProblem {
+    pairId: number;
+    subset: 'development' | 'test' | 'train';
+    sentenceOne: string;
+    sentenceTwo: string;
+    goldLabel: SNLILabel;
+    labels: SNLILabel[];
+}
+
 interface ProblemResponseBase {
     id: string;
+    index: string | null;
     error: string | null;
     next: string | null;
     previous: string | null;
@@ -37,7 +49,12 @@ interface FracasProblemResponse extends ProblemResponseBase {
     type: Dataset.FRACAS;
 }
 
-export type ProblemResponse = SickProblemResponse | FracasProblemResponse;
+export interface SNLIProblemResponse extends ProblemResponseBase {
+    problem: SNLIProblem | null;
+    type: Dataset.SNLI;
+}
+
+export type ProblemResponse = SickProblemResponse | FracasProblemResponse | SNLIProblemResponse;
 
 export interface ProofBankStats {
     firstProblemId: string;
@@ -48,6 +65,7 @@ export interface ProofBankStats {
 export enum Dataset {
     SICK = "sick",
     FRACAS = "fracas",
+    SNLI = "snli",
 }
 
 export enum Judgement {

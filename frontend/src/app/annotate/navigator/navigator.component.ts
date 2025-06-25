@@ -8,9 +8,8 @@ import {
     faAnglesRight,
     faShuffle,
 } from "@fortawesome/free-solid-svg-icons";
-import { map, switchMap } from "rxjs";
 import { CommonModule } from "@angular/common";
-import { ActivatedRoute, Router } from "@angular/router";
+import { Router } from "@angular/router";
 
 @Component({
     selector: "la-navigator",
@@ -20,10 +19,7 @@ import { ActivatedRoute, Router } from "@angular/router";
     styleUrl: "./navigator.component.scss",
 })
 export class NavigatorComponent {
-    public problem$ = this.route.params.pipe(
-        map((params) => params["problemId"]),
-        switchMap((id) => this.annotateService.problem$(id))
-    );
+    public problem$ = this.annotateService.problem$;
     public proofBankStats$ = this.annotateService.proofBankStats$;
 
     public faAnglesLeft = faAnglesLeft;
@@ -34,7 +30,6 @@ export class NavigatorComponent {
 
     constructor(
         private router: Router,
-        private route: ActivatedRoute,
         private annotateService: AnnotateService
     ) {}
 

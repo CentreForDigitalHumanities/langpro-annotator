@@ -19,7 +19,7 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
-        snli_paths = [("development", "problem/data/snli_1.0_dev.txt")]
+        snli_paths = [("dev", "problem/data/snli_1.0_dev.txt")]
         if options["full"]:
             snli_paths.extend(
                 [

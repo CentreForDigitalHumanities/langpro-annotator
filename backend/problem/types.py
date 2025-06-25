@@ -50,7 +50,7 @@ class FracasProblem:
 
 @dataclass(frozen=True)
 class SNLIProblem:
-    pair_id: str
+    pair_id: int
     subset: Literal["train", "dev", "test"]
     sentence_one: str
     sentence_two: str

@@ -75,37 +75,38 @@ export class AnnotationInputComponent {
         if (!response.problem) {
             return Judgement.UNKNOWN;
         }
-        if (response.type === "sick") {
-            switch (response.problem.entailmentLabel) {
-                case "ENTAILMENT":
-                    return Judgement.ENTAILMENT;
-                case "CONTRADICTION":
-                    return Judgement.CONTRADICTION;
-                case "NEUTRAL":
-                    return Judgement.NEUTRAL;
-            }
-        } else if (response.type === "fracas") {
-            switch (response.problem.fracasAnswer) {
-                case "yes":
-                    return Judgement.ENTAILMENT;
-                case "no":
-                    return Judgement.CONTRADICTION;
-                case "unknown":
-                    return Judgement.NEUTRAL;
-                case "undefined":
-                    return Judgement.UNKNOWN;
-            }
-        }
-        // SNLI
-        switch (response.problem.goldLabel) {
-            case "entailment":
-                return Judgement.ENTAILMENT;
-            case "contradiction":
-                return Judgement.CONTRADICTION;
-            case "neutral":
-                return Judgement.NEUTRAL;
-            case "none":
-                return Judgement.UNKNOWN;
+        switch (response.type) {
+            case Dataset.SICK:
+                switch (response.problem.entailmentLabel) {
+                    case "ENTAILMENT":
+                        return Judgement.ENTAILMENT;
+                    case "CONTRADICTION":
+                        return Judgement.CONTRADICTION;
+                    case "NEUTRAL":
+                        return Judgement.NEUTRAL;
+                }
+            case Dataset.FRACAS:
+                switch (response.problem.fracasAnswer) {
+                    case "yes":
+                        return Judgement.ENTAILMENT;
+                    case "no":
+                        return Judgement.CONTRADICTION;
+                    case "unknown":
+                        return Judgement.NEUTRAL;
+                    case "undefined":
+                        return Judgement.UNKNOWN;
+                }
+            case Dataset.SNLI:
+                switch (response.problem.goldLabel) {
+                    case "entailment":
+                        return Judgement.ENTAILMENT;
+                    case "contradiction":
+                        return Judgement.CONTRADICTION;
+                    case "neutral":
+                        return Judgement.NEUTRAL;
+                    case "none":
+                        return Judgement.UNKNOWN;
+                }
         }
     }
 

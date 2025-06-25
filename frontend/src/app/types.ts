@@ -23,7 +23,7 @@ type SNLILabel = "neutral" | "contradiction" | "entailment" | "none";
 
 export interface SNLIProblem {
     pairId: number;
-    subset: 'development' | 'test' | 'train';
+    subset: 'dev' | 'test' | 'train';
     sentenceOne: string;
     sentenceTwo: string;
     goldLabel: SNLILabel;
@@ -31,8 +31,8 @@ export interface SNLIProblem {
 }
 
 interface ProblemResponseBase {
-    id: string;
-    index: string | null;
+    id: number;
+    index: number | null;
     error: string | null;
     next: string | null;
     previous: string | null;

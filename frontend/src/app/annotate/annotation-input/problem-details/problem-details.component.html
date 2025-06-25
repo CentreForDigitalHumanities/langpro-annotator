@@ -1,8 +1,9 @@
+@if (problemDetails(); as details) {
 <div class="problem-details-container">
     <div class="judgement-badge-container">
-        <span>Judgement:</span>
+        <span i18n>Judgement:</span>
         <la-judgement-badge
-            [judgement]="problemDetails().judgement"
+            [judgement]="details.judgement"
         ></la-judgement-badge>
     </div>
 
@@ -10,19 +11,18 @@
         <tbody>
             <tr>
                 <td class="text-muted" i18n>ID:</td>
-                <td>{{ problemDetails().problemId }}</td>
+                <td>{{ details.problemId }}</td>
             </tr>
             <tr>
                 <td class="text-muted" i18n>Dataset:</td>
-                <td>{{ problemDetails().dataset }}</td>
+                <td>{{ details.dataset }}</td>
             </tr>
             @if (sectionString()) {
-                <tr>
-                    <td class="text-muted" i18n>Section:</td>
-                    <td>{{ sectionString() }}</td>
-                </tr>
-            }
-            @if (problemDetails().comment) {
+            <tr>
+                <td class="text-muted" i18n>Section:</td>
+                <td>{{ sectionString() }}</td>
+            </tr>
+            } @if (details.comment) {
             <tr>
                 <td class="text-muted">
                     <span i18n>Comment:</span>
@@ -34,9 +34,12 @@
                         i18n-ngbTooltip
                     />
                 </td>
-                <td><i>{{ problemDetails().comment }}</i></td>
+                <td>
+                    <i>{{ details.comment }}</i>
+                </td>
             </tr>
             }
         </tbody>
     </table>
 </div>
+}

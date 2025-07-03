@@ -64,11 +64,11 @@ class Command(BaseCommand):
                             if problem[key] == "":
                                 problem[key] = "none"
 
-                        created += 1
                         Problem.objects.create(
                             type=Problem.ProblemType.SNLI,
                             content=problem,
                         )
+                        created += 1
                         existing_pair_ids.add(problem["pairID"])
             except FileNotFoundError:
                 logger.warning(f"File {snli_path} not found. Skipping.")

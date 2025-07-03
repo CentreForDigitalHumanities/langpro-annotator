@@ -1,5 +1,4 @@
 import csv
-import json
 
 from django.core.management.base import BaseCommand
 from tqdm import tqdm
@@ -38,9 +37,7 @@ class Command(BaseCommand):
         created = 0
 
         existing_snli_problems = Problem.objects.filter(type=Problem.ProblemType.SNLI)
-        existing_pair_ids = {
-            json.loads(p.content).get("pairID") for p in existing_snli_problems
-        }
+        existing_pair_ids = {p.content.get("pairID") for p in existing_snli_problems}
 
         for subset, snli_path in snli_paths:
             try:
@@ -70,7 +67,7 @@ class Command(BaseCommand):
                         created += 1
                         Problem.objects.create(
                             type=Problem.ProblemType.SNLI,
-                            content=json.dumps(problem),
+                            content=problem,
                         )
                         existing_pair_ids.add(problem["pairID"])
             except FileNotFoundError:

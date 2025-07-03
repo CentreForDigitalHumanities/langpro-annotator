@@ -1,5 +1,4 @@
 import csv
-import json
 
 from django.core.management.base import BaseCommand
 from tqdm import tqdm
@@ -47,7 +46,7 @@ class Command(BaseCommand):
                 created += 1
                 Problem.objects.create(
                     type=Problem.ProblemType.SICK,
-                    content=json.dumps(problem),
+                    content=problem,
                 )
 
             logger.info(

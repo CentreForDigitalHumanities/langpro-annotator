@@ -38,26 +38,6 @@ export type AnnotationInputForm = FormGroup<{
     kbItems: FormArray<KnowledgeBaseItemsForm>;
 }>;
 
-const judgementMap: Record<Dataset, Record<string, Judgement>> = {
-    [Dataset.SICK]: {
-        ENTAILMENT: Judgement.ENTAILMENT,
-        CONTRADICTION: Judgement.CONTRADICTION,
-        NEUTRAL: Judgement.NEUTRAL,
-    },
-    [Dataset.FRACAS]: {
-        yes: Judgement.ENTAILMENT,
-        no: Judgement.CONTRADICTION,
-        unknown: Judgement.NEUTRAL,
-        undefined: Judgement.UNKNOWN,
-    },
-    [Dataset.SNLI]: {
-        entailment: Judgement.ENTAILMENT,
-        contradiction: Judgement.CONTRADICTION,
-        neutral: Judgement.NEUTRAL,
-        none: Judgement.UNKNOWN,
-    },
-};
-
 @Component({
     selector: "la-annotation-input",
     standalone: true,
@@ -83,39 +63,7 @@ export class AnnotationInputComponent {
         initialValue: null,
     });
 
-    public problemDetails$ = this.problem$.pipe(
-        map((response) => this.extractDetails(response))
-    );
-
     public submit$ = new Subject<void>();
-
-    private getJudgement(response: ProblemResponse): Judgement {
-        // This should never happen, as we check for a problem in the calling
-        // function, but TypeScript does not know this.
-        if (!response.problem) {
-            return Judgement.UNKNOWN;
-        }
-
-        const { type, problem } = response;
-        // Use the judgementMap to get the judgement based on the dataset and
-        // the problem's entailment label or answer.
-        // TODO: move this to the backend.
-        const label =
-            type === Dataset.SICK
-                ? problem.entailmentLabel
-                : type === Dataset.FRACAS
-                ? problem.fracasAnswer
-                : type === Dataset.SNLI
-                ? problem.goldLabel
-                : undefined;
-
-        if (!label) {
-            // If the label is not defined, we return UNKNOWN.
-            return Judgement.UNKNOWN;
-        }
-
-        return judgementMap[response.type][label];
-    }
 
     public faCheck = faCheck;
 
@@ -186,43 +134,5 @@ export class AnnotationInputComponent {
             }),
             kbItems: new FormArray<KnowledgeBaseItemsForm>([]),
         });
-    }
-
-    private extractDetails(
-        response: ProblemResponse | null
-    ): ProblemDetails | null {
-        if (!response?.problem) {
-            return null;
-        }
-        const judgement = this.getJudgement(response);
-        switch (response.type) {
-            case Dataset.SICK:
-                return {
-                    problemId: response.problem.pairId.toString(),
-                    dataset: response.type,
-                    judgement,
-                    section: null,
-                    subsection: null,
-                    comment: null,
-                };
-            case Dataset.FRACAS:
-                return {
-                    problemId: response.problem.fracasId.toString(),
-                    dataset: response.type,
-                    judgement,
-                    section: response.problem.sectionName,
-                    subsection: response.problem.subsectionName,
-                    comment: response.problem.note || null,
-                };
-            case Dataset.SNLI:
-                return {
-                    problemId: response.problem.pairId.toString(),
-                    dataset: response.type,
-                    judgement,
-                    section: null,
-                    subsection: null,
-                    comment: null,
-                };
-        }
     }
 }

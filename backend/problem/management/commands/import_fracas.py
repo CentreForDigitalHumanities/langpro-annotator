@@ -1,8 +1,6 @@
-import json
 import xml.etree.ElementTree as ET
 
 from django.core.management.base import BaseCommand
-from django.db import transaction
 from tqdm import tqdm
 
 from langpro_annotator.logger import logger
@@ -15,9 +13,11 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument(
-            "--fracas_path",
+            "--file",
+            "-f",
+            dest="fracas_path",
             type=str,
-            default="problem/data/fracas.xml",
+            required=True,
             help="Path to the fracas.xml file.",
         )
 
@@ -103,20 +103,18 @@ class Command(BaseCommand):
 
             Problem.objects.create(
                 type=Problem.ProblemType.FRACAS,
-                content=json.dumps(
-                    {
-                        "fracas_id": int(problem_id),
-                        "question": question,
-                        "hypothesis": hypothesis,
-                        "answer": answer,
-                        "fracas_answer": fracas_answer,
-                        "fracas_non_standard": fracas_nonstandard,
-                        "note": note,
-                        "section_name": section,
-                        "subsection_name": subsection,
-                        "premises": premises,
-                    }
-                ),
+                content={
+                    "fracas_id": int(problem_id),
+                    "question": question,
+                    "hypothesis": hypothesis,
+                    "answer": answer,
+                    "fracas_answer": fracas_answer,
+                    "fracas_non_standard": fracas_nonstandard,
+                    "note": note,
+                    "section_name": section,
+                    "subsection_name": subsection,
+                    "premises": premises,
+                },
             )
             created += 1
 

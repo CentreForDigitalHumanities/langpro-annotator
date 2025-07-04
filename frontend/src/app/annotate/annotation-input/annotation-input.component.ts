@@ -89,6 +89,7 @@ export class AnnotationInputComponent {
                 conclusion: "",
             };
         }
+        // TODO: move this to the backend.
         switch (problem.type) {
             case Dataset.SICK:
                 return {

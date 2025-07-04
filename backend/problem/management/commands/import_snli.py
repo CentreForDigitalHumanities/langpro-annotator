@@ -1,5 +1,4 @@
 import csv
-import json
 
 from django.core.management.base import BaseCommand
 from tqdm import tqdm
@@ -9,24 +8,41 @@ from problem.models import Problem
 
 
 class Command(BaseCommand):
-    help = "Import SNLI 1.0 problems from snli_1.0_dev.txt (10K problems). Run with --full to import the problems from snli_1.0_train.txt (550K) and snli_1.0_test.txt (10K) as well."
+    help = "Import SNLI 1.0 problems and save them in the DB. Use the flags --dev, --train, --test to specify the paths to the SNLI files. The development set contains 10K problems, the training set contains 550K problems, and the test set contains 10K problems."
 
     def add_arguments(self, parser):
         parser.add_argument(
-            "--full",
-            action="store_true",
-            help="Import the full SNLI dataset (dev, train, and test sets). Warning: this will take a few minutes.",
+            "--dev",
+            action="store",
+            help="Path to the SNLI development set (10K problems) (snli_1.0_dev.txt).",
+        )
+        parser.add_argument(
+            "--train",
+            action="store",
+            help="Path to the SNLI training set (550K problems) (snli_1.0_train.txt).",
+        )
+        parser.add_argument(
+            "--test",
+            action="store",
+            help="Path to the SNLI test set (10K problems) (snli_1.0_test.txt).",
         )
 
     def handle(self, *args, **options):
-        snli_paths = [("dev", "problem/data/snli_1.0_dev.txt")]
-        if options["full"]:
-            snli_paths.extend(
-                [
-                    ("train", "problem/data/snli_1.0_train.txt"),
-                    ("test", "problem/data/snli_1.0_test.txt"),
-                ]
+        snli_paths = []
+        if options["dev"]:
+            snli_paths.append(("dev", options["dev"]))
+        if options["train"]:
+            snli_paths.append(("train", options["train"]))
+        if options["test"]:
+            snli_paths.append(("test", options["test"]))
+
+        if len(snli_paths) == 0:
+            logger.error(
+                "No paths to SNLI datafiles provided. Please specify at least "
+                "one of --dev, --train, or --test."
             )
+            return
+
         self.import_snli_problems(snli_paths)
 
     def import_snli_problems(self, snli_paths: list[tuple[str, str]]) -> None:
@@ -38,9 +54,7 @@ class Command(BaseCommand):
         created = 0
 
         existing_snli_problems = Problem.objects.filter(type=Problem.ProblemType.SNLI)
-        existing_pair_ids = {
-            json.loads(p.content).get("pairID") for p in existing_snli_problems
-        }
+        existing_pair_ids = {p.content.get("pairID") for p in existing_snli_problems}
 
         for subset, snli_path in snli_paths:
             try:
@@ -67,11 +81,11 @@ class Command(BaseCommand):
                             if problem[key] == "":
                                 problem[key] = "none"
 
-                        created += 1
                         Problem.objects.create(
                             type=Problem.ProblemType.SNLI,
-                            content=json.dumps(problem),
+                            content=problem,
                         )
+                        created += 1
                         existing_pair_ids.add(problem["pairID"])
             except FileNotFoundError:
                 logger.warning(f"File {snli_path} not found. Skipping.")

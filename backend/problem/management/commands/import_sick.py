@@ -1,5 +1,4 @@
 import csv
-import json
 
 from django.core.management.base import BaseCommand
 from tqdm import tqdm
@@ -14,9 +13,11 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument(
-            "--sick_path",
+            "--file",
+            "-f",
+            dest="sick_path",
             type=str,
-            default="problem/data/SICK.txt",
+            required=True,
             help="Path to the SICK.txt file.",
         )
 
@@ -47,7 +48,7 @@ class Command(BaseCommand):
                 created += 1
                 Problem.objects.create(
                     type=Problem.ProblemType.SICK,
-                    content=json.dumps(problem),
+                    content=problem,
                 )
 
             logger.info(

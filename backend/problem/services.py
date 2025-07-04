@@ -10,7 +10,7 @@ def instance_to_sick_problem(instance: Problem) -> SickProblem | None:
     Converts a Problem instance to a SickProblem object.
     """
     try:
-        content = json.loads(instance.content)
+        content: dict = instance.content
         return SickProblem(
             pair_id=content["pair_ID"],
             sentence_one=content["sentence_A"],
@@ -33,7 +33,7 @@ def instance_to_fracas_problem(instance: Problem) -> FracasProblem | None:
     Converts a Problem instance to a FracasProblem object.
     """
     try:
-        content = json.loads(instance.content)
+        content: dict = instance.content
         return FracasProblem(
             fracas_id=content["fracas_id"],
             question=content["question"],
@@ -61,7 +61,7 @@ def instance_to_snli_problem(instance: Problem) -> SNLIProblem | None:
     Converts a Problem instance to a SNLIProblem object.
     """
     try:
-        content: dict = json.loads(instance.content)
+        content: dict = instance.content
         return SNLIProblem(
             pair_id=content["pairID"],
             subset=content["subset"],

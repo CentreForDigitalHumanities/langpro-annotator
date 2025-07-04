@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 
 import { ProblemDetailsComponent } from "./problem-details.component";
+import { Dataset } from "../../../types";
 
 describe("ProblemDetailsComponent", () => {
     let component: ProblemDetailsComponent;
@@ -14,13 +15,15 @@ describe("ProblemDetailsComponent", () => {
         fixture = TestBed.createComponent(ProblemDetailsComponent);
         component = fixture.componentInstance;
         const componentRef = fixture.componentRef;
-        componentRef.setInput("problemDetails", {
-            problemId: "1",
-            dataset: "sick",
-            judgement: "ENTAILMENT",
-            section: "Test Section",
-            subsection: "Test Subsection",
-            comment: "This is a test comment.",
+        componentRef.setInput("problem", {
+            problem: {
+                pairId: "1",
+                sentenceOne: "This is a sentence.",
+                sentenceTwo: "This is another sentence.",
+                entailmentLabel: "NEUTRAL",
+                relatednessScore: 0.5,
+            },
+            type: Dataset.SICK,
         });
         fixture.detectChanges();
     });

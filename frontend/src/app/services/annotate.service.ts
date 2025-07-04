@@ -1,5 +1,5 @@
 import { Injectable } from "@angular/core";
-import { catchError, Observable, of, share, Subject, switchMap } from "rxjs";
+import { catchError, Observable, of, share, shareReplay, Subject, switchMap } from "rxjs";
 import { HttpClient } from "@angular/common/http";
 import { ProblemResponse, ProofBankStats } from "../types";
 
@@ -18,14 +18,14 @@ export class AnnotateService {
                 })
             )
         ),
-        share()
+        shareReplay(1)
     );
 
     public proofBankStats$: Observable<ProofBankStats | null> = this.http
         .get<ProofBankStats>("/api/problem/proofbank-stats")
         .pipe(
             catchError(() => {
-                console.error("Error fetching proof bank stats");
+                console.error("Error fetching ProofBank stats");
                 return of(null);
             })
         );

@@ -13,9 +13,11 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument(
-            "--sick_path",
+            "--file",
+            "-f",
+            dest="sick_path",
             type=str,
-            default="problem/data/SICK.txt",
+            required=True,
             help="Path to the SICK.txt file.",
         )
 

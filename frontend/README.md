@@ -16,14 +16,14 @@ LangPro Annotator can be used to browse and annotate problems from the ProofBank
 For more information about these datasets, see the [References](#references) section below.
 
 To load these problems in, follow the steps below:
-- Obtain the SICK data [here][1] and put it in the project folder as `backend/problem/data/sick.txt`.
-- Obtain the FraCaS data [here][2] and put it in the project folder as `backend/problem/data/fracas.xml`.
-- Obtain the SNLI data [here][3] and put the files that you want to import in the project folder as `backend/problem/data/snli_1.0_dev.txt`.
-- Run `python manage.py import_sick`
-- Run `python manage.py import_fracas`
-- Run `python manage.py import_snli`
+- Download the SICK data (sick.txt) [here][1].
+- Download the FraCaS data (fracas.xml) [here][2].
+- Download the SNLI data (snli_1.0_dev.txt, snli_1.0_train.txt, snli_1.0_test.txt) [here][3].
+- Run `python manage.py import_sick -f <path-to-file>`
+- Run `python manage.py import_fracas -f <path-to-file>`
+- Run `python manage.py import_snli --dev <path-to-dev-data-file> --test <path-to-test-data-file> --train <path-to-train-data-file>`
 
-NB: the command `import_snli` will only import the development set (10K problems), not the full dataset. If you want to import the full dataset, you can use the `--full` flag: `python manage.py import_snli --full`. This will import the dev set (10K problems), the train set (550K problems) and the test set (10K problems). The full dataset will take a few minutes to import, so be warned.
+Note: the SNLI test and development sets each contain 10K problems and can be imported in a matter of seconds. The training set contains 550K problems and may take up to several minutes to import.
 
 [1]: http://clic.cimec.unitn.it/composes/sick.html
 [2]: https://www-nlp.stanford.edu/~wcmac/downloads/

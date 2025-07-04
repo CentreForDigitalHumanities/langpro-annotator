@@ -13,9 +13,11 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument(
-            "--fracas_path",
+            "--file",
+            "-f",
+            dest="fracas_path",
             type=str,
-            default="problem/data/fracas.xml",
+            required=True,
             help="Path to the fracas.xml file.",
         )
 

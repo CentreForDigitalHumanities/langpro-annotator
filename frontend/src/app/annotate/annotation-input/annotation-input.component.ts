@@ -38,6 +38,26 @@ export type AnnotationInputForm = FormGroup<{
     kbItems: FormArray<KnowledgeBaseItemsForm>;
 }>;
 
+const judgementMap: Record<Dataset, Record<string, Judgement>> = {
+    [Dataset.SICK]: {
+        ENTAILMENT: Judgement.ENTAILMENT,
+        CONTRADICTION: Judgement.CONTRADICTION,
+        NEUTRAL: Judgement.NEUTRAL,
+    },
+    [Dataset.FRACAS]: {
+        yes: Judgement.ENTAILMENT,
+        no: Judgement.CONTRADICTION,
+        unknown: Judgement.NEUTRAL,
+        undefined: Judgement.UNKNOWN,
+    },
+    [Dataset.SNLI]: {
+        entailment: Judgement.ENTAILMENT,
+        contradiction: Judgement.CONTRADICTION,
+        neutral: Judgement.NEUTRAL,
+        none: Judgement.UNKNOWN,
+    },
+};
+
 @Component({
     selector: "la-annotation-input",
     standalone: true,
@@ -75,39 +95,26 @@ export class AnnotationInputComponent {
         if (!response.problem) {
             return Judgement.UNKNOWN;
         }
-        switch (response.type) {
-            case Dataset.SICK:
-                switch (response.problem.entailmentLabel) {
-                    case "ENTAILMENT":
-                        return Judgement.ENTAILMENT;
-                    case "CONTRADICTION":
-                        return Judgement.CONTRADICTION;
-                    case "NEUTRAL":
-                        return Judgement.NEUTRAL;
-                }
-            case Dataset.FRACAS:
-                switch (response.problem.fracasAnswer) {
-                    case "yes":
-                        return Judgement.ENTAILMENT;
-                    case "no":
-                        return Judgement.CONTRADICTION;
-                    case "unknown":
-                        return Judgement.NEUTRAL;
-                    case "undefined":
-                        return Judgement.UNKNOWN;
-                }
-            case Dataset.SNLI:
-                switch (response.problem.goldLabel) {
-                    case "entailment":
-                        return Judgement.ENTAILMENT;
-                    case "contradiction":
-                        return Judgement.CONTRADICTION;
-                    case "neutral":
-                        return Judgement.NEUTRAL;
-                    case "none":
-                        return Judgement.UNKNOWN;
-                }
+
+        const { type, problem } = response;
+        // Use the judgementMap to get the judgement based on the dataset and
+        // the problem's entailment label or answer.
+        // TODO: move this to the backend.
+        const label =
+            type === Dataset.SICK
+                ? problem.entailmentLabel
+                : type === Dataset.FRACAS
+                ? problem.fracasAnswer
+                : type === Dataset.SNLI
+                ? problem.goldLabel
+                : undefined;
+
+        if (!label) {
+            // If the label is not defined, we return UNKNOWN.
+            return Judgement.UNKNOWN;
         }
+
+        return judgementMap[response.type][label];
     }
 
     public faCheck = faCheck;
@@ -134,6 +141,7 @@ export class AnnotationInputComponent {
                 conclusion: "",
             };
         }
+        // TODO: move this to the backend.
         switch (problem.type) {
             case Dataset.SICK:
                 return {

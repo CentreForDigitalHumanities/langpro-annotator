@@ -4,9 +4,7 @@ from django.http import JsonResponse
 from rest_framework.views import APIView
 
 from problem.models import Problem
-from problem.types import CombinedProblem
 from problem.services import (
-    convert_to_subtype,
     get_related_problem_ids,
 )
 
@@ -15,8 +13,7 @@ from problem.services import (
 class ProblemResponse:
     id: int | None = None
     index: int | None = None
-    type: Literal["sick", "fracas", "snli"] | None = None
-    problem: CombinedProblem | None = None
+    problem: Problem | None = None
     error: str | None = None
     next: str | None = None
     previous: str | None = None
@@ -27,7 +24,6 @@ class ProblemResponse:
             {
                 "id": self.id,
                 "index": self.index,
-                "type": self.type,
                 "problem": self.problem.serialize() if self.problem else None,
                 "error": self.error,
                 "next": self.next,
@@ -66,14 +62,7 @@ class ProblemView(APIView):
                 error="Problem not found",
             ).json_response(status=404)
 
-        converted_problem = convert_to_subtype(problem)
-
         problem_index = problem.get_index()
-
-        if converted_problem is None:
-            return ProblemResponse(
-                error="Problem not found",
-            ).json_response(status=404)
 
         next_problem_id, previous_problem_id, random_problem_id = (
             get_related_problem_ids(problem_id)
@@ -82,8 +71,7 @@ class ProblemView(APIView):
         return ProblemResponse(
             id=problem.id,
             index=problem_index,
-            type=problem.type,
-            problem=converted_problem,
+            problem=problem,
             next=next_problem_id,
             previous=previous_problem_id,
             random=random_problem_id,

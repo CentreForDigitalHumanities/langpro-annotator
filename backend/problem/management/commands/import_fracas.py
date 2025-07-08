@@ -4,12 +4,19 @@ from django.core.management.base import BaseCommand
 from tqdm import tqdm
 
 from langpro_annotator.logger import logger
-from problem.services import get_fracas_problems
+from problem.services import FracasData
 from problem.models import Problem
 
 
 class Command(BaseCommand):
     help = "Import FraCaS problems from fracas.xml."
+
+    ENTAILMENT_LABELS = {
+        "yes": Problem.EntailmentLabel.ENTAILMENT,
+        "no": Problem.EntailmentLabel.CONTRADICTION,
+        "unknown": Problem.EntailmentLabel.NEUTRAL,
+        "undefined": Problem.EntailmentLabel.UNKNOWN,
+    }
 
     def add_arguments(self, parser):
         parser.add_argument(
@@ -24,13 +31,6 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         fracas_path = options["fracas_path"]
         self.import_fracas_problems(fracas_path)
-
-    @staticmethod
-    def _text_from_element(element: ET.Element) -> str:
-        """
-        Extracts stripped text from an XML element, returning an empty string if the element is None or has no text.
-        """
-        return element.text.strip() if element is not None and element.text else ""
 
     @staticmethod
     def _annotate_section_subsections(tree: ET.ElementTree) -> None:
@@ -72,7 +72,9 @@ class Command(BaseCommand):
         created = 0
         skipped = 0
 
-        existing_fracas_problems = get_fracas_problems()
+        existing_fracas_problems = Problem.objects.filter(
+            dataset=Problem.Dataset.FRACAS
+        )
         existing_fracas_ids = {p.fracas_id for p in existing_fracas_problems}
 
         for problem in tqdm(all_problems, desc="Importing FraCaS problems"):
@@ -88,33 +90,22 @@ class Command(BaseCommand):
                 skipped += 1
                 continue
 
-            question = self._text_from_element(problem.find("q"))
-            hypothesis = self._text_from_element(problem.find("h"))
-            answer = self._text_from_element(problem.find("a"))
-            note = self._text_from_element(problem.find("note"))
-
-            section = problem.get("section")
-            subsection = problem.get("subsection")
+            hypothesis = FracasData._text_from_element(problem.find("h"))
             fracas_answer = problem.get("fracas_answer")
-            fracas_nonstandard = problem.get("fracas_nonstandard", False) == "true"
-
             premise_nodes = problem.findall("p")
             premises = [node.text.strip() for node in premise_nodes if node.text]
+            entailment_label = self.ENTAILMENT_LABELS.get(
+                fracas_answer, Problem.EntailmentLabel.UNKNOWN
+            )
+
+            extra_data = FracasData.import_data(problem)
 
             Problem.objects.create(
-                type=Problem.ProblemType.FRACAS,
-                content={
-                    "fracas_id": int(problem_id),
-                    "question": question,
-                    "hypothesis": hypothesis,
-                    "answer": answer,
-                    "fracas_answer": fracas_answer,
-                    "fracas_non_standard": fracas_nonstandard,
-                    "note": note,
-                    "section_name": section,
-                    "subsection_name": subsection,
-                    "premises": premises,
-                },
+                dataset=Problem.Dataset.FRACAS,
+                premises=premises,
+                hypothesis=hypothesis,
+                entailment_label=entailment_label,
+                extra_data=extra_data,
             )
             created += 1
 

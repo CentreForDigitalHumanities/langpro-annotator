@@ -17,13 +17,9 @@ describe("ProblemDetailsComponent", () => {
         const componentRef = fixture.componentRef;
         componentRef.setInput("problem", {
             problem: {
-                pairId: "1",
-                sentenceOne: "This is a sentence.",
-                sentenceTwo: "This is another sentence.",
-                entailmentLabel: "NEUTRAL",
-                relatednessScore: 0.5,
+                id: 1
             },
-            type: Dataset.SICK,
+            dataset: Dataset.SICK,
         });
         fixture.detectChanges();
     });

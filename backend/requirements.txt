@@ -26,7 +26,7 @@ django==4.2.20
     #   django-livereload-server
     #   django-revproxy
     #   djangorestframework
-django-allauth==65.5.0
+django-allauth==65.9.0
     # via -r requirements.in
 django-livereload-server==0.5.1
     # via -r requirements.in

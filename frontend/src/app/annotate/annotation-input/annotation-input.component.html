@@ -8,9 +8,7 @@
 @if (form$ | async; as inputForm) {
 <div class="card">
     <div class="card-body">
-        @if (problemDetails$ | async; as details) {
-        <la-problem-details [problemDetails]="details" />
-        }
+        <la-problem-details [problem]="problem$ | async" />
         <div class="input-form-container">
             <la-premises-form class="subform" [form]="inputForm" />
             <la-knowledge-base-form class="subform" [form]="inputForm" />

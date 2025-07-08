@@ -18,6 +18,8 @@ import {
 } from "@ng-bootstrap/ng-bootstrap";
 import { UserMenuComponent } from "./user-menu/user-menu.component";
 import { AuthService } from "../services/auth.service";
+import { AnnotateService } from "../services/annotate.service";
+import { map } from "rxjs";
 
 @Component({
     selector: "la-menu",
@@ -49,9 +51,14 @@ export class MenuComponent implements OnInit {
 
     public loggedIn$ = this.authService.isAuthenticated$;
 
+    public firstProblemId$ = this.annotateService.proofBankStats$.pipe(
+        map((stats) => stats?.firstProblemId ?? null),
+    )
+
     constructor(
         @Inject(LOCALE_ID) private localeId: string,
         private destroyRef: DestroyRef,
+        private annotateService: AnnotateService,
         private languageService: LanguageService,
         private authService: AuthService,
     ) {

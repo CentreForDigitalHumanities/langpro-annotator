@@ -1,60 +1,66 @@
-export interface SickProblem {
+interface SickData {
     pairId: number;
-    sentenceOne: string;
-    sentenceTwo: string;
-    entailmentLabel: "NEUTRAL" | "CONTRADICTION" | "ENTAILMENT";
     relatednessScore: number;
 }
 
-export interface FracasProblem {
+interface FracasData {
     fracasId: number;
     question: string;
-    hypothesis: string;
     answer: string;
-    fracasAnswer: "yes" | "no" | "unknown" | "undefined";
-    fracasNonStandard: boolean;
     note: string;
     sectionName: string;
     subsectionName: string;
-    premises: string[];
+    fracasNonStandard: boolean;
 }
 
-type SNLILabel = "neutral" | "contradiction" | "entailment" | "none";
-
-export interface SNLIProblem {
+interface SNLIData {
     pairId: number;
-    subset: 'dev' | 'test' | 'train';
-    sentenceOne: string;
-    sentenceTwo: string;
-    goldLabel: SNLILabel;
-    labels: SNLILabel[];
+    subset: "dev" | "test" | "train";
+    label1: string;
+    label2: string;
+    label3: string;
+    label4: string;
+    label5: string;
 }
 
-interface ProblemResponseBase {
+interface ProblemBase {
+    id: number;
+    premises: string[];
+    hypothesis: string | null;
+    entailmentLabel: EntailmentLabel;
+}
+
+interface SickProblem extends ProblemBase {
+    dataset: Dataset.SICK;
+    extraData: SickData;
+}
+
+interface FracasProblem extends ProblemBase {
+    dataset: Dataset.FRACAS;
+    extraData: FracasData;
+}
+
+interface SNLIProblem extends ProblemBase {
+    dataset: Dataset.SNLI;
+    extraData: SNLIData;
+}
+
+interface UserProblem extends ProblemBase {
+    dataset: Dataset.USER;
+    extraData: null;
+}
+
+type Problem = SickProblem | FracasProblem | SNLIProblem | UserProblem;
+
+export interface ProblemResponse {
     id: number;
     index: number | null;
-    error: string | null;
     next: string | null;
     previous: string | null;
     random: string | null;
+    error: string | null;
+    problem: Problem | null;
 }
-
-interface SickProblemResponse extends ProblemResponseBase {
-    problem: SickProblem | null;
-    type: Dataset.SICK;
-}
-
-interface FracasProblemResponse extends ProblemResponseBase {
-    problem: FracasProblem | null;
-    type: Dataset.FRACAS;
-}
-
-export interface SNLIProblemResponse extends ProblemResponseBase {
-    problem: SNLIProblem | null;
-    type: Dataset.SNLI;
-}
-
-export type ProblemResponse = SickProblemResponse | FracasProblemResponse | SNLIProblemResponse;
 
 export interface ProofBankStats {
     firstProblemId: string;
@@ -66,9 +72,10 @@ export enum Dataset {
     SICK = "sick",
     FRACAS = "fracas",
     SNLI = "snli",
+    USER = "user",
 }
 
-export enum Judgement {
+export enum EntailmentLabel {
     ENTAILMENT = "entailment",
     CONTRADICTION = "contradiction",
     NEUTRAL = "neutral",

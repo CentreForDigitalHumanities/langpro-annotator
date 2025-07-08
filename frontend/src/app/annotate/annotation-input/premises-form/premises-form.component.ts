@@ -1,9 +1,5 @@
 import { Component, input } from "@angular/core";
-import {
-    ReactiveFormsModule,
-    FormControl,
-    Validators,
-} from "@angular/forms";
+import { ReactiveFormsModule, FormControl, Validators } from "@angular/forms";
 import { CommonModule } from "@angular/common";
 import { FontAwesomeModule } from "@fortawesome/angular-fontawesome";
 import { faCheck, faPlus, faTrash } from "@fortawesome/free-solid-svg-icons";
@@ -11,7 +7,7 @@ import { AnnotationInputForm } from "../annotation-input.component";
 
 export interface Premises {
     premises: string[];
-    conclusion: string;
+    hypothesis: string;
 }
 
 @Component({
@@ -36,7 +32,7 @@ export class PremisesFormComponent {
             new FormControl(value, {
                 nonNullable: true,
                 validators: [Validators.required],
-            })
+            }),
         );
     }
 

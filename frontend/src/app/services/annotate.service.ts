@@ -1,5 +1,5 @@
 import { Injectable } from "@angular/core";
-import { catchError, Observable, of, share, shareReplay, Subject, switchMap } from "rxjs";
+import { catchError, Observable, of, shareReplay, Subject, switchMap } from "rxjs";
 import { HttpClient } from "@angular/common/http";
 import { ProblemResponse, ProofBankStats } from "../types";
 

@@ -2,7 +2,7 @@
 
 <section class="card">
     <header class="card-header">
-        <h3 class="h5" i18n>Premises and Conclusion</h3>
+        <h3 class="h5" i18n>Premises and Hypothesis</h3>
     </header>
     <div class="card-body">
         <form [formGroup]="form()">
@@ -55,14 +55,14 @@
             </button>
 
             <div class="mb-3">
-                <label for="conclusion" class="form-label fw-bold" i18n>
-                    Conclusion
+                <label for="hypothesis" class="form-label fw-bold" i18n>
+                    Hypothesis
                 </label>
                 <input
-                    id="conclusion"
+                    id="hypothesis"
                     type="text"
                     class="form-control"
-                    [formControl]="form().controls.conclusion"
+                    [formControl]="form().controls.hypothesis"
                 />
             </div>
         </form>

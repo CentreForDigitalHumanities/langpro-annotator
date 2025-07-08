@@ -8,7 +8,6 @@ import {
     Validators,
 } from "@angular/forms";
 import {
-    Premises,
     PremisesFormComponent,
 } from "./premises-form/premises-form.component";
 import {
@@ -17,11 +16,10 @@ import {
 } from "./knowledge-base-form/knowledge-base-form.component";
 import { AnnotateService } from "../../services/annotate.service";
 import { toSignal } from "@angular/core/rxjs-interop";
-import { Dataset, Judgement, ProblemResponse } from "../../types";
+import { ProblemResponse } from "../../types";
 import { FontAwesomeModule } from "@fortawesome/angular-fontawesome";
 import { faCheck } from "@fortawesome/free-solid-svg-icons";
 import {
-    ProblemDetails,
     ProblemDetailsComponent,
 } from "./problem-details/problem-details.component";
 import { map, Subject } from "rxjs";
@@ -34,7 +32,7 @@ type KnowledgeBaseItemsForm = FormGroup<{
 
 export type AnnotationInputForm = FormGroup<{
     premises: FormArray<FormControl<string>>;
-    conclusion: FormControl<string>;
+    hypothesis: FormControl<string>;
     kbItems: FormArray<KnowledgeBaseItemsForm>;
 }>;
 
@@ -56,7 +54,7 @@ export class AnnotationInputComponent {
     public problem$ = this.annotateService.problem$;
 
     public form$ = this.problem$.pipe(
-        map((response) => this.buildForm(response))
+        map((response) => this.buildForm(response)),
     );
 
     private formSignal = toSignal(this.form$, {
@@ -77,47 +75,21 @@ export class AnnotationInputComponent {
         if (form.valid) {
             console.log(
                 "submitting from AnnotationInputComponent!",
-                form.value
+                form.value,
             );
         }
     }
 
-    private getPremisesAndConclusion(problem: ProblemResponse): Premises {
-        if (!problem.problem || !problem.type) {
-            return {
-                premises: [],
-                conclusion: "",
-            };
-        }
-        // TODO: move this to the backend.
-        switch (problem.type) {
-            case Dataset.SICK:
-                return {
-                    premises: [problem.problem.sentenceOne],
-                    conclusion: problem.problem.sentenceTwo,
-                };
-            case Dataset.FRACAS:
-                return {
-                    premises: problem.problem.premises,
-                    conclusion: problem.problem.hypothesis,
-                };
-            case Dataset.SNLI:
-                return {
-                    premises: [problem.problem.sentenceOne],
-                    conclusion: problem.problem.sentenceTwo,
-                };
-        }
-    }
-
     private buildForm(
-        response: ProblemResponse | null
+        response: ProblemResponse | null,
     ): AnnotationInputForm | null {
         if (!response) {
             return null;
         }
 
-        const { premises, conclusion } =
-            this.getPremisesAndConclusion(response);
+        const premises = response.problem?.premises || [];
+        const hypothesis = response.problem?.hypothesis || "";
+
         return new FormGroup({
             premises: new FormArray(
                 premises.map(
@@ -125,10 +97,10 @@ export class AnnotationInputComponent {
                         new FormControl<string>(premise, {
                             validators: [Validators.required],
                             nonNullable: true,
-                        })
-                )
+                        }),
+                ),
             ),
-            conclusion: new FormControl<string>(conclusion, {
+            hypothesis: new FormControl<string>(hypothesis, {
                 validators: [Validators.required],
                 nonNullable: true,
             }),

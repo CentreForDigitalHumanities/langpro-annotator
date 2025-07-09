@@ -69,8 +69,6 @@ export class TableauTerm {
 
 }
 
-const LEVEL_HEIGHT = 40;
-
 @Component({
     selector: "[tableau-tree]",
     standalone: true,
@@ -80,6 +78,8 @@ const LEVEL_HEIGHT = 40;
 export class TableauTree {
     @Input()
     tree: any;
+
+    levelHeight = 40;
 
     /* Width of the tree node, has to be determined dynamically via onSize events from terms */
     width = 0;
@@ -125,9 +125,9 @@ export class TableauTree {
             // move to end of current node
             `M 0 ${this.totalNodeHeight() - 15 }`,
             // curve to half-way to subtree
-            `q 0 ${LEVEL_HEIGHT/2} ${this.subtreePosition(idx)/2 } ${LEVEL_HEIGHT/2}`,
+            `q 0 ${this.levelHeight/2} ${this.subtreePosition(idx)/2 } ${this.levelHeight/2}`,
             // curve from half-way to subtree, to subtree position
-            `q ${this.subtreePosition(idx)/2} 0 ${this.subtreePosition(idx)/2} ${LEVEL_HEIGHT/2}`
+            `q ${this.subtreePosition(idx)/2} 0 ${this.subtreePosition(idx)/2} ${this.levelHeight/2}`
         ].join(' ');
     }
 

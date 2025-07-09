@@ -53,8 +53,8 @@ REST_FRAMEWORK = {
 }
 
 AUTH_USER_MODEL = "user.User"
-ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
+ACCOUNT_SIGNUP_FIELDS = ["email*", "username*", "password1*", "password2*"]
 
 SITE_ID = 1
 SITE_NAME = "langpro_annotator"

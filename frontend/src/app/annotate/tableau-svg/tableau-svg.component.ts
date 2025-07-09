@@ -1,10 +1,11 @@
 import { Component, ElementRef, Input, Output, ViewChild, EventEmitter, ChangeDetectorRef} from '@angular/core';
 import { CommonModule } from "@angular/common";
 import { Subject } from "rxjs";
+import { sum } from "@/util";
 
 interface Dimensions {
-    width?: number;
-    height?: number;
+    width: number;
+    height: number;
 }
 
 @Component({
@@ -45,15 +46,15 @@ export class TableauTerm {
     @Output()
     public onSize = new EventEmitter<Dimensions>();
 
-    padding: number = 5;
-    height: number = 20;
+    padding = 5;
+    height = 20;
 
-    idxW: number = 0;
-    termX: number = 0;
-    termW: number = 0;
-    labelX: number = 0;
-    labelW: number = 0;
-    totalW: number = 0;
+    idxW = 0;
+    termX = 0;
+    termW = 0;
+    labelX = 0;
+    labelW = 0;
+    totalW = 0;
 
     ngAfterViewChecked() {
         this.idxW = this.idxText ? this.idxText.nativeElement.getComputedTextLength() + this.padding : 0;
@@ -63,10 +64,12 @@ export class TableauTerm {
         this.labelX =  this.termX + this.termW + this.padding;
         this.totalW = this.termText ? this.labelW + this.idxW + this.termText.nativeElement.getComputedTextLength() : 0;
 
-        this.onSize.emit({width: this.totalW});
+        this.onSize.emit({width: this.totalW, height: this.height});
     }
 
 }
+
+const LEVEL_HEIGHT = 40;
 
 @Component({
     selector: "[tableau-tree]",
@@ -78,17 +81,15 @@ export class TableauTree {
     @Input()
     tree: any;
 
-    levelHeight = 40;
-
     /* Width of the tree node, has to be determined dynamically via onSize events from terms */
-    width: number = 0;
+    width = 0;
     /* Height isn't stored in a member variable, because it can be computed as needed */
 
     /* Dimensions of the biggest subtree.
        Width is used to align all subtrees.
        Height is used to determine the overall height of the tree. */
-    subWidth: number = 0;
-    subHeight: number = 0;
+    subWidth = 0;
+    subHeight = 0;
 
     @Output()
     public onSize = new EventEmitter<Dimensions>();
@@ -124,23 +125,24 @@ export class TableauTree {
             // move to end of current node
             `M 0 ${this.totalNodeHeight() - 15 }`,
             // curve to half-way to subtree
-            `q 0 ${this.levelHeight/2} ${this.subtreePosition(idx)/2 } ${this.levelHeight/2}`,
+            `q 0 ${LEVEL_HEIGHT/2} ${this.subtreePosition(idx)/2 } ${LEVEL_HEIGHT/2}`,
             // curve from half-way to subtree, to subtree position
-            `q ${this.subtreePosition(idx)/2} 0 ${this.subtreePosition(idx)/2} ${this.levelHeight/2}`
+            `q ${this.subtreePosition(idx)/2} 0 ${this.subtreePosition(idx)/2} ${LEVEL_HEIGHT/2}`
         ].join(' ');
     }
 
     nodeHeight(node: any) {
+        // note that in this case height includes bottom padding for the node
         return node.rule ? 60 : 40;
     }
 
     totalNodeHeight() {
-        return this.tree.nodes.map(this.nodeHeight).reduce((sum: number, h: number) => sum + h, 0);
+        return sum(this.tree.nodes.map(this.nodeHeight));
     }
 
     nodeY(idx: number) {
         // y position of a given node is the sum of heights of all preceeding nodes
-        return this.tree.nodes.slice(0, idx).map(this.nodeHeight).reduce((sum: number, h: number) => sum + h, 0);
+        return sum(this.tree.nodes.slice(0, idx).map(this.nodeHeight));
     }
 }
 
@@ -154,7 +156,7 @@ export class TableauTree {
 })
 export class TableauSVG {
 
-    treeDimensions$: Subject<Dimensions> = new Subject();
+    treeDimensions$ = new Subject<Dimensions>();
     treeDimensions: Dimensions = {width:0, height: 0};
 
     constructor(private cdref: ChangeDetectorRef) {}

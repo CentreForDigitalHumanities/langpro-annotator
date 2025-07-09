@@ -3,7 +3,7 @@
         <svg:g attr.transform="translate(0, {{ nodeY(i) }})">
             <svg:g term [idx]="node.idx" [term]="node.term" [label]="node.label" [end]="node.end"
                         [bg]="node.bg" (onSize)="updateDimensions($event)" [rule]="node.rule"></svg:g>
-            @if (i < tree.nodes.length - 1) {
+            @if (!$last) {
                 <svg:path attr.d="M 0 {{ nodeHeight(node) - 15 }} l 0 15" stroke="steelblue" fill="none"/>
             }
         </svg:g>

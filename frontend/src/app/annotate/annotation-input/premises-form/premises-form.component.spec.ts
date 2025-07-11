@@ -22,8 +22,8 @@ describe("PremisesFormComponent", () => {
             "form",
             new FormGroup({
                 premises: new FormArray([]),
-                conclusion: new FormControl("", { nonNullable: true }),
-            })
+                hypothesis: new FormControl("", { nonNullable: true }),
+            }),
         );
 
         fixture.detectChanges();

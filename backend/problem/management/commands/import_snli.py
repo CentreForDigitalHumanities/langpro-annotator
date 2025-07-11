@@ -5,10 +5,18 @@ from tqdm import tqdm
 
 from langpro_annotator.logger import logger
 from problem.models import Problem
+from problem.services import SNLIData
 
 
 class Command(BaseCommand):
     help = "Import SNLI 1.0 problems and save them in the DB. Use the flags --dev, --train, --test to specify the paths to the SNLI files. The development set contains 10K problems, the training set contains 550K problems, and the test set contains 10K problems."
+
+    ENTAILMENT_LABELS = {
+        "entailment": Problem.EntailmentLabel.ENTAILMENT,
+        "contradiction": Problem.EntailmentLabel.CONTRADICTION,
+        "neutral": Problem.EntailmentLabel.NEUTRAL,
+        "none": Problem.EntailmentLabel.UNKNOWN,  # For empty gold labels.
+    }
 
     def add_arguments(self, parser):
         parser.add_argument(
@@ -53,8 +61,10 @@ class Command(BaseCommand):
         skipped = 0
         created = 0
 
-        existing_snli_problems = Problem.objects.filter(type=Problem.ProblemType.SNLI)
-        existing_pair_ids = {p.content.get("pairID") for p in existing_snli_problems}
+        existing_snli_problems = Problem.objects.filter(dataset=Problem.Dataset.SNLI)
+        existing_pair_ids = existing_snli_problems.values_list(
+            "extra_data__pair_id", flat=True
+        )
 
         for subset, snli_path in snli_paths:
             try:
@@ -70,20 +80,31 @@ class Command(BaseCommand):
                             skipped += 1
                             continue
 
-                        problem["subset"] = subset
-
-                        # Handle empty gold labels.
-                        if problem["gold_label"] == "-":
-                            problem["gold_label"] = "none"
-
                         # Handle empty labels.
-                        for key in ["label1", "label2", "label3", "label4", "label5"]:
-                            if problem[key] == "":
-                                problem[key] = "none"
+                        for key in [
+                            "gold_label",
+                            "label1",
+                            "label2",
+                            "label3",
+                            "label4",
+                            "label5",
+                        ]:
+                            label_value = problem.get(key, "")
+                            if label_value in ["-", ""]:
+                                problem[key] = self.ENTAILMENT_LABELS["none"]
+                            else:
+                                problem[key] = self.ENTAILMENT_LABELS.get(
+                                    label_value, Problem.EntailmentLabel.UNKNOWN
+                                )
+
+                        extra_data = SNLIData.import_data(problem, subset)
 
                         Problem.objects.create(
-                            type=Problem.ProblemType.SNLI,
-                            content=problem,
+                            dataset=Problem.Dataset.SNLI,
+                            premises=[problem["sentence1"]],
+                            hypothesis=problem["sentence2"],
+                            entailment_label=problem["gold_label"],
+                            extra_data=extra_data,
                         )
                         created += 1
                         existing_pair_ids.add(problem["pairID"])

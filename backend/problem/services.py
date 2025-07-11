@@ -1,160 +1,102 @@
-import json
-from typing import Tuple
-from langpro_annotator.logger import logger
-from problem.models import Problem
-from problem.types import CombinedProblem, FracasProblem, SNLIProblem, SickProblem
+import xml.etree.ElementTree as ET
+from typing import Literal
 
 
-def instance_to_sick_problem(instance: Problem) -> SickProblem | None:
-    """
-    Converts a Problem instance to a SickProblem object.
-    """
-    try:
-        content: dict = instance.content
-        return SickProblem(
-            pair_id=content["pair_ID"],
-            sentence_one=content["sentence_A"],
-            sentence_two=content["sentence_B"],
-            entailment_label=content["entailment_label"],
-            relatedness_score=float(content["relatedness_score"]),
-        )
-    except json.JSONDecodeError as e:
-        logger.warning(f"Could not decode JSON for Problem ID {instance.id}: {e}")
-        return None
-    except Exception as e:
-        logger.warning(
-            f"Could not convert Problem ID {instance.id} to SickProblem: {e}"
-        )
-        return None
+class SickData:
+    @staticmethod
+    def import_data(problem: dict) -> dict:
+        """
+        Import SICK-specific data from a problem dictionary.
+        """
+        pair_id = problem.get("pair_ID", "")
+        relatedness_score = float(problem.get("relatedness_score", 0.0))
+
+        return {
+            "pair_id": pair_id,
+            "relatedness_score": relatedness_score,
+        }
+
+    @staticmethod
+    def serialize(extra_data: dict) -> dict:
+        """
+        Serialize SICK-specific data from a Problem instance.
+        """
+        return {
+            "pairId": extra_data.get("pair_id", ""),
+            "relatednessScore": extra_data.get("relatedness_score", 0.0),
+        }
 
 
-def instance_to_fracas_problem(instance: Problem) -> FracasProblem | None:
-    """
-    Converts a Problem instance to a FracasProblem object.
-    """
-    try:
-        content: dict = instance.content
-        return FracasProblem(
-            fracas_id=content["fracas_id"],
-            question=content["question"],
-            hypothesis=content["hypothesis"],
-            answer=content["answer"],
-            fracas_answer=content["fracas_answer"],
-            fracas_non_standard=content["fracas_non_standard"],
-            note=content["note"],
-            section_name=content["section_name"],
-            subsection_name=content["subsection_name"],
-            premises=content.get("premises", []),
-        )
-    except json.JSONDecodeError as e:
-        logger.warning(f"Could not decode JSON for Problem ID {instance.id}: {e}")
-        return None
-    except Exception as e:
-        logger.warning(
-            f"Could not convert Problem ID {instance.id} to FracasProblem: {e}"
-        )
-        return None
+class FracasData:
+
+    @staticmethod
+    def _text_from_element(element: ET.Element) -> str:
+        """
+        Extracts stripped text from an XML element, returning an empty string if the element is None or has no text.
+        """
+        return element.text.strip() if element is not None and element.text else ""
+
+    @staticmethod
+    def import_data(problem: dict) -> dict:
+        problem_id = problem.get("id")
+        question = FracasData._text_from_element(problem.find("q"))
+        answer = FracasData._text_from_element(problem.find("a"))
+        note = FracasData._text_from_element(problem.find("note"))
+
+        section = problem.get("section")
+        subsection = problem.get("subsection")
+        fracas_nonstandard = problem.get("fracas_nonstandard", False) == "true"
+
+        return {
+            "fracas_id": int(problem_id),
+            "question": question,
+            "answer": answer,
+            "note": note,
+            "section_name": section,
+            "subsection_name": subsection,
+            "fracas_non_standard": fracas_nonstandard,
+        }
+
+    @staticmethod
+    def serialize(extra_data: dict) -> dict:
+        """
+        Serialize FraCaS-specific data from a Problem instance.
+        """
+        return {
+            "fracasId": extra_data.get("fracas_id", 0),
+            "question": extra_data.get("question", ""),
+            "answer": extra_data.get("answer", ""),
+            "note": extra_data.get("note", ""),
+            "sectionName": extra_data.get("section_name", ""),
+            "subsectionName": extra_data.get("subsection_name", ""),
+            "fracasNonStandard": extra_data.get("fracas_non_standard", False),
+        }
 
 
-def instance_to_snli_problem(instance: Problem) -> SNLIProblem | None:
-    """
-    Converts a Problem instance to a SNLIProblem object.
-    """
-    try:
-        content: dict = instance.content
-        return SNLIProblem(
-            pair_id=content["pairID"],
-            subset=content["subset"],
-            sentence_one=content["sentence1"],
-            sentence_two=content["sentence2"],
-            gold_label=content["gold_label"],
-            labels=[
-                content["label1"],
-                content["label2"],
-                content["label3"],
-                content["label4"],
-                content["label5"],
-            ]
-        )
-    except json.JSONDecodeError as e:
-        logger.warning(f"Could not decode JSON for Problem ID {instance.id}: {e}")
-        return None
-    except Exception as e:
-        logger.warning(
-            f"Could not convert Problem ID {instance.id} to SNLIProblem: {e}"
-        )
-        return None
+class SNLIData:
+    @staticmethod
+    def import_data(problem: dict, subset: Literal["dev", "train", "test"]) -> dict:
+        return {
+            "pair_id": problem["pairID"],
+            "subset": subset,
+            "label1": problem["label1"],
+            "label2": problem["label2"],
+            "label3": problem["label3"],
+            "label4": problem["label4"],
+            "label5": problem["label5"],
+        }
 
-
-def get_sick_problems() -> list[SickProblem]:
-    """
-    Retrieves all Problem objects of type 'SICK' from the database
-    and converts them into SickProblem instances.
-    """
-    problems = Problem.objects.filter(type=Problem.ProblemType.SICK)
-    return [
-        converted
-        for problem in problems
-        if (converted := instance_to_sick_problem(problem)) is not None
-    ]
-
-
-def get_fracas_problems() -> list[FracasProblem]:
-    """
-    Retrieves all Problem objects of type 'Fracas' from the database
-    and converts them into FracasProblem instances.
-    """
-    problems = Problem.objects.filter(type=Problem.ProblemType.FRACAS)
-    return [
-        converted
-        for problem in problems
-        if (converted := instance_to_fracas_problem(problem)) is not None
-    ]
-
-def get_snli_problems() -> list[SNLIProblem]:
-    """
-    Retrieves all Problem objects of type 'SNLI' from the database
-    and converts them into SNLIProblem instances.
-    """
-    problems = Problem.objects.filter(type=Problem.ProblemType.SNLI)
-    return [
-        converted
-        for problem in problems
-        if (converted := instance_to_snli_problem(problem)) is not None
-    ]
-
-def convert_to_subtype(problem: Problem) -> CombinedProblem | None:
-    """
-    Converts a Django Problem model instance to a specific subtype (dataclass)
-    based on its type.
-    """
-    if problem.type == Problem.ProblemType.SICK:
-        return instance_to_sick_problem(problem)
-    elif problem.type == Problem.ProblemType.FRACAS:
-        return instance_to_fracas_problem(problem)
-    elif problem.type == Problem.ProblemType.SNLI:
-        return instance_to_snli_problem(problem)
-    else:
-        return None
-
-
-def get_related_problem_ids(problem_id: int) -> Tuple[int, int, int]:
-    """
-    Retrieves the IDs of the next, previous, and random Problem objects
-    in the database relative to the given problem ID.
-    """
-    try:
-        problem = Problem.objects.get(id=problem_id)
-    except Problem.DoesNotExist:
-        logger.warning(f"Problem ID {problem_id} does not exist.")
-        return None, None, None
-
-    next_problem = Problem.objects.filter(id__gt=problem.id).order_by("id").first()
-    previous_problem = Problem.objects.filter(id__lt=problem.id).order_by("-id").first()
-    random_problem = Problem.objects.exclude(id=problem.id).order_by("?").first()
-
-    return (
-        next_problem.id if next_problem else None,
-        previous_problem.id if previous_problem else None,
-        random_problem.id if random_problem else None,
-    )
+    @staticmethod
+    def serialize(extra_data: dict) -> dict:
+        """
+        Serialize SNLI-specific data from a Problem instance.
+        """
+        return {
+            "pairId": extra_data.get("pair_ID", ""),
+            "subset": extra_data.get("subset", ""),
+            "label1": extra_data.get("label1", ""),
+            "label2": extra_data.get("label2", ""),
+            "label3": extra_data.get("label3", ""),
+            "label4": extra_data.get("label4", ""),
+            "label5": extra_data.get("label5", ""),
+        }

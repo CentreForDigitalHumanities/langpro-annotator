@@ -5,11 +5,17 @@ from tqdm import tqdm
 
 from langpro_annotator.logger import logger
 from problem.models import Problem
-from problem.services import get_sick_problems
+from problem.services import SickData
 
 
 class Command(BaseCommand):
     help = "Import SICK problems from SICK.txt (a TSV file)."
+
+    ENTAILMENT_LABELS = {
+        "NEUTRAL": Problem.EntailmentLabel.NEUTRAL,
+        "ENTAILMENT": Problem.EntailmentLabel.ENTAILMENT,
+        "CONTRADICTION": Problem.EntailmentLabel.CONTRADICTION,
+    }
 
     def add_arguments(self, parser):
         parser.add_argument(
@@ -33,7 +39,7 @@ class Command(BaseCommand):
         skipped = 0
         created = 0
 
-        existing_sick_problems = get_sick_problems()
+        existing_sick_problems = Problem.objects.filter(dataset=Problem.Dataset.SICK)
         existing_pair_ids = {p.pair_id for p in existing_sick_problems}
 
         with open(sick_path, "r", encoding="utf-8") as file:
@@ -45,11 +51,20 @@ class Command(BaseCommand):
                     skipped += 1
                     continue
 
-                created += 1
-                Problem.objects.create(
-                    type=Problem.ProblemType.SICK,
-                    content=problem,
+                entailment_label = self.ENTAILMENT_LABELS.get(
+                    problem["entailment_label"], Problem.EntailmentLabel.UNKNOWN
                 )
+
+                extra_data = SickData.import_data(problem)
+
+                Problem.objects.create(
+                    dataset=Problem.Dataset.SICK,
+                    premises=[problem["sentence_A"]],
+                    hypothesis=problem["sentence_B"],
+                    entailment_label=entailment_label,
+                    extra_data=extra_data,
+                )
+                created += 1
 
             logger.info(
                 f"SICK problems import complete! Created: {created} | Skipped: {skipped}"

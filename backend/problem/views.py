@@ -1,12 +1,9 @@
 from dataclasses import dataclass
-from typing import Literal
 from django.http import JsonResponse
 from rest_framework.views import APIView
 
+from problem.problem_details import get_related_problem_ids
 from problem.models import Problem
-from problem.services import (
-    get_related_problem_ids,
-)
 
 
 @dataclass

@@ -62,9 +62,9 @@ class Command(BaseCommand):
         created = 0
 
         existing_snli_problems = Problem.objects.filter(dataset=Problem.Dataset.SNLI)
-        existing_pair_ids = {
-            p.additional_content.get("pairID") for p in existing_snli_problems
-        }
+        existing_pair_ids = existing_snli_problems.values_list(
+            "extra_datapair_id", flat=True
+        )
 
         for subset, snli_path in snli_paths:
             try:

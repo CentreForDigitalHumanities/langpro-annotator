@@ -102,4 +102,4 @@ LOGGING = {
     },
 }
 
-LANGPRO_URL = "http://langpro:8000"
+LANGPRO_URL = "http://localhost:8080"

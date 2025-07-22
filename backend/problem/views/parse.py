@@ -1,12 +1,11 @@
-import json
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from django.http import JsonResponse
 from rest_framework.views import APIView
+from rest_framework.request import Request
 
-from langpro_annotator.common_settings import LANGPRO_URL
-from langpro_annotator.http_client import http_client
 from langpro_annotator.logger import logger
+
 
 @dataclass
 class ParseResponse:
@@ -22,39 +21,87 @@ class ParseResponse:
             status=status,
         )
 
+
+@dataclass
+class KnowledgeBase:
+    entity1: str
+    entity2: str
+    relationship: str
+
+    def to_dict(self) -> dict:
+        return {
+            "entity1": self.entity1,
+            "entity2": self.entity2,
+            "relationship": self.relationship,
+        }
+
+
+@dataclass
+class ParserInput:
+    """Represents the input for the LangPro parser."""
+
+    prover_config: list[str] = field(default_factory=lambda: ["allInt", "aall"])
+    premises: list[str] = field(default_factory=list)
+    knowledge_bases: list[KnowledgeBase] = field(default_factory=list)
+    hypothesis: str = ""
+    ral: int = 200
+    senses: str = "senses"
+
+    def to_dict(self) -> dict:
+        return {
+            "prover_config": self.prover_config,
+            "premises": self.premises,
+            "knowledge_bases": [kb.to_dict() for kb in self.knowledge_bases],
+            "hypothesis": self.hypothesis,
+            "ral": self.ral,
+            "senses": self.senses,
+        }
+
+
 class ParseView(APIView):
-    def post(self, request):
+    """Handles parsing requests."""
+
+    def post(self, request: Request) -> JsonResponse:
+        """
+        Receives problem data, validates it, and passes it to the LangPro parser.
+        """
         try:
-            data = request.data
-            if not isinstance(data, dict):
-                raise ValueError("Invalid data format")
+            payload = request.data
+            if not isinstance(payload, dict):
+                return ParseResponse(error="Invalid request format").json_response(
+                    status=400
+                )
 
-            parsed_data: dict = {"test": "ok"}
+            parser_input = ParserInput(
+                premises=payload.get("premises", []),
+                hypothesis=payload.get("hypothesis", ""),
+                knowledge_bases=[
+                    KnowledgeBase(**kb) for kb in payload.get("kbItems", [])
+                ],
+            )
 
-            return ParseResponse(data=parsed_data).json_response(status=200)
+            response = self.send_to_parser(parser_input)
+
+            return ParseResponse(data=response).json_response(status=200)
 
         except Exception as e:
-            return ParseResponse(error=str(e)).json_response(status=400)
+            logger.error(f"An error occurred in ParseView: {e}")
+            return ParseResponse(error=str(e)).json_response(status=500)
 
-    def send_to_parser(self, data: dict) -> dict | None:
-        """Send frontend data to downstream LangPro container."""
-        langpro_response = http_client.request(
-            method="POST",
-            url=f"{LANGPRO_URL}/parse",
-            body=json.dumps(data),
-            headers={"Content-Type": "application/json"},
-        )
+    def send_to_parser(self, data: ParserInput) -> dict | None:
+        """Send frontend data to downstream LangPro service."""
 
-        if langpro_response.status != 200:
-            logger.warning(
-                f"Failed to send data to LangPro: {langpro_response.status} {langpro_response.data}"
-            )
-            return None
+        print("Sending to LangPro service:", data.to_dict())
 
-        try:
-            langpro_response_data = json.loads(langpro_response.data.decode("utf-8"))
-        except json.JSONDecodeError as e:
-            logger.warning(f"LangPro response is not JSON parseable: {e.msg}")
-            return None
+        # Uncomment the following lines to send the request to the LangPro service
+        # try:
+        #     langpro_response = http_client.request(
+        #         method="POST",
+        #         url=f"{LANGPRO_URL}/parse",
+        #         body=json.dumps(data.to_dict()),
+        #         headers={"Content-Type": "application/json"},
+        #     )
 
-        return langpro_response_data
+        # Process data as needed ...
+
+        return {"ok": "true"}

@@ -101,3 +101,5 @@ LOGGING = {
         },
     },
 }
+
+LANGPRO_URL = "http://langpro:8000"

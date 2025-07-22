@@ -34,5 +34,11 @@ export class AnnotateComponent implements OnInit {
             .subscribe((id) => {
                 this.annotateService.problemId.next(id);
             });
+
+        this.annotateService.parse$
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe(results => {
+                console.log('Results:', results);
+            });
     }
 }

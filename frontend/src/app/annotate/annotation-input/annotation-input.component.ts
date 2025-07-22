@@ -4,12 +4,11 @@ import {
     FormArray,
     FormControl,
     FormGroup,
+    FormsModule,
     ReactiveFormsModule,
     Validators,
 } from "@angular/forms";
-import {
-    PremisesFormComponent,
-} from "./premises-form/premises-form.component";
+import { PremisesFormComponent } from "./premises-form/premises-form.component";
 import {
     KnowledgeBaseFormComponent,
     KnowledgeBaseRelationship,
@@ -19,10 +18,14 @@ import { toSignal } from "@angular/core/rxjs-interop";
 import { ProblemResponse } from "../../types";
 import { FontAwesomeModule } from "@fortawesome/angular-fontawesome";
 import { faCheck } from "@fortawesome/free-solid-svg-icons";
-import {
-    ProblemDetailsComponent,
-} from "./problem-details/problem-details.component";
+import { ProblemDetailsComponent } from "./problem-details/problem-details.component";
 import { map, Subject } from "rxjs";
+
+export type AnnotationInputForm = FormGroup<{
+    premises: FormArray<FormControl<string>>;
+    hypothesis: FormControl<string>;
+    kbItems: FormArray<KnowledgeBaseItemsForm>;
+}>;
 
 type KnowledgeBaseItemsForm = FormGroup<{
     entity1: FormControl<string>;
@@ -30,11 +33,7 @@ type KnowledgeBaseItemsForm = FormGroup<{
     entity2: FormControl<string>;
 }>;
 
-export type AnnotationInputForm = FormGroup<{
-    premises: FormArray<FormControl<string>>;
-    hypothesis: FormControl<string>;
-    kbItems: FormArray<KnowledgeBaseItemsForm>;
-}>;
+export type AnnotationInput = ReturnType<AnnotationInputForm["getRawValue"]>;
 
 @Component({
     selector: "la-annotation-input",
@@ -43,6 +42,7 @@ export type AnnotationInputForm = FormGroup<{
         CommonModule,
         PremisesFormComponent,
         KnowledgeBaseFormComponent,
+        FormsModule,
         ReactiveFormsModule,
         FontAwesomeModule,
         ProblemDetailsComponent,
@@ -54,7 +54,7 @@ export class AnnotationInputComponent {
     public problem$ = this.annotateService.problem$;
 
     public form$ = this.problem$.pipe(
-        map((response) => this.buildForm(response)),
+        map((response) => this.buildForm(response))
     );
 
     private formSignal = toSignal(this.form$, {
@@ -67,21 +67,17 @@ export class AnnotationInputComponent {
 
     constructor(private annotateService: AnnotateService) {}
 
-    public onSubmit(): void {
+    public onSubmit(event: Event): void {
+        event.preventDefault();
         const form = this.formSignal();
-        if (!form) {
+        if (!form || !form.valid) {
             return;
         }
-        if (form.valid) {
-            console.log(
-                "submitting from AnnotationInputComponent!",
-                form.value,
-            );
-        }
+        this.annotateService.submit.next(form.getRawValue());
     }
 
     private buildForm(
-        response: ProblemResponse | null,
+        response: ProblemResponse | null
     ): AnnotationInputForm | null {
         if (!response) {
             return null;
@@ -97,8 +93,8 @@ export class AnnotationInputComponent {
                         new FormControl<string>(premise, {
                             validators: [Validators.required],
                             nonNullable: true,
-                        }),
-                ),
+                        })
+                )
             ),
             hypothesis: new FormControl<string>(hypothesis, {
                 validators: [Validators.required],

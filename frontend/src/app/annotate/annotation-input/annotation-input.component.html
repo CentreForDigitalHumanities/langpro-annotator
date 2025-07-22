@@ -5,21 +5,21 @@
     below.
 </p>
 
-@if (form$ | async; as inputForm) {
+@if (form) {
 <div class="card">
     <form (ngSubmit)="onSubmit($event)">
         <div class="card-body">
-            <la-problem-details [problem]="problem$ | async" />
+            <la-problem-details [problem]="problem" />
             <div class="input-form-container">
-                <la-premises-form class="subform" [form]="inputForm" />
-                <la-knowledge-base-form class="subform" [form]="inputForm" />
+                <la-premises-form class="subform" [form]="form" />
+                <la-knowledge-base-form class="subform" [form]="form" />
             </div>
         </div>
         <div class="mb-3 d-flex justify-content-center">
             <button
                 type="submit"
                 class="btn btn-success"
-                [disabled]="inputForm?.invalid"
+                [disabled]="form.invalid"
             >
                 <fa-icon
                     [icon]="faCheck"

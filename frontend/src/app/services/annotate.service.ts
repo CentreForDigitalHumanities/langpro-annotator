@@ -41,16 +41,12 @@ export class AnnotateService {
 
     public parse$ = this.submit.pipe(
         switchMap((form) =>
-            this.http
-                .post<ProblemResponse>("/api/problem/parse", {
-                    data: form,
+            this.http.post<ProblemResponse>("/api/problem/parse", form).pipe(
+                catchError(() => {
+                    console.error("Error parsing problem");
+                    return of(null);
                 })
-                .pipe(
-                    catchError(() => {
-                        console.error("Error parsing results");
-                        return of(null);
-                    })
-                )
+            )
         )
     );
 

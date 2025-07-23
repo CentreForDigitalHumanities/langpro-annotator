@@ -78,7 +78,7 @@ export class AnnotationInputComponent implements OnInit {
             });
 
         // Subscription needed to ensure a request is actually made.
-        // This can be deleted later.
+        // TODO: replace this with actual parse results.
         this.annotateService.parse$
             .pipe(takeUntilDestroyed(this.destroyRef))
             .subscribe((response) => {

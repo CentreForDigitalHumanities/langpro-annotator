@@ -68,8 +68,8 @@ class ParseView(APIView):
     def send_to_parser(self, data: ParserInput) -> dict | None:
         """Send frontend data to downstream LangPro service."""
 
-        print("Sending to LangPro service:", asdict(data))
-
+        logger.info("Sending to LangPro service:", asdict(data))
+        # TODO: Implement actual HTTP request to LangPro service.
         # try:
         #     langpro_response = http_client.request(
         #         method="POST",

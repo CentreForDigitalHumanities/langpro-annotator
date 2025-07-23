@@ -1,9 +1,10 @@
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, asdict
 
 from django.http import JsonResponse
 from rest_framework.views import APIView
 from rest_framework.request import Request
 
+from problem.types import KnowledgeBase
 from langpro_annotator.logger import logger
 
 
@@ -23,20 +24,6 @@ class ParseResponse:
 
 
 @dataclass
-class KnowledgeBase:
-    entity1: str
-    entity2: str
-    relationship: str
-
-    def to_dict(self) -> dict:
-        return {
-            "entity1": self.entity1,
-            "entity2": self.entity2,
-            "relationship": self.relationship,
-        }
-
-
-@dataclass
 class ParserInput:
     """Represents the input for the LangPro parser."""
 
@@ -45,17 +32,7 @@ class ParserInput:
     knowledge_bases: list[KnowledgeBase] = field(default_factory=list)
     hypothesis: str = ""
     ral: int = 200
-    senses: str = "senses"
-
-    def to_dict(self) -> dict:
-        return {
-            "prover_config": self.prover_config,
-            "premises": self.premises,
-            "knowledge_bases": [kb.to_dict() for kb in self.knowledge_bases],
-            "hypothesis": self.hypothesis,
-            "ral": self.ral,
-            "senses": self.senses,
-        }
+    senses: str = "all"
 
 
 class ParseView(APIView):
@@ -91,9 +68,8 @@ class ParseView(APIView):
     def send_to_parser(self, data: ParserInput) -> dict | None:
         """Send frontend data to downstream LangPro service."""
 
-        print("Sending to LangPro service:", data.to_dict())
+        print("Sending to LangPro service:", asdict(data))
 
-        # Uncomment the following lines to send the request to the LangPro service
         # try:
         #     langpro_response = http_client.request(
         #         method="POST",
@@ -101,7 +77,9 @@ class ParseView(APIView):
         #         body=json.dumps(data.to_dict()),
         #         headers={"Content-Type": "application/json"},
         #     )
+        # except Exception as e:
+        #     logger.error(f"Error sending request to LangPro: {e}")
 
-        # Process data as needed ...
+        # Process data as needed...
 
         return {"ok": "true"}

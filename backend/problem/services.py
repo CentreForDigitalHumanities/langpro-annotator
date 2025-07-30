@@ -28,7 +28,6 @@ class SickData:
 
 
 class FracasData:
-
     @staticmethod
     def _text_from_element(element: ET.Element) -> str:
         """

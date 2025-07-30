@@ -4,7 +4,7 @@ from django.core.management.base import BaseCommand
 from tqdm import tqdm
 
 from langpro_annotator.logger import logger
-from problem.models import Problem
+from problem.models import Problem, Sentence
 from problem.services import SNLIData
 
 
@@ -62,8 +62,8 @@ class Command(BaseCommand):
         created = 0
 
         existing_snli_problems = Problem.objects.filter(dataset=Problem.Dataset.SNLI)
-        existing_pair_ids = existing_snli_problems.values_list(
-            "extra_data__pair_id", flat=True
+        existing_pair_ids: list[str] = list(
+            existing_snli_problems.values_list("extra_data__pair_id", flat=True)
         )
 
         for subset, snli_path in snli_paths:
@@ -99,15 +99,20 @@ class Command(BaseCommand):
 
                         extra_data = SNLIData.import_data(problem, subset)
 
-                        Problem.objects.create(
+                        premise = Sentence.objects.create(text=problem["sentence1"])
+
+                        hypothesis = Sentence.objects.create(text=problem["sentence2"])
+
+                        new_problem = Problem.objects.create(
                             dataset=Problem.Dataset.SNLI,
-                            premises=[problem["sentence1"]],
-                            hypothesis=problem["sentence2"],
+                            hypothesis=hypothesis,
                             entailment_label=problem["gold_label"],
                             extra_data=extra_data,
                         )
+                        new_problem.premises.set([premise])
+
                         created += 1
-                        existing_pair_ids.add(problem["pairID"])
+                        existing_pair_ids.append(problem["pairID"])
             except FileNotFoundError:
                 logger.warning(f"File {snli_path} not found. Skipping.")
 

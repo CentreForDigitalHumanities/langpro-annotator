@@ -1,0 +1,67 @@
+@let loading = loading$ | async;
+
+<div class="card text-bg-light p-3 mb-3">
+    <form role="search">
+        <label for="search" class="mb-2" i18n>Full-text search</label>
+        <div class="row mb-3">
+            <div class="input-group">
+                <span class="input-group-text" role="status">
+                    @if (loading) {
+                    <div class="spinner-border spinner-border-sm">
+                        <span class="visually-hidden" i18n>Searching...</span>
+                    </div>
+                    } @else {
+                    <fa-icon [icon]="faSearch" />
+                    }
+                </span>
+                <input
+                    type="text"
+                    class="form-control"
+                    placeholder="Search text..."
+                    [formControl]="form.controls.text"
+                    i18n-placeholder
+                />
+            </div>
+        </div>
+
+        <div class="row mb-3">
+            <div class="col-md-4 mb-2">
+                <div>
+                    <label for="dataset" class="form-label" i18n>Dataset</label>
+                    <la-filter-select
+                        [formControl]="form.controls.dataset"
+                        [options]="datasetOptions"
+                    />
+                </div>
+            </div>
+
+            <div class="col-md-4 mb-2">
+                <div>
+                    <label for="entailment-label" class="form-label" i18n>Entailment Label</label>
+                    <la-filter-select
+                        [formControl]="form.controls.entailmentLabel"
+                        [options]="entailmentLabelOptions"
+                    />
+                </div>
+            </div>
+
+            <div class="col-md-4 mb-2">
+                <div>
+                    <label for="annotator" class="form-label" i18n>Gold</label>
+                    <la-filter-select
+                        [formControl]="form.controls.gold"
+                        [options]="goldOptions"
+                    />
+                </div>
+            </div>
+        </div>
+
+        <div class="row col-12 mx-auto">
+            <button class="btn btn-outline-danger btn-sm" (click)="clearFilters()">
+                <fa-icon [icon]="faTimes" class="me-2" />
+                <span i18n>Clear filters</span>
+            </button>
+        </div>
+
+    </form>
+</div>

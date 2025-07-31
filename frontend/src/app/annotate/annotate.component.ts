@@ -6,6 +6,7 @@ import { ActivatedRoute } from "@angular/router";
 import { AnnotateService } from "../services/annotate.service";
 import { map } from "rxjs";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { SearchComponent } from "./search/search.component";
 
 @Component({
     selector: "la-annotate",
@@ -14,6 +15,7 @@ import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
         AnnotationMenuComponent,
         NavigatorComponent,
         AnnotationInputComponent,
+        SearchComponent,
     ],
     templateUrl: "./annotate.component.html",
     styleUrl: "./annotate.component.scss",

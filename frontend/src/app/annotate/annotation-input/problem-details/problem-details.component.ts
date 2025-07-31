@@ -4,6 +4,7 @@ import { EntailmentLabelBadgeComponent } from "./entailment-label-badge/entailme
 import { faQuestionCircle } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeModule } from "@fortawesome/angular-fontawesome";
 import { NgbTooltipModule } from "@ng-bootstrap/ng-bootstrap";
+import { datasetLabels } from "@/shared/displayTextMappings";
 
 export interface ProblemDetails {
     problemId: string;
@@ -37,6 +38,7 @@ export class ProblemDetailsComponent {
     });
 
     public faQuestionCircle = faQuestionCircle;
+    public datasetLabels = datasetLabels;
 
     public sectionString = computed<string | null>(() => {
         const problemDetails = this.problemDetails();

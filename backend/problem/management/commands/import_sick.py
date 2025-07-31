@@ -57,13 +57,9 @@ class Command(BaseCommand):
 
                 extra_data = SickData.import_data(problem)
 
-                premise = Sentence.objects.create(
-                    text=problem["sentence_A"]
-                )
+                premise = Sentence.objects.create(text=problem["sentence_A"])
 
-                hypothesis = Sentence.objects.create(
-                    text=problem["sentence_B"]
-                )
+                hypothesis = Sentence.objects.create(text=problem["sentence_B"])
 
                 problem = Problem.objects.create(
                     dataset=Problem.Dataset.SICK,

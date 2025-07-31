@@ -79,3 +79,5 @@ class KnowledgeBaseAnnotation(models.Model):
         choices=KnowledgeBase.Relationship.choices,
         default=KnowledgeBase.Relationship.EQUAL,
     )
+
+    created_at = models.DateTimeField(auto_now_add=True)

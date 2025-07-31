@@ -12,18 +12,14 @@ def migrate_fields_to_extra_data(apps, schema_editor):
     Sentence = apps.get_model("problem", "Sentence")
 
     for problem in Problem.objects.all():
-        if problem.hypothesis:
-            hypothesis_sentence, _ = Sentence.objects.get_or_create(
-                text=problem.hypothesis
-            )
-            problem.extra_data["temp_hypothesis_id"] = hypothesis_sentence.id
+        hypothesis_sentence, _ = Sentence.objects.get_or_create(text=problem.hypothesis)
+        problem.extra_data["temp_hypothesis_id"] = hypothesis_sentence.id
 
-        if problem.premises:
-            problem_sentence_ids = []
-            for sentence_text in problem.premises:
-                sentence, _ = Sentence.objects.get_or_create(text=sentence_text)
-                problem_sentence_ids.append(sentence.id)
-            problem.extra_data["temp_premise_ids"] = problem_sentence_ids
+        problem_sentence_ids = []
+        for sentence_text in problem.premises:
+            sentence, _ = Sentence.objects.get_or_create(text=sentence_text)
+            problem_sentence_ids.append(sentence.id)
+        problem.extra_data["temp_premise_ids"] = problem_sentence_ids
 
         problem.save()
 
@@ -36,19 +32,17 @@ def migrate_extra_data_to_fields(apps, schema_editor):
     sentence_model = apps.get_model("problem", "Sentence")
 
     for problem in problem_model.objects.all():
-        if problem.extra_data.get("temp_hypothesis_id"):
-            hypothesis_sentence = sentence_model.objects.get(
-                id=problem.extra_data["temp_hypothesis_id"]
-            )
-            problem.hypothesis = hypothesis_sentence.text
-            problem.extra_data.pop("temp_hypothesis_id", None)
+        hypothesis_sentence = sentence_model.objects.get(
+            id=problem.extra_data["temp_hypothesis_id"]
+        )
+        problem.hypothesis = hypothesis_sentence.text
+        problem.extra_data.pop("temp_hypothesis_id", None)
 
-        if problem.extra_data.get("temp_premise_ids"):
-            premise_sentences = sentence_model.objects.filter(
-                    id__in=problem.extra_data["temp_premise_ids"]
-                )
-            problem.premises = [sentence.text for sentence in premise_sentences]
-            problem.extra_data.pop("temp_premise_ids", None)
+        premise_sentences = sentence_model.objects.filter(
+            id__in=problem.extra_data["temp_premise_ids"]
+        )
+        problem.premises = [sentence.text for sentence in premise_sentences]
+        problem.extra_data.pop("temp_premise_ids", None)
 
         problem.save()
 
@@ -61,19 +55,30 @@ def migrate_extra_data_to_sentences(apps, schema_editor):
     Sentence = apps.get_model("problem", "Sentence")
 
     for problem in Problem.objects.all():
-        if "temp_hypothesis_id" in problem.extra_data:
-            hypothesis_sentence = Sentence.objects.get(
-                id=problem.extra_data["temp_hypothesis_id"]
+        if "temp_hypothesis_id" not in problem.extra_data:
+            print(
+                "Warning: Problem {} has no temp_hypothesis_id in extra_data".format(
+                    problem.id
+                )
             )
-            problem.extra_data.pop("temp_hypothesis_id", None)
-            problem.hypothesis = hypothesis_sentence
+        if "temp_premise_ids" not in problem.extra_data:
+            print(
+                "Warning: Problem {} has no temp_premise_ids in extra_data".format(
+                    problem.id
+                )
+            )
 
-        if "temp_premise_ids" in problem.extra_data:
-            premises_sentences = Sentence.objects.filter(
-                id__in=problem.extra_data["temp_premise_ids"]
-            )
-            problem.extra_data.pop("temp_premise_ids", None)
-            problem.premises.set(premises_sentences)
+        hypothesis_sentence = Sentence.objects.get(
+            id=problem.extra_data["temp_hypothesis_id"]
+        )
+        problem.extra_data.pop("temp_hypothesis_id", None)
+        problem.hypothesis = hypothesis_sentence
+
+        premises_sentences = Sentence.objects.filter(
+            id__in=problem.extra_data["temp_premise_ids"]
+        )
+        problem.extra_data.pop("temp_premise_ids", None)
+        problem.premises.set(premises_sentences)
 
         problem.save()
 
@@ -85,13 +90,11 @@ def migrate_sentences_to_extra_data(apps, schema_editor):
     Problem = apps.get_model("problem", "Problem")
 
     for problem in Problem.objects.all():
-        if problem.hypothesis:
-            problem.extra_data["temp_hypothesis_id"] = problem.hypothesis.id
+        problem.extra_data["temp_hypothesis_id"] = problem.hypothesis.id
 
-        if problem.premises.exists():
-            problem.extra_data["temp_premise_ids"] = list(
-                problem.premises.values_list("id", flat=True)
-            )
+        problem.extra_data["temp_premise_ids"] = list(
+            problem.premises.values_list("id", flat=True)
+        )
 
         problem.save()
 
@@ -126,6 +129,10 @@ class Migration(migrations.Migration):
             model_name="problem",
             name="premises",
         ),
+        migrations.RemoveField(
+            model_name="problem",
+            name="hypothesis",
+        ),
         migrations.AddField(
             model_name="problem",
             name="premises",
@@ -135,7 +142,7 @@ class Migration(migrations.Migration):
                 blank=True,
             ),
         ),
-        migrations.AlterField(
+        migrations.AddField(
             model_name="problem",
             name="hypothesis",
             field=models.ForeignKey(

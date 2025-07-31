@@ -1,0 +1,33 @@
+<div class="dropdown" ngbDropdown>
+    <button
+        class="btn btn-outline-secondary dropdown-toggle w-100"
+        type="button"
+        ngbDropdownToggle
+        [disabled]="isDisabled"
+        [attr.aria-label]="placeholder"
+    >
+        {{ getSelectedLabel() }}
+    </button>
+    <div class="dropdown-menu w-100" ngbDropdownMenu>
+        @if (showAllOption) {
+        <button
+            class="dropdown-item"
+            [class.active]="isOptionActive(null)"
+            (click)="onOptionSelect(null)"
+            type="button"
+            i18n
+        >
+            All
+        </button>
+        } @for (option of options; track option.value) {
+        <button
+            class="dropdown-item"
+            [class.active]="isOptionActive(option.value)"
+            (click)="onOptionSelect(option.value)"
+            type="button"
+        >
+            {{ option.label }}
+        </button>
+        }
+    </div>
+</div>

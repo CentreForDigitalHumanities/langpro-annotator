@@ -17,7 +17,7 @@
                 <input
                     type="text"
                     class="form-control"
-                    placeholder="Search text..."
+                    placeholder="Search through premises and hypotheses..."
                     [formControl]="form.controls.text"
                     i18n-placeholder
                 />
@@ -37,7 +37,9 @@
 
             <div class="col-md-4 mb-2">
                 <div>
-                    <label for="entailment-label" class="form-label" i18n>Entailment Label</label>
+                    <label for="entailment-label" class="form-label" i18n
+                        >Entailment Label</label
+                    >
                     <la-filter-select
                         [formControl]="form.controls.entailmentLabel"
                         [options]="entailmentLabelOptions"
@@ -57,11 +59,13 @@
         </div>
 
         <div class="row col-12 mx-auto">
-            <button class="btn btn-outline-danger btn-sm" (click)="clearFilters()">
+            <button
+                class="btn btn-outline-danger btn-sm"
+                (click)="clearFilters()"
+            >
                 <fa-icon [icon]="faTimes" class="me-2" />
                 <span i18n>Clear filters</span>
             </button>
         </div>
-
     </form>
 </div>

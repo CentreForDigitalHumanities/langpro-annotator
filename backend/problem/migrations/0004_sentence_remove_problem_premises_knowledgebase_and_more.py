@@ -139,7 +139,6 @@ class Migration(migrations.Migration):
             field=models.ManyToManyField(
                 related_name="premise_problems",
                 to="problem.sentence",
-                blank=True,
             ),
         ),
         migrations.AddField(

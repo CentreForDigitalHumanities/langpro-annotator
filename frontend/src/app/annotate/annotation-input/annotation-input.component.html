@@ -1,32 +1,12 @@
-<h2 i18n>Parser input</h2>
-
-<p i18n>
-    Edit the premises, hypothesis and associated Knowledge Bases using the forms
-    below.
-</p>
-
-@if (form$ | async; as inputForm) {
+@let inputForm = form$ | async;
 <div class="card">
     <div class="card-body">
         <la-problem-details [problem]="problem$ | async" />
-        <div class="input-form-container">
+        @if (inputForm) {
+        <div class="d-flex flex-column gap-4">
             <la-premises-form class="subform" [form]="inputForm" />
             <la-knowledge-base-form class="subform" [form]="inputForm" />
         </div>
-    </div>
-    <div class="mb-3 d-flex justify-content-center">
-        <button
-            type="submit"
-            class="btn btn-success"
-            [disabled]="inputForm?.invalid"
-        >
-            <fa-icon
-                [icon]="faCheck"
-                class="fa-sm"
-                aria-hidden="true"
-            ></fa-icon>
-            <span class="ms-2" i18n>Submit</span>
-        </button>
+        }
     </div>
 </div>
-}

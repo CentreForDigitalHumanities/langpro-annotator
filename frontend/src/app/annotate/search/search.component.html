@@ -1,6 +1,6 @@
 @let loading = loading$ | async;
 
-<div class="card text-bg-light p-3 mb-3">
+<div class="mb-3">
     <form role="search">
         <label for="search" class="mb-2" i18n>Full-text search</label>
         <div class="row mb-3">
@@ -24,38 +24,26 @@
             </div>
         </div>
 
-        <div class="row mb-3">
-            <div class="col-md-4 mb-2">
-                <div>
-                    <label for="dataset" class="form-label" i18n>Dataset</label>
-                    <la-filter-select
-                        [formControl]="form.controls.dataset"
-                        [options]="datasetOptions"
-                    />
-                </div>
-            </div>
+        <div class="filter-grid mb-3">
+            <label for="dataset" class="form-label" i18n>Dataset</label>
+            <la-filter-select
+                [formControl]="form.controls.dataset"
+                [options]="datasetOptions"
+            />
 
-            <div class="col-md-4 mb-2">
-                <div>
-                    <label for="entailment-label" class="form-label" i18n
-                        >Entailment Label</label
-                    >
-                    <la-filter-select
-                        [formControl]="form.controls.entailmentLabel"
-                        [options]="entailmentLabelOptions"
-                    />
-                </div>
-            </div>
+            <label for="entailment-label" class="form-label" i18n
+                >Entailment label</label
+            >
+            <la-filter-select
+                [formControl]="form.controls.entailmentLabel"
+                [options]="entailmentLabelOptions"
+            />
 
-            <div class="col-md-4 mb-2">
-                <div>
-                    <label for="annotator" class="form-label" i18n>Gold</label>
-                    <la-filter-select
-                        [formControl]="form.controls.gold"
-                        [options]="goldOptions"
-                    />
-                </div>
-            </div>
+            <label for="annotator" class="form-label" i18n>Gold</label>
+            <la-filter-select
+                [formControl]="form.controls.gold"
+                [options]="goldOptions"
+            />
         </div>
 
         <div class="row col-12 mx-auto">

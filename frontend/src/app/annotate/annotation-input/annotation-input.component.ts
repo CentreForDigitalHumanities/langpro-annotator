@@ -17,8 +17,6 @@ import {
 import { AnnotateService } from "../../services/annotate.service";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { ProblemResponse } from "../../types";
-import { FontAwesomeModule } from "@fortawesome/angular-fontawesome";
-import { faCheck } from "@fortawesome/free-solid-svg-icons";
 import {
     ProblemDetailsComponent,
 } from "./problem-details/problem-details.component";
@@ -44,7 +42,6 @@ export type AnnotationInputForm = FormGroup<{
         PremisesFormComponent,
         KnowledgeBaseFormComponent,
         ReactiveFormsModule,
-        FontAwesomeModule,
         ProblemDetailsComponent,
     ],
     templateUrl: "./annotation-input.component.html",
@@ -62,8 +59,6 @@ export class AnnotationInputComponent {
     });
 
     public submit$ = new Subject<void>();
-
-    public faCheck = faCheck;
 
     constructor(private annotateService: AnnotateService) {}
 

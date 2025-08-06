@@ -7,6 +7,8 @@ import { AnnotateService } from "../services/annotate.service";
 import { map } from "rxjs";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { SearchComponent } from "./search/search.component";
+import { FontAwesomeModule } from "@fortawesome/angular-fontawesome";
+import { faCheck } from "@fortawesome/free-solid-svg-icons";
 
 @Component({
     selector: "la-annotate",
@@ -16,6 +18,7 @@ import { SearchComponent } from "./search/search.component";
         NavigatorComponent,
         AnnotationInputComponent,
         SearchComponent,
+        FontAwesomeModule,
     ],
     templateUrl: "./annotate.component.html",
     styleUrl: "./annotate.component.scss",
@@ -25,7 +28,9 @@ export class AnnotateComponent implements OnInit {
         private destroyRef: DestroyRef,
         private route: ActivatedRoute,
         private annotateService: AnnotateService
-    ) {}
+    ) { }
+
+    public faCheck = faCheck;
 
     ngOnInit(): void {
         this.route.params

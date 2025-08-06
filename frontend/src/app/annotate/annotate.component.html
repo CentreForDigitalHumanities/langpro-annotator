@@ -1,6 +1,23 @@
-<la-navigator />
-<la-search />
-<div class="flex-container">
-    <la-annotation-input />
-    <la-annotation-menu />
+<div class="d-flex gap-4 justify-content-between align-items-start mb-4">
+    <div class="d-flex flex-column gap-3 col-4">
+        <div class="card text-bg-light p-3">
+            <la-navigator />
+            <la-search />
+        </div>
+        <div class="my-4 d-flex justify-content-center">
+            <button
+                type="submit"
+                class="btn btn-success btn-lg"
+            >
+                <fa-icon
+                    [icon]="faCheck"
+                    class="fa-lg"
+                    aria-hidden="true"
+                ></fa-icon>
+                <span class="ms-4 fs-3" i18n>Start parse</span>
+            </button>
+        </div>
+    </div>
+    <la-annotation-input class="col-8" />
 </div>
+<la-annotation-menu />

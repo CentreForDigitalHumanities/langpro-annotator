@@ -1,0 +1,11 @@
+.filter-grid {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0.5rem 1rem;
+    align-items: center;
+}
+
+.filter-grid .form-label {
+    margin-bottom: 0;
+    white-space: nowrap;
+}

@@ -8,10 +8,21 @@ import { sum } from "@/util";
     standalone: true,
     imports: [TableauTerm],
     templateUrl: "./tableau-tree.component.svg",
+    styleUrl: "./tableau-tree.component.scss",
 })
 export class TableauTree {
+    expanded: boolean[] = [];
+
+    _tree: any;
     @Input()
-    tree: any;
+    get tree(): any {
+        return this._tree;
+    }
+
+    set tree(value: any) {
+        this._tree = value;
+        this.expanded = value.nodes.map(() => true);
+    }
 
     levelHeight = 40;
 
@@ -77,5 +88,27 @@ export class TableauTree {
     nodeY(idx: number) {
         // y position of a given node is the sum of heights of all preceeding nodes
         return sum(this.tree.nodes.slice(0, idx).map(this.nodeHeight));
+    }
+
+    termClick(idx: number) {
+        // the last node can't be collapsed
+        // unless there are subtrees
+        if (idx < this.expanded.length - 1 || this.tree.subtrees) {
+            this.expanded[idx] = !this.expanded[idx];
+        }
+    }
+
+    visibleNodes() {
+        let firstCollpased = this.expanded.indexOf(false);
+        if (firstCollpased == -1) {
+            return this.tree.nodes;
+        }
+        return this.tree.nodes.slice(0, firstCollpased + 1);
+    }
+
+    showSubtrees() {
+        // if any of the current level nodes is collapsed, this also means
+        // we shouldn't render any subtrees
+        return this.expanded.indexOf(false) == -1;
     }
 }

@@ -6,6 +6,7 @@ import { Dimensions } from './types';
     standalone: true,
     imports: [],
     templateUrl: "./tableau-term.component.svg",
+    styleUrl: "./tableau-term.component.scss",
 })
 export class TableauTerm {
     @Input()

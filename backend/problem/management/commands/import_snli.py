@@ -62,9 +62,9 @@ class Command(BaseCommand):
         created = 0
 
         existing_snli_problems = Problem.objects.filter(dataset=Problem.Dataset.SNLI)
-        existing_pair_ids = existing_snli_problems.values_list(
+        existing_pair_ids = list(existing_snli_problems.values_list(
             "extra_data__pair_id", flat=True
-        )
+        ))
 
         for subset, snli_path in snli_paths:
             try:
@@ -107,7 +107,7 @@ class Command(BaseCommand):
                             extra_data=extra_data,
                         )
                         created += 1
-                        existing_pair_ids.add(problem["pairID"])
+                        existing_pair_ids.append(problem["pairID"])
             except FileNotFoundError:
                 logger.warning(f"File {snli_path} not found. Skipping.")
 

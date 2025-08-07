@@ -75,7 +75,7 @@ class Command(BaseCommand):
         existing_fracas_problems = Problem.objects.filter(
             dataset=Problem.Dataset.FRACAS
         )
-        existing_fracas_ids = {p.fracas_id for p in existing_fracas_problems}
+        existing_fracas_ids = {p.extra_data.get("fracas_id") for p in existing_fracas_problems}
 
         for problem in tqdm(all_problems, desc="Importing FraCaS problems"):
             problem_id = problem.get("id")

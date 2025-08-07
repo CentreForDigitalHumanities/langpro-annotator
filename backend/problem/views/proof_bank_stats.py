@@ -26,9 +26,10 @@ class ProofBankStatsResponse:
 
 class ProofBankStatsView(APIView):
     def get(self, request):
-        first_problem = Problem.objects.order_by("id").first()
-        last_problem = Problem.objects.order_by("-id").first()
-        total_problems = Problem.objects.count()
+        qs = Problem.objects.order_by("id")
+        first_problem = qs.first()
+        last_problem = qs.last()
+        total_problems = qs.count()
 
         return ProofBankStatsResponse(
             first_problem_id=first_problem.pk if first_problem else None,

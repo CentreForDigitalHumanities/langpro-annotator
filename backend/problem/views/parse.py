@@ -4,8 +4,8 @@ from django.http import JsonResponse
 from rest_framework.views import APIView
 from rest_framework.request import Request
 
-from problem.types import KnowledgeBase
 from langpro_annotator.logger import logger
+from problem.types import KnowledgeBase
 
 
 @dataclass
@@ -15,10 +15,7 @@ class ParseResponse:
 
     def json_response(self, status=200) -> JsonResponse:
         return JsonResponse(
-            {
-                "error": self.error,
-                "data": self.data,
-            },
+            asdict(self),
             status=status,
         )
 
@@ -62,24 +59,25 @@ class ParseView(APIView):
             return ParseResponse(data=response).json_response(status=200)
 
         except Exception as e:
-            logger.error(f"An error occurred in ParseView: {e}")
+            logger.exception(f"An error occurred in ParseView: {e}")
             return ParseResponse(error=str(e)).json_response(status=500)
 
     def send_to_parser(self, data: ParserInput) -> dict | None:
         """Send frontend data to downstream LangPro service."""
 
         logger.info("Sending to LangPro service:", asdict(data))
-        # TODO: Implement actual HTTP request to LangPro service.
+
         # try:
-        #     langpro_response = http_client.request(
-        #         method="POST",
+        #     response = requests.post(
         #         url=f"{LANGPRO_URL}/parse",
-        #         body=json.dumps(data.to_dict()),
+        #         json=asdict(data),
         #         headers={"Content-Type": "application/json"},
         #     )
-        # except Exception as e:
-        #     logger.error(f"Error sending request to LangPro: {e}")
+        #     response.raise_for_status()
+        #     return response.json()
+        # except requests.RequestException as e:
+        #     logger.exception(f"Error sending request to LangPro: {e}")
+        #     return None
 
-        # Process data as needed...
 
         return {"ok": "true"}

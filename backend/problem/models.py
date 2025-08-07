@@ -48,9 +48,9 @@ class Problem(models.Model):
         Get the index of this Problem in the database.
         """
         try:
-            return Problem.objects.filter(id__lte=self.id).count()
+            return Problem.objects.filter(id__lte=self.pk).count()
         except Exception as e:
-            logger.error(f"Error getting index for problem {self.id}: {e}")
+            logger.exception(f"Error getting index for problem {self.pk}: {e}")
             return None
 
     def serialize(self) -> dict:
@@ -69,7 +69,7 @@ class Problem(models.Model):
                 serialized_extra_data = {}
 
         return {
-            "id": self.id,
+            "id": self.pk,
             "dataset": self.dataset,
             "premises": self.premises,
             "hypothesis": self.hypothesis,

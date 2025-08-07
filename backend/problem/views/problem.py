@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+
 from django.http import JsonResponse
 from rest_framework.views import APIView
 
@@ -31,25 +32,6 @@ class ProblemResponse:
         )
 
 
-@dataclass
-class ProofBankStatsResponse:
-    error: str | None = None
-    first_problem_id: int | None = None
-    last_problem_id: int | None = None
-    total_problems: int | None = None
-
-    def json_response(self, status=200) -> JsonResponse:
-        return JsonResponse(
-            {
-                "error": self.error,
-                "firstProblemId": self.first_problem_id,
-                "lastProblemId": self.last_problem_id,
-                "totalProblems": self.total_problems,
-            },
-            status=status,
-        )
-
-
 class ProblemView(APIView):
     def get(self, request, problem_id: int):
         try:
@@ -66,23 +48,10 @@ class ProblemView(APIView):
         )
 
         return ProblemResponse(
-            id=problem.id,
+            id=problem.pk,
             index=problem_index,
             problem=problem,
-            next=next_problem_id,
-            previous=previous_problem_id,
-            random=random_problem_id,
-        ).json_response(status=200)
-
-
-class ProofBankStatsView(APIView):
-    def get(self, request):
-        first_problem = Problem.objects.order_by("id").first()
-        last_problem = Problem.objects.order_by("-id").first()
-        total_problems = Problem.objects.count()
-
-        return ProofBankStatsResponse(
-            first_problem_id=first_problem.id if first_problem else None,
-            last_problem_id=last_problem.id if last_problem else None,
-            total_problems=total_problems,
+            next=str(next_problem_id),
+            previous=str(previous_problem_id),
+            random=str(random_problem_id),
         ).json_response(status=200)

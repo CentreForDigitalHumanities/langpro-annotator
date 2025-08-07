@@ -54,7 +54,7 @@ class Problem(models.Model):
         try:
             return Problem.objects.filter(id__lte=self.pk).count()
         except Exception as e:
-            logger.error(f"Error getting index for problem {self.pk}: {e}")
+            logger.exception(f"Error getting index for problem {self.pk}: {e}")
             return None
 
     def serialize(self) -> dict:

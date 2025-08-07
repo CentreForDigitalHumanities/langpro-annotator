@@ -92,8 +92,23 @@ class Command(BaseCommand):
                 skipped += 1
                 continue
 
+            fracas_answer = problem.get("fracas_answer")
+            if fracas_answer is None:
+                logger.warning(
+                    f"Problem ID {problem_id} is missing 'fracas_answer' attribute. Skipping."
+                )
+                skipped += 1
+                continue
+
+            hypothesis_node = problem.find("h")
+            if hypothesis_node is None:
+                logger.warning(
+                    f"Problem ID {problem_id} is missing 'h' element. Skipping."
+                )
+                skipped += 1
+                continue
             hypothesis = Sentence.objects.create(
-                text=FracasData._text_from_element(problem.find("h"))
+                text=FracasData._text_from_element(hypothesis_node)
             )
 
             premises = []
@@ -102,13 +117,6 @@ class Command(BaseCommand):
                 if node.text:
                     premises.append(Sentence.objects.create(text=node.text.strip()))
 
-            fracas_answer = problem.get("fracas_answer")
-            if fracas_answer is None:
-                logger.warning(
-                    f"Problem ID {problem_id} is missing 'fracas_answer' attribute. Skipping."
-                )
-                skipped += 1
-                continue
 
             entailment_label = self.ENTAILMENT_LABELS.get(
                 fracas_answer, Problem.EntailmentLabel.UNKNOWN

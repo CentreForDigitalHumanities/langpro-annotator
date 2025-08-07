@@ -54,26 +54,7 @@ export class AnnotationInputComponent {
         map((response) => this.buildForm(response)),
     );
 
-    private formSignal = toSignal(this.form$, {
-        initialValue: null,
-    });
-
-    public submit$ = new Subject<void>();
-
     constructor(private annotateService: AnnotateService) {}
-
-    public onSubmit(): void {
-        const form = this.formSignal();
-        if (!form) {
-            return;
-        }
-        if (form.valid) {
-            console.log(
-                "submitting from AnnotationInputComponent!",
-                form.value,
-            );
-        }
-    }
 
     private buildForm(
         response: ProblemResponse | null,

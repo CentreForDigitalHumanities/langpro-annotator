@@ -35,8 +35,6 @@ export class KnowledgeBaseFormComponent {
     public faPlus = faPlus;
     public faTrash = faTrash;
 
-    constructor() {}
-
     public addKnowledgeBaseItem(): void {
         const newItem = new FormGroup({
             entity1: new FormControl<string>("", {
@@ -67,12 +65,6 @@ export class KnowledgeBaseFormComponent {
     public removeKnowledgeBaseItem(index: number): void {
         if (this.form().controls.kbItems.length > 1) {
             this.form().controls.kbItems.removeAt(index);
-        }
-    }
-
-    public onSubmit(): void {
-        if (this.form().valid) {
-            console.log("Submitting:", this.form().value);
         }
     }
 }

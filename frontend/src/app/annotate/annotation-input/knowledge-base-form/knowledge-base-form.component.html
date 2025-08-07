@@ -4,7 +4,7 @@
         <h3 class="h5" i18n>Knowledge Base</h3>
     </header>
     <div class="card-body">
-        <form [formGroup]="form()" (ngSubmit)="onSubmit()">
+        <form [formGroup]="form()">
             <ul formArrayName="kbItems" class="ps-0 list-unstyled">
                 @for (kbItem of form().controls.kbItems.controls; let i =
                 $index; track $index) {

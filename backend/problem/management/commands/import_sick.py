@@ -40,7 +40,7 @@ class Command(BaseCommand):
         created = 0
 
         existing_sick_problems = Problem.objects.filter(dataset=Problem.Dataset.SICK)
-        existing_pair_ids = {p.pair_id for p in existing_sick_problems}
+        existing_pair_ids = {p.extra_data.get("pair_id") for p in existing_sick_problems}
 
         with open(sick_path, "r", encoding="utf-8") as file:
             reader = csv.DictReader(file, delimiter="\t")

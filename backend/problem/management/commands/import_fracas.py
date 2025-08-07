@@ -5,7 +5,7 @@ from tqdm import tqdm
 
 from langpro_annotator.logger import logger
 from problem.services import FracasData
-from problem.models import Problem
+from problem.models import Problem, Sentence
 
 
 class Command(BaseCommand):
@@ -45,16 +45,16 @@ class Command(BaseCommand):
 
         for element in root:
             if element.tag == "comment" and element.attrib.get("class") == "section":
-                current_section = element.text.strip()
+                current_section = element.text.strip() if element.text else None
             elif (
                 element.tag == "comment" and element.attrib.get("class") == "subsection"
             ):
-                current_subsection = element.text.strip()
+                current_subsection = element.text.strip() if element.text else None
             elif (
                 element.tag == "comment"
                 and element.attrib.get("class") == "subsubsection"
             ):
-                current_subsubsection = element.text.strip()
+                current_subsubsection = element.text.strip() if element.text else None
             elif element.tag == "problem":
                 if current_section:
                     element.set("section", current_section)
@@ -75,7 +75,9 @@ class Command(BaseCommand):
         existing_fracas_problems = Problem.objects.filter(
             dataset=Problem.Dataset.FRACAS
         )
-        existing_fracas_ids = {p.extra_data.get("fracas_id") for p in existing_fracas_problems}
+        existing_fracas_ids = {
+            p.extra_data["fracas_id"] for p in existing_fracas_problems
+        }
 
         for problem in tqdm(all_problems, desc="Importing FraCaS problems"):
             problem_id = problem.get("id")
@@ -90,23 +92,45 @@ class Command(BaseCommand):
                 skipped += 1
                 continue
 
-            hypothesis = FracasData._text_from_element(problem.find("h"))
             fracas_answer = problem.get("fracas_answer")
+            if fracas_answer is None:
+                logger.warning(
+                    f"Problem ID {problem_id} is missing 'fracas_answer' attribute. Skipping."
+                )
+                skipped += 1
+                continue
+
+            hypothesis_node = problem.find("h")
+            if hypothesis_node is None:
+                logger.warning(
+                    f"Problem ID {problem_id} is missing 'h' element. Skipping."
+                )
+                skipped += 1
+                continue
+            hypothesis = Sentence.objects.create(
+                text=FracasData._text_from_element(hypothesis_node)
+            )
+
+            premises = []
             premise_nodes = problem.findall("p")
-            premises = [node.text.strip() for node in premise_nodes if node.text]
+            for node in premise_nodes:
+                if node.text:
+                    premises.append(Sentence.objects.create(text=node.text.strip()))
+
+
             entailment_label = self.ENTAILMENT_LABELS.get(
                 fracas_answer, Problem.EntailmentLabel.UNKNOWN
             )
 
             extra_data = FracasData.import_data(problem)
 
-            Problem.objects.create(
+            problem = Problem.objects.create(
                 dataset=Problem.Dataset.FRACAS,
-                premises=premises,
                 hypothesis=hypothesis,
                 entailment_label=entailment_label,
                 extra_data=extra_data,
             )
+            problem.premises.set(premises)
             created += 1
 
         logger.info(

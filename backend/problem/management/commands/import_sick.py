@@ -4,7 +4,7 @@ from django.core.management.base import BaseCommand
 from tqdm import tqdm
 
 from langpro_annotator.logger import logger
-from problem.models import Problem
+from problem.models import Problem, Sentence
 from problem.services import SickData
 
 
@@ -40,7 +40,7 @@ class Command(BaseCommand):
         created = 0
 
         existing_sick_problems = Problem.objects.filter(dataset=Problem.Dataset.SICK)
-        existing_pair_ids = {p.extra_data.get("pair_id") for p in existing_sick_problems}
+        existing_pair_ids = {p.extra_data["pair_id"] for p in existing_sick_problems}
 
         with open(sick_path, "r", encoding="utf-8") as file:
             reader = csv.DictReader(file, delimiter="\t")
@@ -57,13 +57,17 @@ class Command(BaseCommand):
 
                 extra_data = SickData.import_data(problem)
 
-                Problem.objects.create(
+                premise = Sentence.objects.create(text=problem["sentence_A"])
+
+                hypothesis = Sentence.objects.create(text=problem["sentence_B"])
+
+                problem = Problem.objects.create(
                     dataset=Problem.Dataset.SICK,
-                    premises=[problem["sentence_A"]],
-                    hypothesis=problem["sentence_B"],
+                    hypothesis=hypothesis,
                     entailment_label=entailment_label,
                     extra_data=extra_data,
                 )
+                problem.premises.set([premise])
                 created += 1
 
             logger.info(

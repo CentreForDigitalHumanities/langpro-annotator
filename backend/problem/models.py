@@ -5,6 +5,10 @@ from problem.services import FracasData, SNLIData, SickData
 from langpro_annotator.logger import logger
 
 
+class Sentence(models.Model):
+    text = models.TextField()
+
+
 class Problem(models.Model):
     class Dataset(models.TextChoices):
         SICK = "sick", "Sick"
@@ -24,15 +28,15 @@ class Problem(models.Model):
         default=Dataset.USER,
     )
 
-    premises = ArrayField(
-        models.CharField(max_length=512),
-        default=list,
+    premises = models.ManyToManyField(
+        Sentence,
+        related_name="premise_problems",
     )
 
-    hypothesis = models.CharField(
-        max_length=512,
-        blank=True,
-        null=True,
+    hypothesis = models.ForeignKey(
+        Sentence,
+        on_delete=models.PROTECT,
+        related_name="hypothesis_problems",
     )
 
     entailment_label = models.CharField(
@@ -71,8 +75,32 @@ class Problem(models.Model):
         return {
             "id": self.pk,
             "dataset": self.dataset,
-            "premises": self.premises,
-            "hypothesis": self.hypothesis,
+            "premises": [premise.text for premise in self.premises.all()],
+            "hypothesis": self.hypothesis.text,
             "entailmentLabel": self.entailment_label,
             "extraData": serialized_extra_data,
         }
+
+
+class KnowledgeBase(models.Model):
+    class Relationship(models.TextChoices):
+        EQUAL = "equal", "Equal"
+        NOT_EQUAL = "not_equal", "Not Equal"
+        SUBSET = "subset", "Subset"
+        SUPERSET = "superset", "Superset"
+
+    entity1 = models.CharField(max_length=255)
+
+    entity2 = models.CharField(max_length=255)
+
+    relationship = models.CharField(
+        max_length=255,
+        choices=Relationship.choices,
+        default=Relationship.EQUAL,
+    )
+
+    problem = models.ForeignKey(
+        Problem,
+        on_delete=models.CASCADE,
+        related_name="knowledge_bases",
+    )

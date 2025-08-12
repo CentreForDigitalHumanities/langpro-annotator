@@ -1,4 +1,4 @@
-import { Component } from "@angular/core";
+import { Component, DestroyRef, OnInit } from "@angular/core";
 import { AnnotationMenuComponent } from "./annotation-menu/annotation-menu.component";
 import { NavigatorComponent } from "./navigator/navigator.component";
 import { AnnotationInputComponent } from "./annotation-input/annotation-input.component";

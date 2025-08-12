@@ -1,28 +1,79 @@
-from typing import Tuple
+from typing import Optional
+from dataclasses import dataclass
+
+from django.http import QueryDict
+from django.db.models import QuerySet, Q
+
 from langpro_annotator.logger import logger
 from problem.models import Problem
 
 
+@dataclass
+class RelatedProblemIds:
+    first: Optional[str] = None
+    previous: Optional[str] = None
+    next: Optional[str] = None
+    last: Optional[str] = None
+    total: Optional[int] = None
+
+
 def get_related_problem_ids(
-    problem_id: int,
-) -> Tuple[int | None, int | None, int | None]:
+    problem_qs: QuerySet[Problem],
+    problem_id: Optional[int],
+) -> RelatedProblemIds:
     """
-    Retrieves the IDs of the next, previous, and random Problem objects
+    Retrieves the IDs of surrounding problem objects
     in the database relative to the given problem ID.
     """
+    if problem_id is None:
+        return RelatedProblemIds()
 
     try:
-        problem = Problem.objects.get(id=problem_id)
+        problem = problem_qs.get(id=problem_id)
     except Problem.DoesNotExist:
         logger.warning(f"Problem ID {problem_id} does not exist.")
-        return None, None, None
+        return RelatedProblemIds()
 
-    next_problem = Problem.objects.filter(id__gt=problem.pk).order_by("id").first()
-    previous_problem = Problem.objects.filter(id__lt=problem.pk).order_by("-id").first()
-    random_problem = Problem.objects.exclude(id=problem.pk).order_by("?").first()
+    problems = problem_qs.order_by("id")
 
-    return (
-        next_problem.pk if next_problem else None,
-        previous_problem.pk if previous_problem else None,
-        random_problem.pk if random_problem else None,
+    first_problem = problems.first()
+    previous_problem = problems.filter(id__lt=problem.pk).last()
+    next_problem = problems.filter(id__gt=problem.pk).first()
+    last_problem = problems.last()
+    total = problems.count()
+
+    return RelatedProblemIds(
+        first=first_problem.pk if first_problem else None,
+        previous=previous_problem.pk if previous_problem else None,
+        next=next_problem.pk if next_problem else None,
+        last=last_problem.pk if last_problem else None,
+        total=total,
     )
+
+
+def get_filters(query_params: QueryDict) -> Q | None:
+    """
+    Constructs a Django Q object for filtering problems based on query parameters.
+    Return None if no valid filters are found in the parameters.
+    """
+    dataset = query_params.get("dataset")
+    entailment_label = query_params.get("entailmentLabel")
+    gold = query_params.get("gold")
+    text = query_params.get("text")
+
+    if not (dataset or entailment_label or gold or text):
+        return None
+
+    filters = Q()
+    if dataset:
+        filters &= Q(dataset=dataset)
+    if entailment_label:
+        filters &= Q(entailment_label=entailment_label)
+    if gold is not None:
+        # To be implemented!
+        pass
+    if text:
+        filters &= Q(hypothesis__text__icontains=text)
+        filters &= Q(premises__text__icontains=text)
+
+    return filters

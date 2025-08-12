@@ -1,5 +1,4 @@
-@let firstProblemId = firstProblemId$ | async;
-@let showAnnotate = (loggedIn$ | async) && (firstProblemId !== null);
+@let showAnnotate = (loggedIn$ | async);
 <nav
     class="navbar navbar-expand-lg bg-body-tertiary"
     aria-label="main navigation"
@@ -39,7 +38,7 @@
                 @if (showAnnotate) {
                 <li class="nav-item">
                     <a
-                        [routerLink]="['annotate', firstProblemId]"
+                        [routerLink]="['annotate', '1']"
                         routerLinkActive="active"
                         class="nav-link"
                         i18n

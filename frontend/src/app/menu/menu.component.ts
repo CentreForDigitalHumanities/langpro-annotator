@@ -56,10 +56,6 @@ export class MenuComponent implements OnInit {
 
     public loggedIn$ = this.authService.isAuthenticated$;
 
-    public firstProblemId$ = this.problemService.proofBankStats$.pipe(
-        map((stats) => stats?.firstProblemId ?? null),
-    )
-
     constructor(
         @Inject(LOCALE_ID) private localeId: string,
         private languageService: LanguageService,

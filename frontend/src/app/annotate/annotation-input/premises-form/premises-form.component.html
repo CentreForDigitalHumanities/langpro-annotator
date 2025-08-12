@@ -7,8 +7,8 @@
     <div class="card-body">
         <form [formGroup]="form()">
             <ul formArrayName="premises" class="ps-0 list-unstyled">
-                @for (control of form().controls.premises.controls; let i = $index; track $index)
-                {
+                @for (control of form().controls.premises.controls; let i =
+                $index; track $index) {
                 <li class="mb-3">
                     <label
                         [attr.for]="'premise-' + i"
@@ -51,7 +51,7 @@
                     class="fa-sm"
                     aria-hidden="true"
                 ></fa-icon>
-                <span class="ms-2" i18n>Add Premise</span>
+                <span class="ms-2" i18n>Add premise</span>
             </button>
 
             <div class="mb-3">

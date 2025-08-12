@@ -17,7 +17,7 @@ import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ProblemResponse } from "../../types";
 import { faCheck } from "@fortawesome/free-solid-svg-icons";
 import { ProblemDetailsComponent } from "./problem-details/problem-details.component";
-import { Subject } from "rxjs";
+import { combineLatest, Subject } from "rxjs";
 import { ActivatedRoute } from "@angular/router";
 import { ProblemService } from "@/services/problem.service";
 import { ParseService } from "@/services/parse.service";
@@ -83,12 +83,14 @@ export class AnnotationInputComponent implements OnInit {
                 console.log("Parse response:", response);
             });
 
-        this.route.paramMap
+        combineLatest([
+            this.route.paramMap,
+            this.route.queryParamMap])
             .pipe(
                 takeUntilDestroyed(this.destroyRef)
             )
-            .subscribe((paramMap) => {
-                this.problemService.routeParamMap$.next(paramMap);
+            .subscribe(([params, queryParams]) => {
+                this.problemService.allParams$.next({ params, queryParams });
             });
     }
 

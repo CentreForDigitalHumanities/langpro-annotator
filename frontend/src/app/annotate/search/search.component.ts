@@ -1,6 +1,6 @@
 import { Dataset, EntailmentLabel } from "@/types";
 import { CommonModule } from "@angular/common";
-import { Component, EventEmitter, Output } from "@angular/core";
+import { Component, DestroyRef, inject } from "@angular/core";
 import {
     FormControl,
     FormGroup,
@@ -10,12 +10,14 @@ import {
 import { FontAwesomeModule } from "@fortawesome/angular-fontawesome";
 import { faSearch, faTimes } from "@fortawesome/free-solid-svg-icons";
 import { NgbDropdownModule } from "@ng-bootstrap/ng-bootstrap";
-import { BehaviorSubject } from "rxjs";
+import { BehaviorSubject, map } from "rxjs";
 import {
     FilterSelectComponent,
     SelectOption,
 } from "./filter-select/filter-select.component";
 import { datasetLabels, entailmentLabels } from "@/shared/displayTextMappings";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { ActivatedRoute, Params, Router } from "@angular/router";
 
 interface SearchParams {
     dataset: Dataset | null;
@@ -42,6 +44,10 @@ type SearchParamsForm = {
     styleUrl: "./search.component.scss",
 })
 export class SearchComponent {
+    private destroyRef = inject(DestroyRef);
+    private router = inject(Router);
+    private route = inject(ActivatedRoute);
+
     public form = new FormGroup<SearchParamsForm>({
         dataset: new FormControl<Dataset | null>(null),
         entailmentLabel: new FormControl<EntailmentLabel | null>(null),
@@ -79,12 +85,43 @@ export class SearchComponent {
 
     // TODO: remove!
     ngOnInit(): void {
-        this.form.valueChanges.subscribe((value) => {
-            console.log('Search form changed:', value);
-        });
+        this.form.valueChanges
+            .pipe(
+                map(() => this.form.getRawValue()),
+                takeUntilDestroyed(this.destroyRef)
+            )
+            .subscribe((value: SearchParams) => {
+                this.updateUrl(value);
+            });
     }
 
     public clearFilters(): void {
         this.form.reset();
+    }
+
+    // Updates the route, which triggers a new query.
+    private updateUrl(searchParams: SearchParams): void {
+        const url = this.router.createUrlTree([], {
+            relativeTo: this.route,
+            queryParams: this.formatQueryParams(searchParams)
+        }).toString();
+        this.router.navigateByUrl(url);
+    }
+
+    private formatQueryParams(searchParams: SearchParams): Params {
+        const params: Params = {};
+        if (searchParams.dataset) {
+            params['dataset'] = searchParams.dataset;
+        }
+        if (searchParams.entailmentLabel) {
+            params['entailmentLabel'] = searchParams.entailmentLabel;
+        }
+        if (searchParams.gold !== null) {
+            params['gold'] = searchParams.gold;
+        }
+        if (searchParams.text) {
+            params['text'] = searchParams.text;
+        }
+        return params;
     }
 }

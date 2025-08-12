@@ -10,16 +10,16 @@ import { Subject, Observable, switchMap, of, catchError, shareReplay } from 'rxj
 export class ProblemService {
     private http = inject(HttpClient);
 
-    public routeParamMap$ = new Subject<ParamMap>();
+    public allParams$ = new Subject<{ params: ParamMap, queryParams: ParamMap; }>();
 
-    public problem$: Observable<ProblemResponse | null> = this.routeParamMap$.pipe(
-        switchMap((paramMap) => {
-            const problemId = paramMap.get("problemId");
+    public problem$: Observable<ProblemResponse | null> = this.allParams$.pipe(
+        switchMap(({ params, queryParams }) => {
+            const problemId = params.get("problemId");
             if (!problemId) {
                 return of(null);
             }
 
-            const httpParams = this.extractSearchParams(paramMap);
+            const httpParams = this.extractSearchParams(queryParams);
 
             return this.http.get<ProblemResponse>(`/api/problem/${problemId}`, { params: httpParams }).pipe(
                 catchError((error) => {

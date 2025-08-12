@@ -10,7 +10,7 @@ import {
 import { FontAwesomeModule } from "@fortawesome/angular-fontawesome";
 import { faSearch, faTimes } from "@fortawesome/free-solid-svg-icons";
 import { NgbDropdownModule } from "@ng-bootstrap/ng-bootstrap";
-import { BehaviorSubject, map } from "rxjs";
+import { BehaviorSubject, distinctUntilChanged, map } from "rxjs";
 import {
     FilterSelectComponent,
     SelectOption,
@@ -83,8 +83,8 @@ export class SearchComponent {
         { value: false, label: $localize`Non-Gold Only` },
     ];
 
-    // TODO: remove!
     ngOnInit(): void {
+        // Update URL when form changes.
         this.form.valueChanges
             .pipe(
                 map(() => this.form.getRawValue()),
@@ -93,6 +93,24 @@ export class SearchComponent {
             .subscribe((value: SearchParams) => {
                 this.updateUrl(value);
             });
+
+        // Update form when URL changes.
+        this.route.queryParamMap.pipe(
+            distinctUntilChanged((prev, curr) => {
+                return prev.get('dataset') === curr.get('dataset') &&
+                    prev.get('entailmentLabel') === curr.get('entailmentLabel') &&
+                    prev.get('gold') === curr.get('gold') &&
+                    prev.get('text') === curr.get('text');
+            }),
+            takeUntilDestroyed(this.destroyRef)
+        ).subscribe(queryParams => {
+            this.form.patchValue({
+                dataset: queryParams.get('dataset') as Dataset | null,
+                entailmentLabel: queryParams.get('entailmentLabel') as EntailmentLabel | null,
+                gold: queryParams.get('gold') === null ? null : queryParams.get('gold') === 'true',
+                text: queryParams.get('text') as string | null,
+            });
+        });
     }
 
     public clearFilters(): void {

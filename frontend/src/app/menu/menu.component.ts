@@ -4,6 +4,7 @@ import {
     LOCALE_ID,
     Inject,
     OnInit,
+    inject,
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { CommonModule } from "@angular/common";
@@ -18,8 +19,8 @@ import {
 } from "@ng-bootstrap/ng-bootstrap";
 import { UserMenuComponent } from "./user-menu/user-menu.component";
 import { AuthService } from "../services/auth.service";
-import { AnnotateService } from "../services/annotate.service";
 import { map } from "rxjs";
+import { ProblemService } from "@/services/problem.service";
 
 @Component({
     selector: "la-menu",
@@ -38,6 +39,10 @@ import { map } from "rxjs";
     ],
 })
 export class MenuComponent implements OnInit {
+    private problemService = inject(ProblemService);
+    private destroyRef = inject(DestroyRef);
+    private authService = inject(AuthService);
+
     burgerActive = false;
     currentLanguage: string;
     loading = false;
@@ -51,16 +56,13 @@ export class MenuComponent implements OnInit {
 
     public loggedIn$ = this.authService.isAuthenticated$;
 
-    public firstProblemId$ = this.annotateService.proofBankStats$.pipe(
+    public firstProblemId$ = this.problemService.proofBankStats$.pipe(
         map((stats) => stats?.firstProblemId ?? null),
     )
 
     constructor(
         @Inject(LOCALE_ID) private localeId: string,
-        private destroyRef: DestroyRef,
-        private annotateService: AnnotateService,
         private languageService: LanguageService,
-        private authService: AuthService,
     ) {
         this.currentLanguage = this.localeId;
     }
@@ -69,7 +71,9 @@ export class MenuComponent implements OnInit {
         // allow switching even when the current locale is different
         // this should really only be the case in development:
         // then the instance is only running in a single language
-        this.languageService.languageInfo$.pipe().subscribe((languageInfo) => {
+        this.languageService.languageInfo$.pipe(
+            takeUntilDestroyed(this.destroyRef)
+        ).subscribe((languageInfo) => {
             this.currentLanguage = languageInfo.current || this.localeId;
             this.languages = languageInfo.supported;
         });

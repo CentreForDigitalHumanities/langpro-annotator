@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.postgres.fields import ArrayField
+from django.db.models import QuerySet
 
 from problem.services import FracasData, SNLIData, SickData
 from langpro_annotator.logger import logger
@@ -47,12 +48,12 @@ class Problem(models.Model):
 
     extra_data = models.JSONField()
 
-    def get_index(self) -> int | None:
+    def get_index(self, qs: QuerySet) -> int | None:
         """
         Get the index of this Problem in the database.
         """
         try:
-            return Problem.objects.filter(id__lte=self.pk).count()
+            return qs.filter(id__lte=self.pk).count()
         except Exception as e:
             logger.exception(f"Error getting index for problem {self.pk}: {e}")
             return None

@@ -18,7 +18,7 @@ import { ProblemResponse } from "../../types";
 import { faCheck } from "@fortawesome/free-solid-svg-icons";
 import { ProblemDetailsComponent } from "./problem-details/problem-details.component";
 import { combineLatest, Subject } from "rxjs";
-import { ActivatedRoute } from "@angular/router";
+import { ActivatedRoute, Router } from "@angular/router";
 import { ProblemService } from "@/services/problem.service";
 import { ParseService } from "@/services/parse.service";
 
@@ -52,6 +52,7 @@ export type ParseInput = ReturnType<ParseInputForm["getRawValue"]>;
 })
 export class AnnotationInputComponent implements OnInit {
     private route = inject(ActivatedRoute);
+    private router = inject(Router);
     private destroyRef = inject(DestroyRef);
     private problemService = inject(ProblemService);
     private parseService = inject(ParseService);
@@ -67,12 +68,12 @@ export class AnnotationInputComponent implements OnInit {
         this.problemService.problem$
             .pipe(takeUntilDestroyed(this.destroyRef))
             .subscribe((problem) => {
+                // Navigate away if the backend provides a new Problem ID.
+                this.navigateToNewProblem(problem);
+
+                // Otherwise, update local state and form.
                 this.problem = problem;
-                if (!problem) {
-                    this.form = null;
-                    return;
-                }
-                this.form = this.buildForm(problem);
+                this.form = problem ? this.buildForm(problem) : null;
             });
 
         // Subscription needed to ensure a request is actually made.
@@ -83,6 +84,7 @@ export class AnnotationInputComponent implements OnInit {
                 console.log("Parse response:", response);
             });
 
+        // Listen to route changes only after subscribing to ProblemService.problem$.
         combineLatest([
             this.route.paramMap,
             this.route.queryParamMap])
@@ -92,6 +94,18 @@ export class AnnotationInputComponent implements OnInit {
             .subscribe(([params, queryParams]) => {
                 this.problemService.allParams$.next({ params, queryParams });
             });
+    }
+
+    private navigateToNewProblem(problem: ProblemResponse | null): void {
+        if (!problem) {
+            return;
+        }
+        if (problem.id !== null && problem.id !== this.problem?.id) {
+            this.router.navigate(['/annotate', problem.id], {
+                queryParamsHandling: "preserve",
+            });
+        }
+
     }
 
     private buildForm(response: ProblemResponse): ParseInputForm {

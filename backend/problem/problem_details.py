@@ -25,22 +25,23 @@ def get_related_problem_ids(
     Retrieves the IDs of surrounding problem objects
     in the database relative to the given problem ID.
     """
-    if problem_id is None:
-        return RelatedProblemIds()
-
-    try:
-        problem = problem_qs.get(id=problem_id)
-    except Problem.DoesNotExist:
-        logger.warning(f"Problem ID {problem_id} does not exist.")
-        return RelatedProblemIds()
-
     problems = problem_qs.order_by("id")
-
     first_problem = problems.first()
-    previous_problem = problems.filter(id__lt=problem.pk).last()
-    next_problem = problems.filter(id__gt=problem.pk).first()
     last_problem = problems.last()
+    previous_problem = None
+    next_problem = None
     total = problems.count()
+
+    if problem_id is None:
+        problem = None
+    else:
+        try:
+            problem = problem_qs.get(id=problem_id)
+            previous_problem = problems.filter(id__lt=problem.pk).last()
+            next_problem = problems.filter(id__gt=problem.pk).first()
+        except Problem.DoesNotExist:
+            logger.warning(f"Problem ID {problem_id} does not exist.")
+            problem = None
 
     return RelatedProblemIds(
         first=first_problem.pk if first_problem else None,

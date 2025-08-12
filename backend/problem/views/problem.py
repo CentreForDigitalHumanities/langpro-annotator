@@ -59,7 +59,7 @@ class ProblemView(APIView):
         if problem is None:
             problem = qs.first()
 
-        problem_index = problem.get_index() if problem else None
+        problem_index = problem.get_index(qs) if problem else None
         related_problem_ids = get_related_problem_ids(qs, problem_id)
 
         return ProblemResponse(

@@ -53,7 +53,7 @@ interface UserProblem extends ProblemBase {
 type Problem = SickProblem | FracasProblem | SNLIProblem | UserProblem;
 
 export interface ProblemResponse {
-    id: number;
+    id: number | null;
     index: number | null;
     problem: Problem | null;
     error: string | null;

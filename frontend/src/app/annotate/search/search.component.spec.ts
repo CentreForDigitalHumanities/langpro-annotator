@@ -14,7 +14,8 @@ describe("SearchComponent", () => {
             providers: [{
                 provide: ActivatedRoute,
                 useValue: {
-                    params: of({ problemId: "1"})
+                    params: of({ problemId: "1" }),
+                    queryParamMap: of({ dataset: null, entailmentLabel: null, gold: null, text: "" }),
                 }
             }]
         }).compileComponents();

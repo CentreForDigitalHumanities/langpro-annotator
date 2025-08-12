@@ -63,8 +63,6 @@ export class KnowledgeBaseFormComponent {
     }
 
     public removeKnowledgeBaseItem(index: number): void {
-        if (this.form().controls.kbItems.length > 1) {
-            this.form().controls.kbItems.removeAt(index);
-        }
+        this.form().controls.kbItems.removeAt(index);
     }
 }

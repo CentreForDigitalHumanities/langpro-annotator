@@ -1,70 +1,72 @@
 @let premiseControls = form().controls.premises.controls;
 
-<section class="card">
-    <header class="card-header">
-        <h3 class="h5" i18n>Premises and Hypothesis</h3>
-    </header>
-    <div class="card-body">
-        <form [formGroup]="form()">
-            <ul formArrayName="premises" class="ps-0 list-unstyled">
-                @for (control of form().controls.premises.controls; let i =
-                $index; track $index) {
-                <li class="mb-3">
-                    <label
-                        [attr.for]="'premise-' + i"
-                        class="form-label fw-bold"
-                        i18n
-                    >
-                        Premise {{ i + 1 }}
-                    </label>
-                    <div class="input-group">
-                        <input
-                            [id]="'premise-' + i"
-                            type="text"
-                            class="form-control"
-                            [formControlName]="i"
-                        />
-                        <button
-                            type="button"
-                            class="btn btn-danger"
-                            (click)="removePremise(i)"
-                            [disabled]="premiseControls.length === 1"
-                        >
-                            <fa-icon
-                                [icon]="faTrash"
-                                class="fa-sm"
-                                aria-hidden="true"
-                            ></fa-icon>
-                            <span class="ms-2" i18n>Remove</span>
-                        </button>
-                    </div>
-                </li>
-                }
-            </ul>
+<form [formGroup]="form()">
+    <fieldset>
+        <legend
+            class="form-label h6 fw-bold d-flex align-items-center justify-content-between"
+        >
+            <span i18n>Premises</span>
             <button
                 type="button"
-                class="btn btn-primary mb-3"
+                class="btn btn-sm btn-outline-primary"
                 (click)="addPremise()"
             >
+                <span class="me-1" i18n>Add premise</span>
                 <fa-icon
                     [icon]="faPlus"
                     class="fa-sm"
                     aria-hidden="true"
+                    focusable="false"
                 ></fa-icon>
-                <span class="ms-2" i18n>Add premise</span>
             </button>
+        </legend>
 
-            <div class="mb-3">
-                <label for="hypothesis" class="form-label fw-bold" i18n>
-                    Hypothesis
-                </label>
-                <input
-                    id="hypothesis"
-                    type="text"
-                    class="form-control"
-                    [formControl]="form().controls.hypothesis"
-                />
-            </div>
-        </form>
+        <ul class="ps-0 list-unstyled" formArrayName="premises">
+            @for (control of premiseControls; let i = $index;
+            track $index) {
+            <li class="mb-3">
+                <div class="input-group">
+                    <input
+                        [id]="'premise-' + i"
+                        type="text"
+                        class="form-control"
+                        [formControlName]="i"
+                    />
+                    <button
+                        type="button"
+                        class="btn btn-danger"
+                        (click)="removePremise(i)"
+                        aria-labelledby="remove-premise"
+                        title="Remove premise"
+                        title-i18n
+                    >
+                        <fa-icon
+                            [icon]="faTrash"
+                            class="fa-sm"
+                            aria-hidden="true"
+                            focusable="false"
+                        ></fa-icon>
+                        <span id="remove-premise" class="visually-hidden" i18n
+                            >Remove</span
+                        >
+                    </button>
+                </div>
+            </li>
+            } @empty {
+                <li class="text-muted" i18n>No premises defined for this problem.</li>
+            }
+        </ul>
+    </fieldset>
+
+    <div class="mb-3">
+        <label for="hypothesis" class="form-label fw-bold" i18n>
+            Hypothesis
+        </label>
+        <input
+            id="hypothesis"
+            type="text"
+            class="form-control"
+            [formControl]="form().controls.hypothesis"
+        />
     </div>
-</section>
+</form>

@@ -1,84 +1,79 @@
-@if (form().controls.kbItems.controls.length > 0) {
-<section class="card">
-    <header class="card-header">
-        <h3 class="h5" i18n>Knowledge Base</h3>
-    </header>
-    <div class="card-body">
-        <form [formGroup]="form()">
-            <ul formArrayName="kbItems" class="ps-0 list-unstyled">
-                @for (kbItem of form().controls.kbItems.controls; let i =
-                $index; track $index) {
-                <li class="mb-3">
-                    <div [formGroupName]="i" class="input-group">
-                        <input
-                            type="text"
-                            class="form-control"
-                            formControlName="entity1"
-                            placeholder="Entity 1"
-                            required
-                        />
-                        <select
-                            class="form-select"
-                            formControlName="relationship"
-                        >
-                            <option value="" disabled selected i18n>
-                                Select Relationship
-                            </option>
-                            @for (relationship of relationshipTypes; track
-                            $index) {
-                            <option [value]="relationship">
-                                {{ getRelationshipTypeName(relationship) }}
-                            </option>
-                            }
-                        </select>
-                        <input
-                            type="text"
-                            class="form-control"
-                            formControlName="entity2"
-                            placeholder="Entity 2"
-                            required
-                        />
-                        <button
-                            type="button"
-                            class="btn btn-danger"
-                            (click)="removeKnowledgeBaseItem(i)"
-                            [disabled]="form().controls.kbItems.length === 1"
-                        >
-                            <fa-icon
-                                [icon]="faTrash"
-                                class="fa-sm"
-                                aria-hidden="true"
-                            ></fa-icon>
-                            <span class="ms-2" i18n>Remove</span>
-                        </button>
-                    </div>
-                </li>
-                }
-            </ul>
+@let kbControls = form().controls.kbItems.controls;
+
+<form [formGroup]="form()">
+    <fieldset>
+        <legend
+            class="form-label h6 fw-bold d-flex align-items-center justify-content-between"
+        >
+            <span i18n>Knowledge base items</span>
             <button
                 type="button"
-                class="btn btn-primary"
+                class="btn btn-sm btn-outline-primary"
                 (click)="addKnowledgeBaseItem()"
             >
+                <span class="me-1" i18n>Add knowledge base item</span>
                 <fa-icon
                     [icon]="faPlus"
                     class="fa-sm"
                     aria-hidden="true"
+                    focusable="false"
                 ></fa-icon>
-                <span class="ms-2" i18n>Add Item</span>
             </button>
-        </form>
-    </div>
-</section>
-} @else {
-<section>
-    <button
-        type="button"
-        class="btn btn-primary"
-        (click)="addKnowledgeBaseItem()"
-    >
-        <fa-icon [icon]="faPlus" class="fa-sm" aria-hidden="true"></fa-icon>
-        <span class="ms-2" i18n>Add knowledge base item</span>
-    </button>
-</section>
-}
+        </legend>
+    </fieldset>
+
+    <ul class="ps-0 list-unstyled" formArrayName="kbItems">
+        @for (kbItem of kbControls; let i = $index; track $index) {
+        <li class="mb-3">
+            <div [formGroupName]="i" class="input-group">
+                <input
+                    type="text"
+                    class="form-control"
+                    formControlName="entity1"
+                    placeholder="Entity 1"
+                    required
+                />
+                <select class="form-select" formControlName="relationship">
+                    <option value="" disabled selected i18n>
+                        Select relationship
+                    </option>
+                    @for (relationship of relationshipTypes; track $index) {
+                    <option [value]="relationship">
+                        {{ getRelationshipTypeName(relationship) }}
+                    </option>
+                    }
+                </select>
+                <input
+                    type="text"
+                    class="form-control"
+                    formControlName="entity2"
+                    placeholder="Entity 2"
+                    required
+                />
+                <button
+                    type="button"
+                    class="btn btn-danger"
+                    (click)="removeKnowledgeBaseItem(i)"
+                    aria-labelledby="remove-kb-item"
+                    title="Remove knowledge base item"
+                    title-i18n
+                >
+                    <fa-icon
+                        [icon]="faTrash"
+                        class="fa-sm"
+                        aria-hidden="true"
+                        focusable="false"
+                    ></fa-icon>
+                    <span id="remove-kb-item" class="visually-hidden" i18n
+                        >Remove</span
+                    >
+                </button>
+            </div>
+        </li>
+        } @empty {
+        <li class="text-muted" i18n>
+            No knowledge base items defined for this problem.
+        </li>
+        }
+    </ul>
+</form>

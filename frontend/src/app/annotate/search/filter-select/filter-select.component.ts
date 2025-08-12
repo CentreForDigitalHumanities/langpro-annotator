@@ -29,8 +29,8 @@ export class FilterSelectComponent<T> implements ControlValueAccessor {
     selectedValue: T | null = null;
     isDisabled: boolean = false;
 
-    private onChange = (value: T | null) => {};
-    private onTouched = () => {};
+    private onChange = (value: T | null) => { };
+    private onTouched = () => { };
 
     writeValue(value: T | null): void {
         this.selectedValue = value;

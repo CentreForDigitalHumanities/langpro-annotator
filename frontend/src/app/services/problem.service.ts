@@ -54,4 +54,14 @@ export class ProblemService {
 
         return new HttpParams({ fromObject: paramRecord });
     }
+
+    // Retrieves the ID of the first available problem so we can link to it
+    // from the main navigation bar.
+    public getFirstProblemId$ = this.http.get<{ firstProblemId: string | null; }>("/api/problem/entry").pipe(
+        map(response => response.firstProblemId),
+        catchError((error) => {
+            console.error("Error fetching first problem ID:", error);
+            return of(null);
+        })
+    );
 }

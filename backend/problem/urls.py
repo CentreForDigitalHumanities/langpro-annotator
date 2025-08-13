@@ -1,10 +1,11 @@
 from django.urls import path
 
 from problem.views.parse import ParseView
-from problem.views.problem import ProblemView
+from problem.views.problem import ProblemView, ProblemEntryView
 
 
 urlpatterns = [
     path("<int:problem_id>", ProblemView.as_view(), name="problem_view"),
+    path("entry", ProblemEntryView.as_view(), name="entry"),
     path("parse", ParseView.as_view(), name="parse_view"),
 ]

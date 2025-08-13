@@ -1,7 +1,7 @@
 import { Component, ChangeDetectorRef} from '@angular/core';
 import { CommonModule } from "@angular/common";
 import { Subject } from "rxjs";
-import { Dimensions } from './types';
+import { Dimensions } from '@/types';
 import { TableauTree } from './tableau-tree.component';
 
 @Component({

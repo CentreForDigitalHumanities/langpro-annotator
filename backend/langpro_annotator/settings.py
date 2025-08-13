@@ -91,3 +91,5 @@ STATIC_URL = '/static/'
 
 STATICFILES_DIRS = []
 PROXY_FRONTEND = None
+
+LANGPRO_URL = 'http://localhost:8080'

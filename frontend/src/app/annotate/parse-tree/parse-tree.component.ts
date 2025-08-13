@@ -1,16 +1,16 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
-import { TableauTerm } from './tableau-term.component';
+import { ParseTerm } from './parse-term.component';
 import { Dimensions } from '@/types';
 import { sum } from "@/util";
 
 @Component({
-    selector: "[tableau-tree]",
+    selector: "[parse-tree]",
     standalone: true,
-    imports: [TableauTerm],
-    templateUrl: "./tableau-tree.component.svg",
-    styleUrl: "./tableau-tree.component.scss",
+    imports: [ParseTerm],
+    templateUrl: "./parse-tree.component.svg",
+    styleUrl: "./parse-tree.component.scss",
 })
-export class TableauTree {
+export class ParseTree {
     expanded: boolean[] = [];
 
     _tree: any;
@@ -20,8 +20,28 @@ export class TableauTree {
     }
 
     set tree(value: any) {
-        this._tree = value;
-        this.expanded = value.nodes.map(() => true);
+        if (value.children) {
+            // this is a temporary translation until the tree code can be refactored:
+            let translated =
+                (function translate(p: any) {
+                    if (!p) return;
+                    let out: any = {};
+                    if (Array.isArray(p.node)) {
+                        out.nodes = [{term: p.node}];
+                    }
+                    else {
+                        out.nodes = [{term: [p.node]}];
+                    }
+                    out.subtrees = p.children ? p.children.map(translate) : [];
+                    return out;
+                })(value);
+            this._tree = translated;
+        }
+        else {
+            this._tree = value;
+        }
+
+        this.expanded = [true];
     }
 
     levelHeight = 40;

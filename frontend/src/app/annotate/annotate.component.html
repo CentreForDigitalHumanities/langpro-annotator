@@ -8,6 +8,7 @@
             <button
                 type="submit"
                 class="btn btn-success btn-lg d-flex align-items-center"
+                (click)="startParse()"
             >
                 <fa-icon
                     [icon]="faTree"
@@ -21,4 +22,4 @@
     </div>
     <la-annotation-input class="col-8" />
 </div>
-<la-annotation-menu />
+<la-annotation-menu [ccgTrees]="ccgTrees" />

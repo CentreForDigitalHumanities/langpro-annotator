@@ -1,0 +1,33 @@
+<svg:g>
+    @for (node of visibleNodes(); track $index; let i = $index) {
+        <svg:g attr.transform="translate(0, {{ nodeY(i) }})">
+            <svg:g term [idx]="node.idx" [term]="node.term" [label]="node.label" [end]="node.end"
+                [bg]="node.bg" (onSize)="updateDimensions($event)" [rule]="node.rule"
+                (click)="termClick($index)"
+                ></svg:g>
+            @if(!expanded[$index]) {
+            <svg:text class="expand-plus" role="button" x="0" [attr.y]="nodeHeight(node)" text-anchor="middle" dominant-baseline="middle"
+                      (click)="termClick($index)">+
+            </svg:text>
+            }
+            @else if (!$last) {
+                <svg:path attr.d="M 0 {{ nodeHeight(node) - 15 }} l 0 15" stroke="steelblue" fill="none"/>
+            }
+        </svg:g>
+    }
+
+    @if (showSubtrees()) {
+        @if (tree.subtrees) {
+            @for (subtree of tree.subtrees; track $index; let i = $index) {
+                <svg:path [attr.d]="subtreeLinkPath(i)" stroke="steelblue" fill="none"/>
+            }
+        }
+
+        <svg:g attr.transform="translate(0, {{ totalNodeHeight() + levelHeight }})">
+            @for (subtree of tree.subtrees; track $index; let i = $index) {
+                <svg:g parse-tree [tree]="subtree" attr.transform="translate({{subtreePosition(i)}}, 0)"
+                (onSize)="updateSubDimensions($event)"></svg:g>
+            }
+        </svg:g>
+    }
+</svg:g>

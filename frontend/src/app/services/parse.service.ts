@@ -2,7 +2,9 @@ import { ParseInput } from '@/annotate/annotation-input/annotation-input.compone
 import { ProblemResponse } from '@/types';
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { Subject, switchMap, catchError, of } from 'rxjs';
+import { Subject, switchMap, catchError, of, first, Observer } from 'rxjs';
+
+export type ParseResponse = any
 
 @Injectable({
     providedIn: 'root'
@@ -10,11 +12,11 @@ import { Subject, switchMap, catchError, of } from 'rxjs';
 export class ParseService {
     private http = inject(HttpClient);
 
-    public submit = new Subject<ParseInput>();
+    private submit = new Subject<ParseInput>();
 
-    public parse$ = this.submit.pipe(
+    private parse$ = this.submit.pipe(
         switchMap((form) =>
-            this.http.post("/api/problem/parse", form).pipe(
+            this.http.post<ParseResponse>("/api/problem/parse", form).pipe(
                 catchError((error) => {
                     console.error(`Error parsing problem:`, error);
                     return of(null);
@@ -22,4 +24,9 @@ export class ParseService {
             )
         )
     );
+
+    public startParse(input: ParseInput, handler: (response: ParseResponse) => void) {
+        this.parse$.pipe(first()).subscribe(handler);
+        this.submit.next(input);
+    }
 }

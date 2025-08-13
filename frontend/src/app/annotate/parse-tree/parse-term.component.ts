@@ -5,10 +5,9 @@ import { Dimensions } from '@/types';
     selector: "[term]",
     standalone: true,
     imports: [],
-    templateUrl: "./tableau-term.component.svg",
-    styleUrl: "./tableau-term.component.scss",
+    templateUrl: "./parse-term.component.svg",
 })
-export class TableauTerm {
+export class ParseTerm {
     @Input()
     public idx?: number;
 
@@ -40,7 +39,7 @@ export class TableauTerm {
     @Output()
     public onSize = new EventEmitter<Dimensions>();
 
-    padding = 5;
+    padding = 2;
     height = 20;
 
     idxW = 0;
@@ -50,13 +49,17 @@ export class TableauTerm {
     labelW = 0;
     totalW = 0;
 
+    calculateWidth() {
+        return this.termText!.nativeElement.getBBox().width;
+    }
+
     ngAfterViewChecked() {
         this.idxW = this.idxText ? this.idxText.nativeElement.getComputedTextLength() + this.padding : 0;
         this.labelW = this.labelText ? this.labelText.nativeElement.getComputedTextLength() + this.padding : 0;
         this.termX = this.idxW;
-        this.termW = this.termText ? this.termText.nativeElement.getComputedTextLength() : 0;
+        this.termW = this.termText ? this.calculateWidth() : 0;
         this.labelX =  this.termX + this.termW + this.padding;
-        this.totalW = this.termText ? this.labelW + this.idxW + this.termText.nativeElement.getComputedTextLength() : 0;
+        this.totalW = this.termText ? this.labelW + this.idxW + this.calculateWidth() : 0;
 
         this.onSize.emit({width: this.totalW, height: this.height});
     }

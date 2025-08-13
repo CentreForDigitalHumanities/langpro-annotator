@@ -20,7 +20,6 @@ import { ProblemDetailsComponent } from "./problem-details/problem-details.compo
 import { combineLatest, Subject } from "rxjs";
 import { ActivatedRoute, Router } from "@angular/router";
 import { ProblemService } from "@/services/problem.service";
-import { ParseService } from "@/services/parse.service";
 import { FontAwesomeModule } from "@fortawesome/angular-fontawesome";
 
 export type ParseInputForm = FormGroup<{
@@ -57,7 +56,6 @@ export class AnnotationInputComponent implements OnInit {
     private router = inject(Router);
     private destroyRef = inject(DestroyRef);
     private problemService = inject(ProblemService);
-    private parseService = inject(ParseService);
 
     public form: ParseInputForm | null = null;
     public problem: ProblemResponse | null = null;
@@ -78,15 +76,6 @@ export class AnnotationInputComponent implements OnInit {
                 this.form = problem ? this.buildForm(problem) : null;
             });
 
-        // Subscription needed to ensure a request is actually made.
-        // TODO: replace this with actual parse results.
-        this.parseService.parse$
-            .pipe(takeUntilDestroyed(this.destroyRef))
-            .subscribe((response) => {
-                console.log("Parse response:", response);
-            });
-
-        // Listen to route changes only after subscribing to ProblemService.problem$.
         combineLatest([
             this.route.paramMap,
             this.route.queryParamMap])

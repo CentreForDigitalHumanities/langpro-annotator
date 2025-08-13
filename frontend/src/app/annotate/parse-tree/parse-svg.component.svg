@@ -1,0 +1,7 @@
+<svg
+    style="width: 100%; min-height: {{((treeDimensions$|async)?.height ?? 0) + 10}}px;"
+    >
+  <g parse-tree [tree]="tree"
+  attr.transform="translate({{((treeDimensions$|async)?.width ?? 0)/2}}, 10)"
+   (onSize)="onTreeSize($event)"></g>
+</svg>

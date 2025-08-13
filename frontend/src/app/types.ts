@@ -77,3 +77,9 @@ export enum EntailmentLabel {
     NEUTRAL = "neutral",
     UNKNOWN = "unknown",
 }
+
+
+export interface Dimensions {
+    width: number;
+    height: number;
+}

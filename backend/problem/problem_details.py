@@ -44,10 +44,10 @@ def get_related_problem_ids(
             problem = None
 
     return RelatedProblemIds(
-        first=first_problem.pk if first_problem else None,
-        previous=previous_problem.pk if previous_problem else None,
-        next=next_problem.pk if next_problem else None,
-        last=last_problem.pk if last_problem else None,
+        first=str(first_problem.pk) if first_problem else None,
+        previous=str(previous_problem.pk) if previous_problem else None,
+        next=str(next_problem.pk) if next_problem else None,
+        last=str(last_problem.pk) if last_problem else None,
         total=total,
     )
 

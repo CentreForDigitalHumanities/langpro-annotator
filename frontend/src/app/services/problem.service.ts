@@ -40,7 +40,7 @@ export class ProblemService {
         const paramRecord: Record<string, string> = {};
 
         if (text) {
-            paramRecord["search"] = text;
+            paramRecord["text"] = text;
         }
         if (dataset) {
             paramRecord["dataset"] = dataset;

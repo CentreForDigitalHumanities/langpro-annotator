@@ -74,7 +74,8 @@ def get_filters(query_params: QueryDict) -> Q | None:
         # To be implemented!
         pass
     if text:
-        filters &= Q(hypothesis__text__icontains=text)
-        filters &= Q(premises__text__icontains=text)
+        filters &= Q(hypothesis__text__icontains=text) | Q(
+            premises__text__icontains=text
+        )
 
     return filters

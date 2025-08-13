@@ -6,26 +6,27 @@ import { Dimensions } from './types';
     standalone: true,
     imports: [],
     templateUrl: "./tableau-term.component.svg",
+    styleUrl: "./tableau-term.component.scss",
 })
 export class TableauTerm {
     @Input()
     public idx?: number;
 
     @Input()
-    public label?: String;
+    public label?: string;
 
     /* background color, should probably be replaced by an enum type with the color lookup done elsewhere */
     @Input()
-    public bg?: String;
+    public bg?: string;
 
     @Input()
-    public term: String = '';
+    public term: string = '';
 
     @Input()
     public end: boolean = false;
 
     @Input()
-    public rule?: String;
+    public rule?: string;
 
     @ViewChild('idxText')
     idxText?: ElementRef<SVGTextElement>;

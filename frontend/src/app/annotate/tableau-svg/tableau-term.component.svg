@@ -1,4 +1,4 @@
-<svg:g class="term" attr.transform="translate({{-totalW/2}}, 0)">
+<svg:g role="button" attr.transform="translate({{-totalW/2}}, 0)">
 @if(idx) {
     <svg:rect [attr.x]="-padding/2" y="0" [attr.width]="idxW" [attr.height]="height" fill="silver"></svg:rect>
     <svg:text #idxText x="0" y="10" dominant-baseline="middle" fill="white">{{ idx }}</svg:text>

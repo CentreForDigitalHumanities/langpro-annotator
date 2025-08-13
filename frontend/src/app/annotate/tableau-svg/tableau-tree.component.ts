@@ -99,7 +99,7 @@ export class TableauTree {
     }
 
     visibleNodes() {
-        let firstCollpased = this.expanded.indexOf(false);
+        const firstCollpased = this.expanded.indexOf(false);
         if (firstCollpased == -1) {
             return this.tree.nodes;
         }

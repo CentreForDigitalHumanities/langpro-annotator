@@ -15,12 +15,13 @@ import {
 } from "./knowledge-base-form/knowledge-base-form.component";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ProblemResponse } from "../../types";
-import { faCheck } from "@fortawesome/free-solid-svg-icons";
+import { faExclamationCircle } from "@fortawesome/free-solid-svg-icons";
 import { ProblemDetailsComponent } from "./problem-details/problem-details.component";
 import { combineLatest, Subject } from "rxjs";
 import { ActivatedRoute, Router } from "@angular/router";
 import { ProblemService } from "@/services/problem.service";
 import { ParseService } from "@/services/parse.service";
+import { FontAwesomeModule } from "@fortawesome/angular-fontawesome";
 
 export type ParseInputForm = FormGroup<{
     premises: FormArray<FormControl<string>>;
@@ -46,6 +47,7 @@ export type ParseInput = ReturnType<ParseInputForm["getRawValue"]>;
         FormsModule,
         ReactiveFormsModule,
         ProblemDetailsComponent,
+        FontAwesomeModule
     ],
     templateUrl: "./annotation-input.component.html",
     styleUrl: "./annotation-input.component.scss",
@@ -62,7 +64,7 @@ export class AnnotationInputComponent implements OnInit {
 
     public submit$ = new Subject<void>();
 
-    public faCheck = faCheck;
+    public faExclamationCircle = faExclamationCircle;
 
     ngOnInit(): void {
         this.problemService.problem$

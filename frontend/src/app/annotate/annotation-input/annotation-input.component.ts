@@ -102,12 +102,14 @@ export class AnnotationInputComponent implements OnInit {
         if (!problem) {
             return;
         }
-        if (problem.id !== null && problem.id !== this.problem?.id) {
+        const incomingProblemId = problem?.id?.toString();
+        const currentProblemId = this.route.snapshot.paramMap.get("problemId");
+
+        if (incomingProblemId !== currentProblemId) {
             this.router.navigate(['/annotate', problem.id], {
                 queryParamsHandling: "preserve",
             });
         }
-
     }
 
     private buildForm(response: ProblemResponse): ParseInputForm {

@@ -1,5 +1,6 @@
 import { Component, computed, input } from "@angular/core";
 import { EntailmentLabel } from "../../../../types";
+import { entailmentLabels } from "@/shared/displayTextMappings";
 
 @Component({
     selector: "la-entailment-label-badge",
@@ -13,16 +14,7 @@ export class EntailmentLabelBadgeComponent {
 
     public entailmentText = computed<string>(() => {
         const entailment = this.entailmentLabel();
-        switch (entailment) {
-            case EntailmentLabel.ENTAILMENT:
-                return $localize`Entailment`;
-            case EntailmentLabel.CONTRADICTION:
-                return $localize`Contradiction`;
-            case EntailmentLabel.NEUTRAL:
-                return $localize`Neutral`;
-            case EntailmentLabel.UNKNOWN:
-                return $localize`Unknown`;
-        }
+        return entailmentLabels[entailment];
     });
 
     public entailmentClass = computed<string>(() => {

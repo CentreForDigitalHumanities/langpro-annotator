@@ -1,4 +1,4 @@
-import { Component, DestroyRef, OnInit } from "@angular/core";
+import { Component, DestroyRef, inject, OnInit } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import {
     FormArray,
@@ -13,16 +13,16 @@ import {
     KnowledgeBaseFormComponent,
     KnowledgeBaseRelationship,
 } from "./knowledge-base-form/knowledge-base-form.component";
-import { AnnotateService } from "../../services/annotate.service";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ProblemResponse } from "../../types";
-import { FontAwesomeModule } from "@fortawesome/angular-fontawesome";
 import { faCheck } from "@fortawesome/free-solid-svg-icons";
 import { ProblemDetailsComponent } from "./problem-details/problem-details.component";
-import { map, Subject } from "rxjs";
+import { combineLatest, Subject } from "rxjs";
 import { ActivatedRoute } from "@angular/router";
+import { ProblemService } from "@/services/problem.service";
+import { ParseService } from "@/services/parse.service";
 
-export type AnnotationInputForm = FormGroup<{
+export type ParseInputForm = FormGroup<{
     premises: FormArray<FormControl<string>>;
     hypothesis: FormControl<string>;
     kbItems: FormArray<KnowledgeBaseItemsForm>;
@@ -34,7 +34,7 @@ type KnowledgeBaseItemsForm = FormGroup<{
     entity2: FormControl<string>;
 }>;
 
-export type AnnotationInput = ReturnType<AnnotationInputForm["getRawValue"]>;
+export type ParseInput = ReturnType<ParseInputForm["getRawValue"]>;
 
 @Component({
     selector: "la-annotation-input",
@@ -45,28 +45,26 @@ export type AnnotationInput = ReturnType<AnnotationInputForm["getRawValue"]>;
         KnowledgeBaseFormComponent,
         FormsModule,
         ReactiveFormsModule,
-        FontAwesomeModule,
         ProblemDetailsComponent,
     ],
     templateUrl: "./annotation-input.component.html",
     styleUrl: "./annotation-input.component.scss",
 })
 export class AnnotationInputComponent implements OnInit {
-    public form: AnnotationInputForm | null = null;
+    private route = inject(ActivatedRoute);
+    private destroyRef = inject(DestroyRef);
+    private problemService = inject(ProblemService);
+    private parseService = inject(ParseService);
+
+    public form: ParseInputForm | null = null;
     public problem: ProblemResponse | null = null;
 
     public submit$ = new Subject<void>();
 
     public faCheck = faCheck;
 
-    constructor(
-        private route: ActivatedRoute,
-        private destroyRef: DestroyRef,
-        private annotateService: AnnotateService
-    ) {}
-
     ngOnInit(): void {
-        this.annotateService.problem$
+        this.problemService.problem$
             .pipe(takeUntilDestroyed(this.destroyRef))
             .subscribe((problem) => {
                 this.problem = problem;
@@ -79,32 +77,24 @@ export class AnnotationInputComponent implements OnInit {
 
         // Subscription needed to ensure a request is actually made.
         // TODO: replace this with actual parse results.
-        this.annotateService.parse$
+        this.parseService.parse$
             .pipe(takeUntilDestroyed(this.destroyRef))
             .subscribe((response) => {
                 console.log("Parse response:", response);
             });
 
-        this.route.params
+        combineLatest([
+            this.route.paramMap,
+            this.route.queryParamMap])
             .pipe(
-                map((params) => params["problemId"]),
                 takeUntilDestroyed(this.destroyRef)
             )
-            .subscribe((id) => {
-                this.annotateService.problemId.next(id);
+            .subscribe(([params, queryParams]) => {
+                this.problemService.allParams$.next({ params, queryParams });
             });
     }
 
-    public onSubmit(event: Event): void {
-        event.preventDefault();
-        const form = this.form;
-        if (!form || !form.valid) {
-            return;
-        }
-        this.annotateService.submit.next(form.getRawValue());
-    }
-
-    private buildForm(response: ProblemResponse): AnnotationInputForm {
+    private buildForm(response: ProblemResponse): ParseInputForm {
         const premises = response.problem?.premises || [];
         const hypothesis = response.problem?.hypothesis || "";
 

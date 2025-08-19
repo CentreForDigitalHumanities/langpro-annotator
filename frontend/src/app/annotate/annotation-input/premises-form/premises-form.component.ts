@@ -2,8 +2,8 @@ import { Component, input } from "@angular/core";
 import { ReactiveFormsModule, FormControl, Validators } from "@angular/forms";
 import { CommonModule } from "@angular/common";
 import { FontAwesomeModule } from "@fortawesome/angular-fontawesome";
-import { faCheck, faPlus, faTrash } from "@fortawesome/free-solid-svg-icons";
-import { AnnotationInputForm } from "../annotation-input.component";
+import { faPlus, faTrash } from "@fortawesome/free-solid-svg-icons";
+import { ParseInputForm } from "../annotation-input.component";
 
 export interface Premises {
     premises: string[];
@@ -18,13 +18,10 @@ export interface Premises {
     styleUrl: "./premises-form.component.scss",
 })
 export class PremisesFormComponent {
-    public form = input.required<AnnotationInputForm>();
+    public form = input.required<ParseInputForm>();
 
-    public faCheck = faCheck;
     public faPlus = faPlus;
     public faTrash = faTrash;
-
-    constructor() {}
 
     public addPremise(value: string = ""): void {
         const premisesArray = this.form().controls.premises;

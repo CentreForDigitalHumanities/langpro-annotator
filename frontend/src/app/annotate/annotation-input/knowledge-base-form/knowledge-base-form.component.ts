@@ -4,7 +4,7 @@ import { CommonModule } from "@angular/common";
 import { ReactiveFormsModule } from "@angular/forms";
 import { FontAwesomeModule } from "@fortawesome/angular-fontawesome";
 import { faPlus, faTrash } from "@fortawesome/free-solid-svg-icons";
-import { AnnotationInputForm } from "../annotation-input.component";
+import { ParseInputForm } from "../annotation-input.component";
 
 export enum KnowledgeBaseRelationship {
     EQUAL = "EQUAL",
@@ -28,7 +28,7 @@ const relationshipDisplayMapping: Record<KnowledgeBaseRelationship, string> = {
     styleUrls: ["./knowledge-base-form.component.scss"],
 })
 export class KnowledgeBaseFormComponent {
-    public form = input.required<AnnotationInputForm>();
+    public form = input.required<ParseInputForm>();
 
     public relationshipTypes = Object.values(KnowledgeBaseRelationship);
 

@@ -19,7 +19,7 @@ describe("AnnotateComponent", () => {
                 {
                     provide: ActivatedRoute,
                     useValue: {
-                        params: of({ problemId: "1" }),
+                        queryParamMap: of({})
                     }
                 }
             ]

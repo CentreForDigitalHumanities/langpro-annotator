@@ -37,20 +37,12 @@ export class ProblemService {
         const gold = routeParams.get("gold");
         const entailmentLabel = routeParams.get("entailmentLabel");
 
-        const paramRecord: Record<string, string> = {};
-
-        if (text) {
-            paramRecord["text"] = text;
-        }
-        if (dataset) {
-            paramRecord["dataset"] = dataset;
-        }
-        if (gold) {
-            paramRecord["gold"] = gold;
-        }
-        if (entailmentLabel) {
-            paramRecord["entailmentLabel"] = entailmentLabel;
-        }
+        const paramRecord: Record<string, string> = {
+            text: text ?? '',
+            dataset: dataset ?? '',
+            gold: gold ?? '',
+            entailmentLabel: entailmentLabel ?? '',
+        };
 
         return new HttpParams({ fromObject: paramRecord });
     }

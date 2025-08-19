@@ -61,20 +61,17 @@ export class SearchComponent {
     public faSearch = faSearch;
     public faTimes = faTimes;
 
-    private entailmentLabels = entailmentLabels;
-    private datasetLabels = datasetLabels;
-
     public datasetOptions: SelectOption<Dataset>[] = Object.values(Dataset).map(
         (dataset) => ({
             value: dataset,
-            label: this.datasetLabels[dataset],
+            label: datasetLabels[dataset],
         })
     );
 
     public entailmentLabelOptions: SelectOption<EntailmentLabel>[] = Object.values(EntailmentLabel).map(
         (label) => ({
             value: label,
-            label: this.entailmentLabels[label],
+            label: entailmentLabels[label],
         })
     );
 
@@ -96,12 +93,6 @@ export class SearchComponent {
 
         // Update form when URL changes.
         this.route.queryParamMap.pipe(
-            distinctUntilChanged((prev, curr) => {
-                return prev.get('dataset') === curr.get('dataset') &&
-                    prev.get('entailmentLabel') === curr.get('entailmentLabel') &&
-                    prev.get('gold') === curr.get('gold') &&
-                    prev.get('text') === curr.get('text');
-            }),
             takeUntilDestroyed(this.destroyRef)
         ).subscribe(queryParams => {
             this.form.patchValue({
@@ -121,25 +112,8 @@ export class SearchComponent {
     private updateUrl(searchParams: SearchParams): void {
         const url = this.router.createUrlTree([], {
             relativeTo: this.route,
-            queryParams: this.formatQueryParams(searchParams)
+            queryParams: searchParams
         }).toString();
         this.router.navigateByUrl(url);
-    }
-
-    private formatQueryParams(searchParams: SearchParams): Params {
-        const params: Params = {};
-        if (searchParams.dataset) {
-            params['dataset'] = searchParams.dataset;
-        }
-        if (searchParams.entailmentLabel) {
-            params['entailmentLabel'] = searchParams.entailmentLabel;
-        }
-        if (searchParams.gold !== null) {
-            params['gold'] = searchParams.gold;
-        }
-        if (searchParams.text) {
-            params['text'] = searchParams.text;
-        }
-        return params;
     }
 }

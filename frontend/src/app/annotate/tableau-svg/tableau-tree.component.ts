@@ -54,7 +54,7 @@ export class TableauTree {
     emitSize() {
         this.onSize.emit({
             width: Math.max(this.subWidth * (this.tree.subtrees?.length ?? 0), this.width),
-            height: this.subHeight + this.totalNodeHeight()
+            height: this.subHeight + this.totalNodeHeight() + (this.tree.subtrees?.length ? this.levelHeight : 0)
         });
     }
 

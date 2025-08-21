@@ -72,6 +72,8 @@ class Problem(models.Model):
             case _:
                 serialized_extra_data = {}
 
+        annotations = self.annotations.last()
+
         return {
             "id": self.pk,
             "dataset": self.dataset,
@@ -79,28 +81,5 @@ class Problem(models.Model):
             "hypothesis": self.hypothesis.text,
             "entailmentLabel": self.entailment_label,
             "extraData": serialized_extra_data,
+            "annotation": annotations.serialize() if annotations else None
         }
-
-
-class KnowledgeBase(models.Model):
-    class Relationship(models.TextChoices):
-        EQUAL = "equal", "Equal"
-        NOT_EQUAL = "not_equal", "Not Equal"
-        SUBSET = "subset", "Subset"
-        SUPERSET = "superset", "Superset"
-
-    entity1 = models.CharField(max_length=255)
-
-    entity2 = models.CharField(max_length=255)
-
-    relationship = models.CharField(
-        max_length=255,
-        choices=Relationship.choices,
-        default=Relationship.EQUAL,
-    )
-
-    problem = models.ForeignKey(
-        Problem,
-        on_delete=models.CASCADE,
-        related_name="knowledge_bases",
-    )

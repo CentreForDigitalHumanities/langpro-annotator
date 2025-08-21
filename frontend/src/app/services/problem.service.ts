@@ -55,4 +55,8 @@ export class ProblemService {
                 return of(null);
             })
         );
+
+    public save(problemId: number, annotation: any) {
+        return this.http.post(`/api/problem/${problemId}`, annotation);
+    }
 }

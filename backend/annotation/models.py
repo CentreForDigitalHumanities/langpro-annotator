@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.db import models
 
-from problem.models import KnowledgeBase, Problem, Sentence
+from problem.models import Problem, Sentence
 
 
 class AnnotationSession(models.Model):
@@ -56,16 +56,28 @@ class ProblemAnnotation(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True)
 
+    def serialize(self):
+        kbs = self.session.kb_annotations
+        return dict(
+            kb=[k.serialize() for k in kbs.all()]
+        )
+
 
 class KnowledgeBaseAnnotation(models.Model):
+    class Relationship(models.TextChoices):
+        EQUAL = "equal", "Equal"
+        NOT_EQUAL = "not_equal", "Not Equal"
+        SUBSET = "subset", "Subset"
+        SUPERSET = "superset", "Superset"
+
     session = models.ForeignKey(
         AnnotationSession,
         on_delete=models.CASCADE,
         related_name="kb_annotations",
     )
 
-    knowledge_base = models.ForeignKey(
-        KnowledgeBase,
+    problem = models.ForeignKey(
+        Problem,
         on_delete=models.CASCADE,
         related_name="kb_annotations",
     )
@@ -76,8 +88,13 @@ class KnowledgeBaseAnnotation(models.Model):
 
     relationship = models.CharField(
         max_length=255,
-        choices=KnowledgeBase.Relationship.choices,
-        default=KnowledgeBase.Relationship.EQUAL,
+        choices=Relationship.choices,
+        default=Relationship.EQUAL,
     )
 
     created_at = models.DateTimeField(auto_now_add=True)
+
+    def serialize(self):
+        return dict(entity1=self.entity1,
+                    entity2=self.entity2,
+                    relationship=self.relationship)

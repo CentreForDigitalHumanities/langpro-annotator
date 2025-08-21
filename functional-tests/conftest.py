@@ -4,6 +4,7 @@ import random
 import tempfile
 import pexpect
 
+from playwright.sync_api import expect
 
 @pytest.fixture(scope='session')
 def frontend_server(live_server):
@@ -35,7 +36,7 @@ def frontend_server(live_server):
 
 
 @pytest.fixture
-def as_admin(browser, admin_user, live_server):
+def admin_panel(browser, admin_user, live_server):
     context = browser.new_context()
     page = context.new_page()
     page.goto(live_server.url + "/admin/login")
@@ -43,4 +44,17 @@ def as_admin(browser, admin_user, live_server):
     page.fill("#id_username", "admin")
     page.fill("#id_password", "password")
     page.get_by_text("Log in").click()
+    yield page
+
+
+@pytest.fixture
+def as_admin(browser, admin_user, frontend_server):
+    context = browser.new_context()
+    page = context.new_page()
+    page.goto(frontend_server + '/login')
+
+    page.fill("#username", "admin")
+    page.fill("#password", "password")
+    page.get_by_role("button", name="Sign in").click()
+    expect(page.get_by_role("button", name="Sign in")).not_to_be_visible()
     yield page

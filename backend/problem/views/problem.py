@@ -2,7 +2,9 @@ from dataclasses import dataclass
 
 from django.http import JsonResponse
 from rest_framework.views import APIView
+from rest_framework.response import Response
 
+from annotation.models import AnnotationSession, KnowledgeBaseAnnotation
 from problem.problem_details import get_related_problem_ids
 from problem.models import Problem
 
@@ -55,3 +57,20 @@ class ProblemView(APIView):
             previous=str(previous_problem_id),
             random=str(random_problem_id),
         ).json_response(status=200)
+
+    def post(self, request, problem_id: int):
+        kb = request.data.get('kb')
+        if kb:
+            ann_sess = request.user.annotationsession_set.create()
+            problem = Problem.objects.get(pk=problem_id)
+            problem_ann = problem.annotations.create(session=ann_sess)
+            for rule in kb:
+                kb_ann = ann_sess.kb_annotations.create(
+                    problem=problem,
+                    entity1=rule['entity1'],
+                    entity2=rule['entity2'],
+                    relationship=rule['relationship'],
+                )
+
+        # TODO: return the saved data
+        return Response()

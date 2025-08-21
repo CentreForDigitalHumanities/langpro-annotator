@@ -4,7 +4,7 @@ import { CommonModule } from "@angular/common";
 import { ReactiveFormsModule } from "@angular/forms";
 import { FontAwesomeModule } from "@fortawesome/angular-fontawesome";
 import { faPlus, faTrash } from "@fortawesome/free-solid-svg-icons";
-import { ParseInputForm } from "../annotation-input.component";
+import { ParseInputForm, kbForm } from "../annotation-input.component";
 
 export enum KnowledgeBaseRelationship {
     EQUAL = "EQUAL",
@@ -36,23 +36,7 @@ export class KnowledgeBaseFormComponent {
     public faTrash = faTrash;
 
     public addKnowledgeBaseItem(): void {
-        const newItem = new FormGroup({
-            entity1: new FormControl<string>("", {
-                validators: [Validators.required],
-                nonNullable: true,
-            }),
-            relationship: new FormControl<KnowledgeBaseRelationship>(
-                KnowledgeBaseRelationship.EQUAL,
-                {
-                    validators: [Validators.required],
-                    nonNullable: true,
-                }
-            ),
-            entity2: new FormControl<string>("", {
-                validators: [Validators.required],
-                nonNullable: true,
-            }),
-        });
+        const newItem = kbForm("", "", KnowledgeBaseRelationship.EQUAL);
         this.form().controls.kbItems.push(newItem);
     }
 

@@ -23,11 +23,17 @@ interface SNLIData {
     label5: string;
 }
 
+interface Annotation {
+    kb: any;
+}
+
 interface ProblemBase {
     id: number;
     premises: string[];
     hypothesis: string | null;
     entailmentLabel: EntailmentLabel;
+
+    annotation: Annotation;
 }
 
 interface SickProblem extends ProblemBase {
@@ -60,6 +66,7 @@ export interface ProblemResponse {
     random: string | null;
     error: string | null;
     problem: Problem | null;
+
 }
 
 export interface ProofBankStats {

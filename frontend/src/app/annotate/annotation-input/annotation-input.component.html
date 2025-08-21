@@ -10,3 +10,36 @@
         }
     </div>
 </div>
+
+@if (modified) {
+    <!-- TODO: does the design make sense? -->
+    <div class="alert alert-warning d-flex justify-content-between">
+        <span i18n>Annotation modified</span>
+        <div>
+        <button
+            type="button"
+            class="btn btn-light me-3"
+            (click)="saveChanges()"
+        >
+            <fa-icon
+                [icon]="faFloppyDisk"
+                class="fa-sm"
+                aria-hidden="true"
+            ></fa-icon>
+            <span class="ms-2" i18n>Save</span>
+        </button>
+        <button
+            type="button"
+            class="btn btn-light"
+            (click)="revertChanges()"
+        >
+            <fa-icon
+                [icon]="faRotateLeft"
+                class="fa-sm"
+                aria-hidden="true"
+            ></fa-icon>
+            <span class="ms-2" i18n>Revert</span>
+        </button>
+        </div>
+    </div>
+}

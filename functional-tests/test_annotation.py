@@ -40,3 +40,15 @@ def test_kb_annotation(frontend_server, sample_problem, as_admin: Page):
     page.goto(frontend_server + f'/annotate/{sample_problem.pk}')
     expect(page.locator('[placeholder="Entity 1"]')).to_have_value('Try')
     expect(page.locator('[placeholder="Entity 2"]')).to_have_value('Attempt')
+
+    # modify an existing KB item (it'll create a new annotation session)
+    page.locator('[placeholder="Entity 1"]').fill('Pizza')
+    page.locator('la-knowledge-base-form select').select_option('is a subset of')
+    page.locator('[placeholder="Entity 2"]').fill('Food')
+    page.get_by_text('Save').click()
+
+    # after refresh, should be visible
+    page.goto(frontend_server + f'/annotate/{sample_problem.pk}')
+    expect(page.locator('[placeholder="Entity 1"]')).to_have_value('Pizza')
+    expect(page.locator('la-knowledge-base-form select')).to_have_value('SUBSET')
+    expect(page.locator('[placeholder="Entity 2"]')).to_have_value('Food')

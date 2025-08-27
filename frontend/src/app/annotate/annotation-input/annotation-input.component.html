@@ -2,8 +2,9 @@
     <div class="card-body">
         <la-problem-details [problem]="problem" />
         @if (form) {
-        <div class="d-flex flex-column gap-4">
+        <div class="d-flex flex-column">
             <la-premises-form class="subform" [form]="form" />
+            <hr>
             <la-knowledge-base-form class="subform" [form]="form" />
         </div>
         }

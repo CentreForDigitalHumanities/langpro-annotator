@@ -34,9 +34,6 @@ export class PremisesFormComponent {
     }
 
     public removePremise(index: number): void {
-        const premisesArray = this.form().controls.premises;
-        if (premisesArray.length > 1) {
-            premisesArray.removeAt(index);
-        }
+        this.form().controls.premises.removeAt(index);
     }
 }

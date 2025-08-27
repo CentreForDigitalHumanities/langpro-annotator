@@ -2,8 +2,10 @@
 
 Functional tests are written using playwright and pytest.
 
-To run the full set of test use the yarn command:
+To run the full set of tests use the yarn command:
 `yarn test-func`
+
+Make sure to run `yarn install-func` once to get the dependencies ready.
 
 
 It is sometimes useful (during development) to run a specific test, or to run with a visible browser. To do that, run the bare pytest command, with the correct env from the root of the project:

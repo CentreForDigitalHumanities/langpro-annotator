@@ -50,7 +50,7 @@ class Problem(models.Model):
 
     def get_index(self, qs: QuerySet) -> int | None:
         """
-        Get the index of this Problem in the database.
+        Get the index of this Problem in a given queryset of problems, ordered by pk.
         """
         try:
             return qs.filter(id__lte=self.pk).count()

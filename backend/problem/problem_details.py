@@ -71,11 +71,10 @@ def get_filters(query_params: QueryDict) -> Q | None:
     if entailment_label:
         filters &= Q(entailment_label=entailment_label)
     if gold is not None:
-        # To be implemented!
-        pass
+        raise NotImplementedError()
     if text:
-        filters &= Q(hypothesis__text__icontains=text) | Q(
-            premises__text__icontains=text
+        filters &= Q(
+            Q(hypothesis__text__icontains=text) | Q(premises__text__icontains=text)
         )
 
     return filters

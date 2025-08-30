@@ -99,7 +99,7 @@ export class AnnotationInputComponent implements OnInit {
     }
 
     private navigateToNewProblem(problem: ProblemResponse | null): void {
-        if (!problem) {
+        if (!problem?.problem) {
             return;
         }
         const incomingProblemId = problem?.id?.toString();

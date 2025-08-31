@@ -39,7 +39,7 @@ class ProblemResponse:
 
 
 class ProblemView(APIView):
-    def get(self, request: Request, problem_id: int | None):
+    def get(self, request: Request, problem_id: int | None = None):
         filters = get_filters(request.query_params)
 
         qs = Problem.objects.all()
@@ -72,10 +72,3 @@ class ProblemView(APIView):
             last=related_problem_ids.last,
             total=related_problem_ids.total,
         ).json_response(status=200)
-
-
-class ProblemEntryView(APIView):
-    def get(self, request: Request):
-        first_problem = Problem.objects.first()
-        first_id = first_problem.pk if first_problem else None
-        return JsonResponse({"firstProblemId": first_id})

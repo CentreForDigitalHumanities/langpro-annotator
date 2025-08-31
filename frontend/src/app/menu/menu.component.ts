@@ -19,7 +19,6 @@ import {
 } from "@ng-bootstrap/ng-bootstrap";
 import { UserMenuComponent } from "./user-menu/user-menu.component";
 import { AuthService } from "../services/auth.service";
-import { map } from "rxjs";
 import { ProblemService } from "@/services/problem.service";
 
 @Component({

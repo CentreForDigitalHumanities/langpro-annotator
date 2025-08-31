@@ -21,15 +21,24 @@ export class ProblemService {
 
             const httpParams = this.extractSearchParams(queryParams);
 
-            return this.http.get<ProblemResponse>(`/api/problem/${problemId}`, { params: httpParams }).pipe(
-                catchError((error) => {
-                    console.error(`Error fetching problem ${problemId}:`, error);
-                    return of(null);
-                })
-            );
+            return this.queryProblem$(problemId, httpParams);
         }),
         shareReplay(1)
     );
+
+    public getFirstProblemId$ = this.queryProblem$().pipe(
+        map(problem => problem?.id ?? null)
+    );
+
+    private queryProblem$(problemId?: string, httpParams?: HttpParams) {
+        return this.http.get<ProblemResponse>(`/api/problem/${problemId ?? ""}`, { params: httpParams }).pipe(
+            catchError((error) => {
+                const message = `Error fetching ${problemId ? `problem ${problemId}` : "first problem"}`;
+                console.error(message, error);
+                return of(null);
+            })
+        );
+    }
 
     private extractSearchParams(routeParams: ParamMap): HttpParams {
         const text = routeParams.get("text");
@@ -55,13 +64,5 @@ export class ProblemService {
         return new HttpParams({ fromObject: paramRecord });
     }
 
-    // Retrieves the ID of the first available problem so we can link to it
-    // from the main navigation bar.
-    public getFirstProblemId$ = this.http.get<{ firstProblemId: string | null; }>("/api/problem/entry").pipe(
-        map(response => response.firstProblemId),
-        catchError((error) => {
-            console.error("Error fetching first problem ID:", error);
-            return of(null);
-        })
-    );
+
 }

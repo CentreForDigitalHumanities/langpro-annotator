@@ -13,24 +13,22 @@ You need to install the following software:
  - [Visual C++ for Python][1] (Windows only)
  - Node.js >= 14.20.0
  - Yarn
- - [WebDriver][2] for at least one browser (only for functional testing)
 
 [1]: https://wiki.python.org/moin/WindowsCompilers
-[2]: https://pypi.org/project/selenium/#drivers
 
 ## How it works
 
 This project integrates three isolated subprojects, each inside its own subdirectory with its own code, package dependencies and tests:
 
  - **backend**: the server side web application based on [Django][3] and [DRF][4]
- 
+
  - **frontend**: the client side web application based on [Angular](https://angular.io)
- 
- - **functional-tests**: the functional test suite based on [Selenium][6] and [pytest][7]
+
+ - **functional-tests**: the functional test suite based on [playwright][6] and [pytest][7]
 
 [3]: https://www.djangoproject.com
 [4]: https://www.django-rest-framework.org
-[6]: https://www.selenium.dev/documentation/webdriver/
+[6]: https://playwright.dev/python/docs/library
 [7]: https://docs.pytest.org/en/latest/
 
 Each subproject is configurable from the outside. Integration is achieved using "magic configuration" which is contained inside the root directory together with this document. In this way, the subprojects can stay truly isolated from each other.

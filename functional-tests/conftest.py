@@ -1,94 +1,63 @@
+import datetime
 import os
 import pytest
-from selenium import webdriver
+import random
+import requests
+import subprocess
+import sys
+import tempfile
 
-WEBDRIVER_INI_NAME = 'webdriver'
-BASE_ADDRESS_OPTION_NAME = 'base_address'
-FRONTEND_ADDRESS_OPTION_NAME = 'frontend_address'
-
-
-def pytest_addoption(parser):
-    """ py.test hook where we register configuration options and defaults. """
-    parser.addini(
-        WEBDRIVER_INI_NAME,
-        'Specify browsers in which the tests should run',
-        type='linelist',
-        default=['Chrome' ,'Firefox'],
-    )
-    parser.addoption(
-        '--base-address',
-        default='http://localhost:8000/',
-        help='specifies the base address where the backend of the application is running',
-        dest=BASE_ADDRESS_OPTION_NAME,
-    )
-    parser.addoption(
-        '--frontend-address',
-        default='http://localhost:4200/',
-        help='specifies the base address where the frontend of the application is running',
-        dest=FRONTEND_ADDRESS_OPTION_NAME,
-    )
-
-
-def pytest_generate_tests(metafunc):
-    """ py.test hook where we inject configurable fixtures. """
-    if 'webdriver_name' in metafunc.fixturenames:
-        names = metafunc.config.getini(WEBDRIVER_INI_NAME)
-        metafunc.parametrize('webdriver_name', names, scope='session')
+def wait_for_server(url, timeout=60):
+    start = datetime.datetime.now()
+    while (datetime.datetime.now() - start).seconds < timeout:
+        try:
+            r = requests.get(url, timeout=timeout)
+            if not r.ok:
+                raise RuntimeError(f'Error waiting for {url}')
+        except (requests.exceptions.ConnectionError, requests.exceptions.Timeout):
+            continue
+        # connect succeeded
+        return
+    raise TimeoutError(f'Timeout waiting for {url} to be available')
 
 
 @pytest.fixture(scope='session')
-def webdriver_instance(webdriver_name):
-    """ Provides a WebDriver instance that persists throughout the session.
+def frontend_server(live_server):
+    from django.conf import settings
+    if not settings.STATICFILES_DIRS:
+        _, port = live_server.url.rsplit(':', 1)
+        ng_port = random.randint(10000, 10100)
 
-        Use the `browser` fixture instead; it performs cleanups after each test.
-    """
-    if webdriver_name == 'Chrome':
-        options = webdriver.ChromeOptions()
-        options.add_argument('--headless')
-        options.add_argument('--no-sandbox')
-        options.add_argument('--disable-gpu')
-        options.add_argument('--remote-debugging-port=9222')
-        driver = webdriver.Chrome(options=options)
-    elif webdriver_name == 'Firefox':
-        options = webdriver.FirefoxOptions()
-        options.add_argument('-headless')
-        driver = webdriver.Firefox(options=options)
+        # write out a temporary proxy config based on the existing proxy.conf.json
+        with open('proxy.conf.json') as source:
+            conf = source.read()
+
+        tmp = tempfile.NamedTemporaryFile()
+        with open(tmp.name + '.json', 'w') as out:
+            out.write(conf.replace(':8000', f':{port}'))
+
+        # this makes the tests slow to start, because it begins with building the angular app
+        # maybe there's a way to serve an existing build if it's already there
+        shell = sys.platform == 'win32'
+        ng = subprocess.Popen(f'yarn ng serve --proxy-config {tmp.name}.json --port {ng_port}'.split(), cwd='frontend', shell=shell)
+        url = f'http://localhost:{ng_port}'
+        wait_for_server(url)
+        yield url
+
+        ng.kill()
+        tmp.close()
     else:
-        factory = getattr(webdriver, webdriver_name)
-        driver = factory()
-    try:
-        yield driver
-    finally:
-        driver.quit()
+        # the frontend app is served via the staticfiles handler
+        yield live_server.url
 
 
 @pytest.fixture
-def browser(webdriver_instance):
-    """ Provides a WebDriver instance and performs some cleanups afterwards. """
-    yield webdriver_instance
-    webdriver_instance.delete_all_cookies()
+def as_admin(browser, admin_user, live_server):
+    context = browser.new_context()
+    page = context.new_page()
+    page.goto(live_server.url + "/admin/login")
 
-
-@pytest.fixture(scope='session')
-def base_address(pytestconfig):
-    return pytestconfig.getoption(BASE_ADDRESS_OPTION_NAME)
-
-@pytest.fixture(scope='session')
-def frontend_address(pytestconfig):
-    return pytestconfig.getoption(FRONTEND_ADDRESS_OPTION_NAME)
-
-
-
-@pytest.fixture
-def api_address(base_address):
-    return base_address + 'api/'
-
-
-@pytest.fixture
-def api_auth_address(base_address):
-    return base_address + 'api-auth/'
-
-
-@pytest.fixture
-def admin_address(base_address):
-    return base_address + 'admin/'
+    page.fill("#id_username", "admin")
+    page.fill("#id_password", "password")
+    page.get_by_text("Log in").click()
+    yield page

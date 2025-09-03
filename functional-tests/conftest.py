@@ -1,8 +1,24 @@
+import datetime
 import os
 import pytest
 import random
+import requests
+import subprocess
+import sys
 import tempfile
-import pexpect
+
+def wait_for_server(url, timeout=60):
+    start = datetime.datetime.now()
+    while (datetime.datetime.now() - start).seconds < timeout:
+        try:
+            r = requests.get(url, timeout=timeout)
+            if not r.ok:
+                raise RuntimeError(f'Error waiting for {url}')
+        except (requests.exceptions.ConnectionError, requests.exceptions.Timeout):
+            continue
+        # connect succeeded
+        return
+    raise TimeoutError(f'Timeout waiting for {url} to be available')
 
 
 @pytest.fixture(scope='session')
@@ -22,12 +38,13 @@ def frontend_server(live_server):
 
         # this makes the tests slow to start, because it begins with building the angular app
         # maybe there's a way to serve an existing build if it's already there
-        ng = pexpect.spawn(f'yarn ng serve --proxy-config {tmp.name}.json --port {ng_port}', cwd='frontend')
+        shell = sys.platform == 'win32'
+        ng = subprocess.Popen(f'yarn ng serve --proxy-config {tmp.name}.json --port {ng_port}'.split(), cwd='frontend', shell=shell)
+        url = f'http://localhost:{ng_port}'
+        wait_for_server(url)
+        yield url
 
-        ng.expect('bundle generation complete.')
-        yield f'http://localhost:{ng_port}'
-
-        ng.close()
+        ng.kill()
         tmp.close()
     else:
         # the frontend app is served via the staticfiles handler

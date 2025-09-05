@@ -1,9 +1,10 @@
-import { ParseInput } from '@/annotate/annotation-input/annotation-input.component';
-import { Dataset, EntailmentLabel, ProblemResponse, ProofBankStats, SaveProblemResponse } from '@/types';
-import { HttpClient, HttpParams } from '@angular/common/http';
-import { inject, Injectable } from '@angular/core';
-import { ParamMap } from '@angular/router';
-import { Subject, Observable, switchMap, of, catchError, shareReplay, exhaustMap } from 'rxjs';
+import { ParseInput } from "@/annotate/annotation-input/annotation-input.component";
+import { ProblemResponse, SaveProblemResponse, Dataset, EntailmentLabel } from "@/types";
+import { HttpClient, HttpParams } from "@angular/common/http";
+import { Injectable, inject } from "@angular/core";
+import { ParamMap } from "@angular/router";
+import { Subject, Observable, switchMap, of, shareReplay, exhaustMap, catchError, map } from "rxjs";
+
 
 @Injectable({
     providedIn: 'root'
@@ -40,8 +41,11 @@ export class ProblemService {
         return of<ProblemResponse>({
             id: "new",
             index: null,
-            next: null,
-            previous: null,
+            firstProblemId: null,
+            lastProblemId: null,
+            nextProblemId: null,
+            previousProblemId: null,
+            totalProblems: 0,
             error: null,
             problem: {
                 id: "new",
@@ -55,16 +59,21 @@ export class ProblemService {
         });
     }
 
-    private existingProblem$(problemId: string, queryParams: ParamMap): Observable<ProblemResponse | null> {
-        const httpParams = this.extractSearchParams(queryParams);
+    private existingProblem$(problemId?: string, queryParams?: ParamMap): Observable<ProblemResponse | null> {
+        const httpParams = queryParams ? this.extractSearchParams(queryParams) : undefined;
 
-        return this.http.get<ProblemResponse>(`/api/problem/${problemId}`, { params: httpParams }).pipe(
+        return this.http.get<ProblemResponse>(`/api/problem/${problemId ?? ""}`, { params: httpParams }).pipe(
             catchError((error) => {
-                console.error(`Error fetching problem ${problemId}:`, error);
+                const message = `Error fetching ${problemId ? `problem ${problemId}` : "first problem"}`;
+                console.error(message, error);
                 return of(null);
             })
         );
     };
+
+    public firstProblemId$ = this.existingProblem$().pipe(
+        map(problem => problem?.id ?? null),
+    );
 
     private extractSearchParams(routeParams: ParamMap): HttpParams {
         const text = routeParams.get("text");
@@ -82,12 +91,5 @@ export class ProblemService {
         return new HttpParams({ fromObject: paramRecord });
     }
 
-    public proofBankStats$: Observable<ProofBankStats | null> = this.http
-        .get<ProofBankStats>("/api/problem/proofbank-stats")
-        .pipe(
-            catchError((error) => {
-                console.error(`Error fetching ProofBank stats:`, error);
-                return of(null);
-            })
-        );
+
 }

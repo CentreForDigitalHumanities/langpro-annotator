@@ -19,7 +19,6 @@ import {
 } from "@ng-bootstrap/ng-bootstrap";
 import { UserMenuComponent } from "./user-menu/user-menu.component";
 import { AuthService } from "../services/auth.service";
-import { map } from "rxjs";
 import { ProblemService } from "@/services/problem.service";
 
 @Component({
@@ -56,9 +55,7 @@ export class MenuComponent implements OnInit {
 
     public loggedIn$ = this.authService.isAuthenticated$;
 
-    public firstProblemId$ = this.problemService.proofBankStats$.pipe(
-        map((stats) => stats?.firstProblemId ?? null),
-    )
+    public firstProblemId$ = this.problemService.firstProblemId$;
 
     constructor(
         @Inject(LOCALE_ID) private localeId: string,

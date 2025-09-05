@@ -95,13 +95,25 @@ export class SearchComponent {
         this.route.queryParamMap.pipe(
             takeUntilDestroyed(this.destroyRef)
         ).subscribe(queryParams => {
+            const dataset = queryParams.get('dataset');
+            const entailmentLabel = queryParams.get('entailmentLabel');
+
             this.form.patchValue({
-                dataset: queryParams.get('dataset') as Dataset | null,
-                entailmentLabel: queryParams.get('entailmentLabel') as EntailmentLabel | null,
+                dataset: this.isDataset(dataset) ? dataset : null,
+                entailmentLabel: this.isEntailmentLabel(entailmentLabel) ? entailmentLabel : null,
                 gold: queryParams.get('gold') === null ? null : queryParams.get('gold') === 'true',
                 text: queryParams.get('text') as string | null,
             });
         });
+    }
+
+    // Type guards to check validity of query params.
+    private isDataset(value: string | null): value is Dataset {
+        return value !== null && Object.values(Dataset).includes(value as Dataset);
+    }
+
+    private isEntailmentLabel(value: string | null): value is EntailmentLabel {
+        return value !== null && Object.values(EntailmentLabel).includes(value as EntailmentLabel);
     }
 
     public clearFilters(): void {

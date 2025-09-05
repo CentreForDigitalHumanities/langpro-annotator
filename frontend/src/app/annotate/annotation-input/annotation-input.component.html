@@ -1,3 +1,4 @@
+@if (problem?.id) {
 <div class="card">
     <div class="card-body">
         <la-problem-details [problem]="problem" />
@@ -40,3 +41,11 @@
         }
     </div>
 </div>
+} @else {
+<div class="h-100 d-flex align-items-center justify-content-center text-muted">
+    <fa-icon [icon]="faExclamationCircle"></fa-icon>
+    <h2 class="h4 mb-0 ms-2">
+        There are no problems matching your search criteria.
+    </h2>
+</div>
+}

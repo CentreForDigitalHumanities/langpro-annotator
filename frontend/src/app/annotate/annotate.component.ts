@@ -36,9 +36,7 @@ export class AnnotateComponent {
     public adding$ = this.appModeService.adding$;
     public editing$ = this.appModeService.editing$;
 
-    public firstProblemId$ = this.problemService.proofBankStats$.pipe(
-        map((stats) => stats?.firstProblemId ?? null),
-    );
+    public firstProblemId$ = this.problemService.firstProblemId$;
 
     public isUserProblem$ = this.problemService.problem$.pipe(
         map(problem => problem?.problem?.dataset === Dataset.USER)

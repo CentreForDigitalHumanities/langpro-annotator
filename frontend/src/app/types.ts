@@ -57,15 +57,13 @@ interface BaseResponse {
 }
 
 export interface ProblemResponse extends BaseResponse {
-    id: string;
+    id: string | null;
     index: number | null;
-    next: string | null;
-    previous: string | null;
     problem: Problem | null;
-}
-export interface ProofBankStats extends BaseResponse {
-    firstProblemId: string;
-    lastProblemId: string;
+    firstProblemId: string | null;
+    previousProblemId: string | null;
+    nextProblemId: string | null;
+    lastProblemId: string | null;
     totalProblems: number;
 }
 

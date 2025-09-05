@@ -23,7 +23,6 @@ export class NavigatorComponent {
     private problemService = inject(ProblemService);
 
     public problem$ = this.problemService.problem$;
-    public proofBankStats$ = this.problemService.proofBankStats$;
 
     public faAnglesLeft = faAnglesLeft;
     public faAnglesRight = faAnglesRight;
@@ -35,6 +34,8 @@ export class NavigatorComponent {
         if (!id) {
             return;
         }
-        this.router.navigate(["/annotate", id]);
+        this.router.navigate(["/annotate", id], {
+            queryParamsHandling: "preserve"
+        });
     }
 }

@@ -1,10 +1,12 @@
-from dataclasses import dataclass
+from dataclasses import asdict, dataclass
+from typing import TypedDict
 
 from django.http import JsonResponse
 from rest_framework.views import APIView
 
+from langpro_annotator.logger import logger
 from problem.problem_details import get_related_problem_ids
-from problem.models import Problem
+from problem.models import KnowledgeBase, Problem, Sentence
 
 
 @dataclass
@@ -30,8 +32,17 @@ class ProblemResponse:
         )
 
 
+@dataclass
+class SaveProblemResponse:
+    id: str | None = None
+    error: str | None = None
+
+    def json_response(self, status=200) -> JsonResponse:
+        return JsonResponse(asdict(self), status=status)
+
+
 class ProblemView(APIView):
-    def get(self, request, problem_id: int):
+    def get(self, request, problem_id: int) -> JsonResponse:
         try:
             problem = Problem.objects.get(id=problem_id)
         except Problem.DoesNotExist:
@@ -41,9 +52,7 @@ class ProblemView(APIView):
 
         problem_index = problem.get_index()
 
-        next_problem_id, previous_problem_id = (
-            get_related_problem_ids(problem_id)
-        )
+        next_problem_id, previous_problem_id = get_related_problem_ids(problem_id)
 
         return ProblemResponse(
             id=problem.pk,
@@ -52,3 +61,122 @@ class ProblemView(APIView):
             next=str(next_problem_id),
             previous=str(previous_problem_id),
         ).json_response(status=200)
+
+    def post(self, request) -> JsonResponse:
+        parse_input = request.data
+
+        try:
+            validated_input = validate_input(parse_input)
+        except ValueError as e:
+            logger.error(f"Input validation error: {e}")
+            return SaveProblemResponse(
+                id=None,
+                error=str(e),
+            ).json_response(status=400)
+
+        try:
+            problem = create_problem_from_input(validated_input)
+        except Exception as e:
+            logger.exception(f"Error saving problem: {e}")
+            return SaveProblemResponse(
+                id=None,
+                error=str(e),
+            ).json_response(status=500)
+
+        return SaveProblemResponse(
+            id=str(problem.pk),
+            error=None,
+        ).json_response()
+
+
+class KBItem(TypedDict):
+    entity1: str
+    relationship: str
+    entity2: str
+
+
+class ParseInput(TypedDict):
+    premises: list[str]
+    hypothesis: str
+    kbItems: list[KBItem]
+
+
+def validate_input(parse_input: dict) -> ParseInput:
+    """
+    Validate the parse input data.
+    """
+    if not isinstance(parse_input, dict):
+        raise ValueError("Input must be a dictionary")
+
+    if "premises" not in parse_input or not isinstance(parse_input["premises"], list):
+        raise ValueError("Missing or invalid 'premises' field")
+
+    if "hypothesis" not in parse_input or not isinstance(
+        parse_input["hypothesis"], str
+    ):
+        raise ValueError("Missing or invalid 'hypothesis' field")
+
+    if "kbItems" not in parse_input or not isinstance(parse_input["kbItems"], list):
+        raise ValueError("Missing or invalid 'kbItems' field")
+
+    for item in parse_input["kbItems"]:
+        if not isinstance(item, dict):
+            raise ValueError("Each kbItem must be a dictionary")
+        if "entity1" not in item or not isinstance(item["entity1"], str):
+            raise ValueError("Missing or invalid 'entity1' in kbItem")
+        if "relationship" not in item or not isinstance(item["relationship"], str):
+            raise ValueError("Missing or invalid 'relationship' in kbItem")
+        if item["relationship"].lower() not in KnowledgeBase.Relationship.values:
+            raise ValueError(f"Invalid 'relationship' in kbItem.")
+        if "entity2" not in item or not isinstance(item["entity2"], str):
+            raise ValueError("Missing or invalid 'entity2' in kbItem")
+
+    return ParseInput(
+        premises=parse_input["premises"],
+        hypothesis=parse_input["hypothesis"],
+        kbItems=parse_input["kbItems"],
+    )
+
+
+def create_problem_from_input(parse_input: ParseInput) -> Problem:
+    """
+    Save a new Problem instance from the given parse input data.
+    """
+    try:
+        premise_sentences = [
+            Sentence.objects.create(text=premise) for premise in parse_input["premises"]
+        ]
+    except Exception as e:
+        raise ValueError(f"Error creating premise sentences: {e}")
+
+    try:
+        hypothesis_sentence = Sentence.objects.create(text=parse_input["hypothesis"])
+    except Exception as e:
+        raise ValueError(f"Error creating hypothesis sentence: {e}")
+
+    problem = Problem.objects.create(
+        hypothesis=hypothesis_sentence,
+        dataset=Problem.Dataset.USER,
+        # TODO: Determine entailment label based on LangPro parser output.
+        entailment_label=Problem.EntailmentLabel.UNKNOWN,
+        extra_data={},
+    )
+
+    problem.premises.set(premise_sentences)
+
+    for item in parse_input["kbItems"]:
+        entity1 = item.get("entity1")
+        relationship = item.get("relationship")
+        entity2 = item.get("entity2")
+
+        try:
+            knowledge_base = KnowledgeBase.objects.create(
+                entity1=entity1,
+                relationship=relationship.lower(),
+                entity2=entity2,
+                problem=problem,
+            )
+        except Exception as e:
+            raise ValueError(f"Error creating knowledge base items: {e}")
+
+    return problem

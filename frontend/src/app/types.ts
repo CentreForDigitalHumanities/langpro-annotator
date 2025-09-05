@@ -24,7 +24,7 @@ interface SNLIData {
 }
 
 interface ProblemBase {
-    id: number;
+    id: string;
     premises: string[];
     hypothesis: string | null;
     entailmentLabel: EntailmentLabel;
@@ -52,19 +52,25 @@ interface UserProblem extends ProblemBase {
 
 type Problem = SickProblem | FracasProblem | SNLIProblem | UserProblem;
 
-export interface ProblemResponse {
-    id: number;
+interface BaseResponse {
+    error: string | null;
+}
+
+export interface ProblemResponse extends BaseResponse {
+    id: string;
     index: number | null;
     next: string | null;
     previous: string | null;
-    error: string | null;
     problem: Problem | null;
 }
-
-export interface ProofBankStats {
+export interface ProofBankStats extends BaseResponse {
     firstProblemId: string;
     lastProblemId: string;
     totalProblems: number;
+}
+
+export interface SaveProblemResponse extends BaseResponse {
+    id: string | null;
 }
 
 export enum Dataset {

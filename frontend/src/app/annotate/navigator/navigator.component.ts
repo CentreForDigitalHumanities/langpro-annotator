@@ -35,6 +35,8 @@ export class NavigatorComponent {
         if (!id) {
             return;
         }
-        this.router.navigate(["/annotate", id]);
+        this.router.navigate(["/annotate", id], {
+            queryParamsHandling: "preserve",
+        });
     }
 }

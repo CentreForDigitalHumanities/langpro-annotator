@@ -15,12 +15,14 @@ import {
 } from "./knowledge-base-form/knowledge-base-form.component";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ProblemResponse } from "../../types";
-import { faCheck } from "@fortawesome/free-solid-svg-icons";
+import { faCheck, faFloppyDisk, faTree } from "@fortawesome/free-solid-svg-icons";
 import { ProblemDetailsComponent } from "./problem-details/problem-details.component";
 import { combineLatest, Subject } from "rxjs";
-import { ActivatedRoute } from "@angular/router";
+import { ActivatedRoute, Router } from "@angular/router";
 import { ProblemService } from "@/services/problem.service";
 import { ParseService } from "@/services/parse.service";
+import { FontAwesomeModule } from "@fortawesome/angular-fontawesome";
+import { AppModeService } from "@/services/app-mode.service";
 
 export type ParseInputForm = FormGroup<{
     premises: FormArray<FormControl<string>>;
@@ -46,6 +48,7 @@ export type ParseInput = ReturnType<ParseInputForm["getRawValue"]>;
         FormsModule,
         ReactiveFormsModule,
         ProblemDetailsComponent,
+        FontAwesomeModule,
     ],
     templateUrl: "./annotation-input.component.html",
     styleUrl: "./annotation-input.component.scss",
@@ -55,6 +58,8 @@ export class AnnotationInputComponent implements OnInit {
     private destroyRef = inject(DestroyRef);
     private problemService = inject(ProblemService);
     private parseService = inject(ParseService);
+    private appModeService = inject(AppModeService);
+    private router = inject(Router);
 
     public form: ParseInputForm | null = null;
     public problem: ProblemResponse | null = null;
@@ -62,6 +67,8 @@ export class AnnotationInputComponent implements OnInit {
     public submit$ = new Subject<void>();
 
     public faCheck = faCheck;
+    public faTree = faTree;
+    public faFloppyDisk = faFloppyDisk;
 
     ngOnInit(): void {
         this.problemService.problem$
@@ -74,6 +81,12 @@ export class AnnotationInputComponent implements OnInit {
                 }
                 this.form = this.buildForm(problem);
             });
+
+        this.problemService.saveProblem$.pipe(
+            takeUntilDestroyed(this.destroyRef)
+        ).subscribe((response) => {
+            this.router.navigate(["/", "annotate", response.id]);
+        });
 
         // Subscription needed to ensure a request is actually made.
         // TODO: replace this with actual parse results.
@@ -92,6 +105,24 @@ export class AnnotationInputComponent implements OnInit {
             .subscribe(([params, queryParams]) => {
                 this.problemService.allParams$.next({ params, queryParams });
             });
+    }
+
+    public showSaveButton$ = this.appModeService.adding$;
+
+    public startParse(): void {
+        if (!this.form || this.form.invalid) {
+            return;
+        }
+        const input = this.form.getRawValue();
+        this.parseService.submit.next(input);
+    }
+
+    public saveProblem(): void {
+        if (!this.form || this.form.invalid) {
+            return;
+        }
+        const input = this.form.getRawValue();
+        this.problemService.submit$.next(input);
     }
 
     private buildForm(response: ProblemResponse): ParseInputForm {

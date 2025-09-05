@@ -57,7 +57,6 @@ export interface ProblemResponse {
     index: number | null;
     next: string | null;
     previous: string | null;
-    random: string | null;
     error: string | null;
     problem: Problem | null;
 }

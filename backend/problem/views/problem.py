@@ -15,7 +15,6 @@ class ProblemResponse:
     error: str | None = None
     next: str | None = None
     previous: str | None = None
-    random: str | None = None
 
     def json_response(self, status=200) -> JsonResponse:
         return JsonResponse(
@@ -26,7 +25,6 @@ class ProblemResponse:
                 "error": self.error,
                 "next": self.next,
                 "previous": self.previous,
-                "random": self.random,
             },
             status=status,
         )
@@ -43,7 +41,7 @@ class ProblemView(APIView):
 
         problem_index = problem.get_index()
 
-        next_problem_id, previous_problem_id, random_problem_id = (
+        next_problem_id, previous_problem_id = (
             get_related_problem_ids(problem_id)
         )
 
@@ -53,5 +51,4 @@ class ProblemView(APIView):
             problem=problem,
             next=str(next_problem_id),
             previous=str(previous_problem_id),
-            random=str(random_problem_id),
         ).json_response(status=200)

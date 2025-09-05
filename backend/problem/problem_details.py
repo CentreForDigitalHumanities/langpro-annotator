@@ -5,9 +5,9 @@ from problem.models import Problem
 
 def get_related_problem_ids(
     problem_id: int,
-) -> Tuple[int | None, int | None, int | None]:
+) -> Tuple[int | None, int | None]:
     """
-    Retrieves the IDs of the next, previous, and random Problem objects
+    Retrieves the IDs of the next and previous Problem objects
     in the database relative to the given problem ID.
     """
 
@@ -15,14 +15,12 @@ def get_related_problem_ids(
         problem = Problem.objects.get(id=problem_id)
     except Problem.DoesNotExist:
         logger.warning(f"Problem ID {problem_id} does not exist.")
-        return None, None, None
+        return None, None
 
     next_problem = Problem.objects.filter(id__gt=problem.pk).order_by("id").first()
     previous_problem = Problem.objects.filter(id__lt=problem.pk).order_by("-id").first()
-    random_problem = Problem.objects.exclude(id=problem.pk).order_by("?").first()
 
     return (
         next_problem.pk if next_problem else None,
         previous_problem.pk if previous_problem else None,
-        random_problem.pk if random_problem else None,
     )

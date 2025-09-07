@@ -4,7 +4,7 @@ import { NavigatorComponent } from "./navigator/navigator.component";
 import { AnnotationInputComponent } from "./annotation-input/annotation-input.component";
 import { SearchComponent } from "./search/search.component";
 import { FontAwesomeModule } from "@fortawesome/angular-fontawesome";
-import { faPlus } from "@fortawesome/free-solid-svg-icons";
+import { faBinoculars, faPlus } from "@fortawesome/free-solid-svg-icons";
 import { Router } from "@angular/router";
 import { ProblemService } from "@/services/problem.service";
 import { map } from "rxjs";
@@ -30,7 +30,9 @@ export class AnnotateComponent {
     private router = inject(Router);
     private problemService = inject(ProblemService);
     private appModeService = inject(AppModeService);
+    
     public faPlus = faPlus;
+    public faBinoculars = faBinoculars;
 
     public browsing$ = this.appModeService.browsing$;
     public adding$ = this.appModeService.adding$;

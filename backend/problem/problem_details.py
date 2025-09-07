@@ -70,7 +70,7 @@ def get_filters(query_params: QueryDict) -> Q | None:
         filters &= Q(dataset=dataset)
     if entailment_label:
         filters &= Q(entailment_label=entailment_label)
-    if gold is not None:
+    if gold is not None and gold != "":
         raise NotImplementedError()
     if text:
         filters &= Q(

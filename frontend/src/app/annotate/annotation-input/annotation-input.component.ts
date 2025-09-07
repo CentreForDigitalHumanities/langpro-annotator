@@ -14,8 +14,8 @@ import {
     KnowledgeBaseRelationship,
 } from "./knowledge-base-form/knowledge-base-form.component";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { ProblemResponse } from "../../types";
-import { faCheck, faExclamationCircle, faFloppyDisk, faTree } from "@fortawesome/free-solid-svg-icons";
+import { Dataset, ProblemResponse } from "../../types";
+import { faCheck, faExclamationCircle, faFloppyDisk, faTrash, faTree } from "@fortawesome/free-solid-svg-icons";
 import { ProblemDetailsComponent } from "./problem-details/problem-details.component";
 import { combineLatest, Subject } from "rxjs";
 import { ActivatedRoute, Router } from "@angular/router";
@@ -23,6 +23,7 @@ import { ProblemService } from "@/services/problem.service";
 import { ParseService } from "@/services/parse.service";
 import { FontAwesomeModule } from "@fortawesome/angular-fontawesome";
 import { AppModeService } from "@/services/app-mode.service";
+import { ToastService } from "@/services/toast.service";
 
 export type ParseInputForm = FormGroup<{
     premises: FormArray<FormControl<string>>;
@@ -60,6 +61,7 @@ export class AnnotationInputComponent implements OnInit {
     private problemService = inject(ProblemService);
     private parseService = inject(ParseService);
     private appModeService = inject(AppModeService);
+    private toastService = inject(ToastService);
 
     public form: ParseInputForm | null = null;
     public problem: ProblemResponse | null = null;
@@ -70,6 +72,13 @@ export class AnnotationInputComponent implements OnInit {
     public faTree = faTree;
     public faFloppyDisk = faFloppyDisk;
     public faExclamationCircle = faExclamationCircle;
+    public faTrash = faTrash;
+
+    public showSaveButton$ = this.appModeService.adding$;
+
+    public isUserProblem(problem: ProblemResponse | null): boolean {
+        return problem?.problem?.dataset === Dataset.USER;
+    }
 
     ngOnInit(): void {
         this.problemService.problem$
@@ -86,6 +95,19 @@ export class AnnotationInputComponent implements OnInit {
         this.problemService.saveProblem$.pipe(
             takeUntilDestroyed(this.destroyRef)
         ).subscribe((response) => {
+            if (response.error) {
+                this.toastService.show({
+                    header: $localize`Error`,
+                    body: $localize`There was an error saving the problem: ${response.error}`,
+                    type: 'danger'
+                });
+            }
+
+            this.toastService.show({
+                header: $localize`Problem saved`,
+                body: $localize`Problem successfully saved to database.`,
+                type: 'success'
+            });
             this.router.navigate(["/", "annotate", response.id]);
         });
 
@@ -109,7 +131,6 @@ export class AnnotationInputComponent implements OnInit {
             });
     }
 
-    public showSaveButton$ = this.appModeService.adding$;
 
     public startParse(): void {
         if (!this.form || this.form.invalid) {

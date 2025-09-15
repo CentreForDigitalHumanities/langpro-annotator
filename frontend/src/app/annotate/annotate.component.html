@@ -1,8 +1,67 @@
 @let firstProblemId = firstProblemId$ | async;
+@let viewMode = viewMode$ | async;
+@let browsing = viewMode === 'browse';
+@let adding = viewMode === 'add';
+@let editing = viewMode === 'edit';
+
+
 <div class="row mb-4">
     <div class="d-flex flex-column col-4 gap-2">
+        @if (browsing) {
+        <div class="card text-bg-light p-3">
+            <la-navigator />
+            <la-search />
+        </div>
+        } @else if (adding) {
+        <section class="d-flex flex-column gap-2">
+            <p class="text-muted" i18n>
+                You are currently adding a new problem.
+            </p>
+            <p class="text-muted" i18n>
+                Hit 'Start Parse' to send your problem data to the parser and
+                inspect the results.
+            </p>
+            <p class="text-muted" i18n>
+                If you are happy with the changes, save the problem by clicking
+                the 'Save' button.
+            </p>
+            <p class="text-muted" i18n>
+                This will add the problem to the database.
+            </p>
+        </section>
+        } @else if (editing) {
+        <section>
+            <p class="text-muted" i18n>
+                You are currently editing an existing problem.
+            </p>
+            <p class="text-muted" i18n>
+                Hit 'Start Parse' to send your problem data to the parser and
+                inspect the results.
+            </p>
+            <p class="text-muted" i18n>
+                If you are happy with the changes, save the changes by clicking
+                the 'Save problem' button.
+            </p>
+            @if (isUserProblem$ | async) {
+            <p class="text-muted" i18n>
+                This will update this problem in the database.
+            </p>
+            } @else {
+            <p class="text-muted" i18n>
+                This will create a new problem in the database, leaving the
+                original problem unchanged.
+            </p>
+            }
+        </section>
+        } @else {
+        <section class="d-flex justify-content-center align-items-center">
+            <div class="spinner-border spinner-border-lg">
+                <span class="visually-hidden" i18n>Loading...</span>
+            </div>
+        </section>
+        }
         <div class="d-flex flex-column gap-2 align-items-stretch">
-            @if (browsing$ | async) {
+            @if (browsing) {
             <button
                 type="button"
                 class="btn btn-secondary d-flex align-items-center justify-content-center"
@@ -30,57 +89,6 @@
             </button>
             }
         </div>
-        @if (browsing$ | async) {
-        <div class="card text-bg-light p-3">
-            <la-navigator />
-            <la-search />
-        </div>
-        } @else if (adding$ | async) {
-        <section class="d-flex flex-column gap-2">
-            <p class="text-muted" i18n>
-                You are currently adding a new problem.
-            </p>
-            <p class="text-muted" i18n>
-                Hit 'Start Parse' to send your problem data to the parser and
-                inspect the results.
-            </p>
-            <p class="text-muted" i18n>
-                If you are happy with the changes, save the problem by clicking
-                the 'Save' button.
-            </p>
-            <p class="text-muted" i18n>This will add the problem to the database.</p>
-        </section>
-        } @else if (editing$ | async) {
-        <section>
-            <p class="text-muted" i18n>
-                You are currently editing an existing problem.
-            </p>
-            <p class="text-muted" i18n>
-                Hit 'Start Parse' to send your problem data to the parser and
-                inspect the results.
-            </p>
-            <p class="text-muted" i18n>
-                If you are happy with the changes, save the changes by clicking
-                the 'Save' button.
-            </p>
-            @if (isUserProblem$ | async) {
-            <p class="text-muted" i18n>
-                This will update this problem in the database.
-            </p>
-            } @else {
-            <p class="text-muted" i18n>
-                This will create a new problem in the database, leaving the
-                original problem unchanged.
-            </p>
-        }
-        </section>
-        } @else {
-        <section class="d-flex justify-content-center align-items-center">
-            <div class="spinner-border spinner-border-lg">
-                <span class="visually-hidden" i18n>Loading...</span>
-            </div>
-        </section>
-        }
     </div>
     <la-annotation-input class="col-8" />
 </div>

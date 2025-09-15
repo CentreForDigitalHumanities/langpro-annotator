@@ -1,4 +1,7 @@
-@if (problem?.id) {
+@let problem = problem$ | async;
+@let viewMode = viewMode$ | async;
+@let userProblem = isUserProblem$ | async;
+@if (problem) {
 <div class="card">
     <div class="card-body">
         <la-problem-details [problem]="problem" />
@@ -22,7 +25,7 @@
                 />
                 <span class="ms-2" i18n>Start parse</span>
             </button>
-            @if (showSaveButton$ | async) {
+            @if ((viewMode === 'edit' || viewMode === 'add') && userProblem) {
             <button
                 type="button"
                 class="btn btn-primary d-flex align-items-center justify-content-center"
@@ -30,12 +33,24 @@
             >
                 <fa-icon
                     [icon]="faFloppyDisk"
-                    class="fa-md"
                     aria-hidden="true"
                     focusable="false"
                 ></fa-icon>
                 <span class="ms-3" i18n>Save problem</span>
             </button>
+            } @else if (userProblem) {
+                <button
+                    type="button"
+                    class="btn btn-secondary d-flex align-items-center justify-content-center"
+                    (click)="editProblem()"
+                >
+                    <fa-icon
+                        [icon]="faWrench"
+                        aria-hidden="true"
+                        focusable="false"
+                    ></fa-icon>
+                    <span class="ms-3" i18n>Edit problem</span>
+                </button>
             }
         </div>
         }

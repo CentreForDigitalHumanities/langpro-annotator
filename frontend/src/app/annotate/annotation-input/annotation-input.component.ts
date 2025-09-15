@@ -118,19 +118,7 @@ export class AnnotationInputComponent implements OnInit {
             .subscribe((response) => {
                 console.log("Parse response:", response);
             });
-
-        // Listen to route changes only after subscribing to ProblemService.problem$.
-        combineLatest([
-            this.route.paramMap,
-            this.route.queryParamMap])
-            .pipe(
-                takeUntilDestroyed(this.destroyRef)
-            )
-            .subscribe(([params, queryParams]) => {
-                this.problemService.allParams$.next({ params, queryParams });
-            });
     }
-
 
     public startParse(): void {
         if (!this.form || this.form.invalid) {

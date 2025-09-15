@@ -22,7 +22,7 @@ export class NavigatorComponent {
     private router = inject(Router);
     private problemService = inject(ProblemService);
 
-    public problem$ = this.problemService.problem$;
+    public problemResponse$ = this.problemService.problemResponse$;
 
     public faAnglesLeft = faAnglesLeft;
     public faAnglesRight = faAnglesRight;

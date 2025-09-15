@@ -1,5 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { Observable, map, startWith } from 'rxjs';
+import { filter, map, shareReplay } from 'rxjs';
 import { ProblemService } from './problem.service';
 
 export enum AppMode {
@@ -14,18 +14,19 @@ export enum AppMode {
 export class AppModeService {
     private problemService = inject(ProblemService);
 
-    private viewMode$: Observable<AppMode | undefined> = this.problemService.problem$.pipe(
-        map(problem => {
-            if (problem?.id === "new") {
+    public viewMode$ = this.problemService.allParams$.pipe(
+        filter(allParams => allParams !== null),
+        map(({ params, edit }) => {
+            if (params.get("problemId") === "new") {
                 return AppMode.ADD;
+            }
+            if (edit) {
+                return AppMode.EDIT;
             }
             return AppMode.BROWSE;
         }),
-        startWith(undefined)
+        shareReplay(1)
     );
 
-    public browsing$ = this.viewMode$.pipe(map(mode => mode === AppMode.BROWSE));
-    public adding$ = this.viewMode$.pipe(map(mode => mode === AppMode.ADD));
-    public editing$ = this.viewMode$.pipe(map(mode => mode === AppMode.EDIT));
     public loading$ = this.viewMode$.pipe(map(mode => mode === undefined));
 }

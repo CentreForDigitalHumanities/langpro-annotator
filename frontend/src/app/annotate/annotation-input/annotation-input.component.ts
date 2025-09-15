@@ -73,12 +73,12 @@ export class AnnotationInputComponent implements OnInit {
     public faFloppyDisk = faFloppyDisk;
     public faExclamationCircle = faExclamationCircle;
     public faTrash = faTrash;
+    public faWrench = faWrench;
 
-    public showSaveButton$ = this.appModeService.adding$;
-
-    public isUserProblem(problem: ProblemResponse | null): boolean {
-        return problem?.problem?.dataset === Dataset.USER;
-    }
+    public viewMode$ = this.appModeService.viewMode$;
+    public isUserProblem$ = this.problem$.pipe(
+        map(problem => problem?.dataset === Dataset.USER)
+    );
 
     ngOnInit(): void {
         this.problemService.problem$
@@ -87,8 +87,7 @@ export class AnnotationInputComponent implements OnInit {
                 // Navigate away if the backend provides a new Problem ID.
                 this.navigateToNewProblem(problem);
 
-                // Otherwise, update local state and form.
-                this.problem = problem;
+                // Otherwise, update local form.
                 this.form = problem ? this.buildForm(problem) : null;
             });
 

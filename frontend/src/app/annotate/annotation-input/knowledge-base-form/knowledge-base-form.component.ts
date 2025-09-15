@@ -1,10 +1,11 @@
-import { Component, input } from "@angular/core";
+import { Component, inject, input } from "@angular/core";
 import { FormGroup, Validators, FormControl } from "@angular/forms";
 import { CommonModule } from "@angular/common";
 import { ReactiveFormsModule } from "@angular/forms";
 import { FontAwesomeModule } from "@fortawesome/angular-fontawesome";
 import { faPlus, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { ParseInputForm } from "../annotation-input.component";
+import { AppModeService } from "@/services/app-mode.service";
 
 export enum KnowledgeBaseRelationship {
     EQUAL = "EQUAL",
@@ -28,12 +29,16 @@ const relationshipDisplayMapping: Record<KnowledgeBaseRelationship, string> = {
     styleUrls: ["./knowledge-base-form.component.scss"],
 })
 export class KnowledgeBaseFormComponent {
+    private appModeService = inject(AppModeService);
+
     public form = input.required<ParseInputForm>();
 
     public relationshipTypes = Object.values(KnowledgeBaseRelationship);
 
     public faPlus = faPlus;
     public faTrash = faTrash;
+
+    public viewMode$ = this.appModeService.viewMode$;
 
     public addKnowledgeBaseItem(): void {
         const newItem = new FormGroup({

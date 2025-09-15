@@ -1,4 +1,5 @@
 @let kbControls = form().controls.kbItems.controls;
+@let viewMode = viewMode$ | async;
 
 <form [formGroup]="form()">
     <fieldset>
@@ -6,6 +7,7 @@
             class="form-label h6 fw-bold d-flex align-items-center justify-content-between"
         >
             <span i18n>Knowledge base items</span>
+            @if (viewMode === 'add' || viewMode === 'edit') {
             <button
                 type="button"
                 class="btn btn-sm btn-outline-primary"
@@ -19,6 +21,7 @@
                     focusable="false"
                 ></fa-icon>
             </button>
+            }
         </legend>
     </fieldset>
 
@@ -28,12 +31,16 @@
             <div [formGroupName]="i" class="input-group">
                 <input
                     type="text"
-                    class="form-control"
+                    [class]="
+                        (viewMode === 'add' || viewMode === 'edit')
+                            ? 'form-control'
+                            : 'form-control-plaintext'
+                    "
                     formControlName="entity1"
                     placeholder="Entity 1"
                     required
                 />
-                <select class="form-select" formControlName="relationship">
+                <select class="form-select form-select-plaintext" formControlName="relationship">
                     <option value="" disabled selected i18n>
                         Select relationship
                     </option>
@@ -45,11 +52,16 @@
                 </select>
                 <input
                     type="text"
-                    class="form-control"
+                    [class]="
+                        (viewMode === 'add' || viewMode === 'edit')
+                            ? 'form-control'
+                            : 'form-control-plaintext'
+                    "
                     formControlName="entity2"
                     placeholder="Entity 2"
                     required
                 />
+                @if (viewMode === 'add' || viewMode === 'edit') {
                 <button
                     type="button"
                     class="btn btn-danger"
@@ -68,6 +80,7 @@
                         >Remove</span
                     >
                 </button>
+                }
             </div>
         </li>
         } @empty {

@@ -10,9 +10,9 @@ import { Subject, switchMap, catchError, of } from 'rxjs';
 export class ParseService {
     private http = inject(HttpClient);
 
-    public submit = new Subject<ParseInput>();
+    public submit$ = new Subject<ParseInput>();
 
-    public parse$ = this.submit.pipe(
+    public parse$ = this.submit$.pipe(
         switchMap((form) =>
             this.http.post("/api/problem/parse", form).pipe(
                 catchError((error) => {

@@ -17,7 +17,8 @@ export class ProblemService {
     // Submit a new problem to be saved to the database.
     public submit$ = new Subject<ParseInput>();
 
-    public problem$: Observable<ProblemResponse | null> = this.allParams$.pipe(
+    public problemResponse$: Observable<ProblemResponse | null> = this.allParams$.pipe(
+        filter(allParams => allParams !== null),
         switchMap(({ params, queryParams }) => {
             const problemId = params.get("problemId");
             if (!problemId) {
@@ -25,6 +26,11 @@ export class ProblemService {
             }
             return problemId === "new" ? this.newProblem$() : this.existingProblem$(problemId, queryParams);
         }),
+        shareReplay(1)
+    );
+
+    public problem$ = this.problemResponse$.pipe(
+        map(response => response?.problem ?? null),
         shareReplay(1)
     );
 
@@ -72,7 +78,7 @@ export class ProblemService {
     };
 
     public firstProblemId$ = this.existingProblem$().pipe(
-        map(problem => problem?.id ?? null),
+        map(response => response?.problem?.id ?? null),
     );
 
     private extractSearchParams(routeParams: ParamMap): HttpParams {

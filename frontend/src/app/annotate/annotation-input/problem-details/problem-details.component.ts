@@ -1,5 +1,5 @@
 import { Component, computed, input } from "@angular/core";
-import { Dataset, EntailmentLabel, ProblemResponse } from "../../../types";
+import { Dataset, EntailmentLabel, Problem } from "../../../types";
 import { EntailmentLabelBadgeComponent } from "./entailment-label-badge/entailment-label-badge.component";
 import { faQuestionCircle } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeModule } from "@fortawesome/angular-fontawesome";
@@ -27,7 +27,7 @@ export interface ProblemDetails {
     styleUrl: "./problem-details.component.scss",
 })
 export class ProblemDetailsComponent {
-    public readonly problem = input.required<ProblemResponse | null>();
+    public readonly problem = input.required<Problem>();
 
     public problemDetails = computed(() => {
         const problem = this.problem();
@@ -57,23 +57,17 @@ export class ProblemDetailsComponent {
         return null;
     });
 
-    private extractDetails(
-        response: ProblemResponse | null,
-    ): ProblemDetails | null {
-        if (!response?.problem) {
-            return null;
-        }
-
+    private extractDetails(problem: Problem): ProblemDetails | null {
         const shared: Pick<
             ProblemDetails,
             "problemId" | "dataset" | "entailmentLabel"
         > = {
-            problemId: response.problem.id.toString(),
-            dataset: response.problem.dataset,
-            entailmentLabel: response.problem.entailmentLabel,
+            problemId: problem.id.toString(),
+            dataset: problem.dataset,
+            entailmentLabel: problem.entailmentLabel,
         };
 
-        switch (response.problem.dataset) {
+        switch (problem.dataset) {
             case Dataset.SICK:
                 return {
                     ...shared,
@@ -84,9 +78,9 @@ export class ProblemDetailsComponent {
             case Dataset.FRACAS:
                 return {
                     ...shared,
-                    section: response.problem.extraData.sectionName,
-                    subsection: response.problem.extraData.subsectionName,
-                    comment: response.problem.extraData.note || null,
+                    section: problem.extraData.sectionName,
+                    subsection: problem.extraData.subsectionName,
+                    comment: problem.extraData.note || null,
                 };
             case Dataset.SNLI:
                 return {

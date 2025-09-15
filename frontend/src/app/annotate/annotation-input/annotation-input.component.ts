@@ -124,7 +124,7 @@ export class AnnotationInputComponent implements OnInit {
             return;
         }
         const input = this.form.getRawValue();
-        this.parseService.submit.next(input);
+        this.parseService.submit$.next(input);
     }
 
     public saveProblem(): void {

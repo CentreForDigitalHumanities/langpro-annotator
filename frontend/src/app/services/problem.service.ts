@@ -3,8 +3,13 @@ import { ProblemResponse, SaveProblemResponse, Dataset, EntailmentLabel } from "
 import { HttpClient, HttpParams } from "@angular/common/http";
 import { Injectable, inject } from "@angular/core";
 import { ParamMap } from "@angular/router";
-import { Subject, Observable, switchMap, of, shareReplay, exhaustMap, catchError, map } from "rxjs";
+import { Subject, Observable, switchMap, of, shareReplay, exhaustMap, catchError, map, BehaviorSubject, filter } from "rxjs";
 
+interface AllParams {
+    params: ParamMap;
+    queryParams: ParamMap;
+    edit: boolean;
+}
 
 @Injectable({
     providedIn: 'root'
@@ -12,7 +17,7 @@ import { Subject, Observable, switchMap, of, shareReplay, exhaustMap, catchError
 export class ProblemService {
     private http = inject(HttpClient);
 
-    public allParams$ = new Subject<{ params: ParamMap, queryParams: ParamMap; }>();
+    public allParams$ = new BehaviorSubject<AllParams | null>(null);
 
     // Submit a new problem to be saved to the database.
     public submit$ = new Subject<ParseInput>();
@@ -45,7 +50,6 @@ export class ProblemService {
 
     private newProblem$(): Observable<ProblemResponse> {
         return of<ProblemResponse>({
-            id: "new",
             index: null,
             firstProblemId: null,
             lastProblemId: null,
@@ -60,6 +64,7 @@ export class ProblemService {
                 premises: [],
                 entailmentLabel: EntailmentLabel.UNKNOWN,
                 extraData: null,
+                kbItems: []
 
             },
         });

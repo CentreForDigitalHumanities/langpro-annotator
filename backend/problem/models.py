@@ -73,6 +73,8 @@ class Problem(models.Model):
             case _:
                 serialized_extra_data = {}
 
+        kb_items = KnowledgeBase.objects.filter(problem=self)
+
         return {
             "id": self.pk,
             "dataset": self.dataset,
@@ -80,6 +82,7 @@ class Problem(models.Model):
             "hypothesis": self.hypothesis.text,
             "entailmentLabel": self.entailment_label,
             "extraData": serialized_extra_data,
+            "kbItems": [item.serialize() for item in kb_items],
         }
 
 
@@ -105,3 +108,10 @@ class KnowledgeBase(models.Model):
         on_delete=models.CASCADE,
         related_name="knowledge_bases",
     )
+
+    def serialize(self) -> dict:
+        return {
+            "entity1": self.entity1,
+            "entity2": self.entity2,
+            "relationship": self.relationship,
+        }

@@ -9,15 +9,12 @@ import {
     Validators,
 } from "@angular/forms";
 import { PremisesFormComponent } from "./premises-form/premises-form.component";
-import {
-    KnowledgeBaseFormComponent,
-    KnowledgeBaseRelationship,
-} from "./knowledge-base-form/knowledge-base-form.component";
+import { KnowledgeBaseFormComponent } from "./knowledge-base-form/knowledge-base-form.component";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { Dataset, ProblemResponse } from "../../types";
-import { faCheck, faExclamationCircle, faFloppyDisk, faTrash, faTree } from "@fortawesome/free-solid-svg-icons";
+import { Dataset, KnowledgeBaseRelationship, Problem } from "../../types";
+import { faCheck, faExclamationCircle, faFloppyDisk, faTrash, faTree, faWrench } from "@fortawesome/free-solid-svg-icons";
 import { ProblemDetailsComponent } from "./problem-details/problem-details.component";
-import { combineLatest, Subject } from "rxjs";
+import { map, Subject } from "rxjs";
 import { ActivatedRoute, Router } from "@angular/router";
 import { ProblemService } from "@/services/problem.service";
 import { ParseService } from "@/services/parse.service";
@@ -26,12 +23,14 @@ import { AppModeService } from "@/services/app-mode.service";
 import { ToastService } from "@/services/toast.service";
 
 export type ParseInputForm = FormGroup<{
+    id: FormControl<string>;
     premises: FormArray<FormControl<string>>;
     hypothesis: FormControl<string>;
     kbItems: FormArray<KnowledgeBaseItemsForm>;
 }>;
 
 type KnowledgeBaseItemsForm = FormGroup<{
+    id: FormControl<string>;
     entity1: FormControl<string>;
     relationship: FormControl<KnowledgeBaseRelationship>;
     entity2: FormControl<string>;
@@ -64,7 +63,8 @@ export class AnnotationInputComponent implements OnInit {
     private toastService = inject(ToastService);
 
     public form: ParseInputForm | null = null;
-    public problem: ProblemResponse | null = null;
+
+    public problem$ = this.problemService.problem$;
 
     public submit$ = new Subject<void>();
 
@@ -135,11 +135,15 @@ export class AnnotationInputComponent implements OnInit {
         this.problemService.submit$.next(input);
     }
 
-    private navigateToNewProblem(problem: ProblemResponse | null): void {
-        if (!problem?.problem) {
+    public editProblem(): void {
+        this.router.navigate(["edit"], { relativeTo: this.route, queryParamsHandling: "preserve" });
+    }
+
+    private navigateToNewProblem(problem: Problem | null): void {
+        if (!problem) {
             return;
         }
-        const incomingProblemId = problem?.id?.toString();
+        const incomingProblemId = problem.id?.toString();
         const currentProblemId = this.route.snapshot.paramMap.get("problemId");
 
         if (incomingProblemId !== currentProblemId) {
@@ -149,11 +153,16 @@ export class AnnotationInputComponent implements OnInit {
         }
     }
 
-    private buildForm(response: ProblemResponse): ParseInputForm {
-        const premises = response.problem?.premises || [];
-        const hypothesis = response.problem?.hypothesis || "";
+    private buildForm(problem: Problem): ParseInputForm {
+        const id = problem.id;
+        const premises = problem.premises || [];
+        const hypothesis = problem.hypothesis || "";
+        const kbItems = this.buildKbForms(problem.kbItems);
 
         return new FormGroup({
+            id: new FormControl<string>(id, {
+                nonNullable: true
+            }),
             premises: new FormArray(
                 premises.map(
                     (premise) =>
@@ -167,7 +176,24 @@ export class AnnotationInputComponent implements OnInit {
                 validators: [Validators.required],
                 nonNullable: true,
             }),
-            kbItems: new FormArray<KnowledgeBaseItemsForm>([]),
+            kbItems: new FormArray<KnowledgeBaseItemsForm>(kbItems),
         });
+    }
+
+    private buildKbForms(inputKbItems: Problem['kbItems']): KnowledgeBaseItemsForm[] {
+        return inputKbItems.map(item => new FormGroup({
+            id: new FormControl<string>(item.id, {
+                nonNullable: true
+            }),
+            entity1: new FormControl<string>(item.entity1, {
+                nonNullable: true
+            }),
+            entity2: new FormControl<string>(item.entity2, {
+                nonNullable: true
+            }),
+            relationship: new FormControl<KnowledgeBaseRelationship>(item.relationship, {
+                nonNullable: true
+            })
+        }));
     }
 }

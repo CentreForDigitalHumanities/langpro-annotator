@@ -6,13 +6,9 @@ import { FontAwesomeModule } from "@fortawesome/angular-fontawesome";
 import { faPlus, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { ParseInputForm } from "../annotation-input.component";
 import { AppModeService } from "@/services/app-mode.service";
+import { KnowledgeBaseRelationship } from "@/types";
 
-export enum KnowledgeBaseRelationship {
-    EQUAL = "EQUAL",
-    NOT_EQUAL = "NOT_EQUAL",
-    SUBSET = "SUBSET",
-    SUPERSET = "SUPERSET",
-}
+
 
 const relationshipDisplayMapping: Record<KnowledgeBaseRelationship, string> = {
     EQUAL: "is equal to",
@@ -42,6 +38,9 @@ export class KnowledgeBaseFormComponent {
 
     public addKnowledgeBaseItem(): void {
         const newItem = new FormGroup({
+            id: new FormControl<string>("new", {
+                nonNullable: true
+            }),
             entity1: new FormControl<string>("", {
                 validators: [Validators.required],
                 nonNullable: true,

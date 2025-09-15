@@ -42,6 +42,11 @@ const routes: Routes = [
         component: UserSettingsComponent,
     },
     {
+        path: "annotate/:problemId/edit",
+        canActivate: [LoggedOnGuard],
+        component: AnnotateComponent,
+    },
+    {
         path: "annotate/:problemId",
         canActivate: [LoggedOnGuard],
         component: AnnotateComponent,

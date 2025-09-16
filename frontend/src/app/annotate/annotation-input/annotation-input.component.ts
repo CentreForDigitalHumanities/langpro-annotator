@@ -100,6 +100,7 @@ export class AnnotationInputComponent implements OnInit {
                     body: $localize`There was an error saving the problem: ${response.error}`,
                     type: 'danger'
                 });
+                return;
             }
 
             this.toastService.show({
@@ -179,7 +180,6 @@ export class AnnotationInputComponent implements OnInit {
             kbItems: new FormArray<KnowledgeBaseItemsForm>(kbItems),
         });
     }
-
     private buildKbForms(inputKbItems: Problem['kbItems']): KnowledgeBaseItemsForm[] {
         return inputKbItems.map(item => new FormGroup({
             id: new FormControl<string>(item.id, {

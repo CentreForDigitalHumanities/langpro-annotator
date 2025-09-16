@@ -40,7 +40,7 @@ export class ProblemService {
     );
 
     public saveProblem$ = this.submit$.pipe(
-        exhaustMap((problem) => this.http.post<SaveProblemResponse>('/api/problem/new', problem).pipe(
+        exhaustMap((problem) => this.http.post<SaveProblemResponse>(`/api/problem/${problem.id}`, problem).pipe(
             catchError((error) => {
                 console.error('Error saving problem:', error);
                 return of({ id: null, error: 'Failed to save problem' });
@@ -84,6 +84,7 @@ export class ProblemService {
 
     public firstProblemId$ = this.existingProblem$().pipe(
         map(response => response?.problem?.id ?? null),
+        shareReplay(1),
     );
 
     private extractSearchParams(routeParams: ParamMap): HttpParams {

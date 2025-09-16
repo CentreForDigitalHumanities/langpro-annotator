@@ -129,6 +129,7 @@ export class AnnotationInputComponent implements OnInit {
     }
 
     public saveProblem(): void {
+        this.form?.markAllAsTouched();
         if (!this.form || this.form.invalid) {
             return;
         }

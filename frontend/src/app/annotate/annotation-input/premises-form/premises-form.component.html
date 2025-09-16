@@ -32,7 +32,7 @@
                         [id]="'premise-' + i"
                         type="text"
                         [class]="
-                            (viewMode === 'add' || viewMode === 'edit')
+                            viewMode === 'add' || viewMode === 'edit'
                                 ? 'form-control'
                                 : 'form-control-plaintext'
                         "
@@ -76,9 +76,16 @@
             id="hypothesis"
             type="text"
             [class]="
-                (viewMode === 'add' || viewMode === 'edit') ? 'form-control' : 'form-control-plaintext'
+                viewMode === 'add' || viewMode === 'edit'
+                    ? 'form-control'
+                    : 'form-control-plaintext'
+            "
+            [class.is-invalid]="
+                form().controls.hypothesis.touched &&
+                form().controls.hypothesis.invalid
             "
             [formControl]="form().controls.hypothesis"
         />
+        <p class="invalid-feedback" i18n>Each problem must have a hypothesis.</p>
     </div>
 </form>

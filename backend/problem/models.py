@@ -76,7 +76,7 @@ class Problem(models.Model):
         kb_items = KnowledgeBase.objects.filter(problem=self)
 
         return {
-            "id": self.pk,
+            "id": str(self.pk),
             "dataset": self.dataset,
             "premises": [premise.text for premise in self.premises.all()],
             "hypothesis": self.hypothesis.text,
@@ -111,6 +111,7 @@ class KnowledgeBase(models.Model):
 
     def serialize(self) -> dict:
         return {
+            "id": str(self.pk),
             "entity1": self.entity1,
             "entity2": self.entity2,
             "relationship": self.relationship,

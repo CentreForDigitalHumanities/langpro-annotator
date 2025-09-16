@@ -19,7 +19,7 @@ class RelatedProblemIds:
 
 def get_related_problem_ids(
     problem_qs: QuerySet[Problem],
-    problem_id: Optional[int],
+    problem_id: Optional[str],
 ) -> RelatedProblemIds:
     """
     Retrieves the IDs of surrounding problem objects

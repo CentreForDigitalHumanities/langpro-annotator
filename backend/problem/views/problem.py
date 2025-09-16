@@ -47,7 +47,7 @@ class SaveProblemResponse:
 
 
 class ProblemView(APIView):
-    def get(self, request, problem_id: int | None = None) -> JsonResponse:
+    def get(self, request, problem_id: str | None = None) -> JsonResponse:
         """
         If a Problem ID is provided, attempts to retrieve the requested Problem. Otherwise, simply returns the first problem of the QS.
         """
@@ -83,9 +83,10 @@ class ProblemView(APIView):
             total=related_problem_ids.total,
         ).json_response(status=200)
 
-    def post(self, request) -> JsonResponse:
+    def post(self, request, problem_id: str) -> JsonResponse:
         """
-        If a Problem ID is provided, attempts to update the associated Problem; else a new Problem is created.
+        If the Problem ID is "new", attempts to create a new Problem;
+        else the associated Problem is updated.
         """
         parse_input = request.data
 
@@ -101,7 +102,7 @@ class ProblemView(APIView):
         problem: Problem | None = None
         error: str | None = None
 
-        if validated_input["id"] == "new":
+        if problem_id == "new":
             try:
                 problem = create_problem_from_input(validated_input)
             except Exception as e:
@@ -165,7 +166,7 @@ def validate_input(parse_input: dict) -> ParseInput:
             raise ValueError("Missing or invalid 'entity1' in kbItem")
         if "relationship" not in item or not isinstance(item["relationship"], str):
             raise ValueError("Missing or invalid 'relationship' in kbItem")
-        if item["relationship"].lower() not in KnowledgeBase.Relationship.values:
+        if item["relationship"] not in KnowledgeBase.Relationship.values:
             raise ValueError(f"Invalid 'relationship' in kbItem.")
         if "entity2" not in item or not isinstance(item["entity2"], str):
             raise ValueError("Missing or invalid 'entity2' in kbItem")
@@ -221,7 +222,7 @@ def update_or_create_kb_items(problem: Problem, kb_items: list[KBItem]) -> None:
             try:
                 kb = KnowledgeBase.objects.create(
                     entity1=entity1,
-                    relationship=relationship.lower(),
+                    relationship=relationship,
                     entity2=entity2,
                     problem=problem,
                 )
@@ -230,18 +231,18 @@ def update_or_create_kb_items(problem: Problem, kb_items: list[KBItem]) -> None:
                 raise ValueError(f"Error creating knowledge base items: {e}.")
         else:
             try:
-                kb = KnowledgeBase.objects.get(id=id, problem=problem)
+                kb = KnowledgeBase.objects.get(id=id, problem_id=problem.pk)
             except KnowledgeBase.DoesNotExist:
                 raise ValueError(f"Unable to find knowledge base item with id {id}.")
             kb.entity1 = entity1
-            kb.relationship = relationship.lower()
+            kb.relationship = relationship
             kb.entity2 = entity2
             kb.save()
             kb_ids.append(kb.pk)
 
-        # Delete existing knowledge bases associated to this problem that are
-        # not included in the input.
-        KnowledgeBase.objects.filter(problem=problem).exclude(id__in=kb_ids).delete()
+    # Delete existing knowledge bases associated to this problem that are
+    # not included in the input.
+    KnowledgeBase.objects.filter(problem_id=problem.pk).exclude(id__in=kb_ids).delete()
 
 
 def update_problem_from_input(parse_input: ParseInput) -> Problem:

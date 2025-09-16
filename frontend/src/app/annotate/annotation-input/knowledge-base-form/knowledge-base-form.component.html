@@ -28,19 +28,16 @@
     <ul class="ps-0 list-unstyled" formArrayName="kbItems">
         @for (kbItem of kbControls; let i = $index; track $index) {
         <li class="mb-3">
+            @if (viewMode === 'add' || viewMode === 'edit') {
             <div [formGroupName]="i" class="input-group">
                 <input
                     type="text"
-                    [class]="
-                        (viewMode === 'add' || viewMode === 'edit')
-                            ? 'form-control'
-                            : 'form-control-plaintext'
-                    "
+                    class="form-control"
                     formControlName="entity1"
                     placeholder="Entity 1"
                     required
                 />
-                <select class="form-select form-select-plaintext" formControlName="relationship">
+                <select class="form-select" formControlName="relationship">
                     <option value="" disabled selected i18n>
                         Select relationship
                     </option>
@@ -52,16 +49,11 @@
                 </select>
                 <input
                     type="text"
-                    [class]="
-                        (viewMode === 'add' || viewMode === 'edit')
-                            ? 'form-control'
-                            : 'form-control-plaintext'
-                    "
+                    class="form-control"
                     formControlName="entity2"
                     placeholder="Entity 2"
                     required
                 />
-                @if (viewMode === 'add' || viewMode === 'edit') {
                 <button
                     type="button"
                     class="btn btn-danger"
@@ -80,8 +72,16 @@
                         >Remove</span
                     >
                 </button>
-                }
             </div>
+            } @else {
+            <p class="form-control-plaintext">
+                "{{ kbItem.controls.entity1.value }}"
+                {{
+                    getRelationshipTypeName(kbItem.controls.relationship.value)
+                }}
+                "{{ kbItem.controls.entity2.value }}"
+            </p>
+            }
         </li>
         } @empty {
         <li class="text-muted" i18n>

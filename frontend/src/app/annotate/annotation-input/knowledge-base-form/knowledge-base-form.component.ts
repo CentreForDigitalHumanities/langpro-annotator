@@ -11,10 +11,10 @@ import { KnowledgeBaseRelationship } from "@/types";
 
 
 const relationshipDisplayMapping: Record<KnowledgeBaseRelationship, string> = {
-    EQUAL: "is equal to",
-    NOT_EQUAL: "is not equal to",
-    SUBSET: "is a subset of",
-    SUPERSET: "is a superset of",
+    equal: "is equal to",
+    not_equal: "is not equal to",
+    subset: "is a subset of",
+    superset: "is a superset of",
 };
 
 @Component({

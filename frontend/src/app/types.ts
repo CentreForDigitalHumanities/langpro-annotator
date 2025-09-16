@@ -24,10 +24,10 @@ interface SNLIData {
 }
 
 export enum KnowledgeBaseRelationship {
-    EQUAL = "EQUAL",
-    NOT_EQUAL = "NOT_EQUAL",
-    SUBSET = "SUBSET",
-    SUPERSET = "SUPERSET",
+    EQUAL = "equal",
+    NOT_EQUAL = "not_equal",
+    SUBSET = "subset",
+    SUPERSET = "superset",
 }
 
 interface KnowledgeBaseItem {

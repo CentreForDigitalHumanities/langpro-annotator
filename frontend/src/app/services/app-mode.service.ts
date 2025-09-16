@@ -17,11 +17,11 @@ export class AppModeService {
     public viewMode$ = this.problemService.allParams$.pipe(
         filter(allParams => allParams !== null),
         map(({ params, edit }) => {
-            if (params.get("problemId") === "new") {
-                return AppMode.ADD;
-            }
             if (edit) {
                 return AppMode.EDIT;
+            }
+            if (params.get("problemId") === "new") {
+                return AppMode.ADD;
             }
             return AppMode.BROWSE;
         }),

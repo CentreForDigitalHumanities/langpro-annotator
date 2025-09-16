@@ -185,13 +185,13 @@ def create_problem_from_input(parse_input: ParseInput) -> Problem:
     """
     try:
         premise_sentences = [
-            Sentence.objects.create(text=premise) for premise in parse_input["premises"]
+            Sentence.objects.get_or_create(text=premise)[0] for premise in parse_input["premises"]
         ]
     except Exception as e:
         raise ValueError(f"Error creating premise sentences: {e}")
 
     try:
-        hypothesis_sentence = Sentence.objects.create(text=parse_input["hypothesis"])
+        hypothesis_sentence = Sentence.objects.get_or_create(text=parse_input["hypothesis"])[0]
     except Exception as e:
         raise ValueError(f"Error creating hypothesis sentence: {e}")
 

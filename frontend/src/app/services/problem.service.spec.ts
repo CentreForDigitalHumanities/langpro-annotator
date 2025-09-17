@@ -31,22 +31,21 @@ describe("ProblemService", () => {
     });
 
     describe("problemResponse$", () => {
-        it("should handle 'new' problem ID by returning a new problem", (done) => {
+        it("should handle 'None' problem ID", (done) => {
             service.allParams$.next({
-                params: convertToParamMap({ problemId: "new" }),
+                params: convertToParamMap({ problemId: null }),
                 queryParams: convertToParamMap({}),
                 edit: false
             });
 
             service.problemResponse$.subscribe(response => {
-                expect(response?.problem?.id).toBe("new");
-                expect(response?.problem?.dataset).toBe(Dataset.USER);
+                expect(response).toEqual(null);
                 done();
             });
         });
 
         it("should fetch an existing problem", (done) => {
-            const mockProblemId = "123";
+            const mockProblemId = 123;
             const mockResponse: ProblemResponse = {
                 problem: {
                     id: mockProblemId,
@@ -62,8 +61,8 @@ describe("ProblemService", () => {
                 },
                 index: 1,
                 totalProblems: 1,
-                firstProblemId: "123",
-                lastProblemId: "123",
+                firstProblemId: 123,
+                lastProblemId: 789,
                 nextProblemId: null,
                 previousProblemId: null,
                 error: null
@@ -131,12 +130,12 @@ describe("ProblemService", () => {
     describe("saveProblem$", () => {
         it("should POST the problem and return the response", (done) => {
             const problemToSave: ParseInput = {
-                id: "1",
+                id: 1,
                 premises: ["a"],
                 hypothesis: "b",
                 kbItems: [],
             };
-            const mockResponse: SaveProblemResponse = { id: "1", error: null };
+            const mockResponse: SaveProblemResponse = { id: 1, error: null };
 
             service.saveProblem$.subscribe(response => {
                 expect(response).toEqual(mockResponse);
@@ -153,7 +152,7 @@ describe("ProblemService", () => {
 
         it("should handle errors during save", (done) => {
             const problemToSave: ParseInput = {
-                id: "2",
+                id: 2,
                 premises: ["c"],
                 hypothesis: "d",
                 kbItems: []
@@ -174,10 +173,10 @@ describe("ProblemService", () => {
 
     describe("firstProblemId$", () => {
         it("should fetch the first problem and return its ID", (done) => {
-            const mockResponse = { problem: { id: "first" } };
+            const mockResponse = { problem: { id: 555 } };
 
             service.firstProblemId$.subscribe(id => {
-                expect(id).toBe("first");
+                expect(id).toBe(555);
                 done();
             });
 

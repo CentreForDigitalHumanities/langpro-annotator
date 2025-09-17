@@ -20,7 +20,7 @@ describe("AnnotationInputComponent", () => {
             params: of({ problemId: "1" }),
             snapshot: {
                 paramMap: {
-                    get: jasmine.createSpy('get').and.returnValue('current-problem-id')
+                    get: jasmine.createSpy('get').and.returnValue("17")
                 }
             }
         };
@@ -48,19 +48,19 @@ describe("AnnotationInputComponent", () => {
     describe('buildForm', () => {
         it('should build form with correct structure and values from problem data', () => {
             const mockProblem: Problem = {
-                id: "test-123",
+                id: 123,
                 premises: ["First premise", "Second premise"],
                 hypothesis: "Test hypothesis",
                 entailmentLabel: EntailmentLabel.ENTAILMENT,
                 kbItems: [
                     {
-                        id: "kb1",
+                        id: 456,
                         entity1: "cat",
                         entity2: "animal",
                         relationship: KnowledgeBaseRelationship.SUBSET
                     },
                     {
-                        id: "kb2",
+                        id: 789,
                         entity1: "dog",
                         entity2: "pet",
                         relationship: KnowledgeBaseRelationship.EQUAL
@@ -75,35 +75,35 @@ describe("AnnotationInputComponent", () => {
 
             // Test form structure
             expect(form).toBeTruthy();
-            expect(form.get('id')?.value).toBe('test-123');
+            expect(form.get('id')?.value).toBe(123);
             expect(form.get('hypothesis')?.value).toBe('Test hypothesis');
 
             // Test premises array
-            const premisesArray = form.get('premises') as FormArray;
+            const premisesArray = form.controls.premises;
             expect(premisesArray.length).toBe(2);
-            expect(premisesArray.at(0).value).toBe('First premise');
-            expect(premisesArray.at(1).value).toBe('Second premise');
+            expect(premisesArray.controls[0].value).toBe('First premise');
+            expect(premisesArray.controls[1].value).toBe('Second premise');
 
             // Test knowledge base items
-            const kbItemsArray = form.get('kbItems') as FormArray;
+            const kbItemsArray = form.controls.kbItems;
             expect(kbItemsArray.length).toBe(2);
 
-            const firstKbForm = kbItemsArray.at(0) as FormGroup;
-            expect(firstKbForm.get('id')?.value).toBe('kb1');
-            expect(firstKbForm.get('entity1')?.value).toBe('cat');
-            expect(firstKbForm.get('entity2')?.value).toBe('animal');
-            expect(firstKbForm.get('relationship')?.value).toBe(KnowledgeBaseRelationship.SUBSET);
+            const firstKbForm = kbItemsArray.controls[0];
+            expect(firstKbForm.value.id).toBe(456);
+            expect(firstKbForm.value.entity1).toBe('cat');
+            expect(firstKbForm.value.entity2).toBe('animal');
+            expect(firstKbForm.value.relationship).toBe(KnowledgeBaseRelationship.SUBSET);
 
-            const secondKbForm = kbItemsArray.at(1) as FormGroup;
-            expect(secondKbForm.get('id')?.value).toBe('kb2');
-            expect(secondKbForm.get('entity1')?.value).toBe('dog');
-            expect(secondKbForm.get('entity2')?.value).toBe('pet');
-            expect(secondKbForm.get('relationship')?.value).toBe(KnowledgeBaseRelationship.EQUAL);
+            const secondKbForm = kbItemsArray.controls[1];
+            expect(secondKbForm.value.id).toBe(789);
+            expect(secondKbForm.value.entity1).toBe('dog');
+            expect(secondKbForm.value.entity2).toBe('pet');
+            expect(secondKbForm.value.relationship).toBe(KnowledgeBaseRelationship.EQUAL);
         });
 
         it('should handle empty premises and kbItems arrays', () => {
             const mockProblem: Problem = {
-                id: "empty-test",
+                id: 123,
                 premises: [],
                 hypothesis: "Empty test hypothesis",
                 entailmentLabel: EntailmentLabel.NEUTRAL,
@@ -114,7 +114,7 @@ describe("AnnotationInputComponent", () => {
 
             const form = component['buildForm'](mockProblem);
 
-            expect(form.get('id')?.value).toBe('empty-test');
+            expect(form.get('id')?.value).toBe(123);
             expect(form.get('hypothesis')?.value).toBe('Empty test hypothesis');
 
             const premisesArray = form.get('premises') as FormArray;
@@ -126,7 +126,7 @@ describe("AnnotationInputComponent", () => {
 
         it('should create form controls with required validators', () => {
             const mockProblem: Problem = {
-                id: "validator-test",
+                id: 1,
                 premises: ["Test premise"],
                 hypothesis: "Test hypothesis",
                 entailmentLabel: EntailmentLabel.CONTRADICTION,
@@ -147,7 +147,7 @@ describe("AnnotationInputComponent", () => {
     describe('navigateToNewProblem', () => {
         it('should navigate when problem ID is different from current route', () => {
             const mockProblem: Problem = {
-                id: "new-problem-id",
+                id: 12,
                 premises: [],
                 hypothesis: "",
                 entailmentLabel: EntailmentLabel.UNKNOWN,
@@ -159,14 +159,14 @@ describe("AnnotationInputComponent", () => {
             component['navigateToNewProblem'](mockProblem);
 
             expect(mockRouter.navigate).toHaveBeenCalledWith(
-                ['/annotate', 'new-problem-id'],
+                ['/annotate', 12],
                 { queryParamsHandling: 'preserve' }
             );
         });
 
         it('should not navigate when problem ID matches current route', () => {
             const mockProblem: Problem = {
-                id: "current-problem-id",
+                id: 17,
                 premises: [],
                 hypothesis: "",
                 entailmentLabel: EntailmentLabel.UNKNOWN,

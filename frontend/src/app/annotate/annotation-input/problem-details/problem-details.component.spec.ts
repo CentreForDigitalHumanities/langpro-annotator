@@ -4,7 +4,7 @@ import { ProblemDetailsComponent } from "./problem-details.component";
 import { Dataset, EntailmentLabel, Problem } from "../../../types";
 
 const createMockProblem = (
-    id: string,
+    id: number,
     dataset: Dataset,
     entailmentLabel: EntailmentLabel,
     extraData: any = {},
@@ -44,7 +44,7 @@ describe("ProblemDetailsComponent", () => {
      describe("with SICK dataset problem", () => {
         beforeEach(() => {
             const problem = createMockProblem(
-                "1",
+                1,
                 Dataset.SICK,
                 EntailmentLabel.ENTAILMENT,
             );
@@ -71,7 +71,7 @@ describe("ProblemDetailsComponent", () => {
     describe("with FRACAS dataset problem", () => {
         beforeEach(() => {
             const problem = createMockProblem(
-                "2",
+                2,
                 Dataset.FRACAS,
                 EntailmentLabel.CONTRADICTION,
                 {
@@ -103,7 +103,7 @@ describe("ProblemDetailsComponent", () => {
     describe("sectionString computation", () => {
         it("should show only section when subsection is null", () => {
             const problem = createMockProblem(
-                "5",
+                5,
                 Dataset.FRACAS,
                 EntailmentLabel.ENTAILMENT,
                 { sectionName: "SectionOnly" },
@@ -115,7 +115,7 @@ describe("ProblemDetailsComponent", () => {
 
         it("should show only subsection when section is null", () => {
             const problem = createMockProblem(
-                "6",
+                6,
                 Dataset.FRACAS,
                 EntailmentLabel.ENTAILMENT,
                 { subsectionName: "SubsectionOnly" },

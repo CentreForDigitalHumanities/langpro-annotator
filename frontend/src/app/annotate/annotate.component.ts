@@ -50,7 +50,6 @@ export class AnnotateComponent implements OnInit {
     }
 
     startParse() {
-        // hardcoded data for now
         let input: ParseInput = {
             premises: this.problem?.problem?.premises!,
             hypothesis: this.problem?.problem?.hypothesis!,

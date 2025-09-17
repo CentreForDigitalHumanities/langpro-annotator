@@ -1,8 +1,9 @@
-import { Component, ChangeDetectorRef, Input} from '@angular/core';
+import { Component, ChangeDetectorRef, ElementRef, Input, ViewChild, afterNextRender} from '@angular/core';
 import { CommonModule } from "@angular/common";
 import { Subject } from "rxjs";
 import { Dimensions } from '@/types';
 import { ParseTree } from './parse-tree.component';
+import svgPanZoom from 'svg-pan-zoom';
 
 @Component({
     selector: "la-parse-svg",
@@ -11,11 +12,17 @@ import { ParseTree } from './parse-tree.component';
     templateUrl: "./parse-svg.component.svg",
 })
 export class ParseSVG {
+    @ViewChild('svg')
+    svg?: ElementRef<SVGSVGElement>;
 
     treeDimensions$ = new Subject<Dimensions>();
     treeDimensions: Dimensions = {width:0, height: 0};
 
-    constructor(private cdref: ChangeDetectorRef) {}
+    constructor(private cdref: ChangeDetectorRef) {
+        afterNextRender(() => {
+            svgPanZoom(this.svg!.nativeElement);
+        });
+    }
 
     onTreeSize(size: Dimensions) {
         this.treeDimensions = size;

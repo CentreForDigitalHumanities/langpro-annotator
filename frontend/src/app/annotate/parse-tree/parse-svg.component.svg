@@ -1,4 +1,4 @@
-<svg
+<svg #svg
     style="width: 100%; min-height: {{((treeDimensions$|async)?.height ?? 0) + 10}}px;"
     >
   <g parse-tree [tree]="tree"

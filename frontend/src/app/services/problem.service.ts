@@ -40,12 +40,15 @@ export class ProblemService {
     );
 
     public saveProblem$ = this.submit$.pipe(
-        exhaustMap((problem) => this.http.post<SaveProblemResponse>(`/api/problem/${problem.id}`, problem).pipe(
-            catchError((error) => {
-                console.error('Error saving problem:', error);
-                return of({ id: null, error: 'Failed to save problem' });
-            })
-        ))
+        exhaustMap((problem) => {
+            const url = `/api/problem/${problem.id ?? ""}`;
+            return this.http.post<SaveProblemResponse>(url, problem).pipe(
+                catchError((error) => {
+                    console.error('Error saving problem:', error);
+                    return of({ id: null, error: 'Failed to save problem' });
+                })
+            );
+        })
     );
 
     private newProblem$(): Observable<ProblemResponse> {
@@ -58,7 +61,7 @@ export class ProblemService {
             totalProblems: 0,
             error: null,
             problem: {
-                id: "new",
+                id: null,
                 hypothesis: "",
                 dataset: Dataset.USER,
                 premises: [],

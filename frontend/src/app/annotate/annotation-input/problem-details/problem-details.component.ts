@@ -62,7 +62,7 @@ export class ProblemDetailsComponent {
             ProblemDetails,
             "problemId" | "dataset" | "entailmentLabel"
         > = {
-            problemId: problem.id.toString(),
+            problemId: problem.id?.toString() ?? $localize`new`,
             dataset: problem.dataset,
             entailmentLabel: problem.entailmentLabel,
         };

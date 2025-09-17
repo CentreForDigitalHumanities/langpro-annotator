@@ -15,10 +15,10 @@ class ProblemResponse:
     index: int | None = None
     error: str | None = None
 
-    first: str | None = None
-    previous: str | None = None
-    next: str | None = None
-    last: str | None = None
+    first: int | None = None
+    previous: int | None = None
+    next: int | None = None
+    last: int | None = None
     total: int | None = None
 
     def json_response(self, status=200) -> JsonResponse:
@@ -39,7 +39,7 @@ class ProblemResponse:
 
 @dataclass
 class SaveProblemResponse:
-    id: str | None = None
+    id: int | None = None
     error: str | None = None
 
     def json_response(self, status=200) -> JsonResponse:
@@ -47,9 +47,10 @@ class SaveProblemResponse:
 
 
 class ProblemView(APIView):
-    def get(self, request, problem_id: str | None = None) -> JsonResponse:
+    def get(self, request, problem_id: int | None = None) -> JsonResponse:
         """
-        If a Problem ID is provided, attempts to retrieve the requested Problem. Otherwise, simply returns the first problem of the QS.
+        If a Problem ID is provided, retrieves the requested Problem.
+        Otherwise, simply returns the first problem of the QS.
         """
         filters = get_filters(request.query_params)
 
@@ -83,9 +84,9 @@ class ProblemView(APIView):
             total=related_problem_ids.total,
         ).json_response(status=200)
 
-    def post(self, request, problem_id: str) -> JsonResponse:
+    def post(self, request, problem_id: int | None = None) -> JsonResponse:
         """
-        If the Problem ID is "new", attempts to create a new Problem;
+        If the Problem ID is None, attempts to create a new Problem;
         else the associated Problem is updated.
         """
         parse_input = request.data
@@ -102,7 +103,7 @@ class ProblemView(APIView):
         problem: Problem | None = None
         error: str | None = None
 
-        if problem_id == "new":
+        if problem_id is None:
             try:
                 problem = create_problem_from_input(validated_input)
             except Exception as e:
@@ -123,14 +124,14 @@ class ProblemView(APIView):
 
 
 class KBItem(TypedDict):
-    id: str
+    id: int
     entity1: str
     relationship: str
     entity2: str
 
 
 class ParseInput(TypedDict):
-    id: str
+    id: int
     premises: list[str]
     hypothesis: str
     kbItems: list[KBItem]
@@ -143,8 +144,10 @@ def validate_input(parse_input: dict) -> ParseInput:
     if not isinstance(parse_input, dict):
         raise ValueError("Input must be a dictionary")
 
-    if "id" not in parse_input or not isinstance(parse_input["id"], str):
-        raise ValueError("Missing or invalid 'id' field")
+    if "id" not in parse_input or (
+        parse_input["id"] is not None and not isinstance(parse_input["id"], int)
+    ):
+        raise ValueError("Invalid problem 'id' field")
 
     if "premises" not in parse_input or not isinstance(parse_input["premises"], list):
         raise ValueError("Missing or invalid 'premises' field")
@@ -160,8 +163,10 @@ def validate_input(parse_input: dict) -> ParseInput:
     for item in parse_input["kbItems"]:
         if not isinstance(item, dict):
             raise ValueError("Each kbItem must be a dictionary")
-        if "id" not in item or not isinstance(item["id"], str):
-            raise ValueError("Missing or invalid 'id' in kbItem")
+        if "id" not in item or (
+            item["id"] is not None and not isinstance(item["id"], int)
+        ):
+            raise ValueError("Invalid 'id' in kbItem")
         if "entity1" not in item or not isinstance(item["entity1"], str):
             raise ValueError("Missing or invalid 'entity1' in kbItem")
         if "relationship" not in item or not isinstance(item["relationship"], str):
@@ -185,13 +190,16 @@ def create_problem_from_input(parse_input: ParseInput) -> Problem:
     """
     try:
         premise_sentences = [
-            Sentence.objects.get_or_create(text=premise)[0] for premise in parse_input["premises"]
+            Sentence.objects.get_or_create(text=premise)[0]
+            for premise in parse_input["premises"]
         ]
     except Exception as e:
         raise ValueError(f"Error creating premise sentences: {e}")
 
     try:
-        hypothesis_sentence = Sentence.objects.get_or_create(text=parse_input["hypothesis"])[0]
+        hypothesis_sentence = Sentence.objects.get_or_create(
+            text=parse_input["hypothesis"]
+        )[0]
     except Exception as e:
         raise ValueError(f"Error creating hypothesis sentence: {e}")
 
@@ -218,7 +226,7 @@ def update_or_create_kb_items(problem: Problem, kb_items: list[KBItem]) -> None:
         relationship = item.get("relationship")
         entity2 = item.get("entity2")
 
-        if id == "new":
+        if id is None:
             try:
                 kb = KnowledgeBase.objects.create(
                     entity1=entity1,
@@ -254,6 +262,7 @@ def update_problem_from_input(parse_input: ParseInput) -> Problem:
     problem.hypothesis = Sentence.objects.get_or_create(text=parse_input["hypothesis"])[
         0
     ]
+    problem.save()
 
     premises: list[Sentence] = []
     for input_premise in parse_input["premises"]:

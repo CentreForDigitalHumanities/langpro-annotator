@@ -62,8 +62,8 @@ export class AnnotateComponent implements OnInit {
             });
     }
 
-    public goToProblem(problemId: string): void {
-        this.router.navigate(["/", "annotate", problemId]);
+    public goToProblem(problemId: number): void {
+        this.router.navigate(["/", "annotate", problemId.toString()]);
     }
 
     public addProblem(): void {

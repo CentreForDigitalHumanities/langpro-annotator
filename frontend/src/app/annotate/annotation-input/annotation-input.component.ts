@@ -23,14 +23,14 @@ import { AppModeService } from "@/services/app-mode.service";
 import { ToastService } from "@/services/toast.service";
 
 export type ParseInputForm = FormGroup<{
-    id: FormControl<string>;
+    id: FormControl<number | null>;
     premises: FormArray<FormControl<string>>;
     hypothesis: FormControl<string>;
     kbItems: FormArray<KnowledgeBaseItemsForm>;
 }>;
 
 type KnowledgeBaseItemsForm = FormGroup<{
-    id: FormControl<string>;
+    id: FormControl<number | null>;
     entity1: FormControl<string>;
     relationship: FormControl<KnowledgeBaseRelationship>;
     entity2: FormControl<string>;
@@ -142,10 +142,10 @@ export class AnnotationInputComponent implements OnInit {
     }
 
     private navigateToNewProblem(problem: Problem | null): void {
-        if (!problem) {
+        if (!problem || !problem.id) {
             return;
         }
-        const incomingProblemId = problem.id?.toString();
+        const incomingProblemId = problem.id.toString();
         const currentProblemId = this.route.snapshot.paramMap.get("problemId");
 
         if (incomingProblemId !== currentProblemId) {
@@ -162,7 +162,7 @@ export class AnnotationInputComponent implements OnInit {
         const kbItems = this.buildKbForms(problem.kbItems);
 
         return new FormGroup({
-            id: new FormControl<string>(id, {
+            id: new FormControl<number | null>(id, {
                 nonNullable: true
             }),
             premises: new FormArray(
@@ -183,7 +183,7 @@ export class AnnotationInputComponent implements OnInit {
     }
     private buildKbForms(inputKbItems: Problem['kbItems']): KnowledgeBaseItemsForm[] {
         return inputKbItems.map(item => new FormGroup({
-            id: new FormControl<string>(item.id, {
+            id: new FormControl<number | null>(item.id, {
                 nonNullable: true
             }),
             entity1: new FormControl<string>(item.entity1, {

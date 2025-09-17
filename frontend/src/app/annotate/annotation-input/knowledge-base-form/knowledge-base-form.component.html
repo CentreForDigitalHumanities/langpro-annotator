@@ -26,7 +26,7 @@
     </fieldset>
 
     <ul class="ps-0 list-unstyled" formArrayName="kbItems">
-        @for (kbItem of kbControls; let i = $index; track $index) {
+        @for (kbItem of kbControls; let i = $index; track `${i}-${kbItem.value.entity1}-${kbItem.value.relationship}-${kbItem.value.entity2}`) {
         <li class="mb-3">
             @if (viewMode === 'add' || viewMode === 'edit') {
             <div [formGroupName]="i" class="input-group">

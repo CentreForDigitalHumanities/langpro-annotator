@@ -38,7 +38,7 @@ export class KnowledgeBaseFormComponent {
 
     public addKnowledgeBaseItem(): void {
         const newItem = new FormGroup({
-            id: new FormControl<string>("new", {
+            id: new FormControl<number | null>(null, {
                 nonNullable: true
             }),
             entity1: new FormControl<string>("", {

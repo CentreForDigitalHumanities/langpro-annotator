@@ -25,7 +25,7 @@
         </legend>
 
         <ul class="ps-0 list-unstyled" formArrayName="premises">
-            @for (control of premiseControls; let i = $index; track $index) {
+            @for (control of premiseControls; let i = $index; track `${i}-${control.value}`) {
             <li class="mb-3">
                 <div class="input-group">
                     <input

@@ -30,7 +30,7 @@ export class NavigatorComponent {
     public faAngleRight = faAngleRight;
     public faShuffle = faShuffle;
 
-    public navigateToProblem(id: string | null | undefined): void {
+    public navigateToProblem(id: number | null | undefined): void {
         if (!id) {
             return;
         }

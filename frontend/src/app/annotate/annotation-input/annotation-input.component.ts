@@ -12,7 +12,7 @@ import { PremisesFormComponent } from "./premises-form/premises-form.component";
 import { KnowledgeBaseFormComponent } from "./knowledge-base-form/knowledge-base-form.component";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { Dataset, KnowledgeBaseRelationship, Problem } from "../../types";
-import { faCheck, faExclamationCircle, faFloppyDisk, faTrash, faTree, faWrench } from "@fortawesome/free-solid-svg-icons";
+import { faCheck, faCopy, faExclamationCircle, faFloppyDisk, faTrash, faTree, faWrench } from "@fortawesome/free-solid-svg-icons";
 import { ProblemDetailsComponent } from "./problem-details/problem-details.component";
 import { map, Subject } from "rxjs";
 import { ActivatedRoute, Router } from "@angular/router";
@@ -70,6 +70,7 @@ export class AnnotationInputComponent implements OnInit {
 
     public submit$ = new Subject<void>();
 
+    public faCopy = faCopy;
     public faCheck = faCheck;
     public faTree = faTree;
     public faFloppyDisk = faFloppyDisk;
@@ -128,6 +129,13 @@ export class AnnotationInputComponent implements OnInit {
         }
         const input = this.form.getRawValue();
         this.parseService.submit$.next(input);
+    }
+
+    public copyProblem(): void {
+        this.router.navigate(["/", "annotate", "new"], {
+            queryParams: { copyFrom: this.form?.getRawValue().id },
+            // queryParamsHandling: "preserve"
+        });
     }
 
     public saveProblem(): void {

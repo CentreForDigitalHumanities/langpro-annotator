@@ -19,6 +19,15 @@
                 (click)="startParse()"
                 i18n-label
             />
+            @if (viewMode === 'browse') {
+                <la-icon-button
+                    [icon]="faCopy"
+                    buttonStyle="secondary"
+                    label="Copy problem"
+                    (click)="copyProblem()"
+                    i18n-label
+                />
+            }
             @if ((viewMode === 'edit' || viewMode === 'add') && userProblem) {
             <la-icon-button
                 [icon]="faFloppyDisk"

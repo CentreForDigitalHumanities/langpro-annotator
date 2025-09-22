@@ -62,6 +62,7 @@ export class ProblemService {
             error: null,
             problem: {
                 id: null,
+                base: null,
                 hypothesis: "",
                 dataset: Dataset.USER,
                 premises: [],

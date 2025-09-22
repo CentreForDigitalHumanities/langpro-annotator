@@ -25,6 +25,7 @@ import { IconButtonComponent } from "@/shared/icon-button/icon-button.component"
 
 export type ParseInputForm = FormGroup<{
     id: FormControl<number | null>;
+    base: FormControl<number | null>;
     premises: FormArray<FormControl<string>>;
     hypothesis: FormControl<string>;
     kbItems: FormArray<KnowledgeBaseItemsForm>;
@@ -133,8 +134,7 @@ export class AnnotationInputComponent implements OnInit {
 
     public copyProblem(): void {
         this.router.navigate(["/", "annotate", "new"], {
-            queryParams: { copyFrom: this.form?.getRawValue().id },
-            // queryParamsHandling: "preserve"
+            queryParams: { base: this.form?.getRawValue().id }
         });
     }
 
@@ -166,17 +166,17 @@ export class AnnotationInputComponent implements OnInit {
     }
 
     private buildForm(problem: Problem): ParseInputForm {
-        const id = problem.id;
-        const premises = problem.premises || [];
-        const hypothesis = problem.hypothesis || "";
         const kbItems = this.buildKbForms(problem.kbItems);
 
         return new FormGroup({
-            id: new FormControl<number | null>(id, {
+            id: new FormControl<number | null>(problem.id, {
+                nonNullable: true
+            }),
+            base: new FormControl<number | null>(problem.base, {
                 nonNullable: true
             }),
             premises: new FormArray(
-                premises.map(
+                problem.premises.map(
                     (premise) =>
                         new FormControl<string>(premise, {
                             validators: [Validators.required],
@@ -184,7 +184,7 @@ export class AnnotationInputComponent implements OnInit {
                         })
                 )
             ),
-            hypothesis: new FormControl<string>(hypothesis, {
+            hypothesis: new FormControl<string>(problem.hypothesis ?? "", {
                 validators: [Validators.required],
                 nonNullable: true,
             }),

@@ -39,6 +39,7 @@ interface KnowledgeBaseItem {
 
 interface ProblemBase {
     id: number | null;
+    base: number | null;
     premises: string[];
     hypothesis: string | null;
     entailmentLabel: EntailmentLabel;

@@ -3,84 +3,63 @@
 <div class="navigator-container">
     <div class="d-flex justify-content-between align-items-center gap-2">
         <div class="responsive-button-grid">
-            <button
-                class="btn btn-outline-primary btn-sm"
-                type="button"
+            <la-icon-button
+                [icon]="faAnglesLeft"
                 (click)="navigateToProblem(problemResponse?.firstProblemId)"
-                [disabled]="problemResponse?.problem?.id === problemResponse?.firstProblemId"
-                aria-labelledby="label-first"
-                title="First problem"
-                title-i18n
-            >
-                <fa-icon
-                    [icon]="faAnglesLeft"
-                    aria-hidden="true"
-                    focusable="false"
-                />
-                <span id="label-first" class="visually-hidden" i18n>
-                    First</span
-                >
-            </button>
-            <button
-                class="btn btn-outline-primary btn-sm"
-                type="button"
+                [disabled]="
+                    problemResponse?.firstProblemId === null ||
+                    problemResponse?.problem?.id ===
+                        problemResponse?.firstProblemId
+                "
+                buttonTitle="First problem"
+                i18n-buttonTitle
+                outline
+                fullWidth
+            />
+            <la-icon-button
+                [icon]="faAngleLeft"
                 (click)="navigateToProblem(problemResponse?.previousProblemId)"
                 [disabled]="problemResponse?.previousProblemId === null"
-                aria-labelledby="label-previous"
-                title="Previous problem"
-                title-i18n
-            >
-                <fa-icon
-                    [icon]="faAngleLeft"
-                    aria-hidden="true"
-                    focusable="false"
-                />
-                <span id="label-previous" class="visually-hidden" i18n
-                    >Previous</span
-                >
-            </button>
+                buttonTitle="Previous problem"
+                i18n-buttonTitle
+                outline
+                fullWidth
+            />
         </div>
 
         <div class="px-2 text-center flex-grow-1">
             @if (problemResponse) {
             <span class="small" i18n>
-                {{ problemResponse?.index ?? '-' }}
+                {{ problemResponse?.index ?? "-" }}
             </span>
-            <hr class="my-1">
+            <hr class="my-1" />
             <span class="small" i18n>{{ problemResponse.totalProblems }}</span>
             }
         </div>
 
         <div class="responsive-button-grid">
-            <button
-                class="btn btn-outline-primary btn-sm"
-                type="button"
+            <la-icon-button
+                [icon]="faAngleRight"
                 (click)="navigateToProblem(problemResponse?.nextProblemId)"
                 [disabled]="problemResponse?.nextProblemId === null"
-                title="Next problem"
-                title-i18n
-            >
-                <span id="label-next" class="visually-hidden" i18n>Next</span>
-                <fa-icon
-                    [icon]="faAngleRight"
-                    aria-hidden="true"
-                    focusable="false"
-                />
-            </button>
-            <button
-                class="btn btn-outline-primary btn-sm"
+                buttonTitle="Next problem"
+                i18n-buttonTitle
+                outline
+                fullWidth
+            />
+            <la-icon-button
+                [icon]="faAnglesRight"
                 (click)="navigateToProblem(problemResponse?.lastProblemId)"
-                [disabled]="problemResponse?.problem?.id === problemResponse?.lastProblemId"
-                title="Last problem"
-                title-i18n
-            >
-                <span id="label-last" class="visually-hidden" i18n>Last</span>
-                <fa-icon
-                    [icon]="faAnglesRight"
-                    aria-hidden="true"
-                    focusable="false"
-                />
-            </button>
+                [disabled]="
+                    problemResponse?.lastProblemId === null ||
+                    problemResponse?.problem?.id ===
+                        problemResponse?.lastProblemId
+                "
+                buttonTitle="Last problem"
+                i18n-buttonTitle
+                outline
+                fullWidth
+            />
         </div>
     </div>
 </div>

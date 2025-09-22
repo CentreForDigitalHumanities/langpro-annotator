@@ -8,24 +8,21 @@
         >
             <span i18n>Premises</span>
             @if (viewMode === 'add' || viewMode === 'edit') {
-            <button
-                type="button"
-                class="btn btn-sm btn-outline-primary"
+            <la-icon-button
+                [icon]="faPlus"
+                label="Add premise"
                 (click)="addPremise()"
-            >
-                <span class="me-1" i18n>Add premise</span>
-                <fa-icon
-                    [icon]="faPlus"
-                    class="fa-sm"
-                    aria-hidden="true"
-                    focusable="false"
-                ></fa-icon>
-            </button>
+                size="sm"
+                iconPosition="right"
+                i18n-label
+                outline
+            />
             }
         </legend>
 
         <ul class="ps-0 list-unstyled" formArrayName="premises">
-            @for (control of premiseControls; let i = $index; track `${i}-${control.value}`) {
+            @for (control of premiseControls; let i = $index; track
+            `${i}-${control.value}`) {
             <li class="mb-3">
                 <div class="input-group">
                     <input
@@ -45,7 +42,7 @@
                         (click)="removePremise(i)"
                         aria-labelledby="remove-premise"
                         title="Remove premise"
-                        title-i18n
+                        i18n-title
                     >
                         <fa-icon
                             [icon]="faTrash"
@@ -86,6 +83,8 @@
             "
             [formControl]="form().controls.hypothesis"
         />
-        <p class="invalid-feedback" i18n>Each problem must have a hypothesis.</p>
+        <p class="invalid-feedback" i18n>
+            Each problem must have a hypothesis.
+        </p>
     </div>
 </form>

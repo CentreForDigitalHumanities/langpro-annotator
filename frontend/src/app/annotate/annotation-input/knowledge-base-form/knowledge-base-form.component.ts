@@ -7,6 +7,7 @@ import { faPlus, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { ParseInputForm } from "../annotation-input.component";
 import { AppModeService } from "@/services/app-mode.service";
 import { KnowledgeBaseRelationship } from "@/types";
+import { IconButtonComponent } from "@/shared/icon-button/icon-button.component";
 
 
 
@@ -20,7 +21,7 @@ const relationshipDisplayMapping: Record<KnowledgeBaseRelationship, string> = {
 @Component({
     selector: "la-knowledge-base-form",
     standalone: true,
-    imports: [CommonModule, ReactiveFormsModule, FontAwesomeModule],
+    imports: [CommonModule, ReactiveFormsModule, FontAwesomeModule, IconButtonComponent],
     templateUrl: "./knowledge-base-form.component.html",
     styleUrls: ["./knowledge-base-form.component.scss"],
 })

@@ -5,6 +5,7 @@ import { FontAwesomeModule } from "@fortawesome/angular-fontawesome";
 import { faPlus, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { ParseInputForm } from "../annotation-input.component";
 import { AppModeService } from "@/services/app-mode.service";
+import { IconButtonComponent } from "@/shared/icon-button/icon-button.component";
 
 export interface Premises {
     premises: string[];
@@ -14,7 +15,7 @@ export interface Premises {
 @Component({
     selector: "la-premises-form",
     standalone: true,
-    imports: [ReactiveFormsModule, CommonModule, FontAwesomeModule],
+    imports: [ReactiveFormsModule, CommonModule, FontAwesomeModule, IconButtonComponent],
     templateUrl: "./premises-form.component.html",
     styleUrl: "./premises-form.component.scss",
 })

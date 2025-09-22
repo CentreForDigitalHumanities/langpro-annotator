@@ -12,6 +12,7 @@ import { CommonModule } from "@angular/common";
 import { Dataset } from "@/types";
 import { AppModeService } from "@/services/app-mode.service";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { IconButtonComponent } from "@/shared/icon-button/icon-button.component";
 
 @Component({
     selector: "la-annotate",
@@ -23,6 +24,7 @@ import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
         SearchComponent,
         FontAwesomeModule,
         CommonModule,
+        IconButtonComponent,
     ],
     templateUrl: "./annotate.component.html",
     styleUrl: "./annotate.component.scss",

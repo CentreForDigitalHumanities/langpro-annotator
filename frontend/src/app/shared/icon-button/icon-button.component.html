@@ -1,0 +1,29 @@
+@let iconValue = icon(); @let position = iconPosition();
+<button
+    [type]="buttonType()"
+    [class]="buttonClasses()"
+    [disabled]="disabled()"
+    [attr.aria-labelledby]="titleId() ?? ''"
+    [attr.title]="buttonTitle()"
+>
+    @if (iconValue && position === 'left') {
+    <fa-icon
+        [icon]="iconValue"
+        [class]="`fa-${size()} ${label() ? 'me-2' : ''}`"
+        aria-hidden="true"
+        focusable="false"
+    />
+    }
+    <span i18n>{{ label() }}</span>
+    @if (iconValue && position === 'right') {
+    <fa-icon
+        [icon]="iconValue"
+        [class]="`fa-${size()} ${label() ? 'ms-2' : ''}`"
+        aria-hidden="true"
+        focusable="false"
+    />
+    }
+</button>
+@if (titleId()) {
+<span class="visually-hidden" id="{{ titleId() }}">{{ buttonTitle() }}</span>
+}

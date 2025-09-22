@@ -62,31 +62,23 @@
         }
         <div class="d-flex flex-column gap-2 align-items-stretch">
             @if (browsing) {
-            <button
-                type="button"
-                class="btn btn-secondary d-flex align-items-center justify-content-center"
+            <la-icon-button
+                [icon]="faPlus"
+                label="Add new problem"
                 (click)="addProblem()"
-            >
-                <fa-icon
-                    [icon]="faPlus"
-                    aria-hidden="true"
-                    focusable="false"
-                ></fa-icon>
-                <span class="ms-3" i18n>Add new problem</span>
-            </button>
+                buttonStyle="secondary"
+                fullWidth
+                i18n-label
+            />
             } @else {
-            <button
-                type="button"
-                class="btn btn-secondary d-flex align-items-center justify-content-center"
+            <la-icon-button
+                [icon]="faBinoculars"
+                label="Browse existing problems"
                 (click)="firstProblemId && goToProblem(firstProblemId)"
-            >
-                <fa-icon
-                    [icon]="faBinoculars"
-                    aria-hidden="true"
-                    focusable="false"
-                ></fa-icon>
-                <span class="ms-3" i18n>Browse existing problems</span>
-            </button>
+                buttonStyle="secondary"
+                fullWidth
+                i18n-label
+            />
             }
         </div>
     </div>

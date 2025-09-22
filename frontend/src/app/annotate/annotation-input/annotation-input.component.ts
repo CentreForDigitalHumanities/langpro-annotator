@@ -21,6 +21,7 @@ import { ParseService } from "@/services/parse.service";
 import { FontAwesomeModule } from "@fortawesome/angular-fontawesome";
 import { AppModeService } from "@/services/app-mode.service";
 import { ToastService } from "@/services/toast.service";
+import { IconButtonComponent } from "@/shared/icon-button/icon-button.component";
 
 export type ParseInputForm = FormGroup<{
     id: FormControl<number | null>;
@@ -49,6 +50,7 @@ export type ParseInput = ReturnType<ParseInputForm["getRawValue"]>;
         ReactiveFormsModule,
         ProblemDetailsComponent,
         FontAwesomeModule,
+        IconButtonComponent
     ],
     templateUrl: "./annotation-input.component.html",
     styleUrl: "./annotation-input.component.scss",

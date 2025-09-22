@@ -10,11 +10,12 @@ import {
 import { CommonModule } from "@angular/common";
 import { Router } from "@angular/router";
 import { ProblemService } from "@/services/problem.service";
+import { IconButtonComponent } from "@/shared/icon-button/icon-button.component";
 
 @Component({
     selector: "la-navigator",
     standalone: true,
-    imports: [FontAwesomeModule, CommonModule],
+    imports: [FontAwesomeModule, CommonModule, IconButtonComponent],
     templateUrl: "./navigator.component.html",
     styleUrl: "./navigator.component.scss",
 })

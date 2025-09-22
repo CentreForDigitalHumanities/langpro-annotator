@@ -18,6 +18,7 @@ import {
 import { datasetLabels, entailmentLabels } from "@/shared/displayTextMappings";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Params, Router } from "@angular/router";
+import { IconButtonComponent } from "@/shared/icon-button/icon-button.component";
 
 interface SearchParams {
     dataset: Dataset | null;
@@ -39,6 +40,7 @@ type SearchParamsForm = {
         FontAwesomeModule,
         ReactiveFormsModule,
         FilterSelectComponent,
+        IconButtonComponent
     ],
     templateUrl: "./search.component.html",
     styleUrl: "./search.component.scss",

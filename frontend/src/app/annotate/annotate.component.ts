@@ -7,7 +7,7 @@ import { FontAwesomeModule } from "@fortawesome/angular-fontawesome";
 import { faBinoculars, faPlus } from "@fortawesome/free-solid-svg-icons";
 import { ActivatedRoute, Router } from "@angular/router";
 import { ProblemService } from "@/services/problem.service";
-import { combineLatest, map, tap } from "rxjs";
+import { combineLatest, distinctUntilChanged, map } from "rxjs";
 import { CommonModule } from "@angular/common";
 import { Dataset } from "@/types";
 import { AppModeService } from "@/services/app-mode.service";
@@ -48,7 +48,8 @@ export class AnnotateComponent implements OnInit {
 
     ngOnInit(): void {
         const editParam$ = this.route.url.pipe(
-            map(segments => segments.some(segment => segment.path === "edit"))
+            map(segments => segments.some(segment => segment.path === "edit")),
+            distinctUntilChanged(),
         );
 
         combineLatest([

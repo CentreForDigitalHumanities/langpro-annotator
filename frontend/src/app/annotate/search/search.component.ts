@@ -124,10 +124,10 @@ export class SearchComponent {
 
     // Updates the route, which triggers a new query.
     private updateUrl(searchParams: SearchParams): void {
-        const url = this.router.createUrlTree([], {
+        this.router.navigate([], {
             relativeTo: this.route,
-            queryParams: searchParams
-        }).toString();
-        this.router.navigateByUrl(url);
+            queryParams: searchParams,
+            queryParamsHandling: 'merge',
+        });
     }
 }

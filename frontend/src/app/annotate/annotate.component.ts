@@ -5,7 +5,7 @@ import { AnnotationInputComponent } from "./annotation-input/annotation-input.co
 import { SearchComponent } from "./search/search.component";
 import { FontAwesomeModule } from "@fortawesome/angular-fontawesome";
 import { faBinoculars, faPlus } from "@fortawesome/free-solid-svg-icons";
-import { ActivatedRoute, Router } from "@angular/router";
+import { ActivatedRoute, Router, ParamMap } from "@angular/router";
 import { ProblemService } from "@/services/problem.service";
 import { combineLatest, distinctUntilChanged, map } from "rxjs";
 import { CommonModule } from "@angular/common";
@@ -58,6 +58,7 @@ export class AnnotateComponent implements OnInit {
             editParam$
         ])
             .pipe(
+                distinctUntilChanged((oldParams, newParams) => this.areParamsEqual(oldParams, newParams)),
                 takeUntilDestroyed(this.destroyRef)
             )
             .subscribe(([params, queryParams, edit]) => {
@@ -71,5 +72,23 @@ export class AnnotateComponent implements OnInit {
 
     public addProblem(): void {
         this.router.navigate(["/", "annotate", "new"]);
+    }
+
+    private areParamsEqual(
+        [oldParams, oldQueryParams, oldEditParam]: [ParamMap, ParamMap, boolean],
+        [newParams, newQueryParams, newEditParam]: [ParamMap, ParamMap, boolean]
+    ): boolean {
+        const compareMaps = (map1: ParamMap, map2: ParamMap) => {
+            if (map1.keys.length !== map2.keys.length) {
+                return false;
+            }
+            return map1.keys.every((key: string) => map1.get(key) === map2.get(key));
+        };
+
+        return (
+            compareMaps(oldParams, newParams) &&
+            compareMaps(oldQueryParams, newQueryParams) &&
+            oldEditParam === newEditParam
+        );
     }
 }

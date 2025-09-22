@@ -3,7 +3,7 @@
     [type]="buttonType()"
     [class]="buttonClasses()"
     [disabled]="disabled()"
-    [attr.aria-labelledby]="titleId() ?? ''"
+    [attr.aria-labelledby]="titleId()"
     [attr.title]="buttonTitle()"
 >
     @if (iconValue && position === 'left') {
@@ -14,7 +14,9 @@
         focusable="false"
     />
     }
+    @if (label()) {
     <span i18n>{{ label() }}</span>
+    }
     @if (iconValue && position === 'right') {
     <fa-icon
         [icon]="iconValue"

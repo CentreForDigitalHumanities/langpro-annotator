@@ -29,6 +29,15 @@ class Problem(models.Model):
         default=Dataset.USER,
     )
 
+    base = models.ForeignKey(
+        "self",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="derived_problems",
+        help_text="The base problem from which this problem was derived, if any.",
+    )
+
     premises = models.ManyToManyField(
         Sentence,
         related_name="premise_problems",
@@ -77,6 +86,7 @@ class Problem(models.Model):
 
         return {
             "id": self.pk,
+            "base": self.base.pk if self.base else None,
             "dataset": self.dataset,
             "premises": [premise.text for premise in self.premises.all()],
             "hypothesis": self.hypothesis.text,

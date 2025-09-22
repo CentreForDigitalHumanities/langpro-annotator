@@ -132,6 +132,7 @@ class KBItem(TypedDict):
 
 class ParseInput(TypedDict):
     id: int
+    base: int | None
     premises: list[str]
     hypothesis: str
     kbItems: list[KBItem]
@@ -148,10 +149,10 @@ def validate_input(parse_input: dict) -> ParseInput:
         parse_input["id"] is not None and not isinstance(parse_input["id"], int)
     ):
         raise ValueError("Invalid problem 'id' field")
-
     if "premises" not in parse_input or not isinstance(parse_input["premises"], list):
         raise ValueError("Missing or invalid 'premises' field")
-
+    if "base" not in parse_input or not isinstance(parse_input["base"], (int, type(None))):
+        raise ValueError("Invalid 'base' field")
     if "hypothesis" not in parse_input or not isinstance(
         parse_input["hypothesis"], str
     ):
@@ -178,6 +179,7 @@ def validate_input(parse_input: dict) -> ParseInput:
 
     return ParseInput(
         id=parse_input["id"],
+        base=parse_input["base"],
         premises=parse_input["premises"],
         hypothesis=parse_input["hypothesis"],
         kbItems=parse_input["kbItems"],
@@ -204,6 +206,7 @@ def create_problem_from_input(parse_input: ParseInput) -> Problem:
         raise ValueError(f"Error creating hypothesis sentence: {e}")
 
     problem = Problem.objects.create(
+        base_id=parse_input["base"],
         hypothesis=hypothesis_sentence,
         dataset=Problem.Dataset.USER,
         # TODO: Determine entailment label based on LangPro parser output.
@@ -262,6 +265,16 @@ def update_problem_from_input(parse_input: ParseInput) -> Problem:
     problem.hypothesis = Sentence.objects.get_or_create(text=parse_input["hypothesis"])[
         0
     ]
+    
+    if parse_input["base"] is None:
+        problem.base = None
+    else:
+        try:
+            base_problem = Problem.objects.get(id=parse_input["base"])
+        except Problem.DoesNotExist:
+            raise ValueError(f"Cannot find base Problem with ID: {parse_input['base']}")
+        problem.base = base_problem # type: ignore
+    
     problem.save()
 
     premises: list[Sentence] = []

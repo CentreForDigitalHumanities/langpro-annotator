@@ -1,3 +1,4 @@
+@let viewMode = viewMode$ | async; 
 @if (problemDetails(); as details) {
 <div>
     <table class="table table-sm table-borderless">
@@ -17,6 +18,21 @@
                         [entailmentLabel]="details.entailmentLabel"
                     ></la-entailment-label-badge>
                 </td>
+            </tr>
+            <tr>
+                <td class="text-muted" i18n>Based on:</td>
+                @if (viewMode === 'browse' && details.baseProblemId !== null) {
+                <td>
+                    <a [routerLink]="['/annotate', details.baseProblemId]">
+                        <span>{{ details.baseProblemId }}</span>
+                        <fa-icon [icon]="faArrowUpRight"  class="ms-2"/>
+                    </a>
+                </td>
+                } @else if (details.baseProblemId === null) {
+                <td i18n>None</td>
+                } @else {
+                <td>{{ details.baseProblemId }}</td>
+                }
             </tr>
             @if (sectionString()) {
             <tr>

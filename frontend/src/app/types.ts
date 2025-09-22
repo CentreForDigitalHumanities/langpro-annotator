@@ -31,7 +31,7 @@ export enum KnowledgeBaseRelationship {
 }
 
 interface KnowledgeBaseItem {
-    id: number;
+    id: number | null;
     entity1: string;
     relationship: KnowledgeBaseRelationship;
     entity2: string;

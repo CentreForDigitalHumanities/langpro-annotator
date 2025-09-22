@@ -1,13 +1,17 @@
-import { Component, computed, input } from "@angular/core";
+import { Component, computed, inject, input } from "@angular/core";
 import { Dataset, EntailmentLabel, Problem } from "../../../types";
 import { EntailmentLabelBadgeComponent } from "./entailment-label-badge/entailment-label-badge.component";
-import { faQuestionCircle } from "@fortawesome/free-solid-svg-icons";
+import { faArrowUpRightFromSquare, faQuestionCircle } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeModule } from "@fortawesome/angular-fontawesome";
 import { NgbTooltipModule } from "@ng-bootstrap/ng-bootstrap";
 import { datasetLabels } from "@/shared/displayTextMappings";
+import { AppModeService } from "@/services/app-mode.service";
+import { CommonModule } from "@angular/common";
+import { RouterModule } from "@angular/router";
 
 export interface ProblemDetails {
     problemId: string;
+    baseProblemId: string | null;
     dataset: Dataset;
     entailmentLabel: EntailmentLabel;
     section: string | null;
@@ -22,12 +26,17 @@ export interface ProblemDetails {
         EntailmentLabelBadgeComponent,
         FontAwesomeModule,
         NgbTooltipModule,
+        CommonModule,
+        RouterModule,
     ],
     templateUrl: "./problem-details.component.html",
     styleUrl: "./problem-details.component.scss",
 })
 export class ProblemDetailsComponent {
     public readonly problem = input.required<Problem>();
+    private appModeService = inject(AppModeService);
+
+    public viewMode$ = this.appModeService.viewMode$;
 
     public problemDetails = computed(() => {
         const problem = this.problem();
@@ -38,6 +47,7 @@ export class ProblemDetailsComponent {
     });
 
     public faQuestionCircle = faQuestionCircle;
+    public faArrowUpRight = faArrowUpRightFromSquare;
     public datasetLabels = datasetLabels;
 
     public sectionString = computed<string | null>(() => {
@@ -60,9 +70,10 @@ export class ProblemDetailsComponent {
     private extractDetails(problem: Problem): ProblemDetails | null {
         const shared: Pick<
             ProblemDetails,
-            "problemId" | "dataset" | "entailmentLabel"
+            "problemId" | "dataset" | "entailmentLabel" | "baseProblemId"
         > = {
             problemId: problem.id?.toString() ?? $localize`new`,
+            baseProblemId: problem.base?.toString() ?? null,
             dataset: problem.dataset,
             entailmentLabel: problem.entailmentLabel,
         };

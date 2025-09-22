@@ -29,10 +29,20 @@ export class ProblemService {
             if (!problemId) {
                 return of(null);
             }
-            return problemId === "new" ? this.newProblem$() : this.existingProblem$(problemId, queryParams);
+            const baseParam = this.extractBaseParam(queryParams);
+
+            return problemId === "new" ? this.newProblem$(baseParam) : this.existingProblem$(problemId, queryParams);
         }),
         shareReplay(1)
     );
+
+    private extractBaseParam(queryParams: ParamMap): number | null {
+        const baseStr = queryParams.get("base");
+        if (!baseStr) {
+            return null;
+        }
+        return parseInt(baseStr, 10);
+    }
 
     public problem$ = this.problemResponse$.pipe(
         map(response => response?.problem ?? null),
@@ -51,8 +61,8 @@ export class ProblemService {
         })
     );
 
-    private newProblem$(): Observable<ProblemResponse> {
-        return of<ProblemResponse>({
+    private newProblem$(baseParam: number | null): Observable<ProblemResponse> {
+        const sharedProblemResponse: Omit<ProblemResponse, "problem"> = {
             index: null,
             firstProblemId: null,
             lastProblemId: null,
@@ -60,9 +70,35 @@ export class ProblemService {
             previousProblemId: null,
             totalProblems: 0,
             error: null,
+        };
+
+        if (baseParam !== null) {
+            return this.existingProblem$(baseParam.toString()).pipe(map(response => {
+                const problem = response?.problem;
+                return {
+                    ...sharedProblemResponse,
+                    problem: {
+                        id: null,
+                        base: baseParam,
+                        hypothesis: problem?.hypothesis ?? "",
+                        dataset: Dataset.USER,
+                        premises: problem?.premises ?? [],
+                        entailmentLabel: EntailmentLabel.UNKNOWN,
+                        extraData: null,
+                        // KB items are not shared across problems.
+                        kbItems: problem?.kbItems.map(kbItem => ({
+                            ...kbItem,
+                            id: null,
+                        })) ?? []
+                    }
+                };
+            }));
+        }
+        return of<ProblemResponse>({
+            ...sharedProblemResponse,
             problem: {
                 id: null,
-                base: null,
+                base: baseParam,
                 hypothesis: "",
                 dataset: Dataset.USER,
                 premises: [],

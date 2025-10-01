@@ -69,10 +69,13 @@ class ParseView(APIView):
 
         logger.info("Sending to LangPro service:", asdict(data))
 
+        params = asdict(data)
+        params['format'] = 'annotator'
+
         try:
             response = requests.post(
                 url=f"{settings.LANGPRO_URL}/api/prove/",
-                json=asdict(data),
+                json=params,
                 headers={"Content-Type": "application/json"},
             )
             response.raise_for_status()

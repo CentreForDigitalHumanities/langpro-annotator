@@ -9,8 +9,9 @@
             <span i18n>CCG / LLF</span>
         </button>
         <ng-template ngbNavContent>
-            <!-- TODO: render multiple trees -->
-            <la-parse-svg [tree]="ccgTrees[0]"></la-parse-svg>
+            @for(tree of ccgTrees; track $index) {
+                <la-parse-svg [tree]="tree"></la-parse-svg>
+            }
         </ng-template>
     </li>
     <li [ngbNavItem]="2">

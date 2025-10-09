@@ -1,8 +1,8 @@
 import { Component, ElementRef, Input, Output, ViewChild, EventEmitter } from '@angular/core';
-import { Dimensions } from '@/types';
+import { CCGTerm, Dimensions } from '@/types';
 
 @Component({
-    selector: "[term]",
+    selector: "[parse-term]",
     standalone: true,
     imports: [],
     templateUrl: "./parse-term.component.svg",
@@ -19,7 +19,7 @@ export class ParseTerm {
     public bg?: string;
 
     @Input()
-    public term: string = '';
+    public term: CCGTerm = [];
 
     @Input()
     public end: boolean = false;

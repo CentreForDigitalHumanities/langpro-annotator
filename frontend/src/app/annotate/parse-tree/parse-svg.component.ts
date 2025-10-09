@@ -1,8 +1,9 @@
 import { Component, ChangeDetectorRef, ElementRef, Input, ViewChild, afterNextRender} from '@angular/core';
 import { CommonModule } from "@angular/common";
 import { Subject } from "rxjs";
-import { Dimensions } from '@/types';
+import { CCGTerm, Dimensions } from '@/types';
 import { ParseTree } from './parse-tree.component';
+import { Tree } from "@/tree";
 import svgPanZoom from 'svg-pan-zoom';
 
 @Component({
@@ -34,5 +35,5 @@ export class ParseSVG {
     }
 
     @Input()
-    tree: any = {};
+    tree: Tree<CCGTerm> = Tree.empty();
 }

@@ -9,6 +9,7 @@ import { ParseResponse, ParseService } from "@/services/parse.service";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ProblemResponse } from "@/types";
 import { ProblemService } from "@/services/problem.service";
+import { Tree } from "@/tree";
 
 @Component({
     selector: "la-annotate",
@@ -29,7 +30,7 @@ export class AnnotateComponent implements OnInit {
     private parseService = inject(ParseService);
     private problemService = inject(ProblemService);
 
-    public ccgTrees: any[] = [];
+    public ccgTrees: Tree<string>[] = [];
 
     private problem: ProblemResponse | null = null;
 
@@ -46,7 +47,7 @@ export class AnnotateComponent implements OnInit {
 
     onParse(response: ParseResponse) {
         console.log("Parse response:", response);
-        this.ccgTrees = response!.data.ccg_trees;
+        this.ccgTrees = response!.data.ccg_trees.map((tree: any) => new Tree(tree));
     }
 
     startParse() {

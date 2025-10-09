@@ -6,7 +6,6 @@ import {
     faTree,
     faPenNib,
 } from "@fortawesome/free-solid-svg-icons";
-import { AnnotationParseResultsComponent } from "../annotation-parse-results/annotation-parse-results.component";
 import { AnnotationTableauComponent } from "../annotation-tableau/annotation-tableau.component";
 import { AnnotationCommentsComponent } from "../annotation-comments/annotation-comments.component";
 import { ParseSVG } from "../parse-tree/parse-svg.component";
@@ -17,7 +16,6 @@ import { ParseSVG } from "../parse-tree/parse-svg.component";
     imports: [
         NgbNavModule,
         FontAwesomeModule,
-        AnnotationParseResultsComponent,
         AnnotationTableauComponent,
         AnnotationCommentsComponent,
         ParseSVG

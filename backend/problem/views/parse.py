@@ -70,6 +70,8 @@ class ParseView(APIView):
         logger.info("Sending to LangPro service:", asdict(data))
 
         params = asdict(data)
+        # ask LangPro container to return results in a format suitable for
+        # this application
         params['format'] = 'annotator'
 
         try:

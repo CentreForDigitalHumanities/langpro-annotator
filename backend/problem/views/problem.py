@@ -200,9 +200,9 @@ def update_problem_from_input(parse_input: dict) -> Problem:
     except Problem.DoesNotExist:
         raise ValueError(f"Cannot find Problem with ID: {parse_input["id"]}")
 
-    problem.hypothesis = Sentence.objects.get_or_create(text=parse_input["hypothesis"])[
-        0
-    ]
+    problem.hypothesis = Sentence.objects.get_or_create(
+        text=parse_input["hypothesis"],
+    )[0]
     problem.save()
 
     premises: list[Sentence] = []

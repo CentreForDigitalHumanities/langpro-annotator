@@ -165,16 +165,13 @@ def update_or_create_kb_items(problem: Problem, kb_items: list[dict]) -> None:
         entity2 = item["entity2"]
 
         if id is None:
-            try:
-                kb = KnowledgeBase.objects.create(
-                    entity1=entity1,
-                    relationship=relationship,
-                    entity2=entity2,
-                    problem=problem,
-                )
-                kb_ids.append(kb.pk)
-            except Exception as e:
-                raise ValueError(f"Error creating knowledge base items: {e}.")
+            kb = KnowledgeBase.objects.create(
+                entity1=entity1,
+                relationship=relationship,
+                entity2=entity2,
+                problem=problem,
+            )
+            kb_ids.append(kb.pk)
         else:
             try:
                 kb = KnowledgeBase.objects.get(id=id, problem_id=problem.pk)

@@ -194,7 +194,9 @@ def update_or_create_kb_items(problem: Problem, kb_items: list[dict]) -> None:
 
 def update_problem_from_input(parse_input: dict) -> Problem:
     try:
-        problem = Problem.objects.get(id=parse_input["id"])
+        problem = Problem.objects.get(
+            id=parse_input["id"], dataset=Problem.Dataset.USER
+        )
     except Problem.DoesNotExist:
         raise ValueError(f"Cannot find Problem with ID: {parse_input["id"]}")
 

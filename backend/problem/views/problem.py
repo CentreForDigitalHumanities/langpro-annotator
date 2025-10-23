@@ -89,39 +89,38 @@ class ProblemView(APIView):
         If the Problem ID is None, attempts to create a new Problem;
         else the associated Problem is updated.
         """
-        serializer = ProblemInputSerializer(data=request.data)
+        input_data = request.data
 
-        if not serializer.is_valid():
-            logger.error(f"Input validation error: {serializer.errors}")
-            return SaveProblemResponse(
-                id=None,
-                error=dict(serializer.errors),  # type: ignore
-            ).json_response(status=400)
+        try:
+            problem = save_problem(input_data, problem_id)
+        except Exception as e:
+            logger.error(f"Error saving problem: {e}")
+            return SaveProblemResponse(id=problem_id, error={"message": str(e)}).json_response()
 
-        validated_input: dict = serializer.validated_data  # type: ignore
+        return SaveProblemResponse(id=problem.pk).json_response(status=200)
 
-        problem: Problem | None = None
-        error: str | None = None
+def save_problem(input_data: dict, problem_id: int | None) -> Problem:
+    serializer = ProblemInputSerializer(data=input_data)
 
-        if problem_id is None:
-            try:
-                problem = create_problem_from_input(validated_input)
-            except Exception as e:
-                error = f"Error creating problem: {str(e)}"
-        else:
-            try:
-                problem = update_problem_from_input(validated_input)
-            except Exception as e:
-                error = f"Error updating problem: {str(e)}"
+    if not serializer.is_valid():
+        logger.error(f"Input validation error: {serializer.errors}")
+        return SaveProblemResponse(
+            id=None,
+            error=dict(serializer.errors),  # type: ignore
+        ).json_response(status=400)
 
-        if problem is None or error is not None:
-            return SaveProblemResponse(
-                id=None,
-                error={"message": error},
-            ).json_response(status=500)
+    validated_input: dict = serializer.validated_data  # type: ignore
 
-        return SaveProblemResponse(id=problem.pk, error=None).json_response()
+    problem: Problem | None = None
+    if problem_id is None:
+        problem = create_problem_from_input(validated_input)
+    else:
+        problem = update_problem_from_input(validated_input)
 
+    if problem is None:
+        raise ValueError("Problem could not be saved.")
+
+    return problem
 
 def create_problem_from_input(parse_input: dict) -> Problem:
     """

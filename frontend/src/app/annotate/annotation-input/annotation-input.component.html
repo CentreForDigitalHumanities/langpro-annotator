@@ -1,5 +1,5 @@
 @let problem = problem$ | async;
-@let viewMode = viewMode$ | async;
+@let appMode = appMode$ | async;
 @let userProblem = isUserProblem$ | async;
 @if (problem) {
 <div class="card">
@@ -25,7 +25,7 @@
                 />
                 <span class="ms-2" i18n>Start parse</span>
             </button>
-            @if ((viewMode === 'edit' || viewMode === 'add') && userProblem) {
+            @if ((appMode === 'edit' || appMode === 'add') && userProblem) {
             <button
                 type="button"
                 class="btn btn-primary d-flex align-items-center justify-content-center"

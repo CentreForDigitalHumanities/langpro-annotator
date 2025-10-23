@@ -11,6 +11,12 @@ interface AllParams {
     edit: boolean;
 }
 
+export enum AppMode {
+    BROWSE = "browse",
+    EDIT = "edit",
+    ADD = "add",
+}
+
 @Injectable({
     providedIn: 'root'
 })
@@ -38,6 +44,22 @@ export class ProblemService {
         map(response => response?.problem ?? null),
         shareReplay(1)
     );
+
+    public appMode$ = this.allParams$.pipe(
+        filter(allParams => allParams !== null),
+        map(({ params, edit }) => {
+            if (edit) {
+                return AppMode.EDIT;
+            }
+            if (params.get("problemId") === "new") {
+                return AppMode.ADD;
+            }
+            return AppMode.BROWSE;
+        }),
+        shareReplay(1)
+    );
+
+    public loading$ = this.appMode$.pipe(map(mode => mode === undefined));
 
     public saveProblem$ = this.submit$.pipe(
         exhaustMap((problem) => {

@@ -160,10 +160,10 @@ def create_problem_from_input(parse_input: dict) -> Problem:
 def update_or_create_kb_items(problem: Problem, kb_items: list[dict]) -> None:
     kb_ids: list[str] = []
     for item in kb_items:
-        id = item.get("id")
-        entity1 = item.get("entity1")
-        relationship = item.get("relationship")
-        entity2 = item.get("entity2")
+        id = item["id"]
+        entity1 = item["entity1"]
+        relationship = item["relationship"]
+        entity2 = item["entity2"]
 
         if id is None:
             try:

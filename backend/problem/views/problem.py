@@ -1,5 +1,6 @@
 from dataclasses import asdict, dataclass
 
+from django.db import DatabaseError
 from django.http import JsonResponse
 from rest_framework.views import APIView
 
@@ -40,7 +41,7 @@ class ProblemResponse:
 @dataclass
 class SaveProblemResponse:
     id: int | None = None
-    error: dict | None = None
+    error: str | None = None
 
     def json_response(self, status=200) -> JsonResponse:
         return JsonResponse(asdict(self), status=status)
@@ -93,21 +94,40 @@ class ProblemView(APIView):
 
         try:
             problem = save_problem(input_data, problem_id)
+        except ValueError as ve:
+            logger.error(f"Validation error saving problem: {ve}")
+            return SaveProblemResponse(id=problem_id, error=str(ve)).json_response(
+                status=400
+            )
+        except Problem.DoesNotExist as pne:
+            logger.error(f"Problem not found: {pne}")
+            return SaveProblemResponse(
+                id=problem_id, error="Problem not found."
+            ).json_response(status=404)
+        except KnowledgeBase.DoesNotExist as kbne:
+            logger.error(f"Knowledge base item not found: {kbne}")
+            return SaveProblemResponse(
+                id=problem_id, error="Knowledge base item not found."
+            ).json_response(status=404)
+        except DatabaseError as dbe:
+            logger.error(f"Database error saving problem: {dbe}")
+            return SaveProblemResponse(
+                id=problem_id, error="Database error saving problem."
+            ).json_response(status=500)
         except Exception as e:
-            logger.error(f"Error saving problem: {e}")
-            return SaveProblemResponse(id=problem_id, error={"message": str(e)}).json_response()
+            logger.exception(f"Unexpected error saving problem: {e}")
+            return SaveProblemResponse(
+                id=problem_id, error="Error saving problem."
+            ).json_response(status=500)
 
         return SaveProblemResponse(id=problem.pk).json_response(status=200)
+
 
 def save_problem(input_data: dict, problem_id: int | None) -> Problem:
     serializer = ProblemInputSerializer(data=input_data)
 
     if not serializer.is_valid():
-        logger.error(f"Input validation error: {serializer.errors}")
-        return SaveProblemResponse(
-            id=None,
-            error=dict(serializer.errors),  # type: ignore
-        ).json_response(status=400)
+        raise ValueError("Input data is not valid.")
 
     validated_input: dict = serializer.validated_data  # type: ignore
 
@@ -122,24 +142,20 @@ def save_problem(input_data: dict, problem_id: int | None) -> Problem:
 
     return problem
 
+
 def create_problem_from_input(parse_input: dict) -> Problem:
     """
     Save a new Problem instance from the given parse input data.
     """
-    try:
-        premise_sentences = [
-            Sentence.objects.get_or_create(text=premise)[0]
-            for premise in parse_input["premises"]
-        ]
-    except Exception as e:
-        raise ValueError(f"Error creating premise sentences: {e}")
 
-    try:
-        hypothesis_sentence = Sentence.objects.get_or_create(
-            text=parse_input["hypothesis"]
-        )[0]
-    except Exception as e:
-        raise ValueError(f"Error creating hypothesis sentence: {e}")
+    premise_sentences = [
+        Sentence.objects.get_or_create(text=premise)[0]
+        for premise in parse_input["premises"]
+    ]
+
+    hypothesis_sentence = Sentence.objects.get_or_create(
+        text=parse_input["hypothesis"]
+    )[0]
 
     problem = Problem.objects.create(
         hypothesis=hypothesis_sentence,
@@ -173,10 +189,7 @@ def update_or_create_kb_items(problem: Problem, kb_items: list[dict]) -> None:
             )
             kb_ids.append(kb.pk)
         else:
-            try:
-                kb = KnowledgeBase.objects.get(id=id, problem_id=problem.pk)
-            except KnowledgeBase.DoesNotExist:
-                raise ValueError(f"Unable to find knowledge base item with id {id}.")
+            kb = KnowledgeBase.objects.get(id=id, problem_id=problem.pk)
             kb.entity1 = entity1
             kb.relationship = relationship
             kb.entity2 = entity2
@@ -189,12 +202,7 @@ def update_or_create_kb_items(problem: Problem, kb_items: list[dict]) -> None:
 
 
 def update_problem_from_input(parse_input: dict) -> Problem:
-    try:
-        problem = Problem.objects.get(
-            id=parse_input["id"], dataset=Problem.Dataset.USER
-        )
-    except Problem.DoesNotExist:
-        raise ValueError(f"Cannot find Problem with ID: {parse_input["id"]}")
+    problem = Problem.objects.get(id=parse_input["id"], dataset=Problem.Dataset.USER)
 
     problem.hypothesis = Sentence.objects.get_or_create(
         text=parse_input["hypothesis"],

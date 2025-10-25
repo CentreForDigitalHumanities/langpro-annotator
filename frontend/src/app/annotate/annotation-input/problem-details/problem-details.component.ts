@@ -5,9 +5,9 @@ import { faArrowUpRightFromSquare, faQuestionCircle } from "@fortawesome/free-so
 import { FontAwesomeModule } from "@fortawesome/angular-fontawesome";
 import { NgbTooltipModule } from "@ng-bootstrap/ng-bootstrap";
 import { datasetLabels } from "@/shared/displayTextMappings";
-import { AppModeService } from "@/services/app-mode.service";
 import { CommonModule } from "@angular/common";
 import { RouterModule } from "@angular/router";
+import { ProblemService } from "@/services/problem.service";
 
 export interface ProblemDetails {
     problemId: string;
@@ -34,9 +34,9 @@ export interface ProblemDetails {
 })
 export class ProblemDetailsComponent {
     public readonly problem = input.required<Problem>();
-    private appModeService = inject(AppModeService);
+    private problemService = inject(ProblemService);
 
-    public viewMode$ = this.appModeService.viewMode$;
+    public appMode$ = this.problemService.appMode$;
 
     public problemDetails = computed(() => {
         const problem = this.problem();

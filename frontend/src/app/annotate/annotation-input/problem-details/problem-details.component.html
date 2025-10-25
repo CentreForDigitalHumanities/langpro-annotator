@@ -1,4 +1,4 @@
-@let viewMode = viewMode$ | async; 
+@let appMode = appMode$ | async;
 @if (problemDetails(); as details) {
 <div>
     <table class="table table-sm table-borderless">
@@ -21,7 +21,7 @@
             </tr>
             <tr>
                 <td class="text-muted" i18n>Based on:</td>
-                @if (viewMode === 'browse' && details.baseProblemId !== null) {
+                @if (appMode === 'browse' && details.baseProblemId !== null) {
                 <td>
                     <a [routerLink]="['/annotate', details.baseProblemId]">
                         <span>{{ details.baseProblemId }}</span>

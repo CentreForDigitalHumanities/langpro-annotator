@@ -40,6 +40,8 @@ class ProblemInputSerializer(serializers.Serializer):
         many=True, allow_empty=True, help_text="List of knowledge base items"
     )
 
+    base = serializers.IntegerField(required=False, allow_null=True)
+
     def validate_id(self, value):
         """
         Validate that the problem ID exists and belongs to a user problem.
@@ -51,5 +53,14 @@ class ProblemInputSerializer(serializers.Serializer):
             ).exists():
                 raise serializers.ValidationError(
                     f"Problem with ID {value} does not exist or is not a user problem."
+                )
+        return value
+
+    def validate_base(self, value):
+        """Validate that the base problem ID exists if provided."""
+        if value is not None:
+            if not Problem.objects.filter(id=value).exists():
+                raise serializers.ValidationError(
+                    f"Base problem with ID {value} does not exist."
                 )
         return value

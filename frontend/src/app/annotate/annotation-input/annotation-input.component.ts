@@ -19,7 +19,6 @@ import { ActivatedRoute, Router } from "@angular/router";
 import { ProblemService } from "@/services/problem.service";
 import { ParseService } from "@/services/parse.service";
 import { FontAwesomeModule } from "@fortawesome/angular-fontawesome";
-import { AppModeService } from "@/services/app-mode.service";
 import { ToastService } from "@/services/toast.service";
 import { IconButtonComponent } from "@/shared/icon-button/icon-button.component";
 
@@ -62,7 +61,6 @@ export class AnnotationInputComponent implements OnInit {
     private destroyRef = inject(DestroyRef);
     private problemService = inject(ProblemService);
     private parseService = inject(ParseService);
-    private appModeService = inject(AppModeService);
     private toastService = inject(ToastService);
 
     public form: ParseInputForm | null = null;
@@ -79,7 +77,7 @@ export class AnnotationInputComponent implements OnInit {
     public faTrash = faTrash;
     public faWrench = faWrench;
 
-    public viewMode$ = this.appModeService.viewMode$;
+    public appMode$ = this.problemService.appMode$;
     public isUserProblem$ = this.problem$.pipe(
         map(problem => problem?.dataset === Dataset.USER)
     );

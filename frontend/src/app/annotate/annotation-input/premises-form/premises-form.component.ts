@@ -4,8 +4,8 @@ import { CommonModule } from "@angular/common";
 import { FontAwesomeModule } from "@fortawesome/angular-fontawesome";
 import { faPlus, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { ParseInputForm } from "../annotation-input.component";
-import { AppModeService } from "@/services/app-mode.service";
 import { IconButtonComponent } from "@/shared/icon-button/icon-button.component";
+import { ProblemService } from "@/services/problem.service";
 
 export interface Premises {
     premises: string[];
@@ -20,14 +20,14 @@ export interface Premises {
     styleUrl: "./premises-form.component.scss",
 })
 export class PremisesFormComponent {
-    private appModeService = inject(AppModeService);
+    private problemService = inject(ProblemService);
 
     public form = input.required<ParseInputForm>();
 
     public faPlus = faPlus;
     public faTrash = faTrash;
 
-    public viewMode$ = this.appModeService.viewMode$;
+    public appMode$ = this.problemService.appMode$;
 
     public addPremise(value: string = ""): void {
         const premisesArray = this.form().controls.premises;

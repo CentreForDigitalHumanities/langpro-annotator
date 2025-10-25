@@ -5,10 +5,10 @@ import { ReactiveFormsModule } from "@angular/forms";
 import { FontAwesomeModule } from "@fortawesome/angular-fontawesome";
 import { faPlus, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { ParseInputForm } from "../annotation-input.component";
-import { AppModeService } from "@/services/app-mode.service";
 import { KnowledgeBaseRelationship } from "@/types";
 import { IconButtonComponent } from "@/shared/icon-button/icon-button.component";
 
+import { ProblemService } from "@/services/problem.service";
 
 
 const relationshipDisplayMapping: Record<KnowledgeBaseRelationship, string> = {
@@ -26,7 +26,7 @@ const relationshipDisplayMapping: Record<KnowledgeBaseRelationship, string> = {
     styleUrls: ["./knowledge-base-form.component.scss"],
 })
 export class KnowledgeBaseFormComponent {
-    private appModeService = inject(AppModeService);
+    private problemService = inject(ProblemService);
 
     public form = input.required<ParseInputForm>();
 
@@ -35,7 +35,7 @@ export class KnowledgeBaseFormComponent {
     public faPlus = faPlus;
     public faTrash = faTrash;
 
-    public viewMode$ = this.appModeService.viewMode$;
+    public appMode$ = this.problemService.appMode$;
 
     public addKnowledgeBaseItem(): void {
         const newItem = new FormGroup({

@@ -5,7 +5,7 @@ from problem.views.problem import ProblemView
 
 
 urlpatterns = [
-    path("<int:problem_id>", ProblemView.as_view(), name="problem_view"),
+    path("<int:problem_id>", ProblemView.as_view(), name="problem_detail_view"),
     path("parse", ParseView.as_view(), name="parse_view"),
-    path("", ProblemView.as_view(), name="first_problem_view"),
+    path("", ProblemView.as_view(), name="problem_view"),
 ]

@@ -82,7 +82,7 @@ class Problem(models.Model):
             case _:
                 serialized_extra_data = {}
 
-        kb_items = KnowledgeBase.objects.filter(problem=self)
+        kb_items = self.knowledge_bases.all() # type: ignore
 
         return {
             "id": self.pk,

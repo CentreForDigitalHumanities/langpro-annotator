@@ -1,5 +1,5 @@
 @let premiseControls = form().controls.premises.controls;
-@let viewMode = viewMode$ | async;
+@let appMode = appMode$ | async;
 
 <form [formGroup]="form()">
     <fieldset>
@@ -7,7 +7,7 @@
             class="form-label h6 fw-bold d-flex align-items-center justify-content-between"
         >
             <span i18n>Premises</span>
-            @if (viewMode === 'add' || viewMode === 'edit') {
+            @if (appMode === 'add' || appMode === 'edit') {
             <la-icon-button
                 [icon]="faPlus"
                 label="Add premise"
@@ -29,13 +29,13 @@
                         [id]="'premise-' + i"
                         type="text"
                         [class]="
-                            viewMode === 'add' || viewMode === 'edit'
+                            appMode === 'add' || appMode === 'edit'
                                 ? 'form-control'
                                 : 'form-control-plaintext'
                         "
                         [formControlName]="i"
                     />
-                    @if (viewMode === 'add' || viewMode === 'edit') {
+                    @if (appMode === 'add' || appMode === 'edit') {
                     <button
                         type="button"
                         class="btn btn-danger"
@@ -73,7 +73,7 @@
             id="hypothesis"
             type="text"
             [class]="
-                viewMode === 'add' || viewMode === 'edit'
+                appMode === 'add' || appMode === 'edit'
                     ? 'form-control'
                     : 'form-control-plaintext'
             "

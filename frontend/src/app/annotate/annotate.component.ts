@@ -10,7 +10,6 @@ import { ProblemService } from "@/services/problem.service";
 import { combineLatest, distinctUntilChanged, map } from "rxjs";
 import { CommonModule } from "@angular/common";
 import { Dataset } from "@/types";
-import { AppModeService } from "@/services/app-mode.service";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { IconButtonComponent } from "@/shared/icon-button/icon-button.component";
 
@@ -33,13 +32,12 @@ export class AnnotateComponent implements OnInit {
     private router = inject(Router);
     private route = inject(ActivatedRoute);
     private problemService = inject(ProblemService);
-    private appModeService = inject(AppModeService);
     private destroyRef = inject(DestroyRef);
 
     public faPlus = faPlus;
     public faBinoculars = faBinoculars;
 
-    public viewMode$ = this.appModeService.viewMode$;
+    public appMode$ = this.problemService.appMode$;
     public firstProblemId$ = this.problemService.firstProblemId$;
 
     public isUserProblem$ = this.problemService.problem$.pipe(

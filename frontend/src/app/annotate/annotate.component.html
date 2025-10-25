@@ -1,8 +1,8 @@
 @let firstProblemId = firstProblemId$ | async;
-@let viewMode = viewMode$ | async; 
-@let browsing = viewMode === 'browse'; 
-@let adding = viewMode === 'add';
-@let editing = viewMode === 'edit';
+@let appMode = appMode$ | async;
+@let browsing = appMode === 'browse';
+@let adding = appMode === 'add';
+@let editing = appMode === 'edit';
 
 <div class="row mb-4">
     <div class="d-flex flex-column col-4 gap-2">

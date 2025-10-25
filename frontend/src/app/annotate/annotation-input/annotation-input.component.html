@@ -1,5 +1,5 @@
 @let problem = problem$ | async;
-@let viewMode = viewMode$ | async;
+@let appMode = appMode$ | async;
 @let userProblem = isUserProblem$ | async;
 @if (problem) {
 <div class="card">
@@ -19,7 +19,7 @@
                 (click)="startParse()"
                 i18n-label
             />
-            @if (viewMode === 'browse') {
+            @if (appMode === 'browse') {
                 <la-icon-button
                     [icon]="faCopy"
                     buttonStyle="secondary"
@@ -28,7 +28,7 @@
                     i18n-label
                 />
             }
-            @if ((viewMode === 'edit' || viewMode === 'add') && userProblem) {
+            @if ((appMode === 'edit' || appMode === 'add') && userProblem) {
             <la-icon-button
                 [icon]="faFloppyDisk"
                 label="Save problem"

@@ -7,7 +7,7 @@ import {
     HttpTestingController,
     provideHttpClientTesting,
 } from "@angular/common/http/testing";
-import { User } from "../models/user";
+import { User, UserRole } from "../models/user";
 import { Observable, of } from "rxjs";
 import { Injectable } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
@@ -23,6 +23,8 @@ const fakeUser: User = {
     lastName: "Baggins",
     username: "frodo",
     isStaff: false,
+    role: UserRole.VISITOR,
+    canEditOrAddProblem: false,
 };
 
 @Injectable({ providedIn: "root" })

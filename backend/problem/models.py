@@ -1,5 +1,4 @@
 from django.db import models
-from django.contrib.postgres.fields import ArrayField
 from django.db.models import QuerySet
 
 from problem.services import FracasData, SNLIData, SickData

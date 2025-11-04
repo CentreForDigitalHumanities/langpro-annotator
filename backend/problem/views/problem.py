@@ -1,9 +1,12 @@
 from dataclasses import asdict, dataclass
 
 from django.db import DatabaseError
+from django.core.exceptions import PermissionDenied
+from django.contrib.auth.models import AnonymousUser
 from django.http import JsonResponse
 from rest_framework.views import APIView
 
+from user.models import User
 from langpro_annotator.logger import logger
 from problem.problem_details import get_filters, get_related_problem_ids
 from problem.models import KnowledgeBase, Problem, Sentence
@@ -91,9 +94,10 @@ class ProblemView(APIView):
         else the associated Problem is updated.
         """
         input_data = request.data
+        user: User | AnonymousUser | None = request.user
 
         try:
-            problem = save_problem(input_data, problem_id)
+            problem = save_problem(input_data, problem_id, user)
         except ValueError as ve:
             logger.error(f"Validation error saving problem: {ve}")
             return SaveProblemResponse(id=problem_id, error=str(ve)).json_response(
@@ -114,6 +118,11 @@ class ProblemView(APIView):
             return SaveProblemResponse(
                 id=problem_id, error="Database error saving problem."
             ).json_response(status=500)
+        except PermissionDenied as pde:
+            logger.error(f"Permission denied saving problem: {pde}")
+            return SaveProblemResponse(
+                id=problem_id, error="Permission denied."
+            ).json_response(status=403)
         except Exception as e:
             logger.exception(f"Unexpected error saving problem: {e}")
             return SaveProblemResponse(
@@ -123,7 +132,13 @@ class ProblemView(APIView):
         return SaveProblemResponse(id=problem.pk).json_response(status=200)
 
 
-def save_problem(input_data: dict, problem_id: int | None) -> Problem:
+def save_problem(input_data: dict, problem_id: int | None, user: User | AnonymousUser | None) -> Problem:
+    if user is None or user.is_anonymous:
+        raise PermissionDenied("User must be authenticated to edit/create problems.")
+
+    if not user.can_edit_or_add_problem:  # type: ignore
+        raise PermissionDenied("User does not have role required to edit/create problems.")
+
     serializer = ProblemInputSerializer(data=input_data)
 
     if not serializer.is_valid():

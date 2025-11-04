@@ -48,14 +48,8 @@ const routes: Routes = [
         component: AnnotateComponent,
     },
     {
-        path: "annotate/new",
-        pathMatch: "full",
-        canActivate: [LoggedOnGuard, CanEditOrAddGuard],
-        component: AnnotateComponent,
-    },
-    {
         path: "annotate/:problemId",
-        canActivate: [LoggedOnGuard],
+        canActivate: [LoggedOnGuard, CanEditOrAddGuard],
         component: AnnotateComponent,
     },
     {

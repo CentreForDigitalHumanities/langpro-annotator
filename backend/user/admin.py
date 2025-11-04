@@ -8,6 +8,8 @@ from django.utils.translation import gettext_lazy as _
 
 @admin.register(models.User)
 class UserAdmin(auth_admin.UserAdmin):
+    list_display = ("username", "first_name", "email", "last_name", "role", "is_staff")
+
     def get_fieldsets(
         self, request: HttpRequest, obj: models.User | None = None
     ) -> list[tuple[str | None, dict[str, Any]]]:
@@ -39,5 +41,5 @@ class UserAdmin(auth_admin.UserAdmin):
                         "role",
                     ),
                 },
-            )
+            ),
         ]

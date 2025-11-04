@@ -2,9 +2,18 @@ export interface UserResponse {
     id: number;
     username: string;
     email: string;
-    first_name: string;
-    last_name: string;
-    is_staff: boolean;
+    firstName: string;
+    lastName: string;
+    isStaff: boolean;
+    role: string;
+    canEditOrAddProblem: boolean;
+}
+
+// Corresponds to backend User.Role choices.
+export enum UserRole {
+    ANNOTATOR = "annotator",
+    MASTER_ANNOTATOR = "master_annotator",
+    VISITOR = "visitor",
 }
 
 export class User {
@@ -14,8 +23,10 @@ export class User {
         public email: string,
         public firstName: string,
         public lastName: string,
-        public isStaff: boolean
-    ) {}
+        public isStaff: boolean,
+        public role: UserRole,
+        public canEditOrAddProblem: boolean,
+    ) { }
 }
 
 export interface UserRegistration {

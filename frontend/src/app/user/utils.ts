@@ -1,7 +1,11 @@
 import { AbstractControl, FormGroup } from "@angular/forms";
-import { User, UserResponse } from "./models/user";
+import { User, UserResponse, UserRole } from "./models/user";
 import { Observable, map } from "rxjs";
 import { RequestError } from "./Request";
+
+function isUserRole(value: string): value is UserRole {
+    return Object.values(UserRole).includes(value as UserRole);
+};
 
 /**
  * Transforms backend user response to User object
@@ -13,13 +17,20 @@ export const parseUserData = (result: UserResponse | null): User | null => {
     if (!result) {
         return null;
     }
+
+    if (!isUserRole(result.role)) {
+        throw new Error(`Unknown user role: ${result.role}`);
+    }
+
     return new User(
         result.id,
         result.username,
         result.email,
-        result.first_name,
-        result.last_name,
-        result.is_staff
+        result.firstName,
+        result.lastName,
+        result.isStaff,
+        result.role,
+        result.canEditOrAddProblem
     );
 };
 
@@ -36,9 +47,9 @@ export const encodeUserData = (data: Partial<User>): Partial<UserResponse> => {
         id: data.id,
         username: data.username,
         email: data.email,
-        first_name: data.firstName,
-        last_name: data.lastName,
-        is_staff: data.isStaff,
+        firstName: data.firstName,
+        lastName: data.lastName,
+        isStaff: data.isStaff,
     };
     // Remove undefined values from object.
     return Object.fromEntries(

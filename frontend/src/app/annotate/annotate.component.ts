@@ -11,6 +11,7 @@ import { combineLatest, distinctUntilChanged, map } from "rxjs";
 import { CommonModule } from "@angular/common";
 import { Dataset } from "@/types";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { AuthService } from "@/services/auth.service";
 
 @Component({
     selector: "la-annotate",
@@ -30,6 +31,7 @@ export class AnnotateComponent implements OnInit {
     private router = inject(Router);
     private route = inject(ActivatedRoute);
     private problemService = inject(ProblemService);
+    private authService = inject(AuthService);
     private destroyRef = inject(DestroyRef);
 
     public faPlus = faPlus;
@@ -40,6 +42,10 @@ export class AnnotateComponent implements OnInit {
 
     public isUserProblem$ = this.problemService.problem$.pipe(
         map(problem => problem?.dataset === Dataset.USER)
+    );
+
+    public canAddProblem$ = this.authService.currentUser$.pipe(
+        map(user => user?.canEditOrAddProblem ?? false)
     );
 
     ngOnInit(): void {

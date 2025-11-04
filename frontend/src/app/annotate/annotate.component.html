@@ -4,7 +4,6 @@
 @let adding = appMode === 'add';
 @let editing = appMode === 'edit';
 
-
 <div class="row mb-4">
     <div class="d-flex flex-column col-4 gap-2">
         @if (browsing) {
@@ -61,32 +60,34 @@
         </section>
         }
         <div class="d-flex flex-column gap-2 align-items-stretch">
-            @if (browsing) {
-            <button
-                type="button"
-                class="btn btn-secondary d-flex align-items-center justify-content-center"
-                (click)="addProblem()"
-            >
-                <fa-icon
-                    [icon]="faPlus"
-                    aria-hidden="true"
-                    focusable="false"
-                ></fa-icon>
-                <span class="ms-3" i18n>Add new problem</span>
-            </button>
-            } @else {
-            <button
-                type="button"
-                class="btn btn-secondary d-flex align-items-center justify-content-center"
-                (click)="firstProblemId && goToProblem(firstProblemId)"
-            >
-                <fa-icon
-                    [icon]="faBinoculars"
-                    aria-hidden="true"
-                    focusable="false"
-                ></fa-icon>
-                <span class="ms-3" i18n>Browse existing problems</span>
-            </button>
+            @if (canAddProblem$ | async) {
+                @if (browsing) {
+                <button
+                    type="button"
+                    class="btn btn-secondary d-flex align-items-center justify-content-center"
+                    (click)="addProblem()"
+                >
+                    <fa-icon
+                        [icon]="faPlus"
+                        aria-hidden="true"
+                        focusable="false"
+                    ></fa-icon>
+                    <span class="ms-3" i18n>Add new problem</span>
+                </button>
+                } @else {
+                <button
+                    type="button"
+                    class="btn btn-secondary d-flex align-items-center justify-content-center"
+                    (click)="firstProblemId && goToProblem(firstProblemId)"
+                >
+                    <fa-icon
+                        [icon]="faBinoculars"
+                        aria-hidden="true"
+                        focusable="false"
+                    ></fa-icon>
+                    <span class="ms-3" i18n>Browse existing problems</span>
+                </button>
+                }
             }
         </div>
     </div>

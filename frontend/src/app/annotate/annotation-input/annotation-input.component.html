@@ -38,7 +38,7 @@
                 ></fa-icon>
                 <span class="ms-3" i18n>Save problem</span>
             </button>
-            } @else if (userProblem) {
+            } @else if (userProblem && (canEditProblem$ | async)) {
                 <button
                     type="button"
                     class="btn btn-secondary d-flex align-items-center justify-content-center"

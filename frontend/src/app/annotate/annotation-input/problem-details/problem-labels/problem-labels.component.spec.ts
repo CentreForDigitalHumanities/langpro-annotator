@@ -14,6 +14,8 @@ describe('ProblemLabelsComponent', () => {
 
         fixture = TestBed.createComponent(ProblemLabelsComponent);
         component = fixture.componentInstance;
+        const componentRef = fixture.componentRef;
+        componentRef.setInput("attachedLabels", []);
         fixture.detectChanges();
     });
 

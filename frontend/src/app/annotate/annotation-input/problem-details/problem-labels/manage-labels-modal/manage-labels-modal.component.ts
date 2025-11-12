@@ -18,9 +18,7 @@ export class ManageLabelsModalComponent {
 
     public availableLabels = computed(() => {
         const selectedIds = this.selected().map(label => label.id);
-        return this.allLabels.filter(label =>
-            !label.attachedInfo && !selectedIds.includes(label.id)
-        );
+        return this.allLabels.filter(label => !selectedIds.includes(label.id));
     });
 
     constructor(public activeModal: NgbActiveModal) { }
@@ -48,7 +46,7 @@ export class ManageLabelsModalComponent {
             userName: 'Current User',
             date: new Date(),
             currentUser: true
-        }
+        };
         label.removable = true;
         this.selected.set([...currentSelected, label]);
     }

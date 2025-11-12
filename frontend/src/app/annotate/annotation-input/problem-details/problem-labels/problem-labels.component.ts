@@ -28,6 +28,7 @@ export class ProblemLabelsComponent {
             size: 'lg'
         });
 
+        // Initialize selected labels with currently attached labels.
         modalRef.componentInstance.selected.set(this.sortedLabels());
 
         const subscription = modalRef.componentInstance.labelsChanged.subscribe((selectedLabels: ProblemLabel[]) => {

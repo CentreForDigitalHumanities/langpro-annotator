@@ -3,15 +3,15 @@
     <table class="table table-sm table-borderless">
         <tbody>
             <tr>
-                <td class="text-muted" i18n>ID:</td>
+                <td i18n>ID:</td>
                 <td>{{ details.problemId }}</td>
             </tr>
             <tr>
-                <td class="text-muted" i18n>Dataset:</td>
+                <td i18n>Dataset:</td>
                 <td>{{ datasetLabels[details.dataset] }}</td>
             </tr>
             <tr>
-                <td class="text-muted" i18n>Entailment label:</td>
+                <td i18n>Entailment label:</td>
                 <td>
                     <la-entailment-label-badge
                         [entailmentLabel]="details.entailmentLabel"
@@ -20,12 +20,12 @@
             </tr>
             @if (sectionString()) {
             <tr>
-                <td class="text-muted" i18n>Section:</td>
+                <td i18n>Section:</td>
                 <td>{{ sectionString() }}</td>
             </tr>
             } @if (details.comment) {
             <tr>
-                <td class="text-muted">
+                <td>
                     <span i18n>Comment:</span>
                     <fa-icon
                         class="ms-1"

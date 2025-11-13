@@ -4,7 +4,7 @@ This document contains basic documentation for developing LangPro Annotator.
 
 ## Before you start
 
-You need to install the following software:
+You need to install the following software, *unless* you will be using Docker:
 
  - PostgreSQL >= 10, client, server and C libraries
  - Python >= 3.8, <= 3.10
@@ -36,7 +36,28 @@ Each subproject is configurable from the outside. Integration is achieved using 
 If you are reading this document, you'll likely be working with the integrated project as a whole rather than with one of the subprojects in isolation. In this case, this document should be your primary source of information on how to develop or deploy the project. However, we recommend that you also read the "How it works" section in the document of each subproject.
 
 
-### Quickstart
+### Quickstart with Docker
+
+```console
+docker compose up -d
+```
+
+This will run the frontend and backend applications and watch all source files for changes. To run the backend unittests:
+
+```console
+docker compose exec backend pytest
+```
+
+To run the frontend unittests:
+
+```console
+docker compose exec frontend yarn ng test --no-browsers
+```
+
+then open http://localhost:9876 in a browser of choice.
+
+
+### Quickstart without Docker
 
 First time after cloning this project:
 
@@ -50,7 +71,12 @@ Running the application in [development mode][8] (hit ctrl-C to stop):
 $ yarn start
 ```
 
-This will run the backend and frontend applications, as well as their unittests, and watch all source files for changes. You can visit the frontend on http://localhost:8000/, the browsable backend API on http://localhost:8000/api/ and the backend admin on http://localhost:8000/admin/. On every change, unittests rerun, frontend code rebuilds and open browser tabs refresh automatically (livereload).
+This will run the backend and frontend applications, as well as their unittests, and watch all source files for changes.
+
+
+### Accessing the application
+
+You can visit the frontend on http://localhost:8000/, the browsable backend API on http://localhost:8000/api/ and the backend admin on http://localhost:8000/admin/. On every change, unittests rerun, frontend code rebuilds and open browser tabs refresh automatically (livereload).
 
 [8]: #development-mode-vs-production-mode
 

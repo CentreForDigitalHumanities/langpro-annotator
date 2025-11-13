@@ -36,6 +36,7 @@ services:
             - frontend-node-modules:/usr/src/app/frontend/node_modules
         ports:
             - 127.0.0.1:4200:4200
+            - 127.0.0.1:9876:9876
 
 volumes:
     postgres-data:

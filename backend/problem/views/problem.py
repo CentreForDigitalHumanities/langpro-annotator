@@ -132,12 +132,16 @@ class ProblemView(APIView):
         return SaveProblemResponse(id=problem.pk).json_response(status=200)
 
 
-def save_problem(input_data: dict, problem_id: int | None, user: User | AnonymousUser | None) -> Problem:
+def save_problem(
+    input_data: dict, problem_id: int | None, user: User | AnonymousUser | None
+) -> Problem:
     if user is None or user.is_anonymous:
         raise PermissionDenied("User must be authenticated to edit/create problems.")
 
     if not user.can_edit_or_add_problem:  # type: ignore
-        raise PermissionDenied("User does not have role required to edit/create problems.")
+        raise PermissionDenied(
+            "User does not have role required to edit/create problems."
+        )
 
     serializer = ProblemInputSerializer(data=input_data)
 

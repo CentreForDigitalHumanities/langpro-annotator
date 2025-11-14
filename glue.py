@@ -4,6 +4,7 @@
     backend/langpro_annotator/settings.py instead.
 """
 
+import os
 import os.path as op
 
 here = op.dirname(op.abspath(__file__))
@@ -39,5 +40,4 @@ from settings import *
 STATICFILES_DIRS += [
     op.join(here, 'frontend', 'src')
 ]
-PROXY_FRONTEND = "http://localhost:4200"
-
+PROXY_FRONTEND = os.getenv('LANGPRO_FRONTEND') or "http://localhost:4200"

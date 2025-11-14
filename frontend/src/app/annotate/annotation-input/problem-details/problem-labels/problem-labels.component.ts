@@ -3,7 +3,7 @@ import { faSearch } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { NgbTooltipModule, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ManageLabelsModalComponent, ManageLabelsModalResult } from './manage-labels-modal/manage-labels-modal.component';
-import { ProblemLabel, SaveLabelsReponse as SaveLabelsResponse } from '@/types';
+import { ProblemLabel, SaveLabelsResponse } from '@/types';
 import { catchError, Subject, switchMap } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ToastService } from '@/services/toast.service';

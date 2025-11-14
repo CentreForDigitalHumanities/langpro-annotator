@@ -4,6 +4,7 @@ import { HttpClient, HttpParams } from "@angular/common/http";
 import { Injectable, inject } from "@angular/core";
 import { ParamMap } from "@angular/router";
 import { Subject, Observable, switchMap, of, shareReplay, exhaustMap, catchError, map, BehaviorSubject, filter } from "rxjs";
+import { ToastService } from "./toast.service";
 
 interface AllParams {
     params: ParamMap;
@@ -22,6 +23,7 @@ export enum AppMode {
 })
 export class ProblemService {
     private http = inject(HttpClient);
+    private toastService = inject(ToastService);
 
     public allParams$ = new BehaviorSubject<AllParams | null>(null);
 
@@ -66,7 +68,11 @@ export class ProblemService {
             const url = `/api/problem/${problem.id ?? ""}`;
             return this.http.post<SaveProblemResponse>(url, problem).pipe(
                 catchError((error) => {
-                    console.error('Error saving problem:', error);
+                    this.toastService.show({
+                        header: $localize`Error saving problem`,
+                        body: error,
+                        type: 'danger',
+                    });
                     return of({ id: null, error: 'Failed to save problem' });
                 })
             );
@@ -101,7 +107,11 @@ export class ProblemService {
         return this.http.get<ProblemResponse>(`/api/problem/${problemId ?? ""}`, { params: httpParams }).pipe(
             catchError((error) => {
                 const message = `Error fetching ${problemId ? `problem ${problemId}` : "first problem"}`;
-                console.error(message, error);
+                this.toastService.show({
+                    header: message,
+                    body: error,
+                    type: 'danger',
+                });
                 return of(null);
             })
         );

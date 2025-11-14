@@ -19,12 +19,10 @@
             </tr>
         </thead>
         <tbody>
-            @for (label of selected(); track label.id) {
+            @for (label of selectedLabels$ | async; track label.id) {
             <tr
                 [class.clickable-row]="label.removable"
-                (click)="
-                    label.removable ? removeLabel(label.id) : null
-                "
+                (click)="label.removable ? removeLabel(label.id) : null"
             >
                 <td class="align-middle">
                     <div class="label-pill">
@@ -65,7 +63,7 @@
             </tr>
         </thead>
         <tbody>
-            @for (label of availableLabels(); track label.id) {
+            @for (label of availableLabels$ | async; track label.id) {
             <tr class="clickable-row align-middle" (click)="addLabel(label.id)">
                 <td>
                     <div class="label-pill">
@@ -73,7 +71,11 @@
                     </div>
                 </td>
                 <td>{{ label.description }}</td>
-                <td><span class="text-primary" i18n>Click to add</span></td>
+                <td>
+                    <span class="text-primary fit-content" i18n
+                        >Click to add</span
+                    >
+                </td>
             </tr>
             } @empty {
             <tr>
@@ -84,12 +86,30 @@
             }
         </tbody>
     </table>
+
+    <section>
+        <div class="d-flex flex-column">
+            <label for="remarks" class="form-label" i18n>
+                Remarks / justification
+            </label>
+            <textarea
+                id="remarks"
+                rows="3"
+                [formControl]="form.controls.remarks"
+            ></textarea>
+        </div>
+    </section>
 </div>
 <div class="modal-footer">
     <button type="button" class="btn btn-primary" (click)="closeModal()" i18n>
         Save and close
     </button>
-    <button type="button" class="btn btn-secondary" (click)="closeModal({save: false})" i18n>
+    <button
+        type="button"
+        class="btn btn-secondary"
+        (click)="closeModal({ save: false })"
+        i18n
+    >
         Close
     </button>
 </div>

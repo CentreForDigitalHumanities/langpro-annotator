@@ -106,6 +106,10 @@ export interface SaveProblemResponse extends BaseResponse {
     id: number | null;
 }
 
+export interface SaveLabelsReponse extends BaseResponse {
+    ok: boolean;
+}
+
 export enum Dataset {
     SICK = "sick",
     FRACAS = "fracas",

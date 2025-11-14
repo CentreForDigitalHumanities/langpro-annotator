@@ -1,8 +1,11 @@
-import { Component, computed, output, signal } from '@angular/core';
-import { ProblemLabel } from '../../problem-details.component';
+import { Component, computed, inject, output, signal } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import { mockLabels } from '../mockLabels';
+import { Label, ProblemLabel } from '@/types';
+import { ProblemService } from '@/services/problem.service';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { AuthService } from '@/services/auth.service';
+import { map } from 'rxjs';
 
 @Component({
     selector: 'la-manage-labels-modal',
@@ -11,14 +14,21 @@ import { mockLabels } from '../mockLabels';
     styleUrl: './manage-labels-modal.component.scss'
 })
 export class ManageLabelsModalComponent {
+    private problemService = inject(ProblemService);
+    private authService = inject(AuthService);
+
     public selected = signal<ProblemLabel[]>([]);
     public labelsChanged = output<ProblemLabel[]>();
 
-    public allLabels = mockLabels;
+    public allLabels = toSignal<Label[]>(this.problemService.allLabels$);
 
     public availableLabels = computed(() => {
+        const allLabels = this.allLabels();
+        if (!allLabels) {
+            return [];
+        }
         const selectedIds = this.selected().map(label => label.id);
-        return this.allLabels.filter(label => !selectedIds.includes(label.id));
+        return allLabels.filter(label => !selectedIds.includes(label.id));
     });
 
     constructor(public activeModal: NgbActiveModal) { }
@@ -37,18 +47,23 @@ export class ManageLabelsModalComponent {
 
     public addLabel(labelId: number): void {
         const currentSelected = this.selected();
-        const label = this.allLabels.find(l => l.id === labelId);
+        const label = this.allLabels()?.find(l => l.id === labelId);
         if (!label) {
             return;
         }
 
-        label.attachedInfo = {
-            userName: 'Current User',
-            date: new Date(),
-            currentUser: true
+        const newLabel: ProblemLabel = {
+            id: label.id,
+            text: label.text,
+            description: label.description,
+            attachedInfo: {
+                userName: this.currentUserName() ?? $localize`Unknown user`,
+                date: new Date(),
+                currentUser: true
+            },
+            removable: true
         };
-        label.removable = true;
-        this.selected.set([...currentSelected, label]);
+        this.selected.set([...currentSelected, newLabel]);
     }
 
     public closeModal(options: { save: boolean; } = { save: true }): void {
@@ -71,4 +86,8 @@ export class ManageLabelsModalComponent {
     private formatDate(date: Date): string {
         return Intl.DateTimeFormat(undefined, { year: 'numeric', month: 'long', day: 'numeric' }).format(date);
     }
+
+    private currentUserName = toSignal(
+        this.authService.currentUser$.pipe(map((user) => user?.username))
+    );
 }

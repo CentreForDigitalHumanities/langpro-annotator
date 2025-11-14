@@ -37,12 +37,33 @@ interface KnowledgeBaseItem {
     entity2: string;
 }
 
+export interface Label {
+    id: number;
+    text: string;
+    description: string;
+}
+
+interface AttachmentInfo {
+    userName: string;
+    date: Date;
+    currentUser: boolean;
+}
+
+export interface ProblemLabel {
+    id: number;
+    text: string;
+    description: string;
+    attachedInfo: AttachmentInfo | null;
+    removable: boolean;
+}
+
 interface ProblemBase {
     id: number | null;
     premises: string[];
     hypothesis: string | null;
     entailmentLabel: EntailmentLabel;
     kbItems: KnowledgeBaseItem[];
+    labels: ProblemLabel[];
 }
 
 interface SickProblem extends ProblemBase {

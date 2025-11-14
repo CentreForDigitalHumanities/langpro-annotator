@@ -107,8 +107,8 @@ export class ProblemService {
                 premises: [],
                 entailmentLabel: EntailmentLabel.UNKNOWN,
                 extraData: null,
-                kbItems: []
-
+                kbItems: [],
+                labels: [],
             },
         });
     }

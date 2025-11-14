@@ -1,26 +1,12 @@
 import { Component, computed, input } from "@angular/core";
-import { Dataset, EntailmentLabel, Problem } from "../../../types";
+import { Dataset, EntailmentLabel, Problem, ProblemLabel } from "../../../types";
 import { EntailmentLabelBadgeComponent } from "./entailment-label-badge/entailment-label-badge.component";
 import { faQuestionCircle } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeModule } from "@fortawesome/angular-fontawesome";
 import { NgbTooltipModule } from "@ng-bootstrap/ng-bootstrap";
 import { datasetLabels } from "@/shared/displayTextMappings";
 import { ProblemLabelsComponent } from "./problem-labels/problem-labels.component";
-import { mockLabels } from "./problem-labels/mockLabels";
 
-interface AttachmentInfo {
-    userName: string;
-    date: Date;
-    currentUser: boolean;
-}
-
-export interface ProblemLabel {
-    id: number;
-    text: string;
-    description: string;
-    attachedInfo: AttachmentInfo | null;
-    removable: boolean;
-}
 
 export interface ProblemDetails {
     problemId: string;
@@ -83,7 +69,7 @@ export class ProblemDetailsComponent {
             problemId: problem.id?.toString() ?? $localize`new`,
             dataset: problem.dataset,
             entailmentLabel: problem.entailmentLabel,
-            labels: [mockLabels[0], mockLabels[2]]
+            labels: problem.labels
         };
 
         switch (problem.dataset) {

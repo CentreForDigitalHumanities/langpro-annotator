@@ -10,12 +10,12 @@ from user.models import User
 from langpro_annotator.logger import logger
 from problem.problem_details import get_filters, get_related_problem_ids
 from problem.models import KnowledgeBase, Problem, Sentence
-from problem.serializers import ProblemInputSerializer
+from problem.serializers import ProblemInputSerializer, ProblemSerializer
 
 
 @dataclass
 class ProblemResponse:
-    problem: Problem | None = None
+    problem_data: dict | None = None
     index: int | None = None
     error: str | None = None
 
@@ -29,7 +29,7 @@ class ProblemResponse:
         return JsonResponse(
             {
                 "index": self.index,
-                "problem": self.problem.serialize() if self.problem else None,
+                "problem": self.problem_data,
                 "error": self.error,
                 "firstProblemId": self.first,
                 "previousProblemId": self.previous,
@@ -58,7 +58,10 @@ class ProblemView(APIView):
         """
         filters = get_filters(request.query_params)
 
-        qs = Problem.objects.all()
+        qs = Problem.objects.all().prefetch_related(
+            "labelings__label",
+            "labelings__attached_by",
+        )
 
         if filters is not None:
             qs = qs.filter(filters)
@@ -78,8 +81,14 @@ class ProblemView(APIView):
         problem_index = problem.get_index(qs) if problem else None
         related_problem_ids = get_related_problem_ids(qs, problem_id)
 
+        # Serialize the problem with request context
+        problem_data: dict | None = None
+        if problem:
+            serializer = ProblemSerializer(problem, context={"request": request})
+            problem_data = serializer.data  # type: ignore
+
         return ProblemResponse(
-            problem=problem,
+            problem_data=problem_data,
             index=problem_index,
             first=related_problem_ids.first,
             previous=related_problem_ids.previous,

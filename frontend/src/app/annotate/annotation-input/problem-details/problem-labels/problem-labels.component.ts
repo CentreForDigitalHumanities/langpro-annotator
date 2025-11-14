@@ -8,6 +8,7 @@ import { catchError, Subject, switchMap } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ToastService } from '@/services/toast.service';
 import { HttpClient } from '@angular/common/http';
+import { formatDate } from '@/util';
 
 @Component({
     selector: 'la-problem-labels',
@@ -84,15 +85,11 @@ export class ProblemLabelsComponent implements OnInit {
     public getTooltipText(label: ProblemLabel): string {
         let tooltip = label.description;
         if (label.attachedInfo) {
-            const dateStr = this.formatDate(label.attachedInfo.date);
+            const dateStr = formatDate(label.attachedInfo.date);
             const attachedUser = label.attachedInfo.currentUser ? $localize`you` : label.attachedInfo.userName;
             tooltip += `\n\nAttached by ${attachedUser} on ${dateStr}`;
         }
         return tooltip;
-    }
-
-    public formatDate(date: Date): string {
-        return Intl.DateTimeFormat(undefined, { year: 'numeric', month: 'long', day: 'numeric' }).format(date);
     }
 
     /**

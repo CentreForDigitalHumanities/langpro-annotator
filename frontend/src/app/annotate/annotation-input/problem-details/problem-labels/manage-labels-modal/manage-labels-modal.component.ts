@@ -8,6 +8,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { AuthService } from '@/services/auth.service';
 import { map, combineLatest, Subject, withLatestFrom, startWith } from 'rxjs';
 import { AsyncPipe } from '@angular/common';
+import { formatDate } from '@/util';
 
 type SelectedLabelsForm = FormGroup<{
     problemId: FormControl<number>;
@@ -79,7 +80,7 @@ export class ManageLabelsModalComponent implements OnInit {
                 description: label.description,
                 attachedInfo: {
                     userName: this.currentUserName() ?? $localize`Unknown user`,
-                    date: new Date(),
+                    date: new Date().toISOString(),
                     currentUser: true
                 },
                 removable: true
@@ -124,11 +125,7 @@ export class ManageLabelsModalComponent implements OnInit {
             return '';
         }
         const attachedUser = label.attachedInfo.currentUser ? $localize`you` : label.attachedInfo.userName;
-        return $localize`Attached by ${attachedUser} on ${this.formatDate(label.attachedInfo.date)}`;
-    }
-
-    private formatDate(date: Date): string {
-        return Intl.DateTimeFormat(undefined, { year: 'numeric', month: 'long', day: 'numeric' }).format(date);
+        return $localize`Attached by ${attachedUser} on ${formatDate(label.attachedInfo.date)}`;
     }
 
     private currentUserName = toSignal(

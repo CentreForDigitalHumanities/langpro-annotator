@@ -53,7 +53,7 @@ export class ProblemService {
                 header: $localize`Error fetching labels`,
                 body: $localize`Could not load labels from server.`,
                 type: 'danger',
-            })
+            });
             return of([]);
         }),
         shareReplay(1)
@@ -149,6 +149,4 @@ export class ProblemService {
 
         return new HttpParams({ fromObject: paramRecord });
     }
-
-
 }

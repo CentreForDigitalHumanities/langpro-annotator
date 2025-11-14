@@ -1,5 +1,5 @@
 import { ParseInput } from "@/annotate/annotation-input/annotation-input.component";
-import { ProblemResponse, SaveProblemResponse, Dataset, EntailmentLabel } from "@/types";
+import { ProblemResponse, SaveProblemResponse, Dataset, EntailmentLabel, Label } from "@/types";
 import { HttpClient, HttpParams } from "@angular/common/http";
 import { Injectable, inject } from "@angular/core";
 import { ParamMap } from "@angular/router";
@@ -44,6 +44,18 @@ export class ProblemService {
 
     public problem$ = this.problemResponse$.pipe(
         map(response => response?.problem ?? null),
+        shareReplay(1)
+    );
+
+    public allLabels$ = this.http.get<Label[]>('/api/labels').pipe(
+        catchError(() => {
+            this.toastService.show({
+                header: $localize`Error fetching labels`,
+                body: $localize`Could not load labels from server.`,
+                type: 'danger',
+            })
+            return of([]);
+        }),
         shareReplay(1)
     );
 

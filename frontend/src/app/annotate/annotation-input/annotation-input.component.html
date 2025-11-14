@@ -1,45 +1,55 @@
+@if (problem?.id) {
 <div class="card">
     <div class="card-body">
         <la-problem-details [problem]="problem" />
         @if (form) {
         <div class="d-flex flex-column">
             <la-premises-form class="subform" [form]="form" />
-            <hr>
+            <hr />
             <la-knowledge-base-form class="subform" [form]="form" />
         </div>
         }
     </div>
 </div>
 
-@if (modified) {
-    <!-- TODO: does the design make sense? -->
-    <div class="alert alert-warning d-flex justify-content-between">
-        <span i18n>Annotation modified</span>
-        <div>
-        <button
-            type="button"
-            class="btn btn-light me-3"
-            (click)="saveChanges()"
-        >
-            <fa-icon
-                [icon]="faFloppyDisk"
-                class="fa-sm"
-                aria-hidden="true"
-            ></fa-icon>
-            <span class="ms-2" i18n>Save</span>
-        </button>
-        <button
-            type="button"
-            class="btn btn-light"
-            (click)="revertChanges()"
-        >
-            <fa-icon
-                [icon]="faRotateLeft"
-                class="fa-sm"
-                aria-hidden="true"
-            ></fa-icon>
-            <span class="ms-2" i18n>Revert</span>
-        </button>
+    @if (modified) {
+        <!-- TODO: does the design make sense? -->
+        <div class="alert alert-warning d-flex justify-content-between">
+            <span i18n>Annotation modified</span>
+            <div>
+            <button
+                type="button"
+                class="btn btn-light me-3"
+                (click)="saveChanges()"
+            >
+                <fa-icon
+                    [icon]="faFloppyDisk"
+                    class="fa-sm"
+                    aria-hidden="true"
+                ></fa-icon>
+                <span class="ms-2" i18n>Save</span>
+            </button>
+            <button
+                type="button"
+                class="btn btn-light"
+                (click)="revertChanges()"
+            >
+                <fa-icon
+                    [icon]="faRotateLeft"
+                    class="fa-sm"
+                    aria-hidden="true"
+                ></fa-icon>
+                <span class="ms-2" i18n>Revert</span>
+            </button>
+            </div>
         </div>
-    </div>
+    }
+}
+@else {
+<div class="h-100 d-flex align-items-center justify-content-center text-muted">
+    <fa-icon [icon]="faExclamationCircle"></fa-icon>
+    <h2 class="h4 mb-0 ms-2">
+        There are no problems matching your search criteria.
+    </h2>
+</div>
 }

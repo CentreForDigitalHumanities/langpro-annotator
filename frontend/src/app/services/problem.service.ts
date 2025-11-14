@@ -1,8 +1,8 @@
-import { ProblemResponse, ProofBankStats } from '@/types';
+import { ProblemResponse } from '@/types';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { ParamMap } from '@angular/router';
-import { Subject, Observable, switchMap, of, catchError, shareReplay } from 'rxjs';
+import { Subject, Observable, switchMap, of, catchError, shareReplay, map } from 'rxjs';
 
 @Injectable({
     providedIn: 'root'
@@ -21,15 +21,24 @@ export class ProblemService {
 
             const httpParams = this.extractSearchParams(queryParams);
 
-            return this.http.get<ProblemResponse>(`/api/problem/${problemId}`, { params: httpParams }).pipe(
-                catchError((error) => {
-                    console.error(`Error fetching problem ${problemId}:`, error);
-                    return of(null);
-                })
-            );
+            return this.queryProblem$(problemId, httpParams);
         }),
         shareReplay(1)
     );
+
+    public getFirstProblemId$ = this.queryProblem$().pipe(
+        map(problem => problem?.id ?? null)
+    );
+
+    private queryProblem$(problemId?: string, httpParams?: HttpParams) {
+        return this.http.get<ProblemResponse>(`/api/problem/${problemId ?? ""}`, { params: httpParams }).pipe(
+            catchError((error) => {
+                const message = `Error fetching ${problemId ? `problem ${problemId}` : "first problem"}`;
+                console.error(message, error);
+                return of(null);
+            })
+        );
+    }
 
     private extractSearchParams(routeParams: ParamMap): HttpParams {
         const text = routeParams.get("text");
@@ -46,15 +55,6 @@ export class ProblemService {
 
         return new HttpParams({ fromObject: paramRecord });
     }
-
-    public proofBankStats$: Observable<ProofBankStats | null> = this.http
-        .get<ProofBankStats>("/api/problem/proofbank-stats")
-        .pipe(
-            catchError((error) => {
-                console.error(`Error fetching ProofBank stats:`, error);
-                return of(null);
-            })
-        );
 
     public save(problemId: number, annotation: any) {
         return this.http.post(`/api/problem/${problemId}`, annotation);

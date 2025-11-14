@@ -1,4 +1,4 @@
-@let problem = problem$ | async; @let proofBankStats = proofBankStats$ | async;
+@let problem = problem$ | async;
 
 <div class="navigator-container">
     <div class="d-flex justify-content-between align-items-center gap-2">
@@ -6,8 +6,8 @@
             <button
                 class="btn btn-outline-primary btn-sm"
                 type="button"
-                (click)="navigateToProblem(proofBankStats?.firstProblemId)"
-                [disabled]="problem?.id === proofBankStats?.firstProblemId"
+                (click)="navigateToProblem(problem?.firstProblemId)"
+                [disabled]="problem?.id === problem?.firstProblemId"
                 aria-labelledby="label-first"
                 title="First problem"
                 title-i18n
@@ -24,8 +24,8 @@
             <button
                 class="btn btn-outline-primary btn-sm"
                 type="button"
-                (click)="navigateToProblem(problem?.previous)"
-                [disabled]="problem?.previous === null"
+                (click)="navigateToProblem(problem?.previousProblemId)"
+                [disabled]="problem?.previousProblemId === null"
                 aria-labelledby="label-previous"
                 title="Previous problem"
                 title-i18n
@@ -42,13 +42,12 @@
         </div>
 
         <div class="px-2 text-center flex-grow-1">
-            @if (problem && problem.index !== null && proofBankStats &&
-            proofBankStats.totalProblems) {
+            @if (problem) {
             <span class="small" i18n>
-                {{ problem.index }}
+                {{ problem?.index ?? '-' }}
             </span>
             <hr class="my-1">
-            <span class="small" i18n>{{ proofBankStats.totalProblems }}</span>
+            <span class="small" i18n>{{ problem.totalProblems }}</span>
             }
         </div>
 
@@ -56,8 +55,8 @@
             <button
                 class="btn btn-outline-primary btn-sm"
                 type="button"
-                (click)="navigateToProblem(problem?.next)"
-                [disabled]="problem?.next === null"
+                (click)="navigateToProblem(problem?.nextProblemId)"
+                [disabled]="problem?.nextProblemId === null"
                 title="Next problem"
                 title-i18n
             >
@@ -70,8 +69,8 @@
             </button>
             <button
                 class="btn btn-outline-primary btn-sm"
-                (click)="navigateToProblem(proofBankStats?.lastProblemId)"
-                [disabled]="problem?.id === proofBankStats?.lastProblemId"
+                (click)="navigateToProblem(problem?.lastProblemId)"
+                [disabled]="problem?.id === problem?.lastProblemId"
                 title="Last problem"
                 title-i18n
             >

@@ -15,10 +15,10 @@ import {
 } from "./knowledge-base-form/knowledge-base-form.component";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ProblemResponse } from "../../types";
-import { faCheck } from "@fortawesome/free-solid-svg-icons";
+import { faExclamationCircle } from "@fortawesome/free-solid-svg-icons";
 import { ProblemDetailsComponent } from "./problem-details/problem-details.component";
 import { combineLatest, Subject } from "rxjs";
-import { ActivatedRoute } from "@angular/router";
+import { ActivatedRoute, Router } from "@angular/router";
 import { ProblemService } from "@/services/problem.service";
 import { ParseService } from "@/services/parse.service";
 import { FontAwesomeModule } from "@fortawesome/angular-fontawesome";
@@ -79,6 +79,7 @@ export class AnnotationInputComponent implements OnInit {
     public faRotateLeft = faRotateLeft;
 
     private route = inject(ActivatedRoute);
+    private router = inject(Router);
     private destroyRef = inject(DestroyRef);
     private problemService = inject(ProblemService);
     private parseService = inject(ParseService);
@@ -88,7 +89,7 @@ export class AnnotationInputComponent implements OnInit {
 
     public submit$ = new Subject<void>();
 
-    public faCheck = faCheck;
+    public faExclamationCircle = faExclamationCircle;
 
     private problemId: number | null = null;
     private formValue: any;
@@ -99,15 +100,14 @@ export class AnnotationInputComponent implements OnInit {
         this.problemService.problem$
             .pipe(takeUntilDestroyed(this.destroyRef))
             .subscribe((problem) => {
+                // Navigate away if the backend provides a new Problem ID.
+                this.navigateToNewProblem(problem);
+
+                // Otherwise, update local state and form.
                 this.problem = problem;
-                if (!problem) {
-                    this.form = null;
-                    return;
-                }
-                this.modified = false;
-                this.form = this.buildForm(problem);
-                this.formValue = this.form.value;
-                this.form.valueChanges.subscribe(
+                this.form = problem ? this.buildForm(problem) : null;
+                this.formValue = this.form?.value;
+                this.form?.valueChanges.subscribe(
                     data => {
                         // TODO: replace with more reasonable object compare
                         this.modified = JSON.stringify(this.formValue) != JSON.stringify(data)
@@ -123,6 +123,7 @@ export class AnnotationInputComponent implements OnInit {
                 console.log("Parse response:", response);
             });
 
+        // Listen to route changes only after subscribing to ProblemService.problem$.
         combineLatest([
             this.route.paramMap,
             this.route.queryParamMap])
@@ -133,6 +134,20 @@ export class AnnotationInputComponent implements OnInit {
                 this.problemId = parseInt(params.get('problemId')!, 10);
                 this.problemService.allParams$.next({ params, queryParams });
             });
+    }
+
+    private navigateToNewProblem(problem: ProblemResponse | null): void {
+        if (!problem?.problem) {
+            return;
+        }
+        const incomingProblemId = problem?.id?.toString();
+        const currentProblemId = this.route.snapshot.paramMap.get("problemId");
+
+        if (incomingProblemId !== currentProblemId) {
+            this.router.navigate(['/annotate', problem.id], {
+                queryParamsHandling: "preserve",
+            });
+        }
     }
 
     private buildForm(response: ProblemResponse): ParseInputForm {

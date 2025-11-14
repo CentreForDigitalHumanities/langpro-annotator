@@ -59,19 +59,14 @@ interface UserProblem extends ProblemBase {
 type Problem = SickProblem | FracasProblem | SNLIProblem | UserProblem;
 
 export interface ProblemResponse {
-    id: number;
+    id: number | null;
     index: number | null;
-    next: string | null;
-    previous: string | null;
-    random: string | null;
-    error: string | null;
     problem: Problem | null;
-
-}
-
-export interface ProofBankStats {
-    firstProblemId: string;
-    lastProblemId: string;
+    error: string | null;
+    firstProblemId: string | null;
+    previousProblemId: string | null;
+    nextProblemId: string | null;
+    lastProblemId: string | null;
     totalProblems: number;
 }
 

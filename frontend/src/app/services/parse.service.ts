@@ -14,7 +14,7 @@ export class ParseService {
 
     public parse$ = this.submit.pipe(
         switchMap((form) =>
-            this.http.post<ProblemResponse>("/api/problem/parse", form).pipe(
+            this.http.post("/api/problem/parse", form).pipe(
                 catchError((error) => {
                     console.error(`Error parsing problem:`, error);
                     return of(null);

@@ -1,0 +1,3 @@
+[submodule "langpro-container"]
+	path = langpro-container
+	url = git@github.com:CentreForDigitalHumanities/langpro-container.git

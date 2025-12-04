@@ -3,6 +3,7 @@ from dataclasses import asdict, dataclass
 from django.db import DatabaseError
 from django.http import JsonResponse
 from rest_framework.views import APIView
+from rest_framework.request import Request
 
 from langpro_annotator.logger import logger
 from problem.problem_details import get_filters, get_related_problem_ids
@@ -48,7 +49,7 @@ class SaveProblemResponse:
 
 
 class ProblemView(APIView):
-    def get(self, request, problem_id: int | None = None) -> JsonResponse:
+    def get(self, request: Request, problem_id: int | None = None) -> JsonResponse:
         """
         If a Problem ID is provided, retrieves the requested Problem.
         Otherwise, simply returns the first problem of the QS.
@@ -85,7 +86,7 @@ class ProblemView(APIView):
             total=related_problem_ids.total,
         ).json_response(status=200)
 
-    def post(self, request, problem_id: int | None = None) -> JsonResponse:
+    def post(self, request: Request, problem_id: int | None = None) -> JsonResponse:
         """
         If the Problem ID is None, attempts to create a new Problem;
         else the associated Problem is updated.

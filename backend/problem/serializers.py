@@ -4,9 +4,6 @@ from problem.models import Problem, KnowledgeBase, Sentence
 
 
 class KnowledgeBaseSerializer(serializers.ModelSerializer):
-    # If an ID is not provided, it means a new KB item is to be created.
-    id = serializers.IntegerField(required=False, allow_null=True)
-    relationship = serializers.CharField(required=True)
 
     class Meta:
         model = KnowledgeBase

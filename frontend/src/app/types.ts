@@ -74,11 +74,11 @@ interface BaseResponse {
 export interface ProblemResponse extends BaseResponse {
     index: number | null;
     problem: Problem | null;
-    firstProblemId: number | null;
-    previousProblemId: number | null;
-    nextProblemId: number | null;
-    lastProblemId: number | null;
-    totalProblems: number;
+    first: number | null;
+    previous: number | null;
+    next: number | null;
+    last: number | null;
+    total: number;
 }
 
 export interface SaveProblemResponse extends BaseResponse {

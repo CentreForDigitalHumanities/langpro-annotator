@@ -76,11 +76,11 @@ export class ProblemService {
     private newProblem$(): Observable<ProblemResponse> {
         return of<ProblemResponse>({
             index: null,
-            firstProblemId: null,
-            lastProblemId: null,
-            nextProblemId: null,
-            previousProblemId: null,
-            totalProblems: 0,
+            first: null,
+            last: null,
+            next: null,
+            previous: null,
+            total: 0,
             error: null,
             problem: {
                 id: null,
@@ -98,7 +98,7 @@ export class ProblemService {
     private existingProblem$(problemId?: string, queryParams?: ParamMap): Observable<ProblemResponse | null> {
         const httpParams = queryParams ? this.extractSearchParams(queryParams) : undefined;
 
-        return this.http.get<ProblemResponse>(`/api/problem/${problemId ?? ""}`, { params: httpParams }).pipe(
+        return this.http.get<ProblemResponse>(`/api/problem/${problemId ?? "first"}/`, { params: httpParams }).pipe(
             catchError((error) => {
                 const message = `Error fetching ${problemId ? `problem ${problemId}` : "first problem"}`;
                 console.error(message, error);

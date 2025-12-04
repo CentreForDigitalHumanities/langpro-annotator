@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from problem.services import FracasData, SNLIData, SickData
 from problem.models import Problem, KnowledgeBase
 
 
@@ -19,6 +20,56 @@ class KnowledgeBaseSerializer(serializers.ModelSerializer):
                     f"KnowledgeBase item with ID {value} does not exist."
                 )
         return value
+
+
+class ProblemSerializer(serializers.ModelSerializer):
+    """
+    Serializer for Problem model output.
+    Handles serialization of problems with all related data including labels.
+    """
+
+    premises = serializers.SerializerMethodField()
+    hypothesis = serializers.SerializerMethodField()
+    entailmentLabel = serializers.CharField(source="entailment_label")
+    extraData = serializers.SerializerMethodField()
+    kbItems = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Problem
+        fields = [
+            "id",
+            "dataset",
+            "premises",
+            "hypothesis",
+            "entailmentLabel",
+            "extraData",
+            "kbItems",
+        ]
+
+    def get_premises(self, problem):
+        """Get list of premise texts."""
+        return [premise.text for premise in problem.premises.all()]
+
+    def get_hypothesis(self, problem):
+        """Get hypothesis text."""
+        return problem.hypothesis.text
+
+    def get_extraData(self, problem):
+        """Get dataset-specific extra data."""
+        match problem.dataset:
+            case Problem.Dataset.SICK:
+                return SickData.serialize(problem.extra_data)
+            case Problem.Dataset.FRACAS:
+                return FracasData.serialize(problem.extra_data)
+            case Problem.Dataset.SNLI:
+                return SNLIData.serialize(problem.extra_data)
+            case _:
+                return {}
+
+    def get_kbItems(self, problem):
+        """Get knowledge base items."""
+        kb_items = problem.knowledge_bases.all()
+        return KnowledgeBaseSerializer(kb_items, many=True).data
 
 
 class ProblemInputSerializer(serializers.Serializer):

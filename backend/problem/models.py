@@ -57,33 +57,6 @@ class Problem(models.Model):
             logger.exception(f"Error getting index for problem {self.pk}: {e}")
             return None
 
-    def serialize(self) -> dict:
-        """
-        Serialize the Problem instance to a dictionary.
-        """
-
-        match self.dataset:
-            case self.Dataset.SICK:
-                serialized_extra_data = SickData.serialize(self.extra_data)
-            case self.Dataset.FRACAS:
-                serialized_extra_data = FracasData.serialize(self.extra_data)
-            case self.Dataset.SNLI:
-                serialized_extra_data = SNLIData.serialize(self.extra_data)
-            case _:
-                serialized_extra_data = {}
-
-        kb_items = self.knowledge_bases.all() # type: ignore
-
-        return {
-            "id": self.pk,
-            "dataset": self.dataset,
-            "premises": [premise.text for premise in self.premises.all()],
-            "hypothesis": self.hypothesis.text,
-            "entailmentLabel": self.entailment_label,
-            "extraData": serialized_extra_data,
-            "kbItems": [item.serialize() for item in kb_items],
-        }
-
 
 class KnowledgeBase(models.Model):
     class Relationship(models.TextChoices):

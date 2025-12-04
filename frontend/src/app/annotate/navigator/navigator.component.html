@@ -6,8 +6,8 @@
             <button
                 class="btn btn-outline-primary btn-sm"
                 type="button"
-                (click)="navigateToProblem(problemResponse?.firstProblemId)"
-                [disabled]="problemResponse?.problem?.id === problemResponse?.firstProblemId"
+                (click)="navigateToProblem(problemResponse?.first)"
+                [disabled]="problemResponse?.problem?.id === problemResponse?.first"
                 aria-labelledby="label-first"
                 title="First problem"
                 title-i18n
@@ -24,8 +24,8 @@
             <button
                 class="btn btn-outline-primary btn-sm"
                 type="button"
-                (click)="navigateToProblem(problemResponse?.previousProblemId)"
-                [disabled]="problemResponse?.previousProblemId === null"
+                (click)="navigateToProblem(problemResponse?.previous)"
+                [disabled]="problemResponse?.previous === null"
                 aria-labelledby="label-previous"
                 title="Previous problem"
                 title-i18n
@@ -47,7 +47,7 @@
                 {{ problemResponse?.index ?? '-' }}
             </span>
             <hr class="my-1">
-            <span class="small" i18n>{{ problemResponse.totalProblems }}</span>
+            <span class="small" i18n>{{ problemResponse.total }}</span>
             }
         </div>
 
@@ -55,8 +55,8 @@
             <button
                 class="btn btn-outline-primary btn-sm"
                 type="button"
-                (click)="navigateToProblem(problemResponse?.nextProblemId)"
-                [disabled]="problemResponse?.nextProblemId === null"
+                (click)="navigateToProblem(problemResponse?.next)"
+                [disabled]="problemResponse?.next === null"
                 title="Next problem"
                 title-i18n
             >
@@ -69,8 +69,8 @@
             </button>
             <button
                 class="btn btn-outline-primary btn-sm"
-                (click)="navigateToProblem(problemResponse?.lastProblemId)"
-                [disabled]="problemResponse?.problem?.id === problemResponse?.lastProblemId"
+                (click)="navigateToProblem(problemResponse?.last)"
+                [disabled]="problemResponse?.problem?.id === problemResponse?.last"
                 title="Last problem"
                 title-i18n
             >

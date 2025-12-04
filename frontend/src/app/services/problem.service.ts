@@ -63,8 +63,9 @@ export class ProblemService {
 
     public saveProblem$ = this.submit$.pipe(
         exhaustMap((problem) => {
-            const url = `/api/problem/${problem.id ?? ""}`;
-            return this.http.post<SaveProblemResponse>(url, problem).pipe(
+            const action = problem.id ? this.http.patch<SaveProblemResponse>(`/api/problem/${problem.id}/`, problem) :
+                this.http.post<SaveProblemResponse>(`/api/problem/`, problem);
+            return action.pipe(
                 catchError((error) => {
                     console.error('Error saving problem:', error);
                     return of({ id: null, error: 'Failed to save problem' });

@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from problem.services import FracasData, SNLIData, SickData
-from problem.models import Problem, KnowledgeBase
+from problem.models import Problem, KnowledgeBase, Sentence
 
 
 class KnowledgeBaseSerializer(serializers.ModelSerializer):
@@ -20,6 +20,23 @@ class KnowledgeBaseSerializer(serializers.ModelSerializer):
                     f"KnowledgeBase item with ID {value} does not exist."
                 )
         return value
+
+    def create_for_problem(
+        self, validated_data: dict, problem: Problem
+    ) -> KnowledgeBase:
+        """Create a new KnowledgeBase item for a problem."""
+        return KnowledgeBase.objects.create(
+            **validated_data,
+            problem=problem,
+        )
+
+    def update(self, instance: KnowledgeBase, validated_data: dict) -> KnowledgeBase:
+        """Update an existing KnowledgeBase item."""
+        instance.entity1 = validated_data["entity1"]
+        instance.relationship = validated_data["relationship"]
+        instance.entity2 = validated_data["entity2"]
+        instance.save()
+        return instance
 
 
 class ProblemSerializer(serializers.ModelSerializer):
@@ -71,6 +88,85 @@ class ProblemSerializer(serializers.ModelSerializer):
         kb_items = problem.knowledge_bases.all()
         return KnowledgeBaseSerializer(kb_items, many=True).data
 
+    def create(self, validated_data: dict) -> Problem:
+        """
+        Create a new Problem instance from validated input data.
+        Handles creation of related Sentence and KnowledgeBase objects.
+        """
+        premise_sentences = [
+            Sentence.objects.get_or_create(text=premise)[0]
+            for premise in validated_data["premises"]
+        ]
+
+        hypothesis_sentence = Sentence.objects.get_or_create(
+            text=validated_data["hypothesis"]
+        )[0]
+
+        problem = Problem.objects.create(
+            hypothesis=hypothesis_sentence,
+            dataset=Problem.Dataset.USER,
+            # TODO: Determine entailment label based on LangPro parser output.
+            entailment_label=Problem.EntailmentLabel.UNKNOWN,
+            extra_data={},
+        )
+
+        problem.premises.set(premise_sentences)
+
+        kb_items = validated_data.get("kbItems", [])
+        if kb_items:
+            self._update_or_create_kb_items(problem, kb_items)
+
+        return problem
+
+    def update(self, instance: Problem, validated_data: dict) -> Problem:
+        """
+        Update an existing Problem instance from validated input data.
+        Handles updating of related Sentence and KnowledgeBase objects.
+        """
+        if instance.dataset != Problem.Dataset.USER:
+            raise serializers.ValidationError(
+                "Cannot update a problem that is not a user-created problem."
+            )
+
+        instance.hypothesis = Sentence.objects.get_or_create(
+            text=validated_data["hypothesis"],
+        )[0]
+        instance.save()
+
+        premise_sentences = [
+            Sentence.objects.get_or_create(text=premise)[0]
+            for premise in validated_data["premises"]
+        ]
+        instance.premises.set(premise_sentences)
+
+        self._update_or_create_kb_items(instance, validated_data.get("kbItems", []))
+
+        return instance
+
+    def _update_or_create_kb_items(
+        self, problem: Problem, kb_items: list[dict]
+    ) -> None:
+        """Create or update KnowledgeBase items for a problem."""
+        kb_ids: list[int] = []
+        kb_serializer = KnowledgeBaseSerializer()
+
+        for item in kb_items:
+            kb_id = item.get("id", None)
+
+            if kb_id is None:
+                kb = kb_serializer.create_for_problem(item, problem=problem)  # type: ignore
+            else:
+                kb_instance = KnowledgeBase.objects.get(id=kb_id, problem_id=problem.pk)
+                kb = kb_serializer.update(kb_instance, item)
+
+            kb_ids.append(kb.pk)
+
+        # Delete existing knowledge bases associated to this problem that are
+        # not included in the input.
+        KnowledgeBase.objects.filter(problem_id=problem.pk).exclude(
+            id__in=kb_ids
+        ).delete()
+
 
 class ProblemInputSerializer(serializers.Serializer):
     """
@@ -91,16 +187,3 @@ class ProblemInputSerializer(serializers.Serializer):
         many=True, allow_empty=True, help_text="List of knowledge base items"
     )
 
-    def validate_id(self, value):
-        """
-        Validate that the problem ID exists and belongs to a user problem.
-        Users are not allowed to modify non-user problems.
-        """
-        if value is not None:
-            if not Problem.objects.filter(
-                id=value, dataset=Problem.Dataset.USER
-            ).exists():
-                raise serializers.ValidationError(
-                    f"Problem with ID {value} does not exist or is not a user problem."
-                )
-        return value

@@ -4,11 +4,13 @@ from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.status import HTTP_201_CREATED, HTTP_200_OK
 
+from django.shortcuts import get_object_or_404
+
 from problem.problem_details import (
     get_filters,
     get_related_problem_ids,
 )
-from problem.models import KnowledgeBase, Problem, Sentence
+from problem.models import Problem
 from problem.serializers import ProblemInputSerializer, ProblemSerializer
 
 
@@ -95,101 +97,30 @@ class ProblemView(ModelViewSet):
         """
         Updates an existing user-created Problem with the provided input data.
         """
-        return self._handle_update_create_problem(request, pk)
+        return self._handle_update_create_problem(request, problem_id=pk)
 
     def _handle_update_create_problem(
         self, request: Request, problem_id: int | None
     ) -> Response:
         input_data = request.data
 
-        serializer = ProblemInputSerializer(data=input_data)
-        serializer.is_valid(raise_exception=True)
-        validated_input: dict = serializer.validated_data  # type: ignore
-        validated_input["id"] = problem_id
+        input_serializer = ProblemInputSerializer(data=input_data)
+        input_serializer.is_valid(raise_exception=True)
+        validated_input: dict = input_serializer.validated_data  # type: ignore
+
+        problem_serializer = ProblemSerializer()
 
         if problem_id is None:
-            problem = create_problem_from_input(validated_input)
+            problem = problem_serializer.create(validated_input)
             status = HTTP_201_CREATED
         else:
-            problem = update_problem_from_input(validated_input)
+            problem_instance = get_object_or_404(
+                Problem, id=problem_id, dataset=Problem.Dataset.USER
+            )
+            problem: Problem = problem_serializer.update(
+                problem_instance, validated_input
+            )
             status = HTTP_200_OK
 
         return Response({"id": problem.pk}, status=status)
 
-
-def create_problem_from_input(parse_input: dict) -> Problem:
-    """
-    Save a new Problem instance from the given parse input data.
-    """
-
-    premise_sentences = [
-        Sentence.objects.get_or_create(text=premise)[0]
-        for premise in parse_input["premises"]
-    ]
-
-    hypothesis_sentence = Sentence.objects.get_or_create(
-        text=parse_input["hypothesis"]
-    )[0]
-
-    problem = Problem.objects.create(
-        hypothesis=hypothesis_sentence,
-        dataset=Problem.Dataset.USER,
-        # TODO: Determine entailment label based on LangPro parser output.
-        entailment_label=Problem.EntailmentLabel.UNKNOWN,
-        extra_data={},
-    )
-
-    problem.premises.set(premise_sentences)
-
-    update_or_create_kb_items(problem=problem, kb_items=parse_input["kbItems"])
-
-    return problem
-
-
-def update_or_create_kb_items(problem: Problem, kb_items: list[dict]) -> None:
-    kb_ids: list[str] = []
-    for item in kb_items:
-        id = getattr(item, "id", None)
-        entity1 = item["entity1"]
-        relationship = item["relationship"]
-        entity2 = item["entity2"]
-
-        if id is None:
-            kb = KnowledgeBase.objects.create(
-                entity1=entity1,
-                relationship=relationship,
-                entity2=entity2,
-                problem=problem,
-            )
-            kb_ids.append(kb.pk)
-        else:
-            kb = KnowledgeBase.objects.get(id=id, problem_id=problem.pk)
-            kb.entity1 = entity1
-            kb.relationship = relationship
-            kb.entity2 = entity2
-            kb.save()
-            kb_ids.append(kb.pk)
-
-    # Delete existing knowledge bases associated to this problem that are
-    # not included in the input.
-    KnowledgeBase.objects.filter(problem_id=problem.pk).exclude(id__in=kb_ids).delete()
-
-
-def update_problem_from_input(parse_input: dict) -> Problem:
-    problem = Problem.objects.get(id=parse_input["id"], dataset=Problem.Dataset.USER)
-
-    problem.hypothesis = Sentence.objects.get_or_create(
-        text=parse_input["hypothesis"],
-    )[0]
-    problem.save()
-
-    premises: list[Sentence] = []
-    for input_premise in parse_input["premises"]:
-        premise = Sentence.objects.get_or_create(text=input_premise)[0]
-        premises.append(premise)
-
-    problem.premises.set(premises)
-
-    update_or_create_kb_items(problem, parse_input["kbItems"])
-
-    return problem

@@ -15,7 +15,7 @@ import { Dataset, KnowledgeBaseRelationship, Problem } from "../../types";
 import { faCheck, faExclamationCircle, faFloppyDisk, faTrash, faTree, faWrench } from "@fortawesome/free-solid-svg-icons";
 import { ProblemDetailsComponent } from "./problem-details/problem-details.component";
 import { map, Subject } from "rxjs";
-import { ActivatedRoute, Router } from "@angular/router";
+import { ActivatedRoute, Router, RouterLinkWithHref } from "@angular/router";
 import { ProblemService } from "@/services/problem.service";
 import { ParseService } from "@/services/parse.service";
 import { FontAwesomeModule } from "@fortawesome/angular-fontawesome";
@@ -48,6 +48,7 @@ export type ParseInput = ReturnType<ParseInputForm["getRawValue"]>;
         ReactiveFormsModule,
         ProblemDetailsComponent,
         FontAwesomeModule,
+        RouterLinkWithHref
     ],
     templateUrl: "./annotation-input.component.html",
     styleUrl: "./annotation-input.component.scss",
@@ -133,10 +134,6 @@ export class AnnotationInputComponent implements OnInit {
         }
         const input = this.form.getRawValue();
         this.problemService.submit$.next(input);
-    }
-
-    public editProblem(): void {
-        this.router.navigate(["edit"], { relativeTo: this.route, queryParamsHandling: "preserve" });
     }
 
     private navigateToNewProblem(problem: Problem | null): void {

@@ -39,18 +39,18 @@
                 <span class="ms-3" i18n>Save problem</span>
             </button>
             } @else if (userProblem) {
-                <button
-                    type="button"
-                    class="btn btn-secondary d-flex align-items-center justify-content-center"
-                    (click)="editProblem()"
-                >
-                    <fa-icon
-                        [icon]="faWrench"
-                        aria-hidden="true"
-                        focusable="false"
-                    ></fa-icon>
-                    <span class="ms-3" i18n>Edit problem</span>
-                </button>
+            <a
+                class="btn btn-secondary d-flex align-items-center justify-content-center"
+                [routerLink]="['./edit']"
+                queryParamsHandling="preserve"
+            >
+                <fa-icon
+                    [icon]="faWrench"
+                    aria-hidden="true"
+                    focusable="false"
+                ></fa-icon>
+                <span class="ms-3" i18n>Edit problem</span>
+            </a>
             }
         </div>
         }

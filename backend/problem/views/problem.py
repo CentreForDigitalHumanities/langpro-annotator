@@ -1,27 +1,15 @@
-from dataclasses import asdict, dataclass
-
-from django.db import DatabaseError
-from django.http import JsonResponse
 from rest_framework.decorators import action
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
+from rest_framework.status import HTTP_201_CREATED, HTTP_200_OK
 
-from langpro_annotator.logger import logger
 from problem.problem_details import (
     get_filters,
     get_related_problem_ids,
 )
 from problem.models import KnowledgeBase, Problem, Sentence
-from problem.serializers import ProblemSerializer
-
-@dataclass
-class SaveProblemResponse:
-    id: int | None = None
-    error: str | None = None
-
-    def json_response(self, status=200) -> JsonResponse:
-        return JsonResponse(asdict(self), status=status)
+from problem.serializers import ProblemInputSerializer, ProblemSerializer
 
 
 class ProblemView(ModelViewSet):
@@ -40,10 +28,9 @@ class ProblemView(ModelViewSet):
             qs = qs.filter(filters)
 
         serializer = self.get_serializer(qs, many=True)
-        return Response(serializer.data, status=200)
+        return Response(serializer.data, status=HTTP_200_OK)
 
-
-    @action(detail=False, methods=['get'], url_path='first')
+    @action(detail=False, methods=["get"], url_path="first")
     def first(self, request: Request) -> Response:
         """
         Retrieves the first problem from the queryset.
@@ -85,72 +72,49 @@ class ProblemView(ModelViewSet):
 
         serializer = self.get_serializer(problem)
 
-        return Response({
-            "problem": serializer.data,
-            "index": problem_index,
-            "first": related_problem_ids.first,
-            "previous": related_problem_ids.previous,
-            "next": related_problem_ids.next,
-            "last": related_problem_ids.last,
-            "total": related_problem_ids.total,
-        }, status=200)
+        return Response(
+            {
+                "problem": serializer.data,
+                "index": problem_index,
+                "first": related_problem_ids.first,
+                "previous": related_problem_ids.previous,
+                "next": related_problem_ids.next,
+                "last": related_problem_ids.last,
+                "total": related_problem_ids.total,
+            },
+            status=HTTP_200_OK,
+        )
 
-    def post(self, request: Request, problem_id: int | None = None) -> JsonResponse:
+    def create(self, request: Request) -> Response:
         """
-        If the Problem ID is None, attempts to create a new Problem;
-        else the associated Problem is updated.
+        Creates a new Problem from the provided input data.
         """
+        return self._handle_update_create_problem(request, problem_id=None)
+
+    def partial_update(self, request: Request, pk: int) -> Response:
+        """
+        Updates an existing user-created Problem with the provided input data.
+        """
+        return self._handle_update_create_problem(request, pk)
+
+    def _handle_update_create_problem(
+        self, request: Request, problem_id: int | None
+    ) -> Response:
         input_data = request.data
 
-        try:
-            problem = save_problem(input_data, problem_id)
-        except ValueError as ve:
-            logger.error(f"Validation error saving problem: {ve}")
-            return SaveProblemResponse(id=problem_id, error=str(ve)).json_response(
-                status=400
-            )
-        except Problem.DoesNotExist as pne:
-            logger.error(f"Problem not found: {pne}")
-            return SaveProblemResponse(
-                id=problem_id, error="Problem not found."
-            ).json_response(status=404)
-        except KnowledgeBase.DoesNotExist as kbne:
-            logger.error(f"Knowledge base item not found: {kbne}")
-            return SaveProblemResponse(
-                id=problem_id, error="Knowledge base item not found."
-            ).json_response(status=404)
-        except DatabaseError as dbe:
-            logger.error(f"Database error saving problem: {dbe}")
-            return SaveProblemResponse(
-                id=problem_id, error="Database error saving problem."
-            ).json_response(status=500)
-        except Exception as e:
-            logger.exception(f"Unexpected error saving problem: {e}")
-            return SaveProblemResponse(
-                id=problem_id, error="Error saving problem."
-            ).json_response(status=500)
+        serializer = ProblemInputSerializer(data=input_data)
+        serializer.is_valid(raise_exception=True)
+        validated_input: dict = serializer.validated_data  # type: ignore
+        validated_input["id"] = problem_id
 
-        return SaveProblemResponse(id=problem.pk).json_response(status=200)
+        if problem_id is None:
+            problem = create_problem_from_input(validated_input)
+            status = HTTP_201_CREATED
+        else:
+            problem = update_problem_from_input(validated_input)
+            status = HTTP_200_OK
 
-
-def save_problem(input_data: dict, problem_id: int | None) -> Problem:
-    serializer = ProblemInputSerializer(data=input_data)
-
-    if not serializer.is_valid():
-        raise ValueError("Input data is not valid.")
-
-    validated_input: dict = serializer.validated_data  # type: ignore
-
-    problem: Problem | None = None
-    if problem_id is None:
-        problem = create_problem_from_input(validated_input)
-    else:
-        problem = update_problem_from_input(validated_input)
-
-    if problem is None:
-        raise ValueError("Problem could not be saved.")
-
-    return problem
+        return Response({"id": problem.pk}, status=status)
 
 
 def create_problem_from_input(parse_input: dict) -> Problem:
@@ -185,7 +149,7 @@ def create_problem_from_input(parse_input: dict) -> Problem:
 def update_or_create_kb_items(problem: Problem, kb_items: list[dict]) -> None:
     kb_ids: list[str] = []
     for item in kb_items:
-        id = item["id"]
+        id = getattr(item, "id", None)
         entity1 = item["entity1"]
         relationship = item["relationship"]
         entity2 = item["entity2"]

@@ -130,12 +130,6 @@ export class AnnotationInputComponent implements OnInit {
         this.parseService.submit$.next(input);
     }
 
-    public copyProblem(): void {
-        this.router.navigate(["/", "annotate", "new"], {
-            queryParams: { base: this.form?.getRawValue().id }
-        });
-    }
-
     public saveProblem(): void {
         this.form?.markAllAsTouched();
         if (!this.form || this.form.invalid) {

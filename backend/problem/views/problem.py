@@ -111,7 +111,7 @@ class ProblemView(ModelViewSet):
         problem_serializer = ProblemSerializer()
 
         if problem_id is None:
-            problem = problem_serializer.create(validated_input)
+            problem = problem_serializer.create(validated_input) # type: ignore
             status = HTTP_201_CREATED
         else:
             problem_instance = get_object_or_404(

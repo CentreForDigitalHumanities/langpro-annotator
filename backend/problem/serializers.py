@@ -8,6 +8,10 @@ class KnowledgeBaseSerializer(serializers.ModelSerializer):
     class Meta:
         model = KnowledgeBase
         fields = ["id", "entity1", "entity2", "relationship"]
+        extra_kwargs = {
+            # Without this, the relationship field is not required during validation.
+            "relationship": {"required": True},
+        }
 
     def validate_id(self, value):
         """Validate that the KnowledgeBase ID exists if provided."""
@@ -184,3 +188,13 @@ class ProblemInputSerializer(serializers.Serializer):
         many=True, allow_empty=True, help_text="List of knowledge base items"
     )
 
+    def validate_id(self, value):
+        """Validate that the Problem ID, if provided, exists and belongs to a user-created problem."""
+        if value is not None:
+            if not Problem.objects.filter(
+                id=value, dataset=Problem.Dataset.USER
+            ).exists():
+                raise serializers.ValidationError(
+                    f"Problem with ID {value} does not exist."
+                )
+        return value

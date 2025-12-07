@@ -119,7 +119,7 @@ def test_invalid_id_not_user_problem(non_user_problem):
     serializer = ProblemInputSerializer(data=data)
     with pytest.raises(ValidationError) as exc_info:
         serializer.is_valid(raise_exception=True)
-    assert "not a user problem" in str(exc_info.value)
+    assert "does not exist" in str(exc_info.value)
 
 
 @pytest.mark.django_db

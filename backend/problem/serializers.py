@@ -104,6 +104,7 @@ class ProblemSerializer(serializers.ModelSerializer):
         )[0]
 
         problem = Problem.objects.create(
+            base_id=validated_data.get("base", None),
             hypothesis=hypothesis_sentence,
             dataset=Problem.Dataset.USER,
             # TODO: Determine entailment label based on LangPro parser output.
@@ -132,6 +133,19 @@ class ProblemSerializer(serializers.ModelSerializer):
         instance.hypothesis = Sentence.objects.get_or_create(
             text=validated_data["hypothesis"],
         )[0]
+
+        validated_base_id = validated_data.get("base", None)
+        if validated_base_id is None:
+            instance.base = None
+        else:
+            try:
+                base_problem = Problem.objects.get(id=validated_base_id)
+            except Problem.DoesNotExist:
+                raise serializers.ValidationError(
+                    f"Base problem with ID {validated_base_id} does not exist."
+                )
+            instance.base = base_problem # type: ignore
+
         instance.save()
 
         premise_sentences = [

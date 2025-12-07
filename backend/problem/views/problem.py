@@ -1,69 +1,66 @@
-from dataclasses import asdict, dataclass
+from rest_framework.decorators import action
+from rest_framework.request import Request
+from rest_framework.response import Response
+from rest_framework.viewsets import ModelViewSet
+from rest_framework.status import HTTP_201_CREATED, HTTP_200_OK
 
-from django.db import DatabaseError
-from django.http import JsonResponse
-from rest_framework.views import APIView
+from django.shortcuts import get_object_or_404
 
-from langpro_annotator.logger import logger
-from problem.problem_details import get_filters, get_related_problem_ids
-from problem.models import KnowledgeBase, Problem, Sentence
-from problem.serializers import ProblemInputSerializer
-
-
-@dataclass
-class ProblemResponse:
-    problem: Problem | None = None
-    index: int | None = None
-    error: str | None = None
-
-    first: int | None = None
-    previous: int | None = None
-    next: int | None = None
-    last: int | None = None
-    total: int | None = None
-
-    def json_response(self, status=200) -> JsonResponse:
-        return JsonResponse(
-            {
-                "index": self.index,
-                "problem": self.problem.serialize() if self.problem else None,
-                "error": self.error,
-                "firstProblemId": self.first,
-                "previousProblemId": self.previous,
-                "nextProblemId": self.next,
-                "lastProblemId": self.last,
-                "totalProblems": self.total if self.total is not None else 0,
-            },
-            status=status,
-        )
+from problem.problem_details import (
+    get_filters,
+    get_related_problem_ids,
+)
+from problem.models import Problem
+from problem.serializers import ProblemInputSerializer, ProblemSerializer
 
 
-@dataclass
-class SaveProblemResponse:
-    id: int | None = None
-    error: str | None = None
+class ProblemView(ModelViewSet):
+    queryset = Problem.objects.all()
+    serializer_class = ProblemSerializer
 
-    def json_response(self, status=200) -> JsonResponse:
-        return JsonResponse(asdict(self), status=status)
-
-
-class ProblemView(APIView):
-    def get(self, request, problem_id: int | None = None) -> JsonResponse:
+    def list(self, request: Request) -> Response:
         """
-        If a Problem ID is provided, retrieves the requested Problem.
-        Otherwise, simply returns the first problem of the QS.
+        Lists all Problems in the database, with optional filtering.
         """
         filters = get_filters(request.query_params)
 
-        qs = Problem.objects.all()
+        qs = self.get_queryset()
+
+        if filters is not None:
+            qs = qs.filter(filters)
+
+        serializer = self.get_serializer(qs, many=True)
+        return Response(serializer.data, status=HTTP_200_OK)
+
+    @action(detail=False, methods=["get"], url_path="first")
+    def first(self, request: Request) -> Response:
+        """
+        Retrieves the first problem from the queryset.
+        """
+        return self._get_problem_response(request, pk=None)
+
+    def retrieve(self, request: Request, pk: int | None = None) -> Response:
+        """
+        Retrieves the requested Problem by ID.
+        """
+        return self._get_problem_response(request, pk=pk)
+
+    def _get_problem_response(self, request: Request, pk: int | None) -> Response:
+        """
+        Helper method to build the problem response.
+        If pk is provided, retrieves that problem; otherwise returns the first problem.
+        """
+        filters = get_filters(request.query_params)
+
+        qs = self.get_queryset()
 
         if filters is not None:
             qs = qs.filter(filters)
 
         problem = None
-        if problem_id is not None:
+        if pk is not None:
             try:
-                problem = qs.get(id=problem_id)
+                problem = qs.get(id=pk)
             except Problem.DoesNotExist:
                 # The selected problem may not be part of the selected filters.
                 # In that case, we simply take the first problem from the queryset.
@@ -73,160 +70,57 @@ class ProblemView(APIView):
             problem = qs.first()
 
         problem_index = problem.get_index(qs) if problem else None
-        related_problem_ids = get_related_problem_ids(qs, problem_id)
+        related_problem_ids = get_related_problem_ids(qs, pk)
 
-        return ProblemResponse(
-            problem=problem,
-            index=problem_index,
-            first=related_problem_ids.first,
-            previous=related_problem_ids.previous,
-            next=related_problem_ids.next,
-            last=related_problem_ids.last,
-            total=related_problem_ids.total,
-        ).json_response(status=200)
+        serializer = self.get_serializer(problem)
 
-    def post(self, request, problem_id: int | None = None) -> JsonResponse:
+        return Response(
+            {
+                "problem": serializer.data,
+                "index": problem_index,
+                "first": related_problem_ids.first,
+                "previous": related_problem_ids.previous,
+                "next": related_problem_ids.next,
+                "last": related_problem_ids.last,
+                "total": related_problem_ids.total,
+            },
+            status=HTTP_200_OK,
+        )
+
+    def create(self, request: Request) -> Response:
         """
-        If the Problem ID is None, attempts to create a new Problem;
-        else the associated Problem is updated.
+        Creates a new Problem from the provided input data.
         """
+        return self._handle_update_create_problem(request, problem_id=None)
+
+    def partial_update(self, request: Request, pk: int) -> Response:
+        """
+        Updates an existing user-created Problem with the provided input data.
+        """
+        return self._handle_update_create_problem(request, problem_id=pk)
+
+    def _handle_update_create_problem(
+        self, request: Request, problem_id: int | None
+    ) -> Response:
         input_data = request.data
 
-        try:
-            problem = save_problem(input_data, problem_id)
-        except ValueError as ve:
-            logger.error(f"Validation error saving problem: {ve}")
-            return SaveProblemResponse(id=problem_id, error=str(ve)).json_response(
-                status=400
-            )
-        except Problem.DoesNotExist as pne:
-            logger.error(f"Problem not found: {pne}")
-            return SaveProblemResponse(
-                id=problem_id, error="Problem not found."
-            ).json_response(status=404)
-        except KnowledgeBase.DoesNotExist as kbne:
-            logger.error(f"Knowledge base item not found: {kbne}")
-            return SaveProblemResponse(
-                id=problem_id, error="Knowledge base item not found."
-            ).json_response(status=404)
-        except DatabaseError as dbe:
-            logger.error(f"Database error saving problem: {dbe}")
-            return SaveProblemResponse(
-                id=problem_id, error="Database error saving problem."
-            ).json_response(status=500)
-        except Exception as e:
-            logger.exception(f"Unexpected error saving problem: {e}")
-            return SaveProblemResponse(
-                id=problem_id, error="Error saving problem."
-            ).json_response(status=500)
+        input_serializer = ProblemInputSerializer(data=input_data)
+        input_serializer.is_valid(raise_exception=True)
+        validated_input: dict = input_serializer.validated_data  # type: ignore
 
-        return SaveProblemResponse(id=problem.pk).json_response(status=200)
+        problem_serializer = ProblemSerializer()
 
-
-def save_problem(input_data: dict, problem_id: int | None) -> Problem:
-    serializer = ProblemInputSerializer(data=input_data)
-
-    if not serializer.is_valid():
-        raise ValueError("Input data is not valid.")
-
-    validated_input: dict = serializer.validated_data  # type: ignore
-
-    problem: Problem | None = None
-    if problem_id is None:
-        problem = create_problem_from_input(validated_input)
-    else:
-        problem = update_problem_from_input(validated_input)
-
-    if problem is None:
-        raise ValueError("Problem could not be saved.")
-
-    return problem
-
-
-def create_problem_from_input(parse_input: dict) -> Problem:
-    """
-    Save a new Problem instance from the given parse input data.
-    """
-
-    premise_sentences = [
-        Sentence.objects.get_or_create(text=premise)[0]
-        for premise in parse_input["premises"]
-    ]
-
-    hypothesis_sentence = Sentence.objects.get_or_create(
-        text=parse_input["hypothesis"]
-    )[0]
-
-    problem = Problem.objects.create(
-        base_id=parse_input["base"],
-        hypothesis=hypothesis_sentence,
-        dataset=Problem.Dataset.USER,
-        # TODO: Determine entailment label based on LangPro parser output.
-        entailment_label=Problem.EntailmentLabel.UNKNOWN,
-        extra_data={},
-    )
-
-    problem.premises.set(premise_sentences)
-
-    update_or_create_kb_items(problem=problem, kb_items=parse_input["kbItems"])
-
-    return problem
-
-
-def update_or_create_kb_items(problem: Problem, kb_items: list[dict]) -> None:
-    kb_ids: list[str] = []
-    for item in kb_items:
-        id = item["id"]
-        entity1 = item["entity1"]
-        relationship = item["relationship"]
-        entity2 = item["entity2"]
-
-        if id is None:
-            kb = KnowledgeBase.objects.create(
-                entity1=entity1,
-                relationship=relationship,
-                entity2=entity2,
-                problem=problem,
-            )
-            kb_ids.append(kb.pk)
+        if problem_id is None:
+            problem = problem_serializer.create(validated_input)
+            status = HTTP_201_CREATED
         else:
-            kb = KnowledgeBase.objects.get(id=id, problem_id=problem.pk)
-            kb.entity1 = entity1
-            kb.relationship = relationship
-            kb.entity2 = entity2
-            kb.save()
-            kb_ids.append(kb.pk)
+            problem_instance = get_object_or_404(
+                Problem, id=problem_id, dataset=Problem.Dataset.USER
+            )
+            problem: Problem = problem_serializer.update(
+                problem_instance, validated_input
+            )
+            status = HTTP_200_OK
 
-    # Delete existing knowledge bases associated to this problem that are
-    # not included in the input.
-    KnowledgeBase.objects.filter(problem_id=problem.pk).exclude(id__in=kb_ids).delete()
+        return Response({"id": problem.pk}, status=status)
 
-
-def update_problem_from_input(parse_input: dict) -> Problem:
-    problem = Problem.objects.get(id=parse_input["id"], dataset=Problem.Dataset.USER)
-
-    problem.hypothesis = Sentence.objects.get_or_create(
-        text=parse_input["hypothesis"],
-    )[0]
-
-    if parse_input["base"] is None:
-        problem.base = None
-    else:
-        try:
-            base_problem = Problem.objects.get(id=parse_input["base"])
-        except Problem.DoesNotExist:
-            raise ValueError(f"Cannot find base Problem with ID: {parse_input['base']}")
-        problem.base = base_problem  # type: ignore
-
-    problem.save()
-
-    premises: list[Sentence] = []
-    for input_premise in parse_input["premises"]:
-        premise = Sentence.objects.get_or_create(text=input_premise)[0]
-        premises.append(premise)
-
-    problem.premises.set(premises)
-
-    update_or_create_kb_items(problem, parse_input["kbItems"])
-
-    return problem

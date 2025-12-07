@@ -1,5 +1,6 @@
 @let premiseControls = form().controls.premises.controls;
 @let appMode = appMode$ | async;
+@let editingOrAdding = appMode === 'add' || appMode === 'edit';
 
 <form [formGroup]="form()">
     <fieldset>
@@ -7,16 +8,20 @@
             class="form-label h6 fw-bold d-flex align-items-center justify-content-between"
         >
             <span i18n>Premises</span>
-            @if (appMode === 'add' || appMode === 'edit') {
-            <la-icon-button
-                [icon]="faPlus"
-                label="Add premise"
+            @if (editingOrAdding) {
+            <button
+                type="button"
+                class="btn btn-sm btn-outline-primary"
                 (click)="addPremise()"
-                size="sm"
-                iconPosition="right"
-                i18n-label
-                outline
-            />
+            >
+                <span class="me-1" i18n>Add premise</span>
+                <fa-icon
+                    [icon]="faPlus"
+                    class="fa-sm"
+                    aria-hidden="true"
+                    focusable="false"
+                ></fa-icon>
+            </button>
             }
         </legend>
 
@@ -29,13 +34,13 @@
                         [id]="'premise-' + i"
                         type="text"
                         [class]="
-                            appMode === 'add' || appMode === 'edit'
+                            editingOrAdding
                                 ? 'form-control'
                                 : 'form-control-plaintext'
                         "
                         [formControlName]="i"
                     />
-                    @if (appMode === 'add' || appMode === 'edit') {
+                    @if (editingOrAdding) {
                     <button
                         type="button"
                         class="btn btn-danger"
@@ -73,9 +78,7 @@
             id="hypothesis"
             type="text"
             [class]="
-                appMode === 'add' || appMode === 'edit'
-                    ? 'form-control'
-                    : 'form-control-plaintext'
+                editingOrAdding ? 'form-control' : 'form-control-plaintext'
             "
             [class.is-invalid]="
                 form().controls.hypothesis.touched &&

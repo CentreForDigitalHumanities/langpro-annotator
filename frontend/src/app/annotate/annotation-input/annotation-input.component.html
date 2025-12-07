@@ -12,37 +12,61 @@
             <la-knowledge-base-form [form]="form" />
         </div>
         <div class="d-flex justify-content-between mt-3">
-            <la-icon-button
-                [icon]="faTree"
-                buttonStyle="success"
-                label="Start parse"
+            <button
+                type="button"
+                class="btn btn-success d-flex align-items-center justify-content-center"
                 (click)="startParse()"
-                i18n-label
-            />
-            @if (appMode === 'browse') {
-                <la-icon-button
-                    [icon]="faCopy"
-                    buttonStyle="secondary"
-                    label="Copy problem"
-                    (click)="copyProblem()"
-                    i18n-label
+            >
+                <fa-icon
+                    [icon]="faTree"
+                    class="fa-md"
+                    aria-hidden="true"
+                    focusable="false"
                 />
+                <span class="ms-2" i18n>Start parse</span>
+            </button>
+            @if (appMode === 'browse') {
+            <a
+                class="btn btn-secondary d-flex align-items-center justify-content-center"
+                [routerLink]="['/', 'annotate', 'new']"
+                [queryParams]="{base: form.getRawValue().id }"
+
+            >
+                <fa-icon
+                    [icon]="faCopy"
+                    class="fa-md"
+                    aria-hidden="true"
+                    focusable="false"
+                />
+                <span class="ms-2" i18n>Copy problem</span>
+            </a>
             }
             @if ((appMode === 'edit' || appMode === 'add') && userProblem) {
-            <la-icon-button
-                [icon]="faFloppyDisk"
-                label="Save problem"
+            <button
+                type="button"
+                class="btn btn-primary d-flex align-items-center justify-content-center"
                 (click)="saveProblem()"
-                i18n-label
-            />
+            >
+                <fa-icon
+                    [icon]="faFloppyDisk"
+                    aria-hidden="true"
+                    focusable="false"
+                ></fa-icon>
+                <span class="ms-3" i18n>Save problem</span>
+            </button>
             } @else if (userProblem) {
-            <la-icon-button
-                [icon]="faWrench"
-                buttonStyle="secondary"
-                label="Edit problem"
-                (click)="editProblem()"
-                i18n-label
-            />
+            <a
+                class="btn btn-secondary d-flex align-items-center justify-content-center"
+                [routerLink]="['./edit']"
+                queryParamsHandling="preserve"
+            >
+                <fa-icon
+                    [icon]="faWrench"
+                    aria-hidden="true"
+                    focusable="false"
+                ></fa-icon>
+                <span class="ms-3" i18n>Edit problem</span>
+            </a>
             }
         </div>
         }

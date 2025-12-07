@@ -73,8 +73,9 @@ export class ProblemService {
 
     public saveProblem$ = this.submit$.pipe(
         exhaustMap((problem) => {
-            const url = `/api/problem/${problem.id ?? ""}`;
-            return this.http.post<SaveProblemResponse>(url, problem).pipe(
+            const action = problem.id ? this.http.patch<SaveProblemResponse>(`/api/problem/${problem.id}/`, problem) :
+                this.http.post<SaveProblemResponse>(`/api/problem/`, problem);
+            return action.pipe(
                 catchError((error) => {
                     console.error('Error saving problem:', error);
                     return of({ id: null, error: 'Failed to save problem' });
@@ -86,11 +87,11 @@ export class ProblemService {
     private newProblem$(baseParam: number | null): Observable<ProblemResponse> {
         const sharedProblemResponse: Omit<ProblemResponse, "problem"> = {
             index: null,
-            firstProblemId: null,
-            lastProblemId: null,
-            nextProblemId: null,
-            previousProblemId: null,
-            totalProblems: 0,
+            first: null,
+            last: null,
+            next: null,
+            previous: null,
+            total: 0,
             error: null,
         };
 
@@ -135,7 +136,7 @@ export class ProblemService {
     private existingProblem$(problemId?: string, queryParams?: ParamMap): Observable<ProblemResponse | null> {
         const httpParams = queryParams ? this.extractSearchParams(queryParams) : undefined;
 
-        return this.http.get<ProblemResponse>(`/api/problem/${problemId ?? ""}`, { params: httpParams }).pipe(
+        return this.http.get<ProblemResponse>(`/api/problem/${problemId ?? "first"}/`, { params: httpParams }).pipe(
             catchError((error) => {
                 const message = `Error fetching ${problemId ? `problem ${problemId}` : "first problem"}`;
                 console.error(message, error);

@@ -19,6 +19,7 @@ export class IconButtonComponent {
     public disabled = input(false, { transform: booleanAttribute });
     public outline = input(false, { transform: booleanAttribute });
     public fullWidth = input(false, { transform: booleanAttribute });
+    public visuallyHiddenLabel = input(false, { transform: booleanAttribute });
 
     public buttonClasses = computed<string>(() => {
         const classes = ["btn", "d-flex", "align-items-center", "justify-content-center"];

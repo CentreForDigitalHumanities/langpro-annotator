@@ -1,4 +1,6 @@
-@let iconValue = icon(); @let position = iconPosition();
+@let iconValue = icon();
+@let position = iconPosition();
+@let visibleLabel = label() && !visuallyHiddenLabel();
 <button
     [type]="buttonType()"
     [class]="buttonClasses()"
@@ -9,16 +11,16 @@
     @if (iconValue && position === 'left') {
     <fa-icon
         [icon]="iconValue"
-        [class]="`fa-${size()} ${label() ? 'me-2' : ''}`"
+        [class]="`fa-${size()} ${visibleLabel ? 'me-2' : ''}`"
         aria-hidden="true"
         focusable="false"
     />
     }
-    <span i18n>{{ label() }}</span>
+    <span [class.visually-hidden]="!visibleLabel" i18n>{{ label() }}</span>
     @if (iconValue && position === 'right') {
     <fa-icon
         [icon]="iconValue"
-        [class]="`fa-${size()} ${label() ? 'ms-2' : ''}`"
+        [class]="`fa-${size()} ${visibleLabel ? 'ms-2' : ''}`"
         aria-hidden="true"
         focusable="false"
     />

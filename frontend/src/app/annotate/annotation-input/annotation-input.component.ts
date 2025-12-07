@@ -43,15 +43,16 @@ export type ParseInput = ReturnType<ParseInputForm["getRawValue"]>;
     selector: "la-annotation-input",
     standalone: true,
     imports: [
-        CommonModule,
-        PremisesFormComponent,
-        KnowledgeBaseFormComponent,
-        FormsModule,
-        ReactiveFormsModule,
-        ProblemDetailsComponent,
-        FontAwesomeModule,
-        RouterLinkWithHref
-    ],
+    CommonModule,
+    PremisesFormComponent,
+    KnowledgeBaseFormComponent,
+    FormsModule,
+    ReactiveFormsModule,
+    ProblemDetailsComponent,
+    FontAwesomeModule,
+    RouterLinkWithHref,
+    IconButtonComponent
+],
     templateUrl: "./annotation-input.component.html",
     styleUrl: "./annotation-input.component.scss",
 })

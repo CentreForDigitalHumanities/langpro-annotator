@@ -12,19 +12,12 @@
             <la-knowledge-base-form [form]="form" />
         </div>
         <div class="d-flex justify-content-between mt-3">
-            <button
-                type="button"
-                class="btn btn-success d-flex align-items-center justify-content-center"
+            <la-icon-button
+                buttonStyle="success"
+                [icon]="faTree"
+                label="Start parse"
                 (click)="startParse()"
-            >
-                <fa-icon
-                    [icon]="faTree"
-                    class="fa-md"
-                    aria-hidden="true"
-                    focusable="false"
-                />
-                <span class="ms-2" i18n>Start parse</span>
-            </button>
+            />
             @if (appMode === 'browse') {
             <a
                 class="btn btn-secondary d-flex align-items-center justify-content-center"
@@ -42,18 +35,12 @@
             </a>
             }
             @if ((appMode === 'edit' || appMode === 'add') && userProblem) {
-            <button
-                type="button"
-                class="btn btn-primary d-flex align-items-center justify-content-center"
+            <la-icon-button
+                buttonStyle="primary"
+                [icon]="faFloppyDisk"
+                label="Save problem"
                 (click)="saveProblem()"
-            >
-                <fa-icon
-                    [icon]="faFloppyDisk"
-                    aria-hidden="true"
-                    focusable="false"
-                ></fa-icon>
-                <span class="ms-3" i18n>Save problem</span>
-            </button>
+            />
             } @else if (userProblem) {
             <a
                 class="btn btn-secondary d-flex align-items-center justify-content-center"

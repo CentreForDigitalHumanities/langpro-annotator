@@ -4,8 +4,8 @@ import { CommonModule } from "@angular/common";
 import { FontAwesomeModule } from "@fortawesome/angular-fontawesome";
 import { faPlus, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { ParseInputForm } from "../annotation-input.component";
-import { IconButtonComponent } from "@/shared/icon-button/icon-button.component";
 import { ProblemService } from "@/services/problem.service";
+import { IconButtonComponent } from "@/shared/icon-button/icon-button.component";
 
 export interface Premises {
     premises: string[];

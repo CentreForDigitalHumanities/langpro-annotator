@@ -52,24 +52,15 @@
                     placeholder="Entity 2"
                     required
                 />
-                <button
-                    type="button"
-                    class="btn btn-danger"
+                <la-icon-button
+                    buttonStyle="danger"
+                    [icon]="faTrash"
+
+                    label="Remove"
                     (click)="removeKnowledgeBaseItem(i)"
-                    aria-labelledby="remove-kb-item"
-                    title="Remove knowledge base item"
-                    i18n-title
-                >
-                    <fa-icon
-                        [icon]="faTrash"
-                        class="fa-sm"
-                        aria-hidden="true"
-                        focusable="false"
-                    ></fa-icon>
-                    <span id="remove-kb-item" class="visually-hidden" i18n
-                        >Remove</span
-                    >
-                </button>
+                    visuallyHiddenLabel
+                    i18n-label
+                />
             </div>
             } @else {
             <p class="form-control-plaintext">

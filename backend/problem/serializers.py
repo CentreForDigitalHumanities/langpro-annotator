@@ -62,6 +62,7 @@ class ProblemSerializer(serializers.ModelSerializer):
             "entailmentLabel",
             "extraData",
             "kbItems",
+            "base",
         ]
 
     def get_premises(self, problem):

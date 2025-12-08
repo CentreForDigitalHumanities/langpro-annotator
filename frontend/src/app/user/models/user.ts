@@ -6,11 +6,13 @@ export interface UserResponse {
     lastName: string;
     isStaff: boolean;
     role: string;
-    canEditOrAddProblem: boolean;
+    canEditProblem: boolean;
+    canCreateProblem: boolean;
 }
 
-// Corresponds to backend User.Role choices.
+// Corresponds to frontend user type.
 export enum UserRole {
+    SUPERUSER = "superuser",
     ANNOTATOR = "annotator",
     MASTER_ANNOTATOR = "master_annotator",
     VISITOR = "visitor",
@@ -25,7 +27,8 @@ export class User {
         public lastName: string,
         public isStaff: boolean,
         public role: UserRole,
-        public canEditOrAddProblem: boolean,
+        public canEditProblem: boolean,
+        public canCreateProblem: boolean,
     ) { }
 }
 

@@ -45,8 +45,8 @@ export class AnnotateComponent implements OnInit {
         map(problem => problem?.dataset === Dataset.USER)
     );
 
-    public canAddProblem$ = this.authService.currentUser$.pipe(
-        map(user => user?.canEditOrAddProblem ?? false)
+    public canCreateProblem$ = this.authService.currentUser$.pipe(
+        map(user => user?.canCreateProblem ?? false)
     );
 
     ngOnInit(): void {

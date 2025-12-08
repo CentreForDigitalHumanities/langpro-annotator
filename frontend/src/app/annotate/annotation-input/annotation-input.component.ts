@@ -86,7 +86,7 @@ export class AnnotationInputComponent implements OnInit {
     );
 
     public canEditProblem$ = this.authService.currentUser$.pipe(
-        map(user => user?.canEditOrAddProblem)
+        map(user => user?.canEditProblem ?? false)
     );
 
     ngOnInit(): void {

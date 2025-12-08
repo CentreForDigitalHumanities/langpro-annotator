@@ -18,6 +18,11 @@ export const CanEditOrAddGuard: CanActivateFn = (route: ActivatedRouteSnapshot) 
         // Wait until we actually have a user (User | null).
         filter(user => user !== undefined),
         take(1),
-        map(user => user?.canEditOrAddProblem ?? false),
+        map(user => {
+            if (!user) {
+                return false;
+            }
+            return editing ? user.canEditProblem : user.canCreateProblem;
+        }),
     );
 };

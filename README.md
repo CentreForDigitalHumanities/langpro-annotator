@@ -26,6 +26,34 @@ You can also run LangPro Annotator locally or host it yourself. Be aware that th
 
 To get started with developing LangPro Annotator, see [CONTRIBUTING.md](./CONTRIBUTING.md).
 
+## Permission overview
+
+Apart from superusers/admins, the application has three user roles with different permissions. Users with the "Master Annotator" role have full permissions, including managing users and problem visibility/status. Users with the "Annotator" role can browse and annotate both gold and silver problems. Users without any assigned role are considered "Visitors" and can only browse gold problems.
+
+Users can become Annotators or Master Annotators by adding them to the respective user groups in the Django admin interface.
+
+The overview below shows the permissions for each role. Not all permissions are currently implemented.
+
+(Last updated: November 14th, 2025)
+
+|                            | Visitor | Annotator | Master Annotator |
+| -------------------------- | ------- | --------- | ---------------- |
+| Browse gold problems       | Yes     | Yes       | Yes              |
+| Browse silver problems     | No      | Yes       | Yes              |
+| Edit KB items              | No      | Yes       | Yes              |
+| Add labels                 | No      | Yes       | Yes              |
+| Remove own labels          | No      | Yes       | Yes              |
+| Remove other users' labels | No      | No        | Yes              |
+| Add problems               | No      | No        | Yes              |
+| Copy problems              | No      | No        | Yes              |
+| Update user problems       | No      | No        | Yes              |
+| Delete problems            | No      | No        | Yes              |
+| Edit existing problems     | No      | No        | Yes              |
+| See hidden problems        | No      | No        | Yes              |
+| Silver/gold problems       | No      | No        | Yes              |
+| Hide/unhide problems       | No      | No        | Yes              |
+| Manage users               | No      | No        | Yes              |
+
 ## Licence
 
 This work is shared under a BSD 3-Clause licence. See [LICENSE](./LICENSE) for more information.

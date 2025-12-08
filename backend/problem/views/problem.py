@@ -30,10 +30,10 @@ class ProblemView(ModelViewSet):
 
     def get_permissions(self):
         if self.action == "create":
-            return [CreateProblemPermission]
+            return [CreateProblemPermission()]
         if self.action == "partial_update":
-            return [EditProblemPermission]
-        return [IsAuthenticatedOrReadOnly]
+            return [EditProblemPermission()]
+        return [IsAuthenticatedOrReadOnly()]
 
     def list(self, request: Request) -> Response:
         """

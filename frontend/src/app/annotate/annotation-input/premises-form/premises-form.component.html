@@ -1,5 +1,6 @@
 @let premiseControls = form().controls.premises.controls;
 @let appMode = appMode$ | async;
+@let editingOrAdding = appMode === 'add' || appMode === 'edit';
 
 <form [formGroup]="form()">
     <fieldset>
@@ -7,56 +8,43 @@
             class="form-label h6 fw-bold d-flex align-items-center justify-content-between"
         >
             <span i18n>Premises</span>
-            @if (appMode === 'add' || appMode === 'edit') {
-            <button
-                type="button"
-                class="btn btn-sm btn-outline-primary"
+            @if (editingOrAdding) {
+            <la-icon-button
+                [icon]="faPlus"
+                iconPosition="right"
+                size="sm"
+                label="Add premise"
                 (click)="addPremise()"
-            >
-                <span class="me-1" i18n>Add premise</span>
-                <fa-icon
-                    [icon]="faPlus"
-                    class="fa-sm"
-                    aria-hidden="true"
-                    focusable="false"
-                ></fa-icon>
-            </button>
+                i18n-label
+                outline
+            />
             }
         </legend>
 
         <ul class="ps-0 list-unstyled" formArrayName="premises">
-            @for (control of premiseControls; let i = $index; track `${i}-${control.value}`) {
+            @for (control of premiseControls; let i = $index; track
+            `${i}-${control.value}`) {
             <li class="mb-3">
                 <div class="input-group">
                     <input
                         [id]="'premise-' + i"
                         type="text"
                         [class]="
-                            appMode === 'add' || appMode === 'edit'
+                            editingOrAdding
                                 ? 'form-control'
                                 : 'form-control-plaintext'
                         "
                         [formControlName]="i"
                     />
-                    @if (appMode === 'add' || appMode === 'edit') {
-                    <button
-                        type="button"
-                        class="btn btn-danger"
+                    @if (editingOrAdding) {
+                    <la-icon-button
+                        buttonStyle="danger"
+                        [icon]="faTrash"
+                        label="Remove"
                         (click)="removePremise(i)"
-                        aria-labelledby="remove-premise"
-                        title="Remove premise"
-                        title-i18n
-                    >
-                        <fa-icon
-                            [icon]="faTrash"
-                            class="fa-sm"
-                            aria-hidden="true"
-                            focusable="false"
-                        ></fa-icon>
-                        <span id="remove-premise" class="visually-hidden" i18n
-                            >Remove</span
-                        >
-                    </button>
+                        visuallyHiddenLabel
+                        i18n-label
+                    />
                     }
                 </div>
             </li>
@@ -76,9 +64,7 @@
             id="hypothesis"
             type="text"
             [class]="
-                appMode === 'add' || appMode === 'edit'
-                    ? 'form-control'
-                    : 'form-control-plaintext'
+                editingOrAdding ? 'form-control' : 'form-control-plaintext'
             "
             [class.is-invalid]="
                 form().controls.hypothesis.touched &&
@@ -86,6 +72,8 @@
             "
             [formControl]="form().controls.hypothesis"
         />
-        <p class="invalid-feedback" i18n>Each problem must have a hypothesis.</p>
+        <p class="invalid-feedback" i18n>
+            Each problem must have a hypothesis.
+        </p>
     </div>
 </form>

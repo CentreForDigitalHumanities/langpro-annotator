@@ -49,6 +49,7 @@ describe("AnnotationInputComponent", () => {
         it('should build form with correct structure and values from problem data', () => {
             const mockProblem: Problem = {
                 id: 123,
+                base: null,
                 premises: ["First premise", "Second premise"],
                 hypothesis: "Test hypothesis",
                 entailmentLabel: EntailmentLabel.ENTAILMENT,
@@ -104,6 +105,7 @@ describe("AnnotationInputComponent", () => {
         it('should handle empty premises and kbItems arrays', () => {
             const mockProblem: Problem = {
                 id: 123,
+                base: null,
                 premises: [],
                 hypothesis: "Empty test hypothesis",
                 entailmentLabel: EntailmentLabel.NEUTRAL,
@@ -127,6 +129,7 @@ describe("AnnotationInputComponent", () => {
         it('should create form controls with required validators', () => {
             const mockProblem: Problem = {
                 id: 1,
+                base: null,
                 premises: ["Test premise"],
                 hypothesis: "Test hypothesis",
                 entailmentLabel: EntailmentLabel.CONTRADICTION,
@@ -148,6 +151,7 @@ describe("AnnotationInputComponent", () => {
         it('should navigate when problem ID is different from current route', () => {
             const mockProblem: Problem = {
                 id: 12,
+                base: null,
                 premises: [],
                 hypothesis: "",
                 entailmentLabel: EntailmentLabel.UNKNOWN,
@@ -167,6 +171,7 @@ describe("AnnotationInputComponent", () => {
         it('should not navigate when problem ID matches current route', () => {
             const mockProblem: Problem = {
                 id: 17,
+                base: null,
                 premises: [],
                 hypothesis: "",
                 entailmentLabel: EntailmentLabel.UNKNOWN,

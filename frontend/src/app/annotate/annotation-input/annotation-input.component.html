@@ -12,45 +12,48 @@
             <la-knowledge-base-form [form]="form" />
         </div>
         <div class="d-flex justify-content-between mt-3">
-            <button
-                type="button"
-                class="btn btn-success d-flex align-items-center justify-content-center"
+            <la-icon-button
+                buttonStyle="success"
+                [icon]="faTree"
+                label="Start parse"
                 (click)="startParse()"
+            />
+            @if (appMode === 'browse') {
+            <a
+                class="btn btn-secondary d-flex align-items-center justify-content-center"
+                [routerLink]="['/', 'annotate', 'new']"
+                [queryParams]="{base: form.getRawValue().id }"
+
             >
                 <fa-icon
-                    [icon]="faTree"
+                    [icon]="faCopy"
                     class="fa-md"
                     aria-hidden="true"
                     focusable="false"
                 />
-                <span class="ms-2" i18n>Start parse</span>
-            </button>
+                <span class="ms-2" i18n>Copy problem</span>
+            </a>
+            }
             @if ((appMode === 'edit' || appMode === 'add') && userProblem) {
-            <button
-                type="button"
-                class="btn btn-primary d-flex align-items-center justify-content-center"
+            <la-icon-button
+                buttonStyle="primary"
+                [icon]="faFloppyDisk"
+                label="Save problem"
                 (click)="saveProblem()"
+            />
+            } @else if (userProblem && (canEditProblem$ | async)) {
+            <a
+                class="btn btn-secondary d-flex align-items-center justify-content-center"
+                [routerLink]="['./edit']"
+                queryParamsHandling="preserve"
             >
                 <fa-icon
-                    [icon]="faFloppyDisk"
+                    [icon]="faWrench"
                     aria-hidden="true"
                     focusable="false"
                 ></fa-icon>
-                <span class="ms-3" i18n>Save problem</span>
-            </button>
-            } @else if (userProblem && (canEditProblem$ | async)) {
-                <button
-                    type="button"
-                    class="btn btn-secondary d-flex align-items-center justify-content-center"
-                    (click)="editProblem()"
-                >
-                    <fa-icon
-                        [icon]="faWrench"
-                        aria-hidden="true"
-                        focusable="false"
-                    ></fa-icon>
-                    <span class="ms-3" i18n>Edit problem</span>
-                </button>
+                <span class="ms-3" i18n>Edit problem</span>
+            </a>
             }
         </div>
         }

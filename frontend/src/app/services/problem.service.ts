@@ -1,4 +1,5 @@
 import { ParseInput } from "@/annotate/annotation-input/annotation-input.component";
+import extractBaseParam from "@/shared/extractBaseParam";
 import { ProblemResponse, SaveProblemResponse, Dataset, EntailmentLabel } from "@/types";
 import { HttpClient, HttpParams } from "@angular/common/http";
 import { Injectable, inject } from "@angular/core";
@@ -35,20 +36,13 @@ export class ProblemService {
             if (!problemId) {
                 return of(null);
             }
-            const baseParam = this.extractBaseParam(queryParams);
+            const baseParam = extractBaseParam(queryParams);
 
             return problemId === "new" ? this.newProblem$(baseParam) : this.existingProblem$(problemId, queryParams);
         }),
         shareReplay(1)
     );
 
-    private extractBaseParam(queryParams: ParamMap): number | null {
-        const baseStr = queryParams.get("base");
-        if (!baseStr) {
-            return null;
-        }
-        return parseInt(baseStr, 10);
-    }
 
     public problem$ = this.problemResponse$.pipe(
         map(response => response?.problem ?? null),

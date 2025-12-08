@@ -12,11 +12,28 @@ from problem.problem_details import (
 )
 from problem.models import Problem
 from problem.serializers import ProblemInputSerializer, ProblemSerializer
+from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
+
+class CreateProblemPermission(IsAuthenticated):
+    def has_permission(self, request, view):
+        return request.user.can_create_problem
+
+class EditProblemPermission(IsAuthenticated):
+    def has_permission(self, request, view):
+        return request.user.can_edit_problem
 
 
 class ProblemView(ModelViewSet):
     queryset = Problem.objects.all()
     serializer_class = ProblemSerializer
+
+
+    def get_permissions(self):
+        if self.action == "create":
+            return [CreateProblemPermission]
+        if self.action == "partial_update":
+            return [EditProblemPermission]
+        return [IsAuthenticatedOrReadOnly]
 
     def list(self, request: Request) -> Response:
         """

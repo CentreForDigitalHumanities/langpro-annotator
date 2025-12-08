@@ -4,7 +4,7 @@ import { AuthService } from "../../services/auth.service";
 import { Router, RouterModule } from "@angular/router";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { CommonModule } from "@angular/common";
-import { faUser, faUserGraduate, faUserTag, IconDefinition } from "@fortawesome/free-solid-svg-icons";
+import { faUser, faUserAstronaut, faUserGraduate, faUserTag } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeModule } from "@fortawesome/angular-fontawesome";
 import { ToastService } from "../../services/toast.service";
 import { NgbDropdownModule } from "@ng-bootstrap/ng-bootstrap";
@@ -30,6 +30,8 @@ export class UserMenuComponent implements OnInit {
                 return faUser;
             }
             switch (user.role) {
+                case UserRole.SUPERUSER:
+                    return faUserAstronaut;
                 case UserRole.ANNOTATOR:
                     return faUserTag;
                 case UserRole.MASTER_ANNOTATOR:

@@ -55,7 +55,7 @@ class ProblemView(ModelViewSet):
         qs = self.get_queryset()
 
         if filters is not None:
-            qs = qs.filter(filters)
+            qs = qs.filter(filters).distinct()
 
         problem = None
         if pk is not None:

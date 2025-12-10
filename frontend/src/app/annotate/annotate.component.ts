@@ -11,6 +11,7 @@ import { combineLatest, distinctUntilChanged, map } from "rxjs";
 import { CommonModule } from "@angular/common";
 import { Dataset } from "@/types";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import areParamsEqual from "@/shared/areParamsEqual";
 
 @Component({
     selector: "la-annotate",
@@ -54,6 +55,7 @@ export class AnnotateComponent implements OnInit {
             editParam$
         ])
             .pipe(
+                distinctUntilChanged((oldParams, newParams) => areParamsEqual(oldParams, newParams)),
                 takeUntilDestroyed(this.destroyRef)
             )
             .subscribe(([params, queryParams, edit]) => {

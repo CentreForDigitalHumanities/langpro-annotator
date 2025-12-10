@@ -43,6 +43,9 @@ class Command(BaseCommand):
 
         root = tree.getroot()
 
+        if root is None:
+            raise ValueError("The XML file is empty or malformed.")
+
         for element in root:
             if element.tag == "comment" and element.attrib.get("class") == "section":
                 current_section = element.text.strip() if element.text else None
@@ -107,15 +110,15 @@ class Command(BaseCommand):
                 )
                 skipped += 1
                 continue
-            hypothesis = Sentence.objects.create(
+            hypothesis = Sentence.objects.update_or_create(
                 text=FracasData._text_from_element(hypothesis_node)
-            )
+            )[0]
 
             premises = []
             premise_nodes = problem.findall("p")
             for node in premise_nodes:
                 if node.text:
-                    premises.append(Sentence.objects.create(text=node.text.strip()))
+                    premises.append(Sentence.objects.update_or_create(text=node.text.strip())[0])
 
 
             entailment_label = self.ENTAILMENT_LABELS.get(

@@ -8,25 +8,23 @@
         >
             <span i18n>Knowledge base items</span>
             @if (appMode === 'add' || appMode === 'edit') {
-            <button
-                type="button"
-                class="btn btn-sm btn-outline-primary"
+            <la-icon-button
+                [icon]="faPlus"
+                iconPosition="right"
+                size="sm"
+                label="Add knowledge base item"
                 (click)="addKnowledgeBaseItem()"
-            >
-                <span class="me-1" i18n>Add knowledge base item</span>
-                <fa-icon
-                    [icon]="faPlus"
-                    class="fa-sm"
-                    aria-hidden="true"
-                    focusable="false"
-                ></fa-icon>
-            </button>
+                i18n-label
+                outline
+            />
             }
         </legend>
     </fieldset>
 
     <ul class="ps-0 list-unstyled" formArrayName="kbItems">
-        @for (kbItem of kbControls; let i = $index; track `${i}-${kbItem.value.entity1}-${kbItem.value.relationship}-${kbItem.value.entity2}`) {
+        @for (kbItem of kbControls; let i = $index; track
+        `${i}-${kbItem.value.entity1}-${kbItem.value.relationship}-${kbItem.value.entity2}`)
+        {
         <li class="mb-3">
             @if (appMode === 'add' || appMode === 'edit') {
             <div [formGroupName]="i" class="input-group">
@@ -54,24 +52,15 @@
                     placeholder="Entity 2"
                     required
                 />
-                <button
-                    type="button"
-                    class="btn btn-danger"
+                <la-icon-button
+                    buttonStyle="danger"
+                    [icon]="faTrash"
+
+                    label="Remove"
                     (click)="removeKnowledgeBaseItem(i)"
-                    aria-labelledby="remove-kb-item"
-                    title="Remove knowledge base item"
-                    title-i18n
-                >
-                    <fa-icon
-                        [icon]="faTrash"
-                        class="fa-sm"
-                        aria-hidden="true"
-                        focusable="false"
-                    ></fa-icon>
-                    <span id="remove-kb-item" class="visually-hidden" i18n
-                        >Remove</span
-                    >
-                </button>
+                    visuallyHiddenLabel
+                    i18n-label
+                />
             </div>
             } @else {
             <p class="form-control-plaintext">

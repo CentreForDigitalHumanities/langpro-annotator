@@ -1,4 +1,5 @@
 import csv
+from typing import Literal
 
 from django.core.management.base import BaseCommand
 from tqdm import tqdm
@@ -53,7 +54,9 @@ class Command(BaseCommand):
 
         self.import_snli_problems(snli_paths)
 
-    def import_snli_problems(self, snli_paths: list[tuple[str, str]]) -> None:
+    def import_snli_problems(
+        self, snli_paths: list[tuple[Literal["dev", "train", "test"], str]]
+    ) -> None:
         """
         Import SNLI 1.0 problems from a list of SNLI TSV files and enter them into the database.
         """
@@ -99,9 +102,13 @@ class Command(BaseCommand):
 
                         extra_data = SNLIData.import_data(problem, subset)
 
-                        premise = Sentence.objects.create(text=problem["sentence1"])
+                        premise = Sentence.objects.update_or_create(
+                            text=problem["sentence1"]
+                        )[0]
 
-                        hypothesis = Sentence.objects.create(text=problem["sentence2"])
+                        hypothesis = Sentence.objects.update_or_create(
+                            text=problem["sentence2"]
+                        )[0]
 
                         new_problem = Problem.objects.create(
                             dataset=Problem.Dataset.SNLI,

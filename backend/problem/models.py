@@ -28,6 +28,15 @@ class Problem(models.Model):
         default=Dataset.USER,
     )
 
+    base = models.ForeignKey(
+        "self",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="derived_problems",
+        help_text="The base problem from which this problem was derived, if any.",
+    )
+
     premises = models.ManyToManyField(
         Sentence,
         related_name="premise_problems",
@@ -56,8 +65,6 @@ class Problem(models.Model):
         except Exception as e:
             logger.exception(f"Error getting index for problem {self.pk}: {e}")
             return None
-
-
 class KnowledgeBase(models.Model):
     class Relationship(models.TextChoices):
         EQUAL = "equal", "Equal"

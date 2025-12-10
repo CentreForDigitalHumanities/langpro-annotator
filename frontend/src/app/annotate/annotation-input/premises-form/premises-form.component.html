@@ -9,19 +9,15 @@
         >
             <span i18n>Premises</span>
             @if (editingOrAdding) {
-            <button
-                type="button"
-                class="btn btn-sm btn-outline-primary"
+            <la-icon-button
+                [icon]="faPlus"
+                iconPosition="right"
+                size="sm"
+                label="Add premise"
                 (click)="addPremise()"
-            >
-                <span class="me-1" i18n>Add premise</span>
-                <fa-icon
-                    [icon]="faPlus"
-                    class="fa-sm"
-                    aria-hidden="true"
-                    focusable="false"
-                ></fa-icon>
-            </button>
+                i18n-label
+                outline
+            />
             }
         </legend>
 
@@ -41,24 +37,14 @@
                         [formControlName]="i"
                     />
                     @if (editingOrAdding) {
-                    <button
-                        type="button"
-                        class="btn btn-danger"
+                    <la-icon-button
+                        buttonStyle="danger"
+                        [icon]="faTrash"
+                        label="Remove"
                         (click)="removePremise(i)"
-                        aria-labelledby="remove-premise"
-                        title="Remove premise"
-                        title-i18n
-                    >
-                        <fa-icon
-                            [icon]="faTrash"
-                            class="fa-sm"
-                            aria-hidden="true"
-                            focusable="false"
-                        ></fa-icon>
-                        <span id="remove-premise" class="visually-hidden" i18n
-                            >Remove</span
-                        >
-                    </button>
+                        visuallyHiddenLabel
+                        i18n-label
+                    />
                     }
                 </div>
             </li>

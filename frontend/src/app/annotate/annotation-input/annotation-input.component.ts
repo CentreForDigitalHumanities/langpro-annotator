@@ -12,7 +12,7 @@ import { PremisesFormComponent } from "./premises-form/premises-form.component";
 import { KnowledgeBaseFormComponent } from "./knowledge-base-form/knowledge-base-form.component";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { Dataset, KnowledgeBaseRelationship, Problem } from "../../types";
-import { faCheck, faExclamationCircle, faFloppyDisk, faTrash, faTree, faWrench } from "@fortawesome/free-solid-svg-icons";
+import { faCheck, faCopy, faExclamationCircle, faFloppyDisk, faTrash, faTree, faWrench } from "@fortawesome/free-solid-svg-icons";
 import { ProblemDetailsComponent } from "./problem-details/problem-details.component";
 import { map, Subject } from "rxjs";
 import { ActivatedRoute, Router, RouterLinkWithHref } from "@angular/router";
@@ -20,9 +20,11 @@ import { ProblemService } from "@/services/problem.service";
 import { ParseService } from "@/services/parse.service";
 import { FontAwesomeModule } from "@fortawesome/angular-fontawesome";
 import { ToastService } from "@/services/toast.service";
+import { IconButtonComponent } from "@/shared/icon-button/icon-button.component";
 
 export type ParseInputForm = FormGroup<{
     id: FormControl<number | null>;
+    base: FormControl<number | null>;
     premises: FormArray<FormControl<string>>;
     hypothesis: FormControl<string>;
     kbItems: FormArray<KnowledgeBaseItemsForm>;
@@ -41,15 +43,16 @@ export type ParseInput = ReturnType<ParseInputForm["getRawValue"]>;
     selector: "la-annotation-input",
     standalone: true,
     imports: [
-        CommonModule,
-        PremisesFormComponent,
-        KnowledgeBaseFormComponent,
-        FormsModule,
-        ReactiveFormsModule,
-        ProblemDetailsComponent,
-        FontAwesomeModule,
-        RouterLinkWithHref
-    ],
+    CommonModule,
+    PremisesFormComponent,
+    KnowledgeBaseFormComponent,
+    FormsModule,
+    ReactiveFormsModule,
+    ProblemDetailsComponent,
+    FontAwesomeModule,
+    RouterLinkWithHref,
+    IconButtonComponent
+],
     templateUrl: "./annotation-input.component.html",
     styleUrl: "./annotation-input.component.scss",
 })
@@ -67,6 +70,7 @@ export class AnnotationInputComponent implements OnInit {
 
     public submit$ = new Subject<void>();
 
+    public faCopy = faCopy;
     public faCheck = faCheck;
     public faTree = faTree;
     public faFloppyDisk = faFloppyDisk;
@@ -151,17 +155,17 @@ export class AnnotationInputComponent implements OnInit {
     }
 
     private buildForm(problem: Problem): ParseInputForm {
-        const id = problem.id;
-        const premises = problem.premises || [];
-        const hypothesis = problem.hypothesis || "";
         const kbItems = this.buildKbForms(problem.kbItems);
 
         return new FormGroup({
-            id: new FormControl<number | null>(id, {
+            id: new FormControl<number | null>(problem.id, {
+                nonNullable: true
+            }),
+            base: new FormControl<number | null>(problem.base, {
                 nonNullable: true
             }),
             premises: new FormArray(
-                premises.map(
+                problem.premises.map(
                     (premise) =>
                         new FormControl<string>(premise, {
                             validators: [Validators.required],
@@ -169,7 +173,7 @@ export class AnnotationInputComponent implements OnInit {
                         })
                 )
             ),
-            hypothesis: new FormControl<string>(hypothesis, {
+            hypothesis: new FormControl<string>(problem.hypothesis ?? "", {
                 validators: [Validators.required],
                 nonNullable: true,
             }),

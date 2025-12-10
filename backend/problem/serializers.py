@@ -62,6 +62,7 @@ class ProblemSerializer(serializers.ModelSerializer):
             "entailmentLabel",
             "extraData",
             "kbItems",
+            "base",
         ]
 
     def get_premises(self, problem):
@@ -104,6 +105,7 @@ class ProblemSerializer(serializers.ModelSerializer):
         )[0]
 
         problem = Problem.objects.create(
+            base_id=validated_data.get("base", None),
             hypothesis=hypothesis_sentence,
             dataset=Problem.Dataset.USER,
             # TODO: Determine entailment label based on LangPro parser output.
@@ -132,6 +134,19 @@ class ProblemSerializer(serializers.ModelSerializer):
         instance.hypothesis = Sentence.objects.get_or_create(
             text=validated_data["hypothesis"],
         )[0]
+
+        validated_base_id = validated_data.get("base", None)
+        if validated_base_id is None:
+            instance.base = None
+        else:
+            try:
+                base_problem = Problem.objects.get(id=validated_base_id)
+            except Problem.DoesNotExist:
+                raise serializers.ValidationError(
+                    f"Base problem with ID {validated_base_id} does not exist."
+                )
+            instance.base = base_problem # type: ignore
+
         instance.save()
 
         premise_sentences = [
@@ -188,6 +203,8 @@ class ProblemInputSerializer(serializers.Serializer):
         many=True, allow_empty=True, help_text="List of knowledge base items"
     )
 
+    base = serializers.IntegerField(required=False, allow_null=True)
+
     def validate_id(self, value):
         """Validate that the Problem ID, if provided, exists and belongs to a user-created problem."""
         if value is not None:
@@ -196,5 +213,14 @@ class ProblemInputSerializer(serializers.Serializer):
             ).exists():
                 raise serializers.ValidationError(
                     f"Problem with ID {value} does not exist."
+                )
+        return value
+
+    def validate_base(self, value):
+        """Validate that the base problem ID exists if provided."""
+        if value is not None:
+            if not Problem.objects.filter(id=value).exists():
+                raise serializers.ValidationError(
+                    f"Base problem with ID {value} does not exist."
                 )
         return value

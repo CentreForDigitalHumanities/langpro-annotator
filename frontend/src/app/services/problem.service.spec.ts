@@ -49,6 +49,7 @@ describe("ProblemService", () => {
             const mockResponse: ProblemResponse = {
                 problem: {
                     id: mockProblemId,
+                    base: null,
                     dataset: Dataset.SICK,
                     premises: ["a"],
                     hypothesis: "b",
@@ -131,6 +132,7 @@ describe("ProblemService", () => {
         it("should PATCH the problem and return the response", (done) => {
             const problemToSave: ParseInput = {
                 id: 1,
+                base: null,
                 premises: ["a"],
                 hypothesis: "b",
                 kbItems: [],
@@ -153,6 +155,7 @@ describe("ProblemService", () => {
         it("should handle errors during save", (done) => {
             const problemToSave: ParseInput = {
                 id: 2,
+                base: null,
                 premises: ["c"],
                 hypothesis: "d",
                 kbItems: []

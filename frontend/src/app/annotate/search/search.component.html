@@ -47,13 +47,17 @@
         </div>
 
         <div class="row col-12 mx-auto">
-            <button
-                class="btn btn-outline-danger btn-sm"
+            <la-icon-button
+                [icon]="faTimes"
+                label="Clear filters"
+                class="px-0"
+                size="sm"
+                buttonStyle="danger"
                 (click)="clearFilters()"
-            >
-                <fa-icon [icon]="faTimes" class="me-2" />
-                <span i18n>Clear filters</span>
-            </button>
+                i18n-label
+                outline
+                fullWidth
+            />
         </div>
     </form>
 </div>

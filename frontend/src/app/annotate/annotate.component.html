@@ -4,7 +4,6 @@
 @let adding = appMode === 'add';
 @let editing = appMode === 'edit';
 
-
 <div class="row mb-4">
     <div class="d-flex flex-column col-4 gap-2">
         @if (browsing) {
@@ -12,44 +11,32 @@
             <la-navigator />
             <la-search />
         </div>
-        } @else if (adding) {
+        } @else if (adding || editing) {
         <section class="d-flex flex-column gap-2">
+            @if (adding) {
             <p class="text-muted" i18n>
                 You are currently adding a new problem.
             </p>
+            } @else {
+            <p class="text-muted" i18n>
+                You are currently editing an existing problem.
+            </p>
+            }
             <p class="text-muted" i18n>
                 Hit 'Start Parse' to send your problem data to the parser and
                 inspect the results.
             </p>
             <p class="text-muted" i18n>
                 If you are happy with the changes, save the problem by clicking
-                the 'Save' button.
+                the 'Save problem' button.
             </p>
+            @if (adding) {
             <p class="text-muted" i18n>
                 This will add the problem to the database.
             </p>
-        </section>
-        } @else if (editing) {
-        <section>
-            <p class="text-muted" i18n>
-                You are currently editing an existing problem.
-            </p>
-            <p class="text-muted" i18n>
-                Hit 'Start Parse' to send your problem data to the parser and
-                inspect the results.
-            </p>
-            <p class="text-muted" i18n>
-                If you are happy with the changes, save the changes by clicking
-                the 'Save problem' button.
-            </p>
-            @if (isUserProblem$ | async) {
-            <p class="text-muted" i18n>
-                This will update this problem in the database.
-            </p>
             } @else {
             <p class="text-muted" i18n>
-                This will create a new problem in the database, leaving the
-                original problem unchanged.
+                This will update this problem in the database.
             </p>
             }
         </section>

@@ -1,4 +1,6 @@
 @let premiseControls = form().controls.premises.controls;
+@let appMode = appMode$ | async;
+@let editingOrAdding = appMode === 'add' || appMode === 'edit';
 
 <form [formGroup]="form()">
     <fieldset>
@@ -6,6 +8,7 @@
             class="form-label h6 fw-bold d-flex align-items-center justify-content-between"
         >
             <span i18n>Premises</span>
+            @if (editingOrAdding) {
             <button
                 type="button"
                 class="btn btn-sm btn-outline-primary"
@@ -19,19 +22,25 @@
                     focusable="false"
                 ></fa-icon>
             </button>
+            }
         </legend>
 
         <ul class="ps-0 list-unstyled" formArrayName="premises">
-            @for (control of premiseControls; let i = $index;
-            track $index) {
+            @for (control of premiseControls; let i = $index; track
+            `${i}-${control.value}`) {
             <li class="mb-3">
                 <div class="input-group">
                     <input
                         [id]="'premise-' + i"
                         type="text"
-                        class="form-control"
+                        [class]="
+                            editingOrAdding
+                                ? 'form-control'
+                                : 'form-control-plaintext'
+                        "
                         [formControlName]="i"
                     />
+                    @if (editingOrAdding) {
                     <button
                         type="button"
                         class="btn btn-danger"
@@ -50,10 +59,13 @@
                             >Remove</span
                         >
                     </button>
+                    }
                 </div>
             </li>
             } @empty {
-                <li class="text-muted" i18n>No premises defined for this problem.</li>
+            <li class="text-muted" i18n>
+                No premises defined for this problem.
+            </li>
             }
         </ul>
     </fieldset>
@@ -65,8 +77,17 @@
         <input
             id="hypothesis"
             type="text"
-            class="form-control"
+            [class]="
+                editingOrAdding ? 'form-control' : 'form-control-plaintext'
+            "
+            [class.is-invalid]="
+                form().controls.hypothesis.touched &&
+                form().controls.hypothesis.invalid
+            "
             [formControl]="form().controls.hypothesis"
         />
+        <p class="invalid-feedback" i18n>
+            Each problem must have a hypothesis.
+        </p>
     </div>
 </form>

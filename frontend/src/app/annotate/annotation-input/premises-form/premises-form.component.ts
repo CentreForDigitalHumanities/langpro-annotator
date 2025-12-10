@@ -1,9 +1,10 @@
-import { Component, input } from "@angular/core";
+import { Component, inject, input } from "@angular/core";
 import { ReactiveFormsModule, FormControl, Validators } from "@angular/forms";
 import { CommonModule } from "@angular/common";
 import { FontAwesomeModule } from "@fortawesome/angular-fontawesome";
 import { faPlus, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { ParseInputForm } from "../annotation-input.component";
+import { ProblemService } from "@/services/problem.service";
 
 export interface Premises {
     premises: string[];
@@ -18,10 +19,14 @@ export interface Premises {
     styleUrl: "./premises-form.component.scss",
 })
 export class PremisesFormComponent {
+    private problemService = inject(ProblemService);
+
     public form = input.required<ParseInputForm>();
 
     public faPlus = faPlus;
     public faTrash = faTrash;
+
+    public appMode$ = this.problemService.appMode$;
 
     public addPremise(value: string = ""): void {
         const premisesArray = this.form().controls.premises;

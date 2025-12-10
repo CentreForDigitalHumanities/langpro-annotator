@@ -1,13 +1,13 @@
-@let problem = problem$ | async;
+@let problemResponse = problemResponse$ | async;
 
 <div class="navigator-container">
     <div class="d-flex justify-content-between align-items-center gap-2">
         <div class="responsive-button-grid">
-            <button
+            <a
                 class="btn btn-outline-primary btn-sm"
-                type="button"
-                (click)="navigateToProblem(problem?.firstProblemId)"
-                [disabled]="problem?.id === problem?.firstProblemId"
+                [class.disabled]="problemResponse?.problem?.id === problemResponse?.first"
+                [routerLink]="['/', 'annotate', problemResponse?.first]"
+                queryParamsHandling="preserve"
                 aria-labelledby="label-first"
                 title="First problem"
                 title-i18n
@@ -20,12 +20,12 @@
                 <span id="label-first" class="visually-hidden" i18n>
                     First</span
                 >
-            </button>
-            <button
+            </a>
+            <a
                 class="btn btn-outline-primary btn-sm"
-                type="button"
-                (click)="navigateToProblem(problem?.previousProblemId)"
-                [disabled]="problem?.previousProblemId === null"
+                [class.disabled]="problemResponse?.previous === null"
+                [routerLink]="['/', 'annotate', problemResponse?.previous]"
+                queryParamsHandling="preserve"
                 aria-labelledby="label-previous"
                 title="Previous problem"
                 title-i18n
@@ -38,25 +38,26 @@
                 <span id="label-previous" class="visually-hidden" i18n
                     >Previous</span
                 >
-            </button>
+            </a>
         </div>
 
         <div class="px-2 text-center flex-grow-1">
-            @if (problem) {
+            @if (problemResponse) {
             <span class="small" i18n>
-                {{ problem?.index ?? '-' }}
+                {{ problemResponse?.index ?? '-' }}
             </span>
             <hr class="my-1">
-            <span class="small" i18n>{{ problem.totalProblems }}</span>
+            <span class="small" i18n>{{ problemResponse.total }}</span>
             }
         </div>
 
         <div class="responsive-button-grid">
-            <button
+            <a
                 class="btn btn-outline-primary btn-sm"
-                type="button"
-                (click)="navigateToProblem(problem?.nextProblemId)"
-                [disabled]="problem?.nextProblemId === null"
+                [class.disabled]="problemResponse?.next === null"
+                [routerLink]="['/', 'annotate', problemResponse?.next]"
+                queryParamsHandling="preserve"
+                aria-labelledby="label-next"
                 title="Next problem"
                 title-i18n
             >
@@ -66,11 +67,13 @@
                     aria-hidden="true"
                     focusable="false"
                 />
-            </button>
-            <button
+            </a>
+            <a
                 class="btn btn-outline-primary btn-sm"
-                (click)="navigateToProblem(problem?.lastProblemId)"
-                [disabled]="problem?.id === problem?.lastProblemId"
+                [class.disabled]="problemResponse?.problem?.id === problemResponse?.last"
+                [routerLink]="['/', 'annotate', problemResponse?.last]"
+                queryParamsHandling="preserve"
+                aria-labelledby="label-last"
                 title="Last problem"
                 title-i18n
             >
@@ -80,7 +83,7 @@
                     aria-hidden="true"
                     focusable="false"
                 />
-            </button>
+            </a>
         </div>
     </div>
 </div>

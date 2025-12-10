@@ -23,11 +23,26 @@ interface SNLIData {
     label5: string;
 }
 
-interface ProblemBase {
+export enum KnowledgeBaseRelationship {
+    EQUAL = "equal",
+    NOT_EQUAL = "not_equal",
+    SUBSET = "subset",
+    SUPERSET = "superset",
+}
+
+interface KnowledgeBaseItem {
     id: number;
+    entity1: string;
+    relationship: KnowledgeBaseRelationship;
+    entity2: string;
+}
+
+interface ProblemBase {
+    id: number | null;
     premises: string[];
     hypothesis: string | null;
     entailmentLabel: EntailmentLabel;
+    kbItems: KnowledgeBaseItem[];
 }
 
 interface SickProblem extends ProblemBase {
@@ -50,18 +65,24 @@ interface UserProblem extends ProblemBase {
     extraData: null;
 }
 
-type Problem = SickProblem | FracasProblem | SNLIProblem | UserProblem;
+export type Problem = SickProblem | FracasProblem | SNLIProblem | UserProblem;
 
-export interface ProblemResponse {
-    id: number | null;
+interface BaseResponse {
+    error: string | null;
+}
+
+export interface ProblemResponse extends BaseResponse {
     index: number | null;
     problem: Problem | null;
-    error: string | null;
-    firstProblemId: string | null;
-    previousProblemId: string | null;
-    nextProblemId: string | null;
-    lastProblemId: string | null;
-    totalProblems: number;
+    first: number | null;
+    previous: number | null;
+    next: number | null;
+    last: number | null;
+    total: number;
+}
+
+export interface SaveProblemResponse extends BaseResponse {
+    id: number | null;
 }
 
 export enum Dataset {

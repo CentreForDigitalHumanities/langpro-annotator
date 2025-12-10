@@ -1,23 +1,19 @@
-import { Component, input } from "@angular/core";
+import { Component, inject, input } from "@angular/core";
 import { FormGroup, Validators, FormControl } from "@angular/forms";
 import { CommonModule } from "@angular/common";
 import { ReactiveFormsModule } from "@angular/forms";
 import { FontAwesomeModule } from "@fortawesome/angular-fontawesome";
 import { faPlus, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { ParseInputForm } from "../annotation-input.component";
+import { KnowledgeBaseRelationship } from "@/types";
+import { ProblemService } from "@/services/problem.service";
 
-export enum KnowledgeBaseRelationship {
-    EQUAL = "EQUAL",
-    NOT_EQUAL = "NOT_EQUAL",
-    SUBSET = "SUBSET",
-    SUPERSET = "SUPERSET",
-}
 
 const relationshipDisplayMapping: Record<KnowledgeBaseRelationship, string> = {
-    EQUAL: "is equal to",
-    NOT_EQUAL: "is not equal to",
-    SUBSET: "is a subset of",
-    SUPERSET: "is a superset of",
+    equal: "is equal to",
+    not_equal: "is not equal to",
+    subset: "is a subset of",
+    superset: "is a superset of",
 };
 
 @Component({
@@ -28,6 +24,8 @@ const relationshipDisplayMapping: Record<KnowledgeBaseRelationship, string> = {
     styleUrls: ["./knowledge-base-form.component.scss"],
 })
 export class KnowledgeBaseFormComponent {
+    private problemService = inject(ProblemService);
+
     public form = input.required<ParseInputForm>();
 
     public relationshipTypes = Object.values(KnowledgeBaseRelationship);
@@ -35,8 +33,13 @@ export class KnowledgeBaseFormComponent {
     public faPlus = faPlus;
     public faTrash = faTrash;
 
+    public appMode$ = this.problemService.appMode$;
+
     public addKnowledgeBaseItem(): void {
         const newItem = new FormGroup({
+            id: new FormControl<number | null>(null, {
+                nonNullable: true
+            }),
             entity1: new FormControl<string>("", {
                 validators: [Validators.required],
                 nonNullable: true,

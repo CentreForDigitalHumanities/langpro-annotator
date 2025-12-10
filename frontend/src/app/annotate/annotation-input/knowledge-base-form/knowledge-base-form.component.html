@@ -1,4 +1,5 @@
 @let kbControls = form().controls.kbItems.controls;
+@let appMode = appMode$ | async;
 
 <form [formGroup]="form()">
     <fieldset>
@@ -6,6 +7,7 @@
             class="form-label h6 fw-bold d-flex align-items-center justify-content-between"
         >
             <span i18n>Knowledge base items</span>
+            @if (appMode === 'add' || appMode === 'edit') {
             <button
                 type="button"
                 class="btn btn-sm btn-outline-primary"
@@ -19,12 +21,14 @@
                     focusable="false"
                 ></fa-icon>
             </button>
+            }
         </legend>
     </fieldset>
 
     <ul class="ps-0 list-unstyled" formArrayName="kbItems">
-        @for (kbItem of kbControls; let i = $index; track $index) {
+        @for (kbItem of kbControls; let i = $index; track `${i}-${kbItem.value.entity1}-${kbItem.value.relationship}-${kbItem.value.entity2}`) {
         <li class="mb-3">
+            @if (appMode === 'add' || appMode === 'edit') {
             <div [formGroupName]="i" class="input-group">
                 <input
                     type="text"
@@ -69,6 +73,15 @@
                     >
                 </button>
             </div>
+            } @else {
+            <p class="form-control-plaintext">
+                "{{ kbItem.controls.entity1.value }}"
+                {{
+                    getRelationshipTypeName(kbItem.controls.relationship.value)
+                }}
+                "{{ kbItem.controls.entity2.value }}"
+            </p>
+            }
         </li>
         } @empty {
         <li class="text-muted" i18n>

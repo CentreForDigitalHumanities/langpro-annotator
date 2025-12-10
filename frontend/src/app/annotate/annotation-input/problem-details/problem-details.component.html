@@ -1,46 +1,46 @@
 @if (problemDetails(); as details) {
-    <div class="problem-details-container">
-        <div class="entailment-label-container">
-            <span i18n>Entailment label:</span>
-            <la-entailment-label-badge
-                [entailmentLabel]="details.entailmentLabel"
-            ></la-entailment-label-badge>
-        </div>
-
-        <table class="table table-sm table-borderless">
-            <tbody>
-                <tr>
-                    <td class="text-muted" i18n>ID:</td>
-                    <td>{{ details.problemId }}</td>
-                </tr>
-                <tr>
-                    <td class="text-muted" i18n>Dataset:</td>
-                    <td>{{ datasetLabels[details.dataset] }}</td>
-                </tr>
-                @if (sectionString()) {
-                    <tr>
-                        <td class="text-muted" i18n>Section:</td>
-                        <td>{{ sectionString() }}</td>
-                    </tr>
-                }
-                @if (details.comment) {
-                    <tr>
-                        <td class="text-muted">
-                            <span i18n>Comment:</span>
-                            <fa-icon
-                                class="ms-1"
-                                [icon]="faQuestionCircle"
-                                aria-hidden="true"
-                                ngbTooltip="Comments provided by Bill McCartney."
-                                i18n-ngbTooltip
-                            />
-                        </td>
-                        <td>
-                            <i>{{ details.comment }}</i>
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
-    </div>
+<div>
+    <table class="table table-sm table-borderless">
+        <tbody>
+            <tr>
+                <td class="text-muted" i18n>ID:</td>
+                <td>{{ details.problemId }}</td>
+            </tr>
+            <tr>
+                <td class="text-muted" i18n>Dataset:</td>
+                <td>{{ datasetLabels[details.dataset] }}</td>
+            </tr>
+            <tr>
+                <td class="text-muted" i18n>Entailment label:</td>
+                <td>
+                    <la-entailment-label-badge
+                        [entailmentLabel]="details.entailmentLabel"
+                    ></la-entailment-label-badge>
+                </td>
+            </tr>
+            @if (sectionString()) {
+            <tr>
+                <td class="text-muted" i18n>Section:</td>
+                <td>{{ sectionString() }}</td>
+            </tr>
+            } @if (details.comment) {
+            <tr>
+                <td class="text-muted">
+                    <span i18n>Comment:</span>
+                    <fa-icon
+                        class="ms-1"
+                        [icon]="faQuestionCircle"
+                        aria-hidden="true"
+                        ngbTooltip="Comments provided by Bill McCartney."
+                        i18n-ngbTooltip
+                    />
+                </td>
+                <td>
+                    <i>{{ details.comment }}</i>
+                </td>
+            </tr>
+            }
+        </tbody>
+    </table>
+</div>
 }

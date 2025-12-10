@@ -9,27 +9,27 @@ import {
     Validators,
 } from "@angular/forms";
 import { PremisesFormComponent } from "./premises-form/premises-form.component";
-import {
-    KnowledgeBaseFormComponent,
-    KnowledgeBaseRelationship,
-} from "./knowledge-base-form/knowledge-base-form.component";
+import { KnowledgeBaseFormComponent } from "./knowledge-base-form/knowledge-base-form.component";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { ProblemResponse } from "../../types";
-import { faExclamationCircle } from "@fortawesome/free-solid-svg-icons";
+import { Dataset, KnowledgeBaseRelationship, Problem } from "../../types";
+import { faCheck, faExclamationCircle, faFloppyDisk, faTrash, faTree, faWrench } from "@fortawesome/free-solid-svg-icons";
 import { ProblemDetailsComponent } from "./problem-details/problem-details.component";
-import { combineLatest, Subject } from "rxjs";
-import { ActivatedRoute, Router } from "@angular/router";
+import { map, Subject } from "rxjs";
+import { ActivatedRoute, Router, RouterLinkWithHref } from "@angular/router";
 import { ProblemService } from "@/services/problem.service";
 import { ParseService } from "@/services/parse.service";
 import { FontAwesomeModule } from "@fortawesome/angular-fontawesome";
+import { ToastService } from "@/services/toast.service";
 
 export type ParseInputForm = FormGroup<{
+    id: FormControl<number | null>;
     premises: FormArray<FormControl<string>>;
     hypothesis: FormControl<string>;
     kbItems: FormArray<KnowledgeBaseItemsForm>;
 }>;
 
 type KnowledgeBaseItemsForm = FormGroup<{
+    id: FormControl<number | null>;
     entity1: FormControl<string>;
     relationship: FormControl<KnowledgeBaseRelationship>;
     entity2: FormControl<string>;
@@ -47,7 +47,8 @@ export type ParseInput = ReturnType<ParseInputForm["getRawValue"]>;
         FormsModule,
         ReactiveFormsModule,
         ProblemDetailsComponent,
-        FontAwesomeModule
+        FontAwesomeModule,
+        RouterLinkWithHref
     ],
     templateUrl: "./annotation-input.component.html",
     styleUrl: "./annotation-input.component.scss",
@@ -58,13 +59,25 @@ export class AnnotationInputComponent implements OnInit {
     private destroyRef = inject(DestroyRef);
     private problemService = inject(ProblemService);
     private parseService = inject(ParseService);
+    private toastService = inject(ToastService);
 
     public form: ParseInputForm | null = null;
-    public problem: ProblemResponse | null = null;
+
+    public problem$ = this.problemService.problem$;
 
     public submit$ = new Subject<void>();
 
+    public faCheck = faCheck;
+    public faTree = faTree;
+    public faFloppyDisk = faFloppyDisk;
     public faExclamationCircle = faExclamationCircle;
+    public faTrash = faTrash;
+    public faWrench = faWrench;
+
+    public appMode$ = this.problemService.appMode$;
+    public isUserProblem$ = this.problem$.pipe(
+        map(problem => problem?.dataset === Dataset.USER)
+    );
 
     ngOnInit(): void {
         this.problemService.problem$
@@ -73,10 +86,29 @@ export class AnnotationInputComponent implements OnInit {
                 // Navigate away if the backend provides a new Problem ID.
                 this.navigateToNewProblem(problem);
 
-                // Otherwise, update local state and form.
-                this.problem = problem;
+                // Otherwise, update local form.
                 this.form = problem ? this.buildForm(problem) : null;
             });
+
+        this.problemService.saveProblem$.pipe(
+            takeUntilDestroyed(this.destroyRef)
+        ).subscribe((response) => {
+            if (response.error) {
+                this.toastService.show({
+                    header: $localize`Error`,
+                    body: $localize`There was an error saving the problem: ${response.error}`,
+                    type: 'danger'
+                });
+                return;
+            }
+
+            this.toastService.show({
+                header: $localize`Problem saved`,
+                body: $localize`Problem successfully saved to database.`,
+                type: 'success'
+            });
+            this.router.navigate(["/", "annotate", response.id]);
+        });
 
         // Subscription needed to ensure a request is actually made.
         // TODO: replace this with actual parse results.
@@ -85,24 +117,30 @@ export class AnnotationInputComponent implements OnInit {
             .subscribe((response) => {
                 console.log("Parse response:", response);
             });
-
-        // Listen to route changes only after subscribing to ProblemService.problem$.
-        combineLatest([
-            this.route.paramMap,
-            this.route.queryParamMap])
-            .pipe(
-                takeUntilDestroyed(this.destroyRef)
-            )
-            .subscribe(([params, queryParams]) => {
-                this.problemService.allParams$.next({ params, queryParams });
-            });
     }
 
-    private navigateToNewProblem(problem: ProblemResponse | null): void {
-        if (!problem?.problem) {
+    public startParse(): void {
+        if (!this.form || this.form.invalid) {
             return;
         }
-        const incomingProblemId = problem?.id?.toString();
+        const input = this.form.getRawValue();
+        this.parseService.submit$.next(input);
+    }
+
+    public saveProblem(): void {
+        this.form?.markAllAsTouched();
+        if (!this.form || this.form.invalid) {
+            return;
+        }
+        const input = this.form.getRawValue();
+        this.problemService.submit$.next(input);
+    }
+
+    private navigateToNewProblem(problem: Problem | null): void {
+        if (!problem || !problem.id) {
+            return;
+        }
+        const incomingProblemId = problem.id.toString();
         const currentProblemId = this.route.snapshot.paramMap.get("problemId");
 
         if (incomingProblemId !== currentProblemId) {
@@ -112,11 +150,16 @@ export class AnnotationInputComponent implements OnInit {
         }
     }
 
-    private buildForm(response: ProblemResponse): ParseInputForm {
-        const premises = response.problem?.premises || [];
-        const hypothesis = response.problem?.hypothesis || "";
+    private buildForm(problem: Problem): ParseInputForm {
+        const id = problem.id;
+        const premises = problem.premises || [];
+        const hypothesis = problem.hypothesis || "";
+        const kbItems = this.buildKbForms(problem.kbItems);
 
         return new FormGroup({
+            id: new FormControl<number | null>(id, {
+                nonNullable: true
+            }),
             premises: new FormArray(
                 premises.map(
                     (premise) =>
@@ -130,7 +173,23 @@ export class AnnotationInputComponent implements OnInit {
                 validators: [Validators.required],
                 nonNullable: true,
             }),
-            kbItems: new FormArray<KnowledgeBaseItemsForm>([]),
+            kbItems: new FormArray<KnowledgeBaseItemsForm>(kbItems),
         });
+    }
+    private buildKbForms(inputKbItems: Problem['kbItems']): KnowledgeBaseItemsForm[] {
+        return inputKbItems.map(item => new FormGroup({
+            id: new FormControl<number | null>(item.id, {
+                nonNullable: true
+            }),
+            entity1: new FormControl<string>(item.entity1, {
+                nonNullable: true
+            }),
+            entity2: new FormControl<string>(item.entity2, {
+                nonNullable: true
+            }),
+            relationship: new FormControl<KnowledgeBaseRelationship>(item.relationship, {
+                nonNullable: true
+            })
+        }));
     }
 }

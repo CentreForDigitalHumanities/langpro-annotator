@@ -24,7 +24,8 @@ const fakeUser: User = {
     username: "frodo",
     isStaff: false,
     role: UserRole.VISITOR,
-    canEditOrAddProblem: false,
+    canCreateProblem: false,
+    canEditProblem: false,
 };
 
 @Injectable({ providedIn: "root" })

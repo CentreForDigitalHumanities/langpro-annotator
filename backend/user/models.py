@@ -1,5 +1,17 @@
+from enum import StrEnum
 import django.contrib.auth.models as django_auth_models
-from django.db import models
+
+
+class GroupName(StrEnum):
+    MASTER_ANNOTATORS = "Master Annotators"
+    ANNOTATORS = "Annotators"
+
+
+class UserRole(StrEnum):
+    SUPERUSER = "superuser"
+    MASTER_ANNOTATOR = "master_annotator"
+    ANNOTATOR = "annotator"
+    VISITOR = "visitor"
 
 
 class User(django_auth_models.AbstractUser):
@@ -14,20 +26,32 @@ class User(django_auth_models.AbstractUser):
     class Meta:
         db_table = "auth_user"
 
-    class Role(models.TextChoices):
-        ANNOTATOR = "annotator", "Annotator"
-        MASTER_ANNOTATOR = "master_annotator", "Master Annotator"
-        VISITOR = "visitor", "Visitor"
-
-    role = models.CharField(
-        max_length=20,
-        choices=Role.choices,
-        default=Role.VISITOR,
-        help_text="Visitors can browse problems and parses. Annotators can annotate non-locked problems. Master Annotators can manage users, change problem lock status, and review annotations.",
-    )
     @property
-    def can_edit_or_add_problem(self) -> bool:
+    def role(self) -> str:
         """
-        Determines whether the user can edit or add problems.
+        Returns the role of the user based on their group membership.
+
+        Currently only used in the frontend to pick a user icon.
         """
-        return self.is_superuser or self.role in [self.Role.MASTER_ANNOTATOR]
+        if self.is_superuser:
+            return UserRole.SUPERUSER
+        elif self.groups.filter(name=GroupName.MASTER_ANNOTATORS).exists():
+            return UserRole.MASTER_ANNOTATOR
+        elif self.groups.filter(name=GroupName.ANNOTATORS).exists():
+            return UserRole.ANNOTATOR
+        else:
+            return UserRole.VISITOR
+
+    @property
+    def can_edit_problem(self) -> bool:
+        """
+        Determines whether the user can edit problems.
+        """
+        return self.has_perm("problem.change_problem")
+
+    @property
+    def can_create_problem(self) -> bool:
+        """
+        Determines whether the user can create new problems.
+        """
+        return self.has_perm("problem.add_problem")

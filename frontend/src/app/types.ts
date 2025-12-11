@@ -31,7 +31,7 @@ export enum KnowledgeBaseRelationship {
 }
 
 interface KnowledgeBaseItem {
-    id: number;
+    id: number | null;
     entity1: string;
     relationship: KnowledgeBaseRelationship;
     entity2: string;
@@ -59,6 +59,7 @@ export interface ProblemLabel {
 
 interface ProblemBase {
     id: number | null;
+    base: number | null;
     premises: string[];
     hypothesis: string | null;
     entailmentLabel: EntailmentLabel;
@@ -95,11 +96,11 @@ interface BaseResponse {
 export interface ProblemResponse extends BaseResponse {
     index: number | null;
     problem: Problem | null;
-    firstProblemId: number | null;
-    previousProblemId: number | null;
-    nextProblemId: number | null;
-    lastProblemId: number | null;
-    totalProblems: number;
+    first: number | null;
+    previous: number | null;
+    next: number | null;
+    last: number | null;
+    total: number;
 }
 
 export interface SaveProblemResponse extends BaseResponse {

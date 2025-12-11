@@ -5,13 +5,14 @@ import { AnnotationInputComponent } from "./annotation-input/annotation-input.co
 import { SearchComponent } from "./search/search.component";
 import { FontAwesomeModule } from "@fortawesome/angular-fontawesome";
 import { faBinoculars, faPlus } from "@fortawesome/free-solid-svg-icons";
-import { ActivatedRoute, Router } from "@angular/router";
+import { ActivatedRoute, RouterLinkWithHref } from "@angular/router";
 import { ProblemService } from "@/services/problem.service";
 import { combineLatest, distinctUntilChanged, map } from "rxjs";
 import { CommonModule } from "@angular/common";
 import { Dataset } from "@/types";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { AuthService } from "@/services/auth.service";
+import areParamsEqual from "@/shared/areParamsEqual";
 
 @Component({
     selector: "la-annotate",
@@ -23,12 +24,12 @@ import { AuthService } from "@/services/auth.service";
         SearchComponent,
         FontAwesomeModule,
         CommonModule,
+        RouterLinkWithHref,
     ],
     templateUrl: "./annotate.component.html",
     styleUrl: "./annotate.component.scss",
 })
 export class AnnotateComponent implements OnInit {
-    private router = inject(Router);
     private route = inject(ActivatedRoute);
     private problemService = inject(ProblemService);
     private authService = inject(AuthService);
@@ -44,8 +45,8 @@ export class AnnotateComponent implements OnInit {
         map(problem => problem?.dataset === Dataset.USER)
     );
 
-    public canAddProblem$ = this.authService.currentUser$.pipe(
-        map(user => user?.canEditOrAddProblem ?? false)
+    public canCreateProblem$ = this.authService.currentUser$.pipe(
+        map(user => user?.canCreateProblem ?? false)
     );
 
     ngOnInit(): void {
@@ -60,18 +61,11 @@ export class AnnotateComponent implements OnInit {
             editParam$
         ])
             .pipe(
+                distinctUntilChanged((oldParams, newParams) => areParamsEqual(oldParams, newParams)),
                 takeUntilDestroyed(this.destroyRef)
             )
             .subscribe(([params, queryParams, edit]) => {
                 this.problemService.allParams$.next({ params, queryParams, edit });
             });
-    }
-
-    public goToProblem(problemId: number): void {
-        this.router.navigate(["/", "annotate", problemId.toString()]);
-    }
-
-    public addProblem(): void {
-        this.router.navigate(["/", "annotate", "new"]);
     }
 }

@@ -2,6 +2,7 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 
 import { ProblemDetailsComponent } from "./problem-details.component";
 import { Dataset, EntailmentLabel, Problem } from "../../../types";
+import { provideHttpClient } from "@angular/common/http";
 
 const createMockProblem = (
     id: number,
@@ -10,6 +11,7 @@ const createMockProblem = (
     extraData: any = {},
 ): Problem => ({
     id,
+    base: null,
     dataset,
     entailmentLabel,
     premises: ["premise"],
@@ -25,6 +27,7 @@ describe("ProblemDetailsComponent", () => {
     beforeEach(async () => {
         await TestBed.configureTestingModule({
             imports: [ProblemDetailsComponent],
+            providers: [provideHttpClient()]
         }).compileComponents();
 
         fixture = TestBed.createComponent(ProblemDetailsComponent);
@@ -41,7 +44,7 @@ describe("ProblemDetailsComponent", () => {
         expect(component).toBeTruthy();
     });
 
-     describe("with SICK dataset problem", () => {
+    describe("with SICK dataset problem", () => {
         beforeEach(() => {
             const problem = createMockProblem(
                 1,
@@ -55,6 +58,7 @@ describe("ProblemDetailsComponent", () => {
         it("should extract correct problem details", () => {
             expect(component.problemDetails()).toEqual({
                 problemId: "1",
+                baseProblemId: null,
                 dataset: Dataset.SICK,
                 entailmentLabel: EntailmentLabel.ENTAILMENT,
                 section: null,
@@ -88,6 +92,7 @@ describe("ProblemDetailsComponent", () => {
         it("should extract correct problem details", () => {
             expect(component.problemDetails()).toEqual({
                 problemId: "2",
+                baseProblemId: null,
                 dataset: Dataset.FRACAS,
                 entailmentLabel: EntailmentLabel.CONTRADICTION,
                 section: "Quantifiers",

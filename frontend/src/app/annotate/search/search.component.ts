@@ -10,14 +10,15 @@ import {
 import { FontAwesomeModule } from "@fortawesome/angular-fontawesome";
 import { faSearch, faTimes } from "@fortawesome/free-solid-svg-icons";
 import { NgbDropdownModule } from "@ng-bootstrap/ng-bootstrap";
-import { BehaviorSubject, distinctUntilChanged, map } from "rxjs";
+import { BehaviorSubject, map } from "rxjs";
 import {
     FilterSelectComponent,
     SelectOption,
 } from "./filter-select/filter-select.component";
 import { datasetLabels, entailmentLabels } from "@/shared/displayTextMappings";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { ActivatedRoute, Params, Router } from "@angular/router";
+import { ActivatedRoute, Router } from "@angular/router";
+import { IconButtonComponent } from "@/shared/icon-button/icon-button.component";
 
 interface SearchParams {
     dataset: Dataset | null;
@@ -39,6 +40,7 @@ type SearchParamsForm = {
         FontAwesomeModule,
         ReactiveFormsModule,
         FilterSelectComponent,
+        IconButtonComponent
     ],
     templateUrl: "./search.component.html",
     styleUrl: "./search.component.scss",
@@ -122,10 +124,10 @@ export class SearchComponent {
 
     // Updates the route, which triggers a new query.
     private updateUrl(searchParams: SearchParams): void {
-        const url = this.router.createUrlTree([], {
+        this.router.navigate([], {
             relativeTo: this.route,
-            queryParams: searchParams
-        }).toString();
-        this.router.navigateByUrl(url);
+            queryParams: searchParams,
+            queryParamsHandling: 'merge',
+        });
     }
 }

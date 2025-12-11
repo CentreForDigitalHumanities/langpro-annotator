@@ -27,6 +27,15 @@ class Problem(models.Model):
         default=Dataset.USER,
     )
 
+    base = models.ForeignKey(
+        "self",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="derived_problems",
+        help_text="The base problem from which this problem was derived, if any.",
+    )
+
     premises = models.ManyToManyField(
         Sentence,
         related_name="premise_problems",
@@ -45,6 +54,16 @@ class Problem(models.Model):
     )
 
     extra_data = models.JSONField()
+
+    class Meta:
+        permissions = [
+            ("view_gold_problems", "Can view gold problems"),
+            ("view_silver_problems", "Can view silver problems"),
+            ("view_hidden_problems", "Can view hidden problems"),
+            ("copy_problems", "Can copy problems"),
+            ("change_problem_status", "Can change problem status"),
+            ("change_problem_visibility", "Can change problem visibility"),
+        ]
 
     def get_index(self, qs: QuerySet) -> int | None:
         """

@@ -1,5 +1,6 @@
 import { ParseInput } from "@/annotate/annotation-input/annotation-input.component";
 import { ProblemResponse, SaveProblemResponse, Dataset, EntailmentLabel, Label } from "@/types";
+import extractBaseParam from "@/shared/extractBaseParam";
 import { HttpClient, HttpParams } from "@angular/common/http";
 import { Injectable, inject } from "@angular/core";
 import { ParamMap } from "@angular/router";
@@ -37,10 +38,13 @@ export class ProblemService {
             if (!problemId) {
                 return of(null);
             }
-            return problemId === "new" ? this.newProblem$() : this.existingProblem$(problemId, queryParams);
+            const baseParam = extractBaseParam(queryParams);
+
+            return problemId === "new" ? this.newProblem$(baseParam) : this.existingProblem$(problemId, queryParams);
         }),
         shareReplay(1)
     );
+
 
     public problem$ = this.problemResponse$.pipe(
         map(response => response?.problem ?? null),
@@ -77,8 +81,9 @@ export class ProblemService {
 
     public saveProblem$ = this.submit$.pipe(
         exhaustMap((problem) => {
-            const url = `/api/problem/${problem.id ?? ""}`;
-            return this.http.post<SaveProblemResponse>(url, problem).pipe(
+            const action = problem.id ? this.http.patch<SaveProblemResponse>(`/api/problem/${problem.id}/`, problem) :
+                this.http.post<SaveProblemResponse>(`/api/problem/`, problem);
+            return action.pipe(
                 catchError((error) => {
                     this.toastService.show({
                         header: $localize`Error saving problem`,
@@ -91,17 +96,45 @@ export class ProblemService {
         })
     );
 
-    private newProblem$(): Observable<ProblemResponse> {
-        return of<ProblemResponse>({
+    private newProblem$(baseParam: number | null): Observable<ProblemResponse> {
+        const sharedProblemResponse: Omit<ProblemResponse, "problem"> = {
             index: null,
-            firstProblemId: null,
-            lastProblemId: null,
-            nextProblemId: null,
-            previousProblemId: null,
-            totalProblems: 0,
+            first: null,
+            last: null,
+            next: null,
+            previous: null,
+            total: 0,
             error: null,
+        };
+
+        if (baseParam !== null) {
+            return this.existingProblem$(baseParam.toString()).pipe(map(response => {
+                const problem = response?.problem;
+                return {
+                    ...sharedProblemResponse,
+                    problem: {
+                        id: null,
+                        base: baseParam,
+                        hypothesis: problem?.hypothesis ?? "",
+                        dataset: Dataset.USER,
+                        premises: problem?.premises ?? [],
+                        entailmentLabel: EntailmentLabel.UNKNOWN,
+                        extraData: null,
+                        // KB items are not shared across problems.
+                        kbItems: problem?.kbItems.map(kbItem => ({
+                            ...kbItem,
+                            id: null,
+                        })) ?? [],
+                        labels: problem?.labels ?? [],
+                    }
+                };
+            }));
+        }
+        return of<ProblemResponse>({
+            ...sharedProblemResponse,
             problem: {
                 id: null,
+                base: baseParam,
                 hypothesis: "",
                 dataset: Dataset.USER,
                 premises: [],
@@ -116,7 +149,7 @@ export class ProblemService {
     private existingProblem$(problemId?: string, queryParams?: ParamMap): Observable<ProblemResponse | null> {
         const httpParams = queryParams ? this.extractSearchParams(queryParams) : undefined;
 
-        return this.http.get<ProblemResponse>(`/api/problem/${problemId ?? ""}`, { params: httpParams }).pipe(
+        return this.http.get<ProblemResponse>(`/api/problem/${problemId ?? "first"}/`, { params: httpParams }).pipe(
             catchError((error) => {
                 const message = `Error fetching ${problemId ? `problem ${problemId}` : "first problem"}`;
                 this.toastService.show({

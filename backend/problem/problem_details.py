@@ -1,4 +1,3 @@
-from typing import Optional
 from dataclasses import dataclass
 
 from django.http import QueryDict
@@ -70,8 +69,9 @@ def get_filters(query_params: QueryDict) -> Q | None:
         filters &= Q(dataset=dataset)
     if entailment_label:
         filters &= Q(entailment_label=entailment_label)
-    if gold is not None and gold != "":
-        raise NotImplementedError()
+    if gold:
+        logger.warning(f"Filtering by gold is not implemented yet.")
+        pass
     if text:
         filters &= Q(
             Q(hypothesis__text__icontains=text) | Q(premises__text__icontains=text)

@@ -49,6 +49,7 @@ describe("ProblemService", () => {
             const mockResponse: ProblemResponse = {
                 problem: {
                     id: mockProblemId,
+                    base: null,
                     dataset: Dataset.SICK,
                     premises: ["a"],
                     hypothesis: "b",
@@ -60,11 +61,11 @@ describe("ProblemService", () => {
                     }
                 },
                 index: 1,
-                totalProblems: 1,
-                firstProblemId: 123,
-                lastProblemId: 789,
-                nextProblemId: null,
-                previousProblemId: null,
+                total: 1,
+                first: 123,
+                last: 789,
+                next: null,
+                previous: null,
                 error: null
             };
 
@@ -79,7 +80,7 @@ describe("ProblemService", () => {
                 done();
             });
 
-            const req = httpMock.expectOne(`/api/problem/${mockProblemId}?text=&dataset=&gold=&entailmentLabel=`);
+            const req = httpMock.expectOne(`/api/problem/${mockProblemId}/?text=&dataset=&gold=&entailmentLabel=`);
             expect(req.request.method).toBe("GET");
             req.flush(mockResponse);
         });
@@ -128,9 +129,10 @@ describe("ProblemService", () => {
 
 
     describe("saveProblem$", () => {
-        it("should POST the problem and return the response", (done) => {
+        it("should PATCH the problem and return the response", (done) => {
             const problemToSave: ParseInput = {
                 id: 1,
+                base: null,
                 premises: ["a"],
                 hypothesis: "b",
                 kbItems: [],
@@ -144,8 +146,8 @@ describe("ProblemService", () => {
 
             service.submit$.next(problemToSave);
 
-            const req = httpMock.expectOne("/api/problem/1");
-            expect(req.request.method).toBe("POST");
+            const req = httpMock.expectOne("/api/problem/1/");
+            expect(req.request.method).toBe("PATCH");
             expect(req.request.body).toEqual(problemToSave);
             req.flush(mockResponse);
         });
@@ -153,6 +155,7 @@ describe("ProblemService", () => {
         it("should handle errors during save", (done) => {
             const problemToSave: ParseInput = {
                 id: 2,
+                base: null,
                 premises: ["c"],
                 hypothesis: "d",
                 kbItems: []
@@ -166,7 +169,7 @@ describe("ProblemService", () => {
 
             service.submit$.next(problemToSave);
 
-            const req = httpMock.expectOne("/api/problem/2");
+            const req = httpMock.expectOne("/api/problem/2/");
             req.flush("Error", { status: 500, statusText: "Server Error" });
         });
     });
@@ -180,7 +183,7 @@ describe("ProblemService", () => {
                 done();
             });
 
-            const req = httpMock.expectOne("/api/problem/");
+            const req = httpMock.expectOne("/api/problem/first/");
             expect(req.request.method).toBe("GET");
             req.flush(mockResponse);
         });
@@ -191,7 +194,7 @@ describe("ProblemService", () => {
                 done();
             });
 
-            const req = httpMock.expectOne("/api/problem/");
+            const req = httpMock.expectOne("/api/problem/first/");
             req.flush("Error", { status: 500, statusText: "Server Error" });
         });
     });

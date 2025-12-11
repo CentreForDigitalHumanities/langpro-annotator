@@ -21,7 +21,8 @@ const fakeUserResponse: UserResponse = {
     lastName: "Baggins",
     isStaff: false,
     role: UserRole.VISITOR,
-    canEditOrAddProblem: false,
+    canCreateProblem: false,
+    canEditProblem: false,
 };
 
 const fakeAdminResponse: UserResponse = {
@@ -31,8 +32,9 @@ const fakeAdminResponse: UserResponse = {
     firstName: "Gandalf",
     lastName: "The Grey",
     isStaff: true,
-    role: UserRole.ANNOTATOR,
-    canEditOrAddProblem: true,
+    role: UserRole.MASTER_ANNOTATOR,
+    canCreateProblem: true,
+    canEditProblem: true,
 };
 
 describe("UserMenuComponent", () => {

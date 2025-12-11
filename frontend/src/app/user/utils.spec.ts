@@ -40,7 +40,8 @@ describe("User utils", () => {
                 lastName: "User",
                 isStaff: true,
                 role: "visitor",
-                canEditOrAddProblem: false,
+                canCreateProblem: false,
+                canEditProblem: false,
             };
             const user = parseUserData(result);
             expect(user).toBeInstanceOf(User);
@@ -51,7 +52,8 @@ describe("User utils", () => {
             expect(user?.lastName).toBe("User");
             expect(user?.isStaff).toBe(true);
             expect(user?.role).toBe(UserRole.VISITOR);
-            expect(user?.canEditOrAddProblem).toBe(false);
+            expect(user?.canEditProblem).toBe(false);
+            expect(user?.canCreateProblem).toBe(false);
         });
     });
 

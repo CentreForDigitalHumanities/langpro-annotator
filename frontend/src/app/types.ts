@@ -46,7 +46,7 @@ export interface Label {
 interface AttachmentInfo {
     userName: string;
     date: string;
-    currentUser: boolean;
+    attachedByCurrentUser: boolean;
 }
 
 export interface ProblemLabel {

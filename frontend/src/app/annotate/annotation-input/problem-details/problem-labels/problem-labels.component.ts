@@ -8,7 +8,9 @@ import { catchError, Subject, switchMap } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ToastService } from '@/services/toast.service';
 import { HttpClient } from '@angular/common/http';
-import { formatDate } from '@/util';
+import sortLabels from '@/shared/sortLabels';
+import getTooltipText from '@/shared/formatTooltipText';
+import { ProblemService } from '@/services/problem.service';
 
 @Component({
     selector: 'la-problem-labels',
@@ -20,23 +22,24 @@ export class ProblemLabelsComponent implements OnInit {
     private destroyRef = inject(DestroyRef);
     private toastService = inject(ToastService);
     private http = inject(HttpClient);
+    private problemService = inject(ProblemService);
 
     public problemId = input.required<string>();
     public attachedLabels = input.required<ProblemLabel[]>();
 
     public sortedLabels = computed(() => {
-        return this.sortLabels(this.attachedLabels());
+        return sortLabels(this.attachedLabels());
     });
 
     public faSearch = faSearch;
 
-    private saveLabels$ = new Subject<ManageLabelsModalResult[]>();
+    private saveLabels$ = new Subject<ManageLabelsModalResult>();
 
     constructor(private modalService: NgbModal) { }
 
     ngOnInit(): void {
         this.saveLabels$.pipe(
-            switchMap(value => this.http.post<SaveLabelsResponse>("/api/labels", value)),
+            switchMap(value => this.http.post<SaveLabelsResponse>("/api/label/", value)),
             takeUntilDestroyed(this.destroyRef),
             catchError((error) => {
                 this.toastService.show(
@@ -55,6 +58,7 @@ export class ProblemLabelsComponent implements OnInit {
                         type: 'success',
                         body: $localize`Labels saved successfully.`
                     });
+                this.problemService.refetchProblem$.next();
                 return;
             }
             this.toastService.show({
@@ -64,6 +68,8 @@ export class ProblemLabelsComponent implements OnInit {
             });
         });
     }
+
+    public getTooltipText = getTooltipText;
 
     public openManageLabelsModal(): void {
         const modalRef = this.modalService.open(ManageLabelsModalComponent, {
@@ -77,27 +83,10 @@ export class ProblemLabelsComponent implements OnInit {
             selectedLabels: this.attachedLabels()
         });
 
-        modalRef.result.then((result: ManageLabelsModalResult[]) => {
+        modalRef.result?.then((result: ManageLabelsModalResult) => {
             this.saveLabels$.next(result);
+        }).catch(() => {
+            // Modal was dismissed (cancelled), do nothing.
         });
-    }
-
-    public getTooltipText(label: ProblemLabel): string {
-        let tooltip = label.description;
-        if (label.attachedInfo) {
-            const dateStr = formatDate(label.attachedInfo.date);
-            const attachedUser = label.attachedInfo.currentUser ? $localize`you` : label.attachedInfo.userName;
-            tooltip += `\n\nAttached by ${attachedUser} on ${dateStr}`;
-        }
-        return tooltip;
-    }
-
-    /**
-     * Make sure that the user's own labels are always last.
-     */
-    private sortLabels(labels: ProblemLabel[]): ProblemLabel[] {
-        const userLabels = labels.filter(label => label.attachedInfo?.currentUser);
-        const otherLabels = labels.filter(label => !label.attachedInfo?.currentUser);
-        return [...otherLabels, ...userLabels];
     }
 }

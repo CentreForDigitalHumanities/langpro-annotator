@@ -5,6 +5,8 @@ ANNOTATOR_PERMISSIONS = [
     ("problem", "change_knowledgebase"),
     ("problem", "delete_knowledgebase"),
     ("problem", "view_knowledgebase"),
+    ("annotation", "add_labeling"),
+    ("annotation", "delete_own_labeling"),
 ]
 
 MASTER_ANNOTATOR_PERMISSIONS = ANNOTATOR_PERMISSIONS + [
@@ -16,4 +18,8 @@ MASTER_ANNOTATOR_PERMISSIONS = ANNOTATOR_PERMISSIONS + [
     ("problem", "change_problem"),
     ("problem", "delete_problem"),
     ("problem", "view_problem"),
+    ("annotation", "add_label"),
+    ("annotation", "change_label"),
+    ("annotation", "delete_label"),
+    ("annotation", "delete_any_labeling"),
 ]

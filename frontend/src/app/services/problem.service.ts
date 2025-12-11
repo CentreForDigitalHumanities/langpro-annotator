@@ -4,7 +4,7 @@ import extractBaseParam from "@/shared/extractBaseParam";
 import { HttpClient, HttpParams } from "@angular/common/http";
 import { Injectable, inject } from "@angular/core";
 import { ParamMap } from "@angular/router";
-import { Subject, Observable, switchMap, of, shareReplay, exhaustMap, catchError, map, BehaviorSubject, filter } from "rxjs";
+import { Subject, Observable, switchMap, of, shareReplay, exhaustMap, catchError, map, BehaviorSubject, filter, merge } from "rxjs";
 import { ToastService } from "./toast.service";
 
 interface AllParams {
@@ -28,10 +28,15 @@ export class ProblemService {
 
     public allParams$ = new BehaviorSubject<AllParams | null>(null);
 
+    public refetchProblem$ = new Subject<void>();
+
     // Submit a new problem to be saved to the database.
     public submit$ = new Subject<ParseInput>();
 
-    public problemResponse$: Observable<ProblemResponse | null> = this.allParams$.pipe(
+    public problemResponse$: Observable<ProblemResponse | null> = merge(
+        this.allParams$,
+        this.refetchProblem$.pipe(map(() => this.allParams$.value))
+    ).pipe(
         filter(allParams => allParams !== null),
         switchMap(({ params, queryParams }) => {
             const problemId = params.get("problemId");
@@ -51,7 +56,7 @@ export class ProblemService {
         shareReplay(1)
     );
 
-    public allLabels$ = this.http.get<Label[]>('/api/labels').pipe(
+    public allLabels$ = this.http.get<Label[]>('/api/label/').pipe(
         catchError(() => {
             this.toastService.show({
                 header: $localize`Error fetching labels`,

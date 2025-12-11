@@ -89,6 +89,9 @@ class Label(models.Model):
         help_text="A detailed description of the label, indicating when it should be used."
     )
 
+    class Meta:
+        ordering = ["text"]
+
     def __str__(self):
         return self.text
 
@@ -145,6 +148,11 @@ class Labeling(models.Model):
             models.Index(fields=["problem", "removed_at"]),
             models.Index(fields=["label", "removed_at"]),
         ]
+        permissions = [
+            ("delete_own_labeling", "Can remove own labeling from problems"),
+            ("delete_any_labeling", "Can remove any labeling from problems"),
+        ]
+
 
     def is_active(self) -> bool:
         """Check if this labeling is currently active (not removed)."""

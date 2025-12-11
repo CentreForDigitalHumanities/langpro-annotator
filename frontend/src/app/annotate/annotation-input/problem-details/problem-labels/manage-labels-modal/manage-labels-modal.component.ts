@@ -6,7 +6,7 @@ import { Label, ProblemLabel } from '@/types';
 import { ProblemService } from '@/services/problem.service';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { AuthService } from '@/services/auth.service';
-import { map, combineLatest, Subject, withLatestFrom, startWith } from 'rxjs';
+import { map, combineLatest, Subject, withLatestFrom, startWith, tap, share, shareReplay, defer } from 'rxjs';
 import { AsyncPipe } from '@angular/common';
 import { formatDate } from '@/util';
 
@@ -42,9 +42,10 @@ export class ManageLabelsModalComponent implements OnInit {
 
     public allLabels$ = this.problemService.allLabels$;
 
-    public selectedLabels$ = this.form.controls.selectedLabels.valueChanges.pipe(
-        startWith(this.form.controls.selectedLabels.value)
-    );
+    // Defer ensures that the form has the correct values before we subscribe to valueChanges.
+    public selectedLabels$ = defer(() => this.form.controls.selectedLabels.valueChanges.pipe(
+        startWith(this.form.controls.selectedLabels.value),
+    ));
 
     public availableLabels$ = combineLatest([
         this.allLabels$,
@@ -81,7 +82,7 @@ export class ManageLabelsModalComponent implements OnInit {
                 attachedInfo: {
                     userName: this.currentUserName() ?? $localize`Unknown user`,
                     date: new Date().toISOString(),
-                    currentUser: true
+                    attachedByCurrentUser: true
                 },
                 removable: true
             };
@@ -124,7 +125,7 @@ export class ManageLabelsModalComponent implements OnInit {
         if (!label.attachedInfo) {
             return '';
         }
-        const attachedUser = label.attachedInfo.currentUser ? $localize`you` : label.attachedInfo.userName;
+        const attachedUser = label.attachedInfo.attachedByCurrentUser ? $localize`you` : label.attachedInfo.userName;
         return $localize`Attached by ${attachedUser} on ${formatDate(label.attachedInfo.date)}`;
     }
 

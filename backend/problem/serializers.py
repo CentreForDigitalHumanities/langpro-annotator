@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from django.contrib.auth.models import AnonymousUser
 
+from annotation.serializers import ActiveLabelSerializer
 from user.models import User
 from annotation.models import Label, Labeling
 from problem.services import FracasData, SNLIData, SickData
@@ -197,89 +198,6 @@ class ProblemSerializer(serializers.ModelSerializer):
         ).delete()
 
 
-class LabelSerializer(serializers.ModelSerializer):
-    """
-    Serializer for Label model.
-    """
-
-    class Meta:
-        model = Label
-        fields = ["id", "text", "description"]
-
-
-class ActiveLabelSerializer(serializers.Serializer):
-    """
-    Serializer for active labels attached to a problem.
-    Includes attachedInfo and removable status based on current user.
-    """
-
-    id = serializers.IntegerField(source="label.id")
-    text = serializers.CharField(source="label.text")
-    description = serializers.CharField(source="label.description")
-    attachedInfo = serializers.SerializerMethodField()
-    removable = serializers.SerializerMethodField()
-
-    def get_attachedInfo(self, labeling: Labeling) -> dict:
-        """Get attachment information for the label."""
-        request = self.context.get("request")
-        user: User | AnonymousUser | None = request.user if request else None
-    
-        if user and user.is_anonymous is False:
-            current_user = labeling.attached_by.pk == user.pk
-        else:
-            current_user = False
-
-        return {
-            "userName": labeling.attached_by.username,
-            "date": labeling.attached_at.isoformat(),
-            "currentUser": current_user,
-        }
-
-    def get_removable(self, labeling: Labeling) -> bool:
-        """Determine if the label is removable by the current user."""
-        request = self.context.get("request")
-        user: User | AnonymousUser | None = request.user if request else None
-
-        if user is None or isinstance(user, AnonymousUser):
-            return False
-
-        match user.role:
-            case User.Role.VISITOR:
-                return False
-            case User.Role.MASTER_ANNOTATOR:
-                return True
-            case User.Role.ANNOTATOR:
-                return labeling.attached_by.pk == user.pk
-
-        return False
-
-
-class LabelingSerializer(serializers.ModelSerializer):
-    """
-    Serializer for Labeling model, including the full label details.
-    """
-
-    label = LabelSerializer(read_only=True)
-    attachedAt = serializers.DateTimeField(source="attached_at")
-    attachedBy = serializers.PrimaryKeyRelatedField(
-        source="attached_by", read_only=True
-    )
-    removedAt = serializers.DateTimeField(source="removed_at", allow_null=True)
-    removedBy = serializers.PrimaryKeyRelatedField(
-        source="removed_by", allow_null=True, read_only=True
-    )
-
-    class Meta:
-        model = Labeling
-        fields = [
-            "id",
-            "label",
-            "attached_at",
-            "attached_by",
-            "removed_at",
-            "removed_by",
-            "notes",
-        ]
 
 
 class ProblemInputSerializer(serializers.Serializer):

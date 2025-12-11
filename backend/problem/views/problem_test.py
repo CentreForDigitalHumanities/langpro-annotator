@@ -5,7 +5,7 @@ from rest_framework import status
 
 from problem.models import Problem, Sentence
 from user.models import User, GroupName
-from user.permissions import annotator_permissions, master_annotator_permissions
+from user.permissions import ANNOTATOR_PERMISSIONS, MASTER_ANNOTATOR_PERMISSIONS
 
 
 @pytest.fixture
@@ -26,7 +26,7 @@ def visitor(db):
 
 @pytest.fixture
 def annotator(db):
-    """Creates an annotator user with annotator group permissions."""
+    """Creates an annotator user with annotator permissions."""
     user = User.objects.create_user(
         username="annotator",
         email="annotator@test.com",
@@ -34,8 +34,7 @@ def annotator(db):
     )
     group, _ = Group.objects.get_or_create(name=GroupName.ANNOTATORS)
 
-    # Add annotator permissions
-    for app_label, codename in annotator_permissions:
+    for app_label, codename in ANNOTATOR_PERMISSIONS:
         try:
             perm = Permission.objects.get(
                 content_type__app_label=app_label,
@@ -50,7 +49,7 @@ def annotator(db):
 
 @pytest.fixture
 def master_annotator(db):
-    """Creates a master annotator user with full permissions."""
+    """Creates a master annotator user with master annotator permissions."""
     user = User.objects.create_user(
         username="master_annotator",
         email="master@test.com",
@@ -58,8 +57,7 @@ def master_annotator(db):
     )
     group, _ = Group.objects.get_or_create(name=GroupName.MASTER_ANNOTATORS)
 
-    # Add master annotator permissions
-    for app_label, codename in master_annotator_permissions:
+    for app_label, codename in MASTER_ANNOTATOR_PERMISSIONS:
         try:
             perm = Permission.objects.get(
                 content_type__app_label=app_label,
@@ -103,7 +101,7 @@ class TestProblemViewPermissions:
     Tests for problem view permissions as documented in the README.
     """
 
-    # ==================== LIST (Browse) Tests ====================
+    # List / browse
 
     def test_unauthenticated_user_can_list_problems(self, api_client, sample_problem):
         """Unauthenticated users should be able to browse problems (read-only)."""
@@ -130,7 +128,7 @@ class TestProblemViewPermissions:
         response = api_client.get("/api/problem/")
         assert response.status_code == status.HTTP_200_OK
 
-    # ==================== RETRIEVE (Browse Single) Tests ====================
+    # Retrieve / browse single
 
     def test_unauthenticated_user_can_retrieve_problem(
         self, api_client, sample_problem
@@ -161,7 +159,7 @@ class TestProblemViewPermissions:
         response = api_client.get(f"/api/problem/{sample_problem.id}/")
         assert response.status_code == status.HTTP_200_OK
 
-    # ==================== CREATE (Add Problems) Tests ====================
+    # Create
 
     def test_unauthenticated_user_cannot_create_problem(
         self, api_client, problem_input_data
@@ -196,7 +194,7 @@ class TestProblemViewPermissions:
         assert response.status_code == status.HTTP_201_CREATED
         assert "id" in response.data
 
-    # ==================== UPDATE (Edit Problems) Tests ====================
+    # Update
 
     def test_unauthenticated_user_cannot_update_problem(
         self, api_client, sample_problem, problem_input_data

@@ -3,12 +3,12 @@
 from django.db import migrations
 
 from user.models import GroupName
-from user.permissions import annotator_permissions, master_annotator_permissions
+from user.permissions import ANNOTATOR_PERMISSIONS, MASTER_ANNOTATOR_PERMISSIONS
 
 
-permission_map = {
-    GroupName.MASTER_ANNOTATORS: master_annotator_permissions,
-    GroupName.ANNOTATORS: annotator_permissions,
+PERMISSION_MAP = {
+    GroupName.MASTER_ANNOTATORS: MASTER_ANNOTATOR_PERMISSIONS,
+    GroupName.ANNOTATORS: ANNOTATOR_PERMISSIONS,
 }
 
 
@@ -19,7 +19,7 @@ def create_groups(apps, schema_editor):
     Group = apps.get_model("auth", "Group")
     Permission = apps.get_model("auth", "Permission")
 
-    for group_name, perms in permission_map.items():
+    for group_name, perms in PERMISSION_MAP.items():
         group, created = Group.objects.get_or_create(name=group_name.value)
         for perm_codename in perms:
             try:
@@ -41,7 +41,7 @@ def delete_groups(apps, schema_editor):
     """
     Group = apps.get_model("auth", "Group")
 
-    for group_name in permission_map.keys():
+    for group_name in PERMISSION_MAP.keys():
         try:
             group = Group.objects.get(name=group_name)
             group.delete()

@@ -12,7 +12,8 @@ def test_user_details(user_client, user_data):
         "lastName": user_data["last_name"],
         "isStaff": False,
         "role": "visitor",
-        "canEditOrAddProblem": False,
+        "canCreateProblem": False,
+        "canEditProblem": False,
     }
 
 

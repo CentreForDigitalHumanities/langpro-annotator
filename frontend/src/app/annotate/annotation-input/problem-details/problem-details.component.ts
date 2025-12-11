@@ -8,8 +8,10 @@ import { datasetLabels } from "@/shared/displayTextMappings";
 import { ProblemLabelsComponent } from "./problem-labels/problem-labels.component";
 import { CommonModule } from "@angular/common";
 import { RouterModule } from "@angular/router";
+import { ProblemService } from "@/services/problem.service";
 
 export interface ProblemDetails {
+    problemId: string;
     baseProblemId: string | null;
     dataset: Dataset;
     entailmentLabel: EntailmentLabel;

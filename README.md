@@ -32,7 +32,7 @@ Apart from superusers/admins, the application has three user roles with differen
 
 Users can become Annotators or Master Annotators by adding them to the respective user groups in the Django admin interface.
 
-The overview below shows the permissions for each role. Not all permissions are currently implemented.
+The matrix below shows the permissions for each role. Not all permissions are currently implemented.
 
 (Last updated: November 14th, 2025)
 

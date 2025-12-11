@@ -3,25 +3,8 @@
 from django.db import migrations
 
 from user.models import GroupName
+from user.permissions import annotator_permissions, master_annotator_permissions
 
-annotator_permissions = [
-    "problem.view_silver_problems",
-    "problem.add_knowledgebase",
-    "problem.change_knowledgebase",
-    "problem.delete_knowledgebase",
-    "problem.view_knowledgebase",
-]
-
-master_annotator_permissions = annotator_permissions + [
-    "problem.copy_problems",
-    "problem.view_hidden_problems",
-    "problem.change_problem_status",
-    "problem.change_problem_visibility",
-    "problem.add_problem",
-    "problem.change_problem",
-    "problem.delete_problem",
-    "problem.view_problem",
-]
 
 permission_map = {
     GroupName.MASTER_ANNOTATORS: master_annotator_permissions,
@@ -40,7 +23,7 @@ def create_groups(apps, schema_editor):
         group, created = Group.objects.get_or_create(name=group_name.value)
         for perm_codename in perms:
             try:
-                app_label, codename = perm_codename.split(".")
+                app_label, codename = perm_codename
                 permission = Permission.objects.get(
                     content_type__app_label=app_label,
                     codename=codename,

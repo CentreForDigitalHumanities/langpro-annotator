@@ -75,6 +75,8 @@ class Problem(models.Model):
         except Exception as e:
             logger.exception(f"Error getting index for problem {self.pk}: {e}")
             return None
+
+
 class KnowledgeBase(models.Model):
     class Relationship(models.TextChoices):
         EQUAL = "equal", "Equal"

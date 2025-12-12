@@ -1,7 +1,5 @@
-from typing import Any
 from django.contrib import admin
 from django.contrib.auth import admin as auth_admin
-from django.http import HttpRequest
 from . import models
 from django.utils.translation import gettext_lazy as _
 

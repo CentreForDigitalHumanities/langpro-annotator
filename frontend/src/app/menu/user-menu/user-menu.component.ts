@@ -1,14 +1,13 @@
 import { Component, DestroyRef, OnInit } from "@angular/core";
-import { filter, map, Observable } from "rxjs";
+import { filter, map } from "rxjs";
 import { AuthService } from "../../services/auth.service";
 import { Router, RouterModule } from "@angular/router";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { CommonModule } from "@angular/common";
-import { faUser, faUserAstronaut, faUserGraduate, faUserTag } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeModule } from "@fortawesome/angular-fontawesome";
 import { ToastService } from "../../services/toast.service";
 import { NgbDropdownModule } from "@ng-bootstrap/ng-bootstrap";
-import { UserRole } from "@/user/models/user";
+import user2icon from "@/shared/user2icon";
 
 @Component({
     selector: "la-user-menu",
@@ -24,23 +23,7 @@ export class UserMenuComponent implements OnInit {
 
     public user$ = this.authService.currentUser$;
 
-    public userIcon$ = this.user$.pipe(
-        map(user => {
-            if (!user) {
-                return faUser;
-            }
-            switch (user.role) {
-                case UserRole.SUPERUSER:
-                    return faUserAstronaut;
-                case UserRole.ANNOTATOR:
-                    return faUserTag;
-                case UserRole.MASTER_ANNOTATOR:
-                    return faUserGraduate;
-                case UserRole.VISITOR:
-                    return faUser;
-            }
-        })
-    );
+    public userIcon$ = this.user$.pipe(map(user2icon));
 
     public showSignIn$ = this.authService.currentUser$.pipe(
         map((user) => user === null)

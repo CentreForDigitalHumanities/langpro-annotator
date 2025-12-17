@@ -1,6 +1,6 @@
 import { ParseInput } from "@/annotate/annotation-input/annotation-input.component";
-import { ProblemResponse, SaveProblemResponse, Dataset, EntailmentLabel, Label } from "@/types";
 import extractBaseParam from "@/shared/extractBaseParam";
+import { ProblemResponse, SaveProblemResponse, Dataset, EntailmentLabel, Problem, Label } from "@/types";
 import { HttpClient, HttpParams } from "@angular/common/http";
 import { Injectable, inject } from "@angular/core";
 import { ParamMap } from "@angular/router";
@@ -102,6 +102,16 @@ export class ProblemService {
     );
 
     private newProblem$(baseParam: number | null): Observable<ProblemResponse> {
+        if (baseParam !== null) {
+            return this.existingProblem$(baseParam.toString())
+                .pipe(
+                    map(response => this.createNewProblemResponse(baseParam, response?.problem))
+                );
+        }
+        return of<ProblemResponse>(this.createNewProblemResponse());
+    }
+
+    private createNewProblemResponse(baseParam?: number, existingProblem?: Problem | null): ProblemResponse {
         const sharedProblemResponse: Omit<ProblemResponse, "problem"> = {
             index: null,
             first: null,
@@ -112,43 +122,24 @@ export class ProblemService {
             error: null,
         };
 
-        if (baseParam !== null) {
-            return this.existingProblem$(baseParam.toString()).pipe(map(response => {
-                const problem = response?.problem;
-                return {
-                    ...sharedProblemResponse,
-                    problem: {
-                        id: null,
-                        base: baseParam,
-                        hypothesis: problem?.hypothesis ?? "",
-                        dataset: Dataset.USER,
-                        premises: problem?.premises ?? [],
-                        entailmentLabel: EntailmentLabel.UNKNOWN,
-                        extraData: null,
-                        // KB items are not shared across problems.
-                        kbItems: problem?.kbItems.map(kbItem => ({
-                            ...kbItem,
-                            id: null,
-                        })) ?? [],
-                        labels: problem?.labels ?? [],
-                    }
-                };
-            }));
-        }
-        return of<ProblemResponse>({
+        return {
             ...sharedProblemResponse,
             problem: {
                 id: null,
-                base: baseParam,
-                hypothesis: "",
+                base: baseParam ?? null,
+                hypothesis: existingProblem?.hypothesis ?? "",
                 dataset: Dataset.USER,
-                premises: [],
+                premises: existingProblem?.premises ?? [],
                 entailmentLabel: EntailmentLabel.UNKNOWN,
                 extraData: null,
-                kbItems: [],
-                labels: [],
-            },
-        });
+                kbItems: existingProblem?.kbItems.map(kbItem => ({
+                    ...kbItem,
+                    id: null,
+                })) ?? [],
+                labels: existingProblem?.labels ?? [],
+            }
+
+        };
     }
 
     private existingProblem$(problemId?: string, queryParams?: ParamMap): Observable<ProblemResponse | null> {

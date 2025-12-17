@@ -20,135 +20,152 @@ class TestProblemViewPermissions:
 
     # List / browse
 
-    def test_unauthenticated_user_can_list_problems(self, api_client, sample_problem):
+    def test_unauthenticated_user_can_list_problems(self, client, sample_problem):
         """Unauthenticated users should be able to browse problems (read-only)."""
-        response = api_client.get("/api/problem/")
+        response = client.get("/api/problem/")
         assert response.status_code == status.HTTP_200_OK
 
-    def test_visitor_can_list_problems(self, api_client, visitor, sample_problem):
+    def test_visitor_can_list_problems(self, client, visitor, sample_problem):
         """Visitors should be able to browse problems."""
-        api_client.force_authenticate(user=visitor)
-        response = api_client.get("/api/problem/")
+        client.force_login(user=visitor)
+        response = client.get("/api/problem/")
         assert response.status_code == status.HTTP_200_OK
 
-    def test_annotator_can_list_problems(self, api_client, annotator, sample_problem):
+    def test_annotator_can_list_problems(self, client, annotator, sample_problem):
         """Annotators should be able to browse problems."""
-        api_client.force_authenticate(user=annotator)
-        response = api_client.get("/api/problem/")
+        client.force_login(user=annotator)
+        response = client.get("/api/problem/")
         assert response.status_code == status.HTTP_200_OK
 
     def test_master_annotator_can_list_problems(
-        self, api_client, master_annotator, sample_problem
+        self, client, master_annotator, sample_problem
     ):
         """Master annotators should be able to browse problems."""
-        api_client.force_authenticate(user=master_annotator)
-        response = api_client.get("/api/problem/")
+        client.force_login(user=master_annotator)
+        response = client.get("/api/problem/")
         assert response.status_code == status.HTTP_200_OK
 
     # Retrieve / browse single
 
-    def test_unauthenticated_user_can_retrieve_problem(
-        self, api_client, sample_problem
-    ):
+    def test_unauthenticated_user_can_retrieve_problem(self, client, sample_problem):
         """Unauthenticated users should be able to view a single problem."""
-        response = api_client.get(f"/api/problem/{sample_problem.id}/")
+        response = client.get(f"/api/problem/{sample_problem.id}/")
         assert response.status_code == status.HTTP_200_OK
 
-    def test_visitor_can_retrieve_problem(self, api_client, visitor, sample_problem):
+    def test_visitor_can_retrieve_problem(self, client, visitor, sample_problem):
         """Visitors should be able to view a single problem."""
-        api_client.force_authenticate(user=visitor)
-        response = api_client.get(f"/api/problem/{sample_problem.id}/")
+        client.force_login(user=visitor)
+        response = client.get(f"/api/problem/{sample_problem.id}/")
         assert response.status_code == status.HTTP_200_OK
 
-    def test_annotator_can_retrieve_problem(
-        self, api_client, annotator, sample_problem
-    ):
+    def test_annotator_can_retrieve_problem(self, client, annotator, sample_problem):
         """Annotators should be able to view a single problem."""
-        api_client.force_authenticate(user=annotator)
-        response = api_client.get(f"/api/problem/{sample_problem.id}/")
+        client.force_login(user=annotator)
+        response = client.get(f"/api/problem/{sample_problem.id}/")
         assert response.status_code == status.HTTP_200_OK
 
     def test_master_annotator_can_retrieve_problem(
-        self, api_client, master_annotator, sample_problem
+        self, client, master_annotator, sample_problem
     ):
         """Master annotators should be able to view a single problem."""
-        api_client.force_authenticate(user=master_annotator)
-        response = api_client.get(f"/api/problem/{sample_problem.id}/")
+        client.force_login(user=master_annotator)
+        response = client.get(f"/api/problem/{sample_problem.id}/")
         assert response.status_code == status.HTTP_200_OK
 
     # Create
 
     def test_unauthenticated_user_cannot_create_problem(
-        self, api_client, problem_input_data
+        self, client, problem_input_data
     ):
         """Unauthenticated users should not be able to create problems."""
-        response = api_client.post("/api/problem/", problem_input_data, format="json")
+        response = client.post(
+            "/api/problem/",
+            problem_input_data,
+            content_type="application/json",
+        )
         assert response.status_code == status.HTTP_401_UNAUTHORIZED
 
-    def test_visitor_cannot_create_problem(
-        self, api_client, visitor, problem_input_data
-    ):
+    def test_visitor_cannot_create_problem(self, client, visitor, problem_input_data):
         """Visitors should not be able to create problems."""
-        api_client.force_authenticate(user=visitor)
-        response = api_client.post("/api/problem/", problem_input_data, format="json")
+        client.force_login(user=visitor)
+        response = client.post(
+            "/api/problem/",
+            problem_input_data,
+            content_type="application/json",
+        )
         assert response.status_code == status.HTTP_403_FORBIDDEN
 
     def test_annotator_cannot_create_problem(
-        self, api_client, annotator, problem_input_data
+        self, client, annotator, problem_input_data
     ):
         """Annotators should not be able to create problems."""
-        api_client.force_authenticate(user=annotator)
-        response = api_client.post("/api/problem/", problem_input_data, format="json")
+        client.force_login(user=annotator)
+        response = client.post(
+            "/api/problem/",
+            problem_input_data,
+            content_type="application/json",
+        )
         assert response.status_code == status.HTTP_403_FORBIDDEN
 
     def test_master_annotator_can_create_problem(
-        self, api_client, master_annotator, problem_input_data
+        self, client, master_annotator, problem_input_data
     ):
         """Master annotators should be able to create problems."""
-        api_client.force_authenticate(user=master_annotator)
-        response = api_client.post("/api/problem/", problem_input_data, format="json")
-        print(response.data)
+        client.force_login(user=master_annotator)
+        response = client.post(
+            "/api/problem/",
+            problem_input_data,
+            content_type="application/json",
+        )
         assert response.status_code == status.HTTP_201_CREATED
-        assert "id" in response.data
+        assert "id" in response.json()
 
     # Update
 
     def test_unauthenticated_user_cannot_update_problem(
-        self, api_client, sample_problem, problem_input_data
+        self, client, sample_problem, problem_input_data
     ):
         """Unauthenticated users should not be able to update problems."""
-        response = api_client.patch(
-            f"/api/problem/{sample_problem.id}/", problem_input_data, format="json"
+        response = client.patch(
+            f"/api/problem/{sample_problem.id}/",
+            problem_input_data,
+            content_type="application/json",
         )
         assert response.status_code == status.HTTP_401_UNAUTHORIZED
 
     def test_visitor_cannot_update_problem(
-        self, api_client, visitor, sample_problem, problem_input_data
+        self, client, visitor, sample_problem, problem_input_data
     ):
         """Visitors should not be able to update problems."""
-        api_client.force_authenticate(user=visitor)
-        response = api_client.patch(
-            f"/api/problem/{sample_problem.id}/", problem_input_data, format="json"
+        client.force_login(user=visitor)
+        response = client.patch(
+            f"/api/problem/{sample_problem.id}/",
+            problem_input_data,
+            content_type="application/json",
         )
         assert response.status_code == status.HTTP_403_FORBIDDEN
 
     def test_annotator_cannot_update_problem(
-        self, api_client, annotator, sample_problem, problem_input_data
+        self, client, annotator, sample_problem, problem_input_data
     ):
         """Annotators should not be able to update problems."""
-        api_client.force_authenticate(user=annotator)
-        response = api_client.patch(
-            f"/api/problem/{sample_problem.id}/", problem_input_data, format="json"
+        client.force_login(user=annotator)
+        response = client.patch(
+            f"/api/problem/{sample_problem.id}/",
+            problem_input_data,
+            content_type="application/json",
         )
         assert response.status_code == status.HTTP_403_FORBIDDEN
 
     def test_master_annotator_can_update_problem(
-        self, api_client, master_annotator, sample_problem, problem_input_data
+        self, client, master_annotator, sample_problem, problem_input_data
     ):
         """Master annotators should be able to update user-created problems."""
-        api_client.force_authenticate(user=master_annotator)
-        response = api_client.patch(
-            f"/api/problem/{sample_problem.id}/", problem_input_data, format="json"
+        client.force_login(user=master_annotator)
+        response = client.patch(
+            f"/api/problem/{sample_problem.id}/",
+            problem_input_data,
+            content_type="application/json",
         )
         assert response.status_code == status.HTTP_200_OK
 
@@ -184,27 +201,27 @@ class TestUserRoleProperties:
 class TestFirstEndpointPermissions:
     """Tests for the /first endpoint permissions."""
 
-    def test_unauthenticated_user_can_access_first(self, api_client, sample_problem):
+    def test_unauthenticated_user_can_access_first(self, client, sample_problem):
         """Unauthenticated users should be able to access /first endpoint."""
-        response = api_client.get("/api/problem/first/")
+        response = client.get("/api/problem/first/")
         assert response.status_code == status.HTTP_200_OK
 
-    def test_visitor_can_access_first(self, api_client, visitor, sample_problem):
+    def test_visitor_can_access_first(self, client, visitor, sample_problem):
         """Visitors should be able to access /first endpoint."""
-        api_client.force_authenticate(user=visitor)
-        response = api_client.get("/api/problem/first/")
+        client.force_login(user=visitor)
+        response = client.get("/api/problem/first/")
         assert response.status_code == status.HTTP_200_OK
 
-    def test_annotator_can_access_first(self, api_client, annotator, sample_problem):
+    def test_annotator_can_access_first(self, client, annotator, sample_problem):
         """Annotators should be able to access /first endpoint."""
-        api_client.force_authenticate(user=annotator)
-        response = api_client.get("/api/problem/first/")
+        client.force_login(user=annotator)
+        response = client.get("/api/problem/first/")
         assert response.status_code == status.HTTP_200_OK
 
     def test_master_annotator_can_access_first(
-        self, api_client, master_annotator, sample_problem
+        self, client, master_annotator, sample_problem
     ):
         """Master annotators should be able to access /first endpoint."""
-        api_client.force_authenticate(user=master_annotator)
-        response = api_client.get("/api/problem/first/")
+        client.force_login(user=master_annotator)
+        response = client.get("/api/problem/first/")
         assert response.status_code == status.HTTP_200_OK

@@ -21,7 +21,7 @@ from langpro_annotator.logger import logger
 
 
 class SaveLabelingsPermission(IsAuthenticated):
-    """Permission class for saving labelings. Requires Annotator or Master Annotator role."""
+    """Permission class for saving labelings."""
 
     def has_permission(self, request, view):
         if not super().has_permission(request, view):
@@ -37,8 +37,8 @@ class LabelView(ModelViewSet):
     """
     ViewSet for Label model.
 
-    GET: All users (including visitors) can list and retrieve labels.
-    POST: Annotators and Master Annotators can save labelings (attach/remove labels from problems).
+    GET: All users can list and retrieve labels.
+    POST: Only selected users can save labelings (attach/remove labels from problems).
     """
 
     queryset = Label.objects.all().order_by("text")

@@ -122,27 +122,3 @@ class SaveLabelsInputSerializer(serializers.Serializer):
                 f"Problem with ID {value} does not exist."
             )
         return value
-
-
-class LabelingInputSerializer(serializers.Serializer):
-    """
-    Serializer for creating a single labeling.
-    """
-
-    problemId = serializers.IntegerField()
-    labelId = serializers.IntegerField()
-    notes = serializers.CharField(required=False, allow_blank=True, default="")
-
-    def validate_problemId(self, value):
-        """Validate that the problem exists."""
-        if not Problem.objects.filter(id=value).exists():
-            raise serializers.ValidationError(
-                f"Problem with ID {value} does not exist."
-            )
-        return value
-
-    def validate_labelId(self, value):
-        """Validate that the label exists."""
-        if not Label.objects.filter(id=value).exists():
-            raise serializers.ValidationError(f"Label with ID {value} does not exist.")
-        return value

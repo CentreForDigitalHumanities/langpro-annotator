@@ -60,6 +60,11 @@ export class ManageLabelsModalComponent implements OnInit {
         })
     );
 
+    public loadingLabels$ = this.availableLabels$.pipe(
+        map(() => false),
+        startWith(true)
+    );
+
     constructor(public activeModal: NgbActiveModal) { }
 
     ngOnInit(): void {
@@ -113,11 +118,7 @@ export class ManageLabelsModalComponent implements OnInit {
         this.addLabelSubject.next(labelId);
     }
 
-    public closeModal(options: { save: boolean; } = { save: true }): void {
-        if (!options.save) {
-            this.activeModal.dismiss();
-            return;
-        }
+    public closeModal(): void {
         this.activeModal.close(this.form.getRawValue());
     }
 

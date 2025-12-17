@@ -5,7 +5,7 @@
         class="btn-close"
         aria-label="Close"
         i18n-aria-label
-        (click)="closeModal()"
+        (click)="activeModal.dismiss()"
     ></button>
 </div>
 <div class="modal-body">
@@ -63,6 +63,15 @@
             </tr>
         </thead>
         <tbody>
+            @if (loadingLabels$ | async) {
+            <tr>
+                <td colspan="3" class="text-center py-3">
+                    <div class="spinner-border spinner-border-sm text-secondary" role="status">
+                        <span class="visually-hidden" i18n>Loading labels...</span>
+                    </div>
+                </td>
+            </tr>
+            } @else {
             @for (label of availableLabels$ | async; track label.id) {
             <tr class="clickable-row align-middle" (click)="addLabel(label.id)">
                 <td>
@@ -83,6 +92,7 @@
                     All labels have been attached.
                 </td>
             </tr>
+            }
             }
         </tbody>
     </table>
@@ -107,7 +117,7 @@
     <button
         type="button"
         class="btn btn-secondary"
-        (click)="closeModal({ save: false })"
+        (click)="activeModal.dismiss()"
         i18n
     >
         Close

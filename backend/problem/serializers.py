@@ -198,8 +198,6 @@ class ProblemSerializer(serializers.ModelSerializer):
         ).delete()
 
 
-
-
 class ProblemInputSerializer(serializers.Serializer):
     """
     Serializer for validating problem input data.

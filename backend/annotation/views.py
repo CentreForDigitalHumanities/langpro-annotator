@@ -72,55 +72,70 @@ class LabelView(ModelViewSet):
 
         selected_label_ids = {label["id"] for label in selected_labels}
 
+        try:
+            self._update_labelings(problem, user, selected_label_ids, remarks)
+        except PermissionError as e:
+            return Response({"detail": str(e)}, status=403)
+
+        return Response({"ok": True}, status=HTTP_200_OK)
+
+    def _update_labelings(
+        self,
+        problem: Problem,
+        user: User,
+        selected_label_ids: set[int],
+        remarks: str,
+    ) -> None:
+        """Update labelings for a problem based on selected labels."""
+
         with transaction.atomic():
-            # Get all active labelings for this problem
             active_labelings = Labeling.objects.filter(
                 problem=problem, removed_at__isnull=True
-            )
+            ).select_related("label", "attached_by")
 
-            # Determine which labels to remove and which to add
             current_label_ids = {labeling.label.pk for labeling in active_labelings}
             labels_to_remove = current_label_ids - selected_label_ids
             labels_to_add = selected_label_ids - current_label_ids
 
-            # Mark labels as removed
             for labeling in active_labelings:
                 if labeling.label.pk in labels_to_remove:
-                    # Check permission for removal
-                    if not self._can_remove_labeling(user, labeling):
-                        logger.warning(
-                            f"User {user.username} attempted to remove label {labeling.label.pk} "
-                            f"attached by {labeling.attached_by.username}"
-                        )
-                        return Response(
-                            {
-                                "error": "You can only remove labels you attached yourself."
-                            },
-                            status=403,
-                        )
-                    labeling.removed_at = timezone.now()
-                    labeling.removed_by = user
-                    if remarks:
-                        labeling.notes = remarks
-                    labeling.save()
+                    self._remove_labeling(
+                        labeling=labeling,
+                        user=user,
+                        remarks=remarks,
+                    )
 
-            # Add new labels
             for label_id in labels_to_add:
-                Labeling.objects.create(
-                    problem=problem,
+                self._create_labeling(
                     label_id=label_id,
-                    attached_by=user,
-                    notes=remarks,
+                    problem=problem,
+                    user=user,
+                    remarks=remarks,
                 )
 
-        return Response({"ok": True}, status=HTTP_200_OK)
+    def _create_labeling(
+        self, label_id: int, problem: Problem, user: User, remarks: str
+    ) -> None:
+        """Create a new labeling."""
 
-    def _can_remove_labeling(self, user: User, labeling: Labeling) -> bool:
-        """Check if user can remove a specific labeling."""
-        if user.is_superuser or user.has_perm("annotation.delete_any_labeling"):
-            return True
+        Labeling.objects.create(
+            problem=problem,
+            label_id=label_id,
+            attached_by=user,
+            notes=remarks,
+        )
 
-        if user.has_perm("annotation.delete_own_labeling"):
-            return labeling.attached_by.pk == user.pk
+    def _remove_labeling(self, labeling: Labeling, user: User, remarks: str) -> None:
+        """Mark a labeling as removed."""
 
-        return False
+        if not user.can_remove_labeling(labeling):
+            logger.warning(
+                f"User {user.username} attempted to remove label {labeling.label.pk} "
+                f"attached by {labeling.attached_by.username}"
+            )
+            raise PermissionError("You can only remove labels you attached yourself.")
+        labeling.removed_at = timezone.now()
+        labeling.removed_by = user
+        if remarks:
+            labeling.notes = remarks
+        labeling.save()

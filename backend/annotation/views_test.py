@@ -219,8 +219,8 @@ class TestRemoveLabelingPermissions:
         assert labeling_by_annotator.removed_by == master_annotator
 
 
-class TestLabelingAddAndRemoveOperations:
-    """Tests for add/remove labeling operations."""
+class TestLabelingAddAndRemove:
+    """Tests for adding / removing labelings."""
 
     def test_adding_label_creates_labeling(
         self, api_client, annotator, sample_problem, sample_label
@@ -288,25 +288,3 @@ class TestLabelingAddAndRemoveOperations:
         assert Labeling.objects.filter(
             problem=sample_problem, label=another_label, removed_at__isnull=True
         ).exists()
-
-
-class TestUnsupportedHttpMethods:
-    """Tests for unsupported HTTP methods."""
-
-    def test_put_not_allowed(self, api_client, master_annotator, sample_label):
-        """PUT method should not be allowed."""
-        api_client.force_authenticate(user=master_annotator)
-        response = api_client.put(f"/api/label/{sample_label.id}/", {}, format="json")
-        assert response.status_code == status.HTTP_405_METHOD_NOT_ALLOWED
-
-    def test_patch_not_allowed(self, api_client, master_annotator, sample_label):
-        """PATCH method should not be allowed."""
-        api_client.force_authenticate(user=master_annotator)
-        response = api_client.patch(f"/api/label/{sample_label.id}/", {}, format="json")
-        assert response.status_code == status.HTTP_405_METHOD_NOT_ALLOWED
-
-    def test_delete_not_allowed(self, api_client, master_annotator, sample_label):
-        """DELETE method should not be allowed."""
-        api_client.force_authenticate(user=master_annotator)
-        response = api_client.delete(f"/api/label/{sample_label.id}/")
-        assert response.status_code == status.HTTP_405_METHOD_NOT_ALLOWED

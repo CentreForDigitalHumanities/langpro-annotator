@@ -53,10 +53,7 @@ class ActiveLabelSerializer(serializers.Serializer):
         if user is None or user.is_anonymous:
             return False
 
-        if user.is_superuser:
-            return True
-
-        if user.has_perm("annotation.delete_any_labeling"):
+        if user.is_superuser or user.has_perm("annotation.delete_any_labeling"):
             return True
 
         if user.has_perm("annotation.delete_own_labeling"):

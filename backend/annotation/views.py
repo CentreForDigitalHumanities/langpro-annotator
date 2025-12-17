@@ -113,11 +113,6 @@ class LabelView(ModelViewSet):
                     notes=remarks,
                 )
 
-        logger.info(
-            f"User {user.username} saved labels for problem {problem_id}: "
-            f"added {len(labels_to_add)}, removed {len(labels_to_remove)}"
-        )
-
         return Response({"ok": True}, status=HTTP_200_OK)
 
     def _can_remove_labeling(self, user: User, labeling: Labeling) -> bool:

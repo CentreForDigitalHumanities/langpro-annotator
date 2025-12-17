@@ -48,7 +48,7 @@
         </section>
         }
         <div class="d-flex flex-column gap-2 align-items-stretch">
-            @if (browsing) {
+            @if (browsing && (canCreateProblem$ | async)) {
             <a
                 class="btn btn-secondary d-flex align-items-center justify-content-center"
                 [routerLink]="['/', 'annotate', 'new']"

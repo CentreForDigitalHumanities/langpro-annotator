@@ -41,7 +41,7 @@
                 label="Save problem"
                 (click)="saveProblem()"
             />
-            } @else if (userProblem) {
+            } @else if (userProblem && (canEditProblem$ | async)) {
             <a
                 class="btn btn-secondary d-flex align-items-center justify-content-center"
                 [routerLink]="['./edit']"

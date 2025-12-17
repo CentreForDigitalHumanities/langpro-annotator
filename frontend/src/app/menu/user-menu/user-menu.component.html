@@ -8,10 +8,11 @@
     } @if (user$ | async; as user) {
     <li class="nav-item" ngbDropdown>
         <button class="nav-link" ngbDropdownToggle id="userDropdown">
+            @if (userIcon$ | async; as icon) {
             <span class="icon">
-                <fa-icon [icon]="faUser" />
+                <fa-icon [icon]="icon" />
             </span>
-            &nbsp;
+            } &nbsp;
             {{ user.username }}
         </button>
         <div

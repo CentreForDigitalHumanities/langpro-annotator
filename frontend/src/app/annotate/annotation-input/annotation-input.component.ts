@@ -20,6 +20,7 @@ import { ProblemService } from "@/services/problem.service";
 import { ParseService } from "@/services/parse.service";
 import { FontAwesomeModule } from "@fortawesome/angular-fontawesome";
 import { ToastService } from "@/services/toast.service";
+import { AuthService } from "@/services/auth.service";
 import { IconButtonComponent } from "@/shared/icon-button/icon-button.component";
 
 export type ParseInputForm = FormGroup<{
@@ -43,16 +44,16 @@ export type ParseInput = ReturnType<ParseInputForm["getRawValue"]>;
     selector: "la-annotation-input",
     standalone: true,
     imports: [
-    CommonModule,
-    PremisesFormComponent,
-    KnowledgeBaseFormComponent,
-    FormsModule,
-    ReactiveFormsModule,
-    ProblemDetailsComponent,
-    FontAwesomeModule,
-    RouterLinkWithHref,
-    IconButtonComponent
-],
+        CommonModule,
+        PremisesFormComponent,
+        KnowledgeBaseFormComponent,
+        FormsModule,
+        ReactiveFormsModule,
+        ProblemDetailsComponent,
+        FontAwesomeModule,
+        RouterLinkWithHref,
+        IconButtonComponent
+    ],
     templateUrl: "./annotation-input.component.html",
     styleUrl: "./annotation-input.component.scss",
 })
@@ -63,6 +64,7 @@ export class AnnotationInputComponent implements OnInit {
     private problemService = inject(ProblemService);
     private parseService = inject(ParseService);
     private toastService = inject(ToastService);
+    private authService = inject(AuthService);
 
     public form: ParseInputForm | null = null;
 
@@ -81,6 +83,10 @@ export class AnnotationInputComponent implements OnInit {
     public appMode$ = this.problemService.appMode$;
     public isUserProblem$ = this.problem$.pipe(
         map(problem => problem?.dataset === Dataset.USER)
+    );
+
+    public canEditProblem$ = this.authService.currentUser$.pipe(
+        map(user => user?.canEditProblem ?? false)
     );
 
     ngOnInit(): void {

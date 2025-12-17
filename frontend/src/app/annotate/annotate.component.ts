@@ -11,6 +11,7 @@ import { combineLatest, distinctUntilChanged, map } from "rxjs";
 import { CommonModule } from "@angular/common";
 import { Dataset } from "@/types";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { AuthService } from "@/services/auth.service";
 import areParamsEqual from "@/shared/areParamsEqual";
 
 @Component({
@@ -31,6 +32,7 @@ import areParamsEqual from "@/shared/areParamsEqual";
 export class AnnotateComponent implements OnInit {
     private route = inject(ActivatedRoute);
     private problemService = inject(ProblemService);
+    private authService = inject(AuthService);
     private destroyRef = inject(DestroyRef);
 
     public faPlus = faPlus;
@@ -41,6 +43,10 @@ export class AnnotateComponent implements OnInit {
 
     public isUserProblem$ = this.problemService.problem$.pipe(
         map(problem => problem?.dataset === Dataset.USER)
+    );
+
+    public canCreateProblem$ = this.authService.currentUser$.pipe(
+        map(user => user?.canCreateProblem ?? false)
     );
 
     ngOnInit(): void {

@@ -6,7 +6,7 @@ import {
     HttpTestingController,
     provideHttpClientTesting,
 } from "@angular/common/http/testing";
-import { UserResponse } from "../../user/models/user";
+import { UserResponse, UserRole } from "../../user/models/user";
 import { provideRouter } from "@angular/router";
 import {
     provideHttpClient,
@@ -17,18 +17,24 @@ const fakeUserResponse: UserResponse = {
     id: 1,
     username: "frodo",
     email: "frodo@shire.me",
-    first_name: "Frodo",
-    last_name: "Baggins",
-    is_staff: false,
+    firstName: "Frodo",
+    lastName: "Baggins",
+    isStaff: false,
+    role: UserRole.VISITOR,
+    canCreateProblem: false,
+    canEditProblem: false,
 };
 
 const fakeAdminResponse: UserResponse = {
     id: 1,
     username: "gandalf",
     email: "gandalf@istari.me",
-    first_name: "Gandalf",
-    last_name: "The Grey",
-    is_staff: true,
+    firstName: "Gandalf",
+    lastName: "The Grey",
+    isStaff: true,
+    role: UserRole.MASTER_ANNOTATOR,
+    canCreateProblem: true,
+    canEditProblem: true,
 };
 
 describe("UserMenuComponent", () => {

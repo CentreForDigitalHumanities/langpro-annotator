@@ -12,11 +12,29 @@ from problem.problem_details import (
 )
 from problem.models import Problem
 from problem.serializers import ProblemInputSerializer, ProblemSerializer
+from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
+
+
+class CreateProblemPermission(IsAuthenticated):
+    def has_permission(self, request, view):
+        return super().has_permission(request, view) and request.user.can_create_problem
+
+
+class EditProblemPermission(IsAuthenticated):
+    def has_permission(self, request, view):
+        return super().has_permission(request, view) and request.user.can_edit_problem
 
 
 class ProblemView(ModelViewSet):
     queryset = Problem.objects.all()
     serializer_class = ProblemSerializer
+
+    def get_permissions(self):
+        if self.action == "create":
+            return [CreateProblemPermission()]
+        if self.action == "partial_update":
+            return [EditProblemPermission()]
+        return [IsAuthenticatedOrReadOnly()]
 
     def list(self, request: Request) -> Response:
         """
@@ -111,7 +129,7 @@ class ProblemView(ModelViewSet):
         problem_serializer = ProblemSerializer()
 
         if problem_id is None:
-            problem = problem_serializer.create(validated_input) # type: ignore
+            problem = problem_serializer.create(validated_input)  # type: ignore
             status = HTTP_201_CREATED
         else:
             problem_instance = get_object_or_404(
@@ -123,4 +141,3 @@ class ProblemView(ModelViewSet):
             status = HTTP_200_OK
 
         return Response({"id": problem.pk}, status=status)
-

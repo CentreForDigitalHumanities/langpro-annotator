@@ -3,43 +3,6 @@ from problem.services import FracasData, SNLIData, SickData
 from problem.models import Problem, Sentence
 
 
-# class KnowledgeBaseSerializer(serializers.ModelSerializer):
-
-#     class Meta:
-#         model = KnowledgeBase
-#         fields = ["id", "entity1", "entity2", "relationship"]
-#         extra_kwargs = {
-#             # Without this, the relationship field is not required during validation.
-#             "relationship": {"required": True},
-#         }
-
-#     def validate_id(self, value):
-#         """Validate that the KnowledgeBase ID exists if provided."""
-#         if value is not None:
-#             if not KnowledgeBase.objects.filter(id=value).exists():
-#                 raise serializers.ValidationError(
-#                     f"KnowledgeBase item with ID {value} does not exist."
-#                 )
-#         return value
-
-#     def create_for_problem(
-#         self, validated_data: dict, problem: Problem
-#     ) -> KnowledgeBase:
-#         """Create a new KnowledgeBase item for a problem."""
-#         return KnowledgeBase.objects.create(
-#             **validated_data,
-#             problem=problem,
-#         )
-
-#     def update(self, instance: KnowledgeBase, validated_data: dict) -> KnowledgeBase:
-#         """Update an existing KnowledgeBase item."""
-#         instance.entity1 = validated_data["entity1"]
-#         instance.relationship = validated_data["relationship"]
-#         instance.entity2 = validated_data["entity2"]
-#         instance.save()
-#         return instance
-
-
 class ProblemSerializer(serializers.ModelSerializer):
     """
     Serializer for Problem model output.
@@ -50,7 +13,6 @@ class ProblemSerializer(serializers.ModelSerializer):
     hypothesis = serializers.SerializerMethodField()
     entailmentLabel = serializers.CharField(source="entailment_label")
     extraData = serializers.SerializerMethodField()
-    # kbItems = serializers.SerializerMethodField()
     annotations = serializers.SerializerMethodField()
 
     class Meta:
@@ -85,7 +47,6 @@ class ProblemSerializer(serializers.ModelSerializer):
                 return SNLIData.serialize(problem.extra_data)
             case _:
                 return {}
-
 
     def get_annotations(self, problem: Problem):
         """Get annotations for the problem."""
@@ -147,7 +108,7 @@ class ProblemSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError(
                     f"Base problem with ID {validated_base_id} does not exist."
                 )
-            instance.base = base_problem # type: ignore
+            instance.base = base_problem  # type: ignore
 
         instance.save()
 
@@ -201,9 +162,6 @@ class ProblemInputSerializer(serializers.Serializer):
     hypothesis = serializers.CharField(
         allow_blank=False, help_text="Hypothesis sentence text"
     )
-    # kbItems = KnowledgeBaseSerializer(
-    #     many=True, allow_empty=True, help_text="List of knowledge base items"
-    # )
 
     base = serializers.IntegerField(required=False, allow_null=True)
 

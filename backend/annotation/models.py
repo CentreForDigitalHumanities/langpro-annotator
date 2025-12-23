@@ -56,12 +56,6 @@ class ProblemAnnotation(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True)
 
-    def serialize(self):
-        kbs = self.session.kb_annotations
-        return dict(
-            kb=[k.serialize() for k in kbs.all()]
-        )
-
 
 class KnowledgeBaseAnnotation(models.Model):
     class Relationship(models.TextChoices):
@@ -93,8 +87,3 @@ class KnowledgeBaseAnnotation(models.Model):
     )
 
     created_at = models.DateTimeField(auto_now_add=True)
-
-    def serialize(self):
-        return dict(entity1=self.entity1,
-                    entity2=self.entity2,
-                    relationship=self.relationship)

@@ -53,7 +53,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ("user", "0003_sitedomain"),
-        ("problem", "0006_alter_problem_options"),
+        ("problem", "0008_delete_knowledgebase"),
     ]
 
     operations = [

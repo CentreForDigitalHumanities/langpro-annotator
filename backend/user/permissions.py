@@ -1,10 +1,6 @@
 # Django permissions are uniquely identified by their combination of a `content_type__app_label` and a `codename`.
 ANNOTATOR_PERMISSIONS = [
     ("problem", "view_silver_problems"),
-    ("problem", "add_knowledgebase"),
-    ("problem", "change_knowledgebase"),
-    ("problem", "delete_knowledgebase"),
-    ("problem", "view_knowledgebase"),
 ]
 
 MASTER_ANNOTATOR_PERMISSIONS = ANNOTATOR_PERMISSIONS + [

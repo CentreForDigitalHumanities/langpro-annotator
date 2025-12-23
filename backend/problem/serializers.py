@@ -1,43 +1,43 @@
 from rest_framework import serializers
 from problem.services import FracasData, SNLIData, SickData
-from problem.models import Problem, KnowledgeBase, Sentence
+from problem.models import Problem, Sentence
 
 
-class KnowledgeBaseSerializer(serializers.ModelSerializer):
+# class KnowledgeBaseSerializer(serializers.ModelSerializer):
 
-    class Meta:
-        model = KnowledgeBase
-        fields = ["id", "entity1", "entity2", "relationship"]
-        extra_kwargs = {
-            # Without this, the relationship field is not required during validation.
-            "relationship": {"required": True},
-        }
+#     class Meta:
+#         model = KnowledgeBase
+#         fields = ["id", "entity1", "entity2", "relationship"]
+#         extra_kwargs = {
+#             # Without this, the relationship field is not required during validation.
+#             "relationship": {"required": True},
+#         }
 
-    def validate_id(self, value):
-        """Validate that the KnowledgeBase ID exists if provided."""
-        if value is not None:
-            if not KnowledgeBase.objects.filter(id=value).exists():
-                raise serializers.ValidationError(
-                    f"KnowledgeBase item with ID {value} does not exist."
-                )
-        return value
+#     def validate_id(self, value):
+#         """Validate that the KnowledgeBase ID exists if provided."""
+#         if value is not None:
+#             if not KnowledgeBase.objects.filter(id=value).exists():
+#                 raise serializers.ValidationError(
+#                     f"KnowledgeBase item with ID {value} does not exist."
+#                 )
+#         return value
 
-    def create_for_problem(
-        self, validated_data: dict, problem: Problem
-    ) -> KnowledgeBase:
-        """Create a new KnowledgeBase item for a problem."""
-        return KnowledgeBase.objects.create(
-            **validated_data,
-            problem=problem,
-        )
+#     def create_for_problem(
+#         self, validated_data: dict, problem: Problem
+#     ) -> KnowledgeBase:
+#         """Create a new KnowledgeBase item for a problem."""
+#         return KnowledgeBase.objects.create(
+#             **validated_data,
+#             problem=problem,
+#         )
 
-    def update(self, instance: KnowledgeBase, validated_data: dict) -> KnowledgeBase:
-        """Update an existing KnowledgeBase item."""
-        instance.entity1 = validated_data["entity1"]
-        instance.relationship = validated_data["relationship"]
-        instance.entity2 = validated_data["entity2"]
-        instance.save()
-        return instance
+#     def update(self, instance: KnowledgeBase, validated_data: dict) -> KnowledgeBase:
+#         """Update an existing KnowledgeBase item."""
+#         instance.entity1 = validated_data["entity1"]
+#         instance.relationship = validated_data["relationship"]
+#         instance.entity2 = validated_data["entity2"]
+#         instance.save()
+#         return instance
 
 
 class ProblemSerializer(serializers.ModelSerializer):
@@ -50,7 +50,8 @@ class ProblemSerializer(serializers.ModelSerializer):
     hypothesis = serializers.SerializerMethodField()
     entailmentLabel = serializers.CharField(source="entailment_label")
     extraData = serializers.SerializerMethodField()
-    kbItems = serializers.SerializerMethodField()
+    # kbItems = serializers.SerializerMethodField()
+    annotations = serializers.SerializerMethodField()
 
     class Meta:
         model = Problem
@@ -85,10 +86,11 @@ class ProblemSerializer(serializers.ModelSerializer):
             case _:
                 return {}
 
-    def get_kbItems(self, problem):
-        """Get knowledge base items."""
-        kb_items = problem.knowledge_bases.all()
-        return KnowledgeBaseSerializer(kb_items, many=True).data
+
+    def get_annotations(self, problem: Problem):
+        """Get annotations for the problem."""
+        annotations = problem.annotations.last()
+        return [annotation.serialize() for annotation in annotations]
 
     def create(self, validated_data: dict) -> Problem:
         """
@@ -159,29 +161,29 @@ class ProblemSerializer(serializers.ModelSerializer):
 
         return instance
 
-    def _update_or_create_kb_items(
-        self, problem: Problem, kb_items: list[dict]
-    ) -> None:
-        """Create or update KnowledgeBase items for a problem."""
-        kb_ids: list[int] = []
-        kb_serializer = KnowledgeBaseSerializer()
+    # def _update_or_create_kb_items(
+    #     self, problem: Problem, kb_items: list[dict]
+    # ) -> None:
+    #     """Create or update KnowledgeBase items for a problem."""
+    #     kb_ids: list[int] = []
+    #     kb_serializer = KnowledgeBaseSerializer()
 
-        for item in kb_items:
-            kb_id = item.get("id", None)
+    #     for item in kb_items:
+    #         kb_id = item.get("id", None)
 
-            if kb_id is None:
-                kb = kb_serializer.create_for_problem(item, problem=problem)  # type: ignore
-            else:
-                kb_instance = KnowledgeBase.objects.get(id=kb_id, problem_id=problem.pk)
-                kb = kb_serializer.update(kb_instance, item)
+    #         if kb_id is None:
+    #             kb = kb_serializer.create_for_problem(item, problem=problem)  # type: ignore
+    #         else:
+    #             kb_instance = KnowledgeBase.objects.get(id=kb_id, problem_id=problem.pk)
+    #             kb = kb_serializer.update(kb_instance, item)
 
-            kb_ids.append(kb.pk)
+    #         kb_ids.append(kb.pk)
 
-        # Delete existing knowledge bases associated to this problem that are
-        # not included in the input.
-        KnowledgeBase.objects.filter(problem_id=problem.pk).exclude(
-            id__in=kb_ids
-        ).delete()
+    #     # Delete existing knowledge bases associated to this problem that are
+    #     # not included in the input.
+    #     KnowledgeBase.objects.filter(problem_id=problem.pk).exclude(
+    #         id__in=kb_ids
+    #     ).delete()
 
 
 class ProblemInputSerializer(serializers.Serializer):
@@ -199,9 +201,9 @@ class ProblemInputSerializer(serializers.Serializer):
     hypothesis = serializers.CharField(
         allow_blank=False, help_text="Hypothesis sentence text"
     )
-    kbItems = KnowledgeBaseSerializer(
-        many=True, allow_empty=True, help_text="List of knowledge base items"
-    )
+    # kbItems = KnowledgeBaseSerializer(
+    #     many=True, allow_empty=True, help_text="List of knowledge base items"
+    # )
 
     base = serializers.IntegerField(required=False, allow_null=True)
 

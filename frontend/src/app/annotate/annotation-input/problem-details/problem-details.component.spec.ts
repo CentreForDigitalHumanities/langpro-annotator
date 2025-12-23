@@ -17,6 +17,7 @@ const createMockProblem = (
     premises: ["premise"],
     hypothesis: "hypothesis",
     kbItems: [],
+    labels: [],
     extraData,
 });
 
@@ -33,10 +34,11 @@ describe("ProblemDetailsComponent", () => {
         fixture = TestBed.createComponent(ProblemDetailsComponent);
         component = fixture.componentInstance;
         const componentRef = fixture.componentRef;
-        componentRef.setInput("problem", {
-            id: "1",
-            dataset: Dataset.SICK,
-        });
+        componentRef.setInput("problem", createMockProblem(
+            1,
+            Dataset.SICK,
+            EntailmentLabel.ENTAILMENT
+        ));
         fixture.detectChanges();
     });
 

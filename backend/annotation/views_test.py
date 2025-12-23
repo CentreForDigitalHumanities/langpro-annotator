@@ -178,7 +178,7 @@ class TestRemoveLabelingPermissions:
         response = api_client.post("/api/label/", data, format="json")
         assert response.status_code == status.HTTP_403_FORBIDDEN
         assert (
-            "You can only remove labels you attached yourself" in response.data["error"]
+            "You can only remove labels you attached yourself" in response.data["detail"]
         )
 
         # Verify labeling was NOT removed

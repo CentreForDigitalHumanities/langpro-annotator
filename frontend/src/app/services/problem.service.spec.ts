@@ -55,6 +55,7 @@ describe("ProblemService", () => {
                     hypothesis: "b",
                     entailmentLabel: EntailmentLabel.ENTAILMENT,
                     kbItems: [],
+                    labels: [],
                     extraData: {
                         pairId: 1,
                         relatednessScore: 4.5

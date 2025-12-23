@@ -125,7 +125,7 @@ class ProblemView(ModelViewSet):
         input_serializer.is_valid(raise_exception=True)
         validated_input: dict = input_serializer.validated_data  # type: ignore
 
-        problem_serializer = ProblemSerializer()
+        problem_serializer = ProblemSerializer(context={"request": request})
 
         if problem_id is None:
             problem = problem_serializer.create(validated_input)  # type: ignore
@@ -140,4 +140,3 @@ class ProblemView(ModelViewSet):
             status = HTTP_200_OK
 
         return Response({"id": problem.pk}, status=status)
-

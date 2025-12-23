@@ -1,12 +1,11 @@
 from rest_framework import serializers
 from annotation.models import (
     AnnotationSession,
-    ProblemAnnotation,
     KnowledgeBaseAnnotation,
 )
 from annotation.serializers import (
+    AnnotationSerializer,
     KnowledgeBaseAnnotationSerializer,
-    ProblemAnnotationSerializer,
 )
 from problem.services import FracasData, SNLIData, SickData
 from problem.models import Problem, Sentence
@@ -33,7 +32,7 @@ class ProblemSerializer(serializers.ModelSerializer):
             "hypothesis",
             "entailmentLabel",
             "extraData",
-            "kbItems",
+            "annotation",
             "base",
         ]
 
@@ -58,9 +57,12 @@ class ProblemSerializer(serializers.ModelSerializer):
                 return {}
 
     def get_annotation(self, problem: Problem):
-        """Get the last annotation for the problem."""
-        annotation = problem.annotations.last()
-        return ProblemAnnotationSerializer(annotation).data if annotation else None
+        request = self.context.get("request")
+        if not request or not request.user:
+            return None
+        return AnnotationSerializer(
+            {}, context={"problem": problem, "user": request.user}
+        ).data
 
     def create(self, validated_data: dict) -> Problem:
         """

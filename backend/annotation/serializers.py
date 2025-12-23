@@ -1,5 +1,9 @@
 from rest_framework import serializers
-from annotation.models import ProblemAnnotation, KnowledgeBaseAnnotation
+from annotation.models import (
+    AnnotationSession,
+    ProblemAnnotation,
+    KnowledgeBaseAnnotation,
+)
 
 
 class KnowledgeBaseAnnotationSerializer(serializers.ModelSerializer):
@@ -33,23 +37,48 @@ class KnowledgeBaseAnnotationSerializer(serializers.ModelSerializer):
 
 
 class ProblemAnnotationSerializer(serializers.ModelSerializer):
-    kb_items = KnowledgeBaseAnnotationSerializer(
-        many=True, source="session.kb_annotations"
-    )
 
     class Meta:
         model = ProblemAnnotation
         fields = [
             "id",
-            "entailment_label",
             "created_at",
+            "entailment_label",
         ]
 
-    def get_kb_items(self, problem_annotation: ProblemAnnotation):
-        """Get the KnowledgeBaseAnnotation items related to this ProblemAnnotation."""
+
+class AnnotationSerializer(serializers.Serializer):
+    kbAnnotations = serializers.SerializerMethodField()
+    problemAnnotations = serializers.SerializerMethodField()
+
+    class Meta:
+        fields = [
+            "kbAnnotations",
+            "problemAnnotations",
+        ]
+
+    def get_kbAnnotations(self, obj):
+        problem, last_session = self._get_problem_and_last_session()
+        if not problem or not last_session:
+            return []
         kb_annotations = KnowledgeBaseAnnotation.objects.filter(
-            session=problem_annotation.session
+            session=last_session, problem=problem
         )
-        return KnowledgeBaseAnnotationSerializer(
-            kb_annotations, many=True
-        ).data
+        return KnowledgeBaseAnnotationSerializer(kb_annotations, many=True).data
+
+    def get_problemAnnotations(self, obj):
+        problem, last_session = self._get_problem_and_last_session()
+        problem_annotations = ProblemAnnotation.objects.filter(
+            session=last_session, problem=problem
+        )
+        return ProblemAnnotationSerializer(problem_annotations, many=True).data
+
+    def _get_problem_and_last_session(self):
+        problem = self.context.get("problem", None)
+        user = self.context.get("user", None)
+        if not problem or not user or user.is_authenticated is False:
+            return None, None
+        last_session = (
+            AnnotationSession.objects.filter(user=user).order_by("-created_at").first()
+        )
+        return problem, last_session

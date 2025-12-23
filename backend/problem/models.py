@@ -1,7 +1,6 @@
 from django.db import models
 from django.db.models import QuerySet
 
-from problem.services import FracasData, SNLIData, SickData
 from langpro_annotator.logger import logger
 
 

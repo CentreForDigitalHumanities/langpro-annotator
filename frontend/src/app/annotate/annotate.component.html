@@ -1,22 +1,78 @@
+@let firstProblemId = firstProblemId$ | async;
+@let appMode = appMode$ | async;
+@let browsing = appMode === 'browse';
+@let adding = appMode === 'add';
+@let editing = appMode === 'edit';
+
 <div class="row mb-4">
     <div class="d-flex flex-column col-4 gap-2">
+        @if (browsing) {
         <div class="card text-bg-light p-3">
             <la-navigator />
             <la-search />
         </div>
-        <div class="my-auto d-flex justify-content-center">
-            <button
-                type="submit"
-                class="btn btn-success btn-lg d-flex align-items-center"
+        } @else if (adding || editing) {
+        <section class="d-flex flex-column gap-2">
+            @if (adding) {
+            <p class="text-muted" i18n>
+                You are currently adding a new problem.
+            </p>
+            } @else {
+            <p class="text-muted" i18n>
+                You are currently editing an existing problem.
+            </p>
+            }
+            <p class="text-muted" i18n>
+                Hit 'Start Parse' to send your problem data to the parser and
+                inspect the results.
+            </p>
+            <p class="text-muted" i18n>
+                If you are happy with the changes, save the problem by clicking
+                the 'Save problem' button.
+            </p>
+            @if (adding) {
+            <p class="text-muted" i18n>
+                This will add the problem to the database.
+            </p>
+            } @else {
+            <p class="text-muted" i18n>
+                This will update this problem in the database.
+            </p>
+            }
+        </section>
+        } @else {
+        <section class="d-flex justify-content-center align-items-center">
+            <div class="spinner-border spinner-border-lg">
+                <span class="visually-hidden" i18n>Loading...</span>
+            </div>
+        </section>
+        }
+        <div class="d-flex flex-column gap-2 align-items-stretch">
+            @if (browsing && (canCreateProblem$ | async)) {
+            <a
+                class="btn btn-secondary d-flex align-items-center justify-content-center"
+                [routerLink]="['/', 'annotate', 'new']"
             >
                 <fa-icon
-                    [icon]="faTree"
-                    class="fa-lg"
+                    [icon]="faPlus"
                     aria-hidden="true"
                     focusable="false"
                 ></fa-icon>
-                <span class="ms-4 fs-3" i18n>Start parse</span>
-            </button>
+                <span class="ms-3" i18n>Add new problem</span>
+            </a>
+            } @else if (firstProblemId) {
+            <a
+                class="btn btn-secondary d-flex align-items-center justify-content-center"
+                [routerLink]="['/', 'annotate', firstProblemId.toString()]"
+            >
+                <fa-icon
+                    [icon]="faBinoculars"
+                    aria-hidden="true"
+                    focusable="false"
+                ></fa-icon>
+                <span class="ms-3" i18n>Browse existing problems</span>
+            </a>
+            }
         </div>
     </div>
     <la-annotation-input class="col-8" />

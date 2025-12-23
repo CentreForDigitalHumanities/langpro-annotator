@@ -10,6 +10,7 @@ import { UserSettingsComponent } from "./user/user-settings/user-settings.compon
 import { LoggedOnGuard } from "./guards/logged-on.guard";
 import { AnnotateComponent } from "./annotate/annotate.component";
 import { AboutComponent } from "./about/about.component";
+import { CanEditOrAddGuard } from "./guards/can-edit-or-add.guard";
 
 const routes: Routes = [
     {
@@ -42,8 +43,13 @@ const routes: Routes = [
         component: UserSettingsComponent,
     },
     {
+        path: "annotate/:problemId/edit",
+        canActivate: [LoggedOnGuard, CanEditOrAddGuard],
+        component: AnnotateComponent,
+    },
+    {
         path: "annotate/:problemId",
-        canActivate: [LoggedOnGuard],
+        canActivate: [LoggedOnGuard, CanEditOrAddGuard],
         component: AnnotateComponent,
     },
     {
@@ -54,7 +60,7 @@ const routes: Routes = [
         path: "",
         redirectTo: "/home",
         pathMatch: "full",
-    },
+    }
 ];
 
 export { routes };

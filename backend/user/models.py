@@ -1,4 +1,17 @@
+from enum import StrEnum
 import django.contrib.auth.models as django_auth_models
+
+
+class GroupName(StrEnum):
+    MASTER_ANNOTATORS = "Master Annotators"
+    ANNOTATORS = "Annotators"
+
+
+class UserRole(StrEnum):
+    SUPERUSER = "superuser"
+    MASTER_ANNOTATOR = "master_annotator"
+    ANNOTATOR = "annotator"
+    VISITOR = "visitor"
 
 
 class User(django_auth_models.AbstractUser):
@@ -12,3 +25,33 @@ class User(django_auth_models.AbstractUser):
 
     class Meta:
         db_table = "auth_user"
+
+    @property
+    def role(self) -> str:
+        """
+        Returns the role of the user based on their group membership.
+
+        Currently only used in the frontend to pick a user icon.
+        """
+        if self.is_superuser:
+            return UserRole.SUPERUSER
+        elif self.groups.filter(name=GroupName.MASTER_ANNOTATORS).exists():
+            return UserRole.MASTER_ANNOTATOR
+        elif self.groups.filter(name=GroupName.ANNOTATORS).exists():
+            return UserRole.ANNOTATOR
+        else:
+            return UserRole.VISITOR
+
+    @property
+    def can_edit_problem(self) -> bool:
+        """
+        Determines whether the user can edit problems.
+        """
+        return self.has_perm("problem.change_problem")
+
+    @property
+    def can_create_problem(self) -> bool:
+        """
+        Determines whether the user can create new problems.
+        """
+        return self.has_perm("problem.add_problem")

@@ -4,10 +4,10 @@ import { AuthService } from "../../services/auth.service";
 import { Router, RouterModule } from "@angular/router";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { CommonModule } from "@angular/common";
-import { faUser } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeModule } from "@fortawesome/angular-fontawesome";
 import { ToastService } from "../../services/toast.service";
 import { NgbDropdownModule } from "@ng-bootstrap/ng-bootstrap";
+import user2icon from "@/shared/user2icon";
 
 @Component({
     selector: "la-user-menu",
@@ -23,6 +23,8 @@ export class UserMenuComponent implements OnInit {
 
     public user$ = this.authService.currentUser$;
 
+    public userIcon$ = this.user$.pipe(map(user2icon));
+
     public showSignIn$ = this.authService.currentUser$.pipe(
         map((user) => user === null)
     );
@@ -34,14 +36,12 @@ export class UserMenuComponent implements OnInit {
         filter((url) => url?.toString() !== "")
     );
 
-    public faUser = faUser;
-
     constructor(
         private authService: AuthService,
         private toastService: ToastService,
         private router: Router,
         private destroyRef: DestroyRef
-    ) {}
+    ) { }
 
     ngOnInit(): void {
         this.authService.logout.error$

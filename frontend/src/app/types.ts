@@ -30,11 +30,16 @@ export enum KnowledgeBaseRelationship {
     SUPERSET = "superset",
 }
 
-interface KnowledgeBaseItem {
+export interface KnowledgeBaseItem {
     id: number | null;
     entity1: string;
     relationship: KnowledgeBaseRelationship;
     entity2: string;
+}
+
+export interface Annotation {
+    kbAnnotations: KnowledgeBaseItem[];
+    problemAnnotations: unknown;
 }
 
 interface ProblemBase {
@@ -43,7 +48,7 @@ interface ProblemBase {
     premises: string[];
     hypothesis: string | null;
     entailmentLabel: EntailmentLabel;
-    kbItems: KnowledgeBaseItem[];
+    annotation: Annotation | null;
 }
 
 interface SickProblem extends ProblemBase {

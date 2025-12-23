@@ -53,20 +53,25 @@ describe("AnnotationInputComponent", () => {
                 premises: ["First premise", "Second premise"],
                 hypothesis: "Test hypothesis",
                 entailmentLabel: EntailmentLabel.ENTAILMENT,
-                kbItems: [
-                    {
-                        id: 456,
-                        entity1: "cat",
-                        entity2: "animal",
-                        relationship: KnowledgeBaseRelationship.SUBSET
-                    },
-                    {
-                        id: 789,
-                        entity1: "dog",
-                        entity2: "pet",
-                        relationship: KnowledgeBaseRelationship.EQUAL
-                    }
-                ],
+                annotation: {
+                    id: 1,
+                    entailmentLabel: EntailmentLabel.ENTAILMENT,
+                    createdAt: "2025-01-01T00:00:00Z",
+                    kbItems: [
+                        {
+                            id: 456,
+                            entity1: "cat",
+                            entity2: "animal",
+                            relationship: KnowledgeBaseRelationship.SUBSET
+                        },
+                        {
+                            id: 789,
+                            entity1: "dog",
+                            entity2: "pet",
+                            relationship: KnowledgeBaseRelationship.EQUAL
+                        }
+                    ]
+                },
                 dataset: Dataset.USER,
                 extraData: null
             };
@@ -109,7 +114,7 @@ describe("AnnotationInputComponent", () => {
                 premises: [],
                 hypothesis: "Empty test hypothesis",
                 entailmentLabel: EntailmentLabel.NEUTRAL,
-                kbItems: [],
+                annotation: null,
                 dataset: Dataset.USER,
                 extraData: null
             };
@@ -133,7 +138,7 @@ describe("AnnotationInputComponent", () => {
                 premises: ["Test premise"],
                 hypothesis: "Test hypothesis",
                 entailmentLabel: EntailmentLabel.CONTRADICTION,
-                kbItems: [],
+                annotation: null,
                 dataset: Dataset.USER,
                 extraData: null
             };
@@ -155,7 +160,7 @@ describe("AnnotationInputComponent", () => {
                 premises: [],
                 hypothesis: "",
                 entailmentLabel: EntailmentLabel.UNKNOWN,
-                kbItems: [],
+                annotation: null,
                 dataset: Dataset.USER,
                 extraData: null
             };
@@ -175,7 +180,7 @@ describe("AnnotationInputComponent", () => {
                 premises: [],
                 hypothesis: "",
                 entailmentLabel: EntailmentLabel.UNKNOWN,
-                kbItems: [],
+                annotation: null,
                 dataset: Dataset.USER,
                 extraData: null
             };

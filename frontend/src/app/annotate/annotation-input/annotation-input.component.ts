@@ -11,8 +11,8 @@ import {
 import { PremisesFormComponent } from "./premises-form/premises-form.component";
 import { KnowledgeBaseFormComponent } from "./knowledge-base-form/knowledge-base-form.component";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { Dataset, KnowledgeBaseRelationship, Problem } from "../../types";
-import { faCheck, faCopy, faExclamationCircle, faFloppyDisk, faTrash, faTree, faWrench } from "@fortawesome/free-solid-svg-icons";
+import { Dataset, KnowledgeBaseItem, KnowledgeBaseRelationship, Problem } from "../../types";
+import { faCheck, faCopy, faExclamationCircle, faFloppyDisk, faRotateLeft, faTrash, faTree, faWrench } from "@fortawesome/free-solid-svg-icons";
 import { ProblemDetailsComponent } from "./problem-details/problem-details.component";
 import { map, Subject } from "rxjs";
 import { ActivatedRoute, Router, RouterLinkWithHref } from "@angular/router";
@@ -79,9 +79,6 @@ export function kbForm(entity1: string, entity2: string, relationship: Knowledge
     styleUrl: "./annotation-input.component.scss",
 })
 export class AnnotationInputComponent implements OnInit {
-    public faFloppyDisk = faFloppyDisk;
-    public faRotateLeft = faRotateLeft;
-
     private route = inject(ActivatedRoute);
     private router = inject(Router);
     private destroyRef = inject(DestroyRef);
@@ -100,6 +97,7 @@ export class AnnotationInputComponent implements OnInit {
     public faCheck = faCheck;
     public faTree = faTree;
     public faFloppyDisk = faFloppyDisk;
+    public faRotateLeft = faRotateLeft;
     public faExclamationCircle = faExclamationCircle;
     public faTrash = faTrash;
     public faWrench = faWrench;
@@ -131,7 +129,7 @@ export class AnnotationInputComponent implements OnInit {
                 this.form?.valueChanges.subscribe(
                     data => {
                         // TODO: replace with more reasonable object compare
-                        this.modified = JSON.stringify(this.formValue) != JSON.stringify(data)
+                        this.modified = JSON.stringify(this.formValue) != JSON.stringify(data);
                     }
                 );
             });
@@ -197,7 +195,7 @@ export class AnnotationInputComponent implements OnInit {
     }
 
     private buildForm(problem: Problem): ParseInputForm {
-        const kbItems = this.buildKbForms(problem.kbItems);
+        const kbItems = this.buildKbForms(problem.annotation?.kbAnnotations ?? []);
 
         return new FormGroup({
             id: new FormControl<number | null>(problem.id, {
@@ -222,7 +220,8 @@ export class AnnotationInputComponent implements OnInit {
             kbItems: new FormArray<KnowledgeBaseItemsForm>(kbItems),
         });
     }
-    private buildKbForms(inputKbItems: Problem['kbItems']): KnowledgeBaseItemsForm[] {
+
+    private buildKbForms(inputKbItems: KnowledgeBaseItem[]): KnowledgeBaseItemsForm[] {
         return inputKbItems.map(item => new FormGroup({
             id: new FormControl<number | null>(item.id, {
                 nonNullable: true

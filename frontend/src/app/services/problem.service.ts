@@ -109,10 +109,13 @@ export class ProblemService {
                 premises: existingProblem?.premises ?? [],
                 entailmentLabel: EntailmentLabel.UNKNOWN,
                 extraData: null,
-                kbItems: existingProblem?.kbItems.map(kbItem => ({
-                    ...kbItem,
-                    id: null,
-                })) ?? []
+                annotation: existingProblem?.annotation ? {
+                    ...existingProblem.annotation,
+                    kbAnnotations: existingProblem.annotation.kbAnnotations.map(kbItem => ({
+                        ...kbItem,
+                        id: null,
+                    }))
+                } : null
             }
 
         };

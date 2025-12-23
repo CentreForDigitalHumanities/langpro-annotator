@@ -141,31 +141,3 @@ class ProblemView(ModelViewSet):
 
         return Response({"id": problem.pk}, status=status)
 
-
-    #     return ProblemResponse(
-    #         id=problem.pk if problem else None,
-    #         index=problem_index,
-    #         problem=problem,
-    #         first=related_problem_ids.first,
-    #         previous=related_problem_ids.previous,
-    #         next=related_problem_ids.next,
-    #         last=related_problem_ids.last,
-    #         total=related_problem_ids.total,
-    #     ).json_response(status=200)
-
-    # def post(self, request, problem_id: int):
-    #     kb = request.data.get('kb')
-    #     if kb:
-    #         ann_sess = request.user.annotationsession_set.create()
-    #         problem = Problem.objects.get(pk=problem_id)
-    #         problem_ann = problem.annotations.create(session=ann_sess)
-    #         for rule in kb:
-    #             kb_ann = ann_sess.kb_annotations.create(
-    #                 problem=problem,
-    #                 entity1=rule['entity1'],
-    #                 entity2=rule['entity2'],
-    #                 relationship=rule['relationship'],
-    #             )
-
-    #     # TODO: return the saved data
-    #     return Response()

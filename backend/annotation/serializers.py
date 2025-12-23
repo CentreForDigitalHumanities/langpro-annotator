@@ -33,7 +33,9 @@ class KnowledgeBaseAnnotationSerializer(serializers.ModelSerializer):
 
 
 class ProblemAnnotationSerializer(serializers.ModelSerializer):
-    kbs = KnowledgeBaseAnnotationSerializer(many=True, source="session.kb_annotations")
+    kb_items = KnowledgeBaseAnnotationSerializer(
+        many=True, source="session.kb_annotations"
+    )
 
     class Meta:
         model = ProblemAnnotation
@@ -42,3 +44,12 @@ class ProblemAnnotationSerializer(serializers.ModelSerializer):
             "entailment_label",
             "created_at",
         ]
+
+    def get_kb_items(self, problem_annotation: ProblemAnnotation):
+        """Get the KnowledgeBaseAnnotation items related to this ProblemAnnotation."""
+        kb_annotations = KnowledgeBaseAnnotation.objects.filter(
+            session=problem_annotation.session
+        )
+        return KnowledgeBaseAnnotationSerializer(
+            kb_annotations, many=True
+        ).data

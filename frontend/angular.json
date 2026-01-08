@@ -49,9 +49,6 @@
                             }
                         ],
                         "scripts": [],
-                        "server": "src/main.server.ts",
-                        "prerender": true,
-                        "ssr": false,
                         "baseHref": "/"
                     },
                     "configurations": {

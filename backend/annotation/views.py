@@ -3,7 +3,7 @@ from django.utils import timezone
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
-from rest_framework.status import HTTP_200_OK
+from rest_framework.exceptions import PermissionDenied
 from rest_framework.permissions import (
     IsAuthenticated,
     AllowAny,
@@ -72,12 +72,9 @@ class LabelView(ModelViewSet):
 
         selected_label_ids = {label["id"] for label in selected_labels}
 
-        try:
-            self._update_labelings(problem, user, selected_label_ids, remarks)
-        except PermissionError as e:
-            return Response({"detail": str(e)}, status=403)
+        self._update_labelings(problem, user, selected_label_ids, remarks)
 
-        return Response({"ok": True}, status=HTTP_200_OK)
+        return Response({"ok": True})
 
     def _update_labelings(
         self,
@@ -133,7 +130,7 @@ class LabelView(ModelViewSet):
                 f"User {user.username} attempted to remove label {labeling.label.pk} "
                 f"attached by {labeling.attached_by.username}"
             )
-            raise PermissionError("You can only remove labels you attached yourself.")
+            raise PermissionDenied("You can only remove labels you attached yourself.")
         labeling.removed_at = timezone.now()
         labeling.removed_by = user
         if remarks:

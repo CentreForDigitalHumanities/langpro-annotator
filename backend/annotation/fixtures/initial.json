@@ -1,0 +1,50 @@
+[
+    {
+        "model": "annotation.label",
+        "pk": 1,
+        "fields": {
+            "text": "Important",
+            "description": "This problem is particularly important."
+        }
+    },
+    {
+        "model": "annotation.label",
+        "pk": 2,
+        "fields": {
+            "text": "Review needed",
+            "description": "This problem needs to be reviewed by a master annotator."
+        }
+    },
+    {
+        "model": "annotation.label",
+        "pk": 3,
+        "fields": {
+            "text": "Ambiguous",
+            "description": "The problem statement is ambiguous and needs clarification."
+        }
+    },
+    {
+        "model": "annotation.label",
+        "pk": 4,
+        "fields": {
+            "text": "Incomplete knowledge",
+            "description": "Some knowledge base items are missing."
+        }
+    },
+    {
+        "model": "annotation.label",
+        "pk": 5,
+        "fields": {
+            "text": "Spelling",
+            "description": "The premises or hypothesis are misspelled, which may lead to wrong analyses."
+        }
+    },
+    {
+        "model": "annotation.label",
+        "pk": 6,
+        "fields": {
+            "text": "Wrong entailment label",
+            "description": "The entailment label is incorrect."
+        }
+    }
+]

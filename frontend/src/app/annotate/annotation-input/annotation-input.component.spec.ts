@@ -54,10 +54,8 @@ describe("AnnotationInputComponent", () => {
                 hypothesis: "Test hypothesis",
                 entailmentLabel: EntailmentLabel.ENTAILMENT,
                 annotation: {
-                    id: 1,
-                    entailmentLabel: EntailmentLabel.ENTAILMENT,
-                    createdAt: "2025-01-01T00:00:00Z",
-                    kbItems: [
+                    problemAnnotations: null,
+                    kbAnnotations: [
                         {
                             id: 456,
                             entity1: "cat",
@@ -72,6 +70,7 @@ describe("AnnotationInputComponent", () => {
                         }
                     ]
                 },
+                labels: [],
                 dataset: Dataset.USER,
                 extraData: null
             };
@@ -115,6 +114,7 @@ describe("AnnotationInputComponent", () => {
                 hypothesis: "Empty test hypothesis",
                 entailmentLabel: EntailmentLabel.NEUTRAL,
                 annotation: null,
+                labels: [],
                 dataset: Dataset.USER,
                 extraData: null
             };
@@ -139,6 +139,7 @@ describe("AnnotationInputComponent", () => {
                 hypothesis: "Test hypothesis",
                 entailmentLabel: EntailmentLabel.CONTRADICTION,
                 annotation: null,
+                labels: [],
                 dataset: Dataset.USER,
                 extraData: null
             };
@@ -161,6 +162,7 @@ describe("AnnotationInputComponent", () => {
                 hypothesis: "",
                 entailmentLabel: EntailmentLabel.UNKNOWN,
                 annotation: null,
+                labels: [],
                 dataset: Dataset.USER,
                 extraData: null
             };
@@ -181,6 +183,7 @@ describe("AnnotationInputComponent", () => {
                 hypothesis: "",
                 entailmentLabel: EntailmentLabel.UNKNOWN,
                 annotation: null,
+                labels: [],
                 dataset: Dataset.USER,
                 extraData: null
             };

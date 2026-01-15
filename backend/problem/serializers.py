@@ -1,4 +1,5 @@
 from rest_framework import serializers
+
 from annotation.models import (
     AnnotationSession,
     KnowledgeBaseAnnotation,
@@ -6,6 +7,7 @@ from annotation.models import (
 from annotation.serializers import (
     AnnotationSerializer,
     KnowledgeBaseAnnotationSerializer,
+    ActiveLabelSerializer,
 )
 from problem.services import FracasData, SNLIData, SickData
 from problem.models import Problem, Sentence
@@ -22,6 +24,7 @@ class ProblemSerializer(serializers.ModelSerializer):
     entailmentLabel = serializers.CharField(source="entailment_label")
     extraData = serializers.SerializerMethodField()
     annotation = serializers.SerializerMethodField()
+    labels = serializers.SerializerMethodField()
 
     class Meta:
         model = Problem
@@ -34,6 +37,7 @@ class ProblemSerializer(serializers.ModelSerializer):
             "extraData",
             "annotation",
             "base",
+            "labels",
         ]
 
     def get_premises(self, problem):
@@ -62,6 +66,13 @@ class ProblemSerializer(serializers.ModelSerializer):
             return None
         return AnnotationSerializer(
             {}, context={"problem": problem, "user": request.user}
+        ).data
+
+    def get_labels(self, problem):
+        """Get active labels with attachment info and removability."""
+        active_labelings = problem.labelings.filter(removed_at__isnull=True)
+        return ActiveLabelSerializer(
+            active_labelings, many=True, context=self.context
         ).data
 
     def create(self, validated_data: dict) -> Problem:

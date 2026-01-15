@@ -8,9 +8,8 @@ import { catchError, Subject, switchMap } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ToastService } from '@/services/toast.service';
 import { HttpClient } from '@angular/common/http';
-import sortLabels from '@/shared/sortLabels';
-import getTooltipText from '@/shared/formatTooltipText';
 import { ProblemService } from '@/services/problem.service';
+import { getLabelTooltipText, sortLabels } from '@/util';
 
 @Component({
     selector: 'la-problem-labels',
@@ -69,7 +68,7 @@ export class ProblemLabelsComponent implements OnInit {
         });
     }
 
-    public getTooltipText = getTooltipText;
+    public getTooltipText = getLabelTooltipText;
 
     public openManageLabelsModal(): void {
         const modalRef = this.modalService.open(ManageLabelsModalComponent, {

@@ -150,7 +150,7 @@ export class ProblemService {
                 const message = `Error fetching ${problemId ? `problem ${problemId}` : "first problem"}`;
                 this.toastService.show({
                     header: message,
-                    body: error,
+                    body: error.message || 'The problem could not be fetched from the server.',
                     type: 'danger',
                 });
                 return of(null);

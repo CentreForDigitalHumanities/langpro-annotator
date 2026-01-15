@@ -194,7 +194,7 @@ class ProblemInputSerializer(serializers.Serializer):
     base = serializers.IntegerField(required=False, allow_null=True)
 
     kbItems = serializers.ListField(
-        child=serializers.DictField(),
+        child=KnowledgeBaseAnnotationSerializer(),
         required=False,
         allow_empty=True,
         help_text="List of knowledge base annotations",

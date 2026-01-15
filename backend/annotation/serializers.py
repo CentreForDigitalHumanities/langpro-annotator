@@ -7,6 +7,12 @@ from annotation.models import (
 
 
 class KnowledgeBaseAnnotationSerializer(serializers.ModelSerializer):
+    # Mark relationship as required. DRF thinks it is optional since it has a
+    # default value in the model.
+    relationship = serializers.ChoiceField(
+        choices=KnowledgeBaseAnnotation.Relationship.choices,
+        required=True,
+    )
     class Meta:
         model = KnowledgeBaseAnnotation
         fields = [

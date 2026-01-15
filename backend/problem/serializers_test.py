@@ -2,7 +2,7 @@ import pytest
 from rest_framework.exceptions import ValidationError
 
 from .serializers import ProblemInputSerializer
-from .models import Problem, Sentence, KnowledgeBase
+from .models import Problem, Sentence
 
 
 @pytest.fixture
@@ -37,16 +37,6 @@ def non_user_problem(db, hypothesis_sentence, premise_sentence):
     return problem
 
 
-@pytest.fixture
-def kb_item(db, user_problem):
-    return KnowledgeBase.objects.create(
-        problem=user_problem,
-        entity1="e1",
-        entity2="e2",
-        relationship=KnowledgeBase.Relationship.EQUAL,
-    )
-
-
 @pytest.mark.django_db
 def test_valid_create_data():
     """Test valid data for creating a problem."""
@@ -60,7 +50,7 @@ def test_valid_create_data():
 
 
 @pytest.mark.django_db
-def test_valid_update_data(user_problem, kb_item):
+def test_valid_update_data(user_problem):
     """Test valid data for updating a user problem."""
     data = {
         "id": user_problem.pk,
@@ -68,7 +58,7 @@ def test_valid_update_data(user_problem, kb_item):
         "hypothesis": "A cat is on a mat.",
         "kbItems": [
             {
-                "id": kb_item.pk,
+                "id": "kb1",
                 "entity1": "e1",
                 "entity2": "e2",
                 "relationship": "equal",

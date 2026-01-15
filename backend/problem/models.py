@@ -1,7 +1,6 @@
 from django.db import models
 from django.db.models import QuerySet
 
-from problem.services import FracasData, SNLIData, SickData
 from langpro_annotator.logger import logger
 
 
@@ -99,11 +98,3 @@ class KnowledgeBase(models.Model):
         on_delete=models.CASCADE,
         related_name="knowledge_bases",
     )
-
-    def serialize(self) -> dict:
-        return {
-            "id": self.pk,
-            "entity1": self.entity1,
-            "entity2": self.entity2,
-            "relationship": self.relationship,
-        }

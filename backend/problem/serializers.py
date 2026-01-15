@@ -1,4 +1,9 @@
 from rest_framework import serializers
+from django.contrib.auth.models import AnonymousUser
+
+from annotation.serializers import ActiveLabelSerializer
+from user.models import User
+from annotation.models import Label, Labeling
 from problem.services import FracasData, SNLIData, SickData
 from problem.models import Problem, KnowledgeBase, Sentence
 
@@ -51,6 +56,7 @@ class ProblemSerializer(serializers.ModelSerializer):
     entailmentLabel = serializers.CharField(source="entailment_label")
     extraData = serializers.SerializerMethodField()
     kbItems = serializers.SerializerMethodField()
+    labels = serializers.SerializerMethodField()
 
     class Meta:
         model = Problem
@@ -63,6 +69,7 @@ class ProblemSerializer(serializers.ModelSerializer):
             "extraData",
             "kbItems",
             "base",
+            "labels",
         ]
 
     def get_premises(self, problem):
@@ -89,6 +96,13 @@ class ProblemSerializer(serializers.ModelSerializer):
         """Get knowledge base items."""
         kb_items = problem.knowledge_bases.all()
         return KnowledgeBaseSerializer(kb_items, many=True).data
+
+    def get_labels(self, problem):
+        """Get active labels with attachment info and removability."""
+        active_labelings = problem.labelings.filter(removed_at__isnull=True)
+        return ActiveLabelSerializer(
+            active_labelings, many=True, context=self.context
+        ).data
 
     def create(self, validated_data: dict) -> Problem:
         """
@@ -145,7 +159,7 @@ class ProblemSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError(
                     f"Base problem with ID {validated_base_id} does not exist."
                 )
-            instance.base = base_problem # type: ignore
+            instance.base = base_problem  # type: ignore
 
         instance.save()
 

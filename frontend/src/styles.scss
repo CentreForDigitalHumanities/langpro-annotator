@@ -15,3 +15,15 @@
 .always-block {
     display: block !important;
 }
+
+.label-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.25rem 0.6rem;
+    background-color: var(--bs-primary);
+    color: white;
+    border-radius: 1rem;
+    font-size: 0.75rem;
+    white-space: nowrap;
+}

@@ -1,10 +1,11 @@
+import { Dataset, EntailmentLabel, Problem, ProblemLabel } from "../../../types";
 import { Component, computed, inject, input } from "@angular/core";
-import { Dataset, EntailmentLabel, Problem } from "../../../types";
 import { EntailmentLabelBadgeComponent } from "./entailment-label-badge/entailment-label-badge.component";
 import { faArrowUpRightFromSquare, faQuestionCircle } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeModule } from "@fortawesome/angular-fontawesome";
 import { NgbTooltipModule } from "@ng-bootstrap/ng-bootstrap";
 import { datasetLabels } from "@/shared/displayTextMappings";
+import { ProblemLabelsComponent } from "./problem-labels/problem-labels.component";
 import { CommonModule } from "@angular/common";
 import { RouterModule } from "@angular/router";
 import { ProblemService } from "@/services/problem.service";
@@ -17,6 +18,7 @@ export interface ProblemDetails {
     section: string | null;
     subsection: string | null;
     comment: string | null;
+    labels: ProblemLabel[];
 }
 
 @Component({
@@ -24,6 +26,7 @@ export interface ProblemDetails {
     standalone: true,
     imports: [
         EntailmentLabelBadgeComponent,
+        ProblemLabelsComponent,
         FontAwesomeModule,
         NgbTooltipModule,
         CommonModule,
@@ -70,12 +73,13 @@ export class ProblemDetailsComponent {
     private extractDetails(problem: Problem): ProblemDetails | null {
         const shared: Pick<
             ProblemDetails,
-            "problemId" | "dataset" | "entailmentLabel" | "baseProblemId"
+            "problemId" | "dataset" | "entailmentLabel" | "labels" | "baseProblemId"
         > = {
             problemId: problem.id?.toString() ?? $localize`new`,
             baseProblemId: problem.base?.toString() ?? null,
             dataset: problem.dataset,
             entailmentLabel: problem.entailmentLabel,
+            labels: problem.labels
         };
 
         switch (problem.dataset) {

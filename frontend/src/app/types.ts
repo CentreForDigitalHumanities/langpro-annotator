@@ -37,6 +37,26 @@ interface KnowledgeBaseItem {
     entity2: string;
 }
 
+export interface Label {
+    id: number;
+    text: string;
+    description: string;
+}
+
+interface AttachmentInfo {
+    userName: string;
+    date: string;
+    attachedByCurrentUser: boolean;
+}
+
+export interface ProblemLabel {
+    id: number;
+    text: string;
+    description: string;
+    attachedInfo: AttachmentInfo | null;
+    removable: boolean;
+}
+
 interface ProblemBase {
     id: number | null;
     base: number | null;
@@ -44,6 +64,7 @@ interface ProblemBase {
     hypothesis: string | null;
     entailmentLabel: EntailmentLabel;
     kbItems: KnowledgeBaseItem[];
+    labels: ProblemLabel[];
 }
 
 interface SickProblem extends ProblemBase {
@@ -84,6 +105,10 @@ export interface ProblemResponse extends BaseResponse {
 
 export interface SaveProblemResponse extends BaseResponse {
     id: number | null;
+}
+
+export interface SaveLabelsResponse extends BaseResponse {
+    ok: boolean;
 }
 
 export enum Dataset {

@@ -67,6 +67,7 @@ describe("AnnotationInputComponent", () => {
                         relationship: KnowledgeBaseRelationship.EQUAL
                     }
                 ],
+                labels: [],
                 dataset: Dataset.USER,
                 extraData: null
             };
@@ -110,6 +111,7 @@ describe("AnnotationInputComponent", () => {
                 hypothesis: "Empty test hypothesis",
                 entailmentLabel: EntailmentLabel.NEUTRAL,
                 kbItems: [],
+                labels: [],
                 dataset: Dataset.USER,
                 extraData: null
             };
@@ -134,6 +136,7 @@ describe("AnnotationInputComponent", () => {
                 hypothesis: "Test hypothesis",
                 entailmentLabel: EntailmentLabel.CONTRADICTION,
                 kbItems: [],
+                labels: [],
                 dataset: Dataset.USER,
                 extraData: null
             };
@@ -156,6 +159,7 @@ describe("AnnotationInputComponent", () => {
                 hypothesis: "",
                 entailmentLabel: EntailmentLabel.UNKNOWN,
                 kbItems: [],
+                labels: [],
                 dataset: Dataset.USER,
                 extraData: null
             };
@@ -176,6 +180,7 @@ describe("AnnotationInputComponent", () => {
                 hypothesis: "",
                 entailmentLabel: EntailmentLabel.UNKNOWN,
                 kbItems: [],
+                labels: [],
                 dataset: Dataset.USER,
                 extraData: null
             };

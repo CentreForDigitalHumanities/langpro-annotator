@@ -1,12 +1,12 @@
-import { Component, DestroyRef, inject, OnInit, output } from '@angular/core';
+import { Component, DestroyRef, inject, OnInit } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import { Label, ProblemLabel } from '@/types';
+import { ProblemLabel } from '@/types';
 import { ProblemService } from '@/services/problem.service';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { AuthService } from '@/services/auth.service';
-import { map, combineLatest, Subject, withLatestFrom, startWith, tap, share, shareReplay, defer } from 'rxjs';
+import { map, combineLatest, Subject, withLatestFrom, startWith, defer } from 'rxjs';
 import { AsyncPipe } from '@angular/common';
 import { formatDate } from '@/util';
 

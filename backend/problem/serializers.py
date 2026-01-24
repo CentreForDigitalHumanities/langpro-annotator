@@ -1,48 +1,9 @@
 from rest_framework import serializers
-from django.contrib.auth.models import AnonymousUser
 
-from annotation.serializers import ActiveLabelSerializer
-from user.models import User
-from annotation.models import Label, Labeling
+from annotation.serializers import AnnotationSerializer, KnowledgeBaseAnnotationSerializer, LabelAnnotationSerializer
+from annotation.models import AnnotationSession, KnowledgeBaseAnnotation, Label, LabelAnnotation
 from problem.services import FracasData, SNLIData, SickData
-from problem.models import Problem, KnowledgeBase, Sentence
-
-
-class KnowledgeBaseSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = KnowledgeBase
-        fields = ["id", "entity1", "entity2", "relationship"]
-        extra_kwargs = {
-            # Without this, the relationship field is not required during validation.
-            "relationship": {"required": True},
-        }
-
-    def validate_id(self, value):
-        """Validate that the KnowledgeBase ID exists if provided."""
-        if value is not None:
-            if not KnowledgeBase.objects.filter(id=value).exists():
-                raise serializers.ValidationError(
-                    f"KnowledgeBase item with ID {value} does not exist."
-                )
-        return value
-
-    def create_for_problem(
-        self, validated_data: dict, problem: Problem
-    ) -> KnowledgeBase:
-        """Create a new KnowledgeBase item for a problem."""
-        return KnowledgeBase.objects.create(
-            **validated_data,
-            problem=problem,
-        )
-
-    def update(self, instance: KnowledgeBase, validated_data: dict) -> KnowledgeBase:
-        """Update an existing KnowledgeBase item."""
-        instance.entity1 = validated_data["entity1"]
-        instance.relationship = validated_data["relationship"]
-        instance.entity2 = validated_data["entity2"]
-        instance.save()
-        return instance
+from problem.models import Problem, Sentence
 
 
 class ProblemSerializer(serializers.ModelSerializer):
@@ -55,8 +16,7 @@ class ProblemSerializer(serializers.ModelSerializer):
     hypothesis = serializers.SerializerMethodField()
     entailmentLabel = serializers.CharField(source="entailment_label")
     extraData = serializers.SerializerMethodField()
-    kbItems = serializers.SerializerMethodField()
-    labels = serializers.SerializerMethodField()
+    annotations = serializers.SerializerMethodField()
 
     class Meta:
         model = Problem
@@ -67,9 +27,8 @@ class ProblemSerializer(serializers.ModelSerializer):
             "hypothesis",
             "entailmentLabel",
             "extraData",
-            "kbItems",
             "base",
-            "labels",
+            "annotations",
         ]
 
     def get_premises(self, problem):
@@ -92,16 +51,16 @@ class ProblemSerializer(serializers.ModelSerializer):
             case _:
                 return {}
 
-    def get_kbItems(self, problem):
-        """Get knowledge base items."""
-        kb_items = problem.knowledge_bases.all()
-        return KnowledgeBaseSerializer(kb_items, many=True).data
-
-    def get_labels(self, problem):
-        """Get active labels with attachment info and removability."""
-        active_labelings = problem.labelings.filter(removed_at__isnull=True)
-        return ActiveLabelSerializer(
-            active_labelings, many=True, context=self.context
+    def get_annotations(self, problem: Problem):
+        request = self.context.get("request", None)
+        if not request or not request.user:
+            return None
+        return AnnotationSerializer(
+            {},
+            context={
+                "problem": problem,
+                "user": request.user,
+            },
         ).data
 
     def create(self, validated_data: dict) -> Problem:
@@ -130,10 +89,81 @@ class ProblemSerializer(serializers.ModelSerializer):
         problem.premises.set(premise_sentences)
 
         kb_items = validated_data.get("kbItems", [])
-        if kb_items:
-            self._update_or_create_kb_items(problem, kb_items)
+        labels = validated_data.get("labels", [])
+        if kb_items or labels:
+            self._handle_annotations(problem, kb_items, labels)
 
         return problem
+
+    def _handle_annotations(self, problem: Problem, kb_items: list[dict], labels: list[dict]) -> None:
+        """
+        Create or update KnowledgeBase and Label annotations for a problem.
+        Creates Annotationsession if it does not exist.
+
+        TODO: handle deletions!
+        """
+        request = self.context.get("request", None)
+        if not request or not request.user:
+            return
+
+        user = request.user
+
+        session = AnnotationSession.objects.create(user=user)
+
+        for kb_item in kb_items:
+            kb_id = kb_item.get("id", None)
+            kb_serializer = KnowledgeBaseAnnotationSerializer()
+
+            if kb_id is None:
+                # Create new KnowledgeBaseAnnotation
+                KnowledgeBaseAnnotation.objects.create(
+                    session=session,
+                    problem=problem,
+                    entity1=kb_item["entity1"],
+                    entity2=kb_item["entity2"],
+                    relationship=kb_item["relationship"],
+                )
+            else:
+                # Update existing KnowledgeBaseAnnotation
+                try:
+                    kb_instance = KnowledgeBaseAnnotation.objects.get(
+                        id=kb_id, problem=problem, session=session
+                    )
+                    kb_serializer.update(kb_instance, kb_item)
+                except KnowledgeBaseAnnotation.DoesNotExist:
+                    raise serializers.ValidationError(
+                        f"KnowledgeBaseAnnotation with ID {kb_id} does not exist "
+                        f"for this problem and session."
+                    )
+        for label_item in labels:
+            label_id = label_item.get("id", None)
+            label_serializer = LabelAnnotationSerializer()
+
+            if label_id is None:
+                # Create new LabelAnnotation
+                try:
+                    label_instance = Label.objects.get(id=label_item["label_id"])
+                except Label.DoesNotExist:
+                    raise serializers.ValidationError(
+                        f"Label with ID {label_item['label_id']} does not exist."
+                    )
+                LabelAnnotation.objects.create(
+                    session=session,
+                    problem=problem,
+                    label=label_instance,
+                )
+            else:
+                # Update existing LabelAnnotation
+                try:
+                    label_instance = LabelAnnotation.objects.get(
+                        id=label_id, problem=problem, session=session
+                    )
+                    label_serializer.update(label_instance, label_item)
+                except LabelAnnotation.DoesNotExist:
+                    raise serializers.ValidationError(
+                        f"LabelAnnotation with ID {label_id} does not exist "
+                        f"for this problem and session."
+                    )
 
     def update(self, instance: Problem, validated_data: dict) -> Problem:
         """
@@ -169,34 +199,12 @@ class ProblemSerializer(serializers.ModelSerializer):
         ]
         instance.premises.set(premise_sentences)
 
-        self._update_or_create_kb_items(instance, validated_data.get("kbItems", []))
+        kb_items = validated_data.get("kbItems", [])
+        labels = validated_data.get("labels", [])
+        if kb_items or labels:
+            self._handle_annotations(instance, kb_items, labels)
 
         return instance
-
-    def _update_or_create_kb_items(
-        self, problem: Problem, kb_items: list[dict]
-    ) -> None:
-        """Create or update KnowledgeBase items for a problem."""
-        kb_ids: list[int] = []
-        kb_serializer = KnowledgeBaseSerializer()
-
-        for item in kb_items:
-            kb_id = item.get("id", None)
-
-            if kb_id is None:
-                kb = kb_serializer.create_for_problem(item, problem=problem)  # type: ignore
-            else:
-                kb_instance = KnowledgeBase.objects.get(id=kb_id, problem_id=problem.pk)
-                kb = kb_serializer.update(kb_instance, item)
-
-            kb_ids.append(kb.pk)
-
-        # Delete existing knowledge bases associated to this problem that are
-        # not included in the input.
-        KnowledgeBase.objects.filter(problem_id=problem.pk).exclude(
-            id__in=kb_ids
-        ).delete()
-
 
 class ProblemInputSerializer(serializers.Serializer):
     """
@@ -213,8 +221,17 @@ class ProblemInputSerializer(serializers.Serializer):
     hypothesis = serializers.CharField(
         allow_blank=False, help_text="Hypothesis sentence text"
     )
-    kbItems = KnowledgeBaseSerializer(
-        many=True, allow_empty=True, help_text="List of knowledge base items"
+    kbItems = serializers.ListField(
+        child=KnowledgeBaseAnnotationSerializer(),
+        required=False,
+        allow_empty=True,
+        help_text="List of knowledge base annotations",
+    )
+    labels = serializers.ListField(
+        child=LabelAnnotationSerializer(),
+        required=False,
+        allow_empty=True,
+        help_text="List of label annotations",
     )
 
     base = serializers.IntegerField(required=False, allow_null=True)

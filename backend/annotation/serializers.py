@@ -2,9 +2,94 @@ from rest_framework import serializers
 
 from django.contrib.auth.models import AnonymousUser
 
-from annotation.models import Label, Labeling
+from annotation.models import (
+    AnnotationSession,
+    KnowledgeBaseAnnotation,
+    Label,
+    LabelAnnotation,
+)
 from problem.models import Problem
 from user.models import User
+
+
+class AnnotationBaseSerializer(serializers.ModelSerializer):
+    """
+    Base serializer for AnnotationBase model.
+    """
+
+    createdAt = serializers.DateTimeField(source="created_at")
+    createdBy = serializers.PrimaryKeyRelatedField(source="created_by", read_only=True)
+    removedAt = serializers.DateTimeField(source="removed_at", allow_null=True)
+    removedBy = serializers.PrimaryKeyRelatedField(
+        source="removed_by", allow_null=True, read_only=True
+    )
+    removable = serializers.SerializerMethodField()
+
+    class Meta:
+        model = None  # To be set in subclasses
+        fields = [
+            "id",
+            "session",
+            "problem",
+            "created_at",
+            "created_by",
+            "removed_at",
+            "removed_by",
+            "notes",
+            "removable",
+        ]
+        abstract = True
+
+    def get_removable(self, annotation) -> bool:
+        """This should be overridden in subclasses."""
+        raise NotImplementedError("Subclasses must implement get_removable method.")
+
+
+class KnowledgeBaseAnnotationSerializer(AnnotationBaseSerializer):
+    # Mark relationship as required. DRF thinks it is optional because it has a
+    # default value in the model.
+    relationship = serializers.ChoiceField(
+        choices=KnowledgeBaseAnnotation.Relationship.choices,
+        required=True,
+    )
+
+    class Meta(AnnotationBaseSerializer.Meta):
+        model = KnowledgeBaseAnnotation
+        fields = [
+            "id",
+            "entity1",
+            "entity2",
+            "relationship",
+        ] + AnnotationBaseSerializer.Meta.fields
+
+    def get_removable(self, annotation: KnowledgeBaseAnnotation) -> bool:
+        """Determine if the KB annotation is removable by the current user."""
+        request = self.context.get("request")
+        user: User | AnonymousUser | None = request.user if request else None
+
+        if user is None or user.is_anonymous:
+            return False
+
+        return user.has_perm("problem.delete_knowledgebaseannotation")
+
+    def validate_id(self, value):
+        """Validate that the KnowledgeBaseAnnotation ID exists if provided."""
+        if value is not None:
+            if not KnowledgeBaseAnnotation.objects.filter(id=value).exists():
+                raise serializers.ValidationError(
+                    f"KnowledgeBaseAnnotation item with ID {value} does not exist."
+                )
+        return value
+
+    def update(
+        self, instance: KnowledgeBaseAnnotation, validated_data: dict
+    ) -> KnowledgeBaseAnnotation:
+        """Update an existing KnowledgeBaseAnnotation item."""
+        instance.entity1 = validated_data["entity1"]
+        instance.relationship = validated_data["relationship"]
+        instance.entity2 = validated_data["entity2"]
+        instance.save()
+        return instance
 
 
 class LabelSerializer(serializers.ModelSerializer):
@@ -17,77 +102,83 @@ class LabelSerializer(serializers.ModelSerializer):
         fields = ["id", "text", "description"]
 
 
-class ActiveLabelSerializer(serializers.Serializer):
+class LabelAnnotationSerializer(AnnotationBaseSerializer):
     """
-    Serializer for active labels attached to a problem.
-    Includes attachedInfo and removable status based on current user.
+    Serializer for LabelAnnotation model.
     """
 
-    id = serializers.IntegerField(source="label.id")
-    text = serializers.CharField(source="label.text")
-    description = serializers.CharField(source="label.description")
-    attachedInfo = serializers.SerializerMethodField()
+    label = LabelSerializer(read_only=True)
+    attachedByCurrentUser = serializers.SerializerMethodField()
     removable = serializers.SerializerMethodField()
 
-    def get_attachedInfo(self, labeling: Labeling) -> dict:
-        """Get attachment information for the label."""
+    class Meta(AnnotationBaseSerializer.Meta):
+        model = LabelAnnotation
+        fields = [
+            "id",
+            "label",
+            "attachedByCurrentUser",
+        ] + AnnotationBaseSerializer.Meta.fields
+
+    def get_attachedByCurrentUser(self, annotation: LabelAnnotation) -> bool:
+        """Determine if the label was attached by the current user."""
         request = self.context.get("request")
         user: User | AnonymousUser | None = request.user if request else None
 
         if user and user.is_anonymous is False:
-            attached_by_current_user = labeling.attached_by.pk == user.pk
-        else:
-            attached_by_current_user = False
+            return annotation.created_by.pk == user.pk
+        return False
 
-        return {
-            "userName": labeling.attached_by.username,
-            "date": labeling.attached_at.isoformat(),
-            "attachedByCurrentUser": attached_by_current_user,
-        }
-
-    def get_removable(self, labeling: Labeling) -> bool:
-        """Determine if the label is removable by the current user."""
+    def get_removable(self, annotation: LabelAnnotation) -> bool:
+        """Determine if the label annotation is removable by the current user."""
         request = self.context.get("request")
         user: User | AnonymousUser | None = request.user if request else None
 
         if user is None or user.is_anonymous:
             return False
 
-        if user.is_superuser or user.has_perm("annotation.delete_any_labeling"):
+        if user.is_superuser or user.has_perm("annotation.delete_any_labelannotation"):
             return True
 
-        if user.has_perm("annotation.delete_own_labeling"):
-            return labeling.attached_by.pk == user.pk
+        if user.has_perm("annotation.delete_own_labelannotation"):
+            return annotation.created_by.pk == user.pk
 
         return False
 
 
-class LabelingSerializer(serializers.ModelSerializer):
-    """
-    Serializer for Labeling model, including the full label details.
-    """
-
-    label = LabelSerializer(read_only=True)
-    attachedAt = serializers.DateTimeField(source="attached_at")
-    attachedBy = serializers.PrimaryKeyRelatedField(
-        source="attached_by", read_only=True
-    )
-    removedAt = serializers.DateTimeField(source="removed_at", allow_null=True)
-    removedBy = serializers.PrimaryKeyRelatedField(
-        source="removed_by", allow_null=True, read_only=True
-    )
+class AnnotationSerializer(serializers.Serializer):
+    kbAnnotations = serializers.SerializerMethodField()
+    labelAnnotations = serializers.SerializerMethodField()
 
     class Meta:
-        model = Labeling
-        fields = [
-            "id",
-            "label",
-            "attached_at",
-            "attached_by",
-            "removed_at",
-            "removed_by",
-            "notes",
-        ]
+        fields = ["kbAnnotations", "labelAnnotations"]
+
+    def get_kbAnnotations(self, obj):
+        problem, last_session = self._get_problem_and_last_session()
+        if not problem or not last_session:
+            return []
+        kb_annotations = KnowledgeBaseAnnotation.objects.filter(
+            problem=problem, session=last_session, removed_at__isnull=True
+        )
+        return KnowledgeBaseAnnotationSerializer(kb_annotations, many=True).data
+
+    def get_labelAnnotations(self, obj):
+        problem, last_session = self._get_problem_and_last_session()
+        if not problem or not last_session:
+            return []
+        label_annotations = LabelAnnotation.objects.filter(
+            problem=problem, session=last_session, removed_at__isnull=True
+        )
+        return LabelAnnotationSerializer(label_annotations, many=True).data
+
+    def _get_problem_and_last_session(self):
+        problem = self.context.get("problem", None)
+        user = self.context.get("user", None)
+        if not problem or not user or user.is_authenticated is False:
+            return None, None
+        last_session = (
+            AnnotationSession.objects.filter(user=user).order_by("-created_at").first()
+        )
+        return problem, last_session
 
 
 class SelectedLabelSerializer(serializers.Serializer):

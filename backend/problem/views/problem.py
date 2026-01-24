@@ -26,10 +26,7 @@ class EditProblemPermission(IsAuthenticated):
 
 
 class ProblemView(ModelViewSet):
-    queryset = Problem.objects.prefetch_related(
-            "labelings__label",
-            "labelings__attached_by",
-        )
+    queryset = Problem.objects.all()
     serializer_class = ProblemSerializer
 
     def get_permissions(self):
@@ -129,7 +126,7 @@ class ProblemView(ModelViewSet):
         input_serializer.is_valid(raise_exception=True)
         validated_input: dict = input_serializer.validated_data  # type: ignore
 
-        problem_serializer = ProblemSerializer()
+        problem_serializer = ProblemSerializer(context={"request": request})
 
         if problem_id is None:
             problem = problem_serializer.create(validated_input)  # type: ignore

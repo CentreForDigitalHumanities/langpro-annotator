@@ -1,7 +1,7 @@
 import pytest
 from rest_framework import status
 
-from annotation.models import Label, Labeling
+from annotation.models import Label, LabelAnnotation
 
 
 @pytest.fixture
@@ -25,7 +25,7 @@ def another_label(db):
 @pytest.fixture
 def labeling_by_annotator(db, sample_problem, sample_label, annotator):
     """Creates a labeling attached by an annotator."""
-    return Labeling.objects.create(
+    return LabelAnnotation.objects.create(
         problem=sample_problem,
         label=sample_label,
         attached_by=annotator,
@@ -35,7 +35,7 @@ def labeling_by_annotator(db, sample_problem, sample_label, annotator):
 @pytest.fixture
 def labeling_by_master(db, sample_problem, another_label, master_annotator):
     """Creates a labeling attached by a master annotator."""
-    return Labeling.objects.create(
+    return LabelAnnotation.objects.create(
         problem=sample_problem,
         label=another_label,
         attached_by=master_annotator,
@@ -125,7 +125,9 @@ class TestSaveLabelingsPermissions:
         assert response.data["ok"] is True
 
         # Verify labeling was created
-        labeling = Labeling.objects.get(problem=sample_problem, label=sample_label)
+        labeling = LabelAnnotation.objects.get(
+            problem=sample_problem, label=sample_label
+        )
         assert labeling.attached_by == annotator
         assert labeling.notes == "Test remark"
 
@@ -178,7 +180,8 @@ class TestRemoveLabelingPermissions:
         response = api_client.post("/api/label/", data, format="json")
         assert response.status_code == status.HTTP_403_FORBIDDEN
         assert (
-            "You can only remove labels you attached yourself" in response.data["detail"]
+            "You can only remove labels you attached yourself"
+            in response.data["detail"]
         )
 
         # Verify labeling was NOT removed
@@ -235,7 +238,7 @@ class TestLabelingAddAndRemove:
         response = api_client.post("/api/label/", data, format="json")
         assert response.status_code == status.HTTP_200_OK
 
-        assert Labeling.objects.filter(
+        assert LabelAnnotation.objects.filter(
             problem=sample_problem, label=sample_label, removed_at__isnull=True
         ).exists()
 
@@ -252,7 +255,7 @@ class TestLabelingAddAndRemove:
         response = api_client.post("/api/label/", data, format="json")
         assert response.status_code == status.HTTP_200_OK
 
-        active_labelings = Labeling.objects.filter(
+        active_labelings = LabelAnnotation.objects.filter(
             problem=sample_problem, removed_at__isnull=True
         )
         assert active_labelings.count() == 2
@@ -285,6 +288,6 @@ class TestLabelingAddAndRemove:
         assert labeling_by_annotator.removed_at is None
 
         # New labeling should be created
-        assert Labeling.objects.filter(
+        assert LabelAnnotation.objects.filter(
             problem=sample_problem, label=another_label, removed_at__isnull=True
         ).exists()

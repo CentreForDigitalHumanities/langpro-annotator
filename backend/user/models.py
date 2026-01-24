@@ -1,7 +1,7 @@
 from enum import StrEnum
 import django.contrib.auth.models as django_auth_models
 
-from annotation.models import Labeling
+from annotation.models import LabelAnnotation
 
 
 class GroupName(StrEnum):
@@ -58,7 +58,7 @@ class User(django_auth_models.AbstractUser):
         """
         return self.has_perm("problem.add_problem")
 
-    def can_remove_labeling(self, labeling: Labeling) -> bool:
+    def can_remove_labeling(self, label_annotation: LabelAnnotation) -> bool:
         """
         Determines whether the user can remove a specific labeling.
         """
@@ -66,6 +66,6 @@ class User(django_auth_models.AbstractUser):
             return True
 
         if self.has_perm("annotation.delete_own_labeling"):
-            return labeling.attached_by.pk == self.pk
+            return label_annotation.created_by.pk == self.pk
 
         return False

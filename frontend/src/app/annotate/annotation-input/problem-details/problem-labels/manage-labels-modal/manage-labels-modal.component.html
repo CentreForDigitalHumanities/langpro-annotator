@@ -19,13 +19,13 @@
             </tr>
         </thead>
         <tbody>
-            @for (annotation of shownLabels$ | async; track
-            annotation.label.id) {
+            @for (annotation of shownLabels$ | async; track annotation.label.id)
+            {
             <tr
                 [class.clickable-row]="annotation.removable"
                 (click)="
                     annotation.removable
-                        ? removeLabelAnnotation(annotation)
+                        ? removeLabel(annotation.label.id)
                         : null
                 "
             >

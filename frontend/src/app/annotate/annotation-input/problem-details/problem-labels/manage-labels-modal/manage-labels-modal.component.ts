@@ -119,10 +119,10 @@ export class ManageLabelsModalComponent implements OnInit {
         });
     }
 
-    public removeLabelAnnotation(annotation: LabelAnnotation): void {
+    public removeLabel(labelId: number): void {
         const currentSelected = this.form.controls.selectedLabelIds.value;
         this.form.controls.selectedLabelIds.setValue(
-            currentSelected.filter(id => id !== annotation.label.id)
+            currentSelected.filter(id => id !== labelId)
         );
     }
 

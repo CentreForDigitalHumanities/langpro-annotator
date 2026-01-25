@@ -1,8 +1,7 @@
-import { ParseInput } from '@/annotate/annotation-input/annotation-input.component';
-import { ProblemResponse } from '@/types';
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Subject, switchMap, catchError, of } from 'rxjs';
+import { ParseInput } from '@/annotate/annotation-input/annotation-input.component';
 
 @Injectable({
     providedIn: 'root'

@@ -56,7 +56,7 @@ export class ProblemService {
         shareReplay(1)
     );
 
-    public allLabels$ = this.http.get<Label[]>('/api/label/').pipe(
+    public allLabels$: Observable<Label[]> = this.http.get<Label[]>('/api/label/').pipe(
         catchError(() => {
             this.toastService.show({
                 header: $localize`Error fetching labels`,
@@ -132,13 +132,16 @@ export class ProblemService {
                 premises: existingProblem?.premises ?? [],
                 entailmentLabel: EntailmentLabel.UNKNOWN,
                 extraData: null,
-                kbItems: existingProblem?.kbItems.map(kbItem => ({
-                    ...kbItem,
-                    id: null,
-                })) ?? [],
-                labels: existingProblem?.labels ?? [],
+                annotations: {
+                    kbAnnotations: existingProblem?.annotations?.kbAnnotations.map(annotation => ({
+                        ...annotation, id: null,
+                    })) ?? [],
+                    labelAnnotations: existingProblem?.annotations?.labelAnnotations.map(annotation => ({
+                        ...annotation,
+                        id: null,
+                    })) ?? [],
+                }
             }
-
         };
     }
 

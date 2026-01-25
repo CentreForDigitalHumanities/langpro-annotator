@@ -23,6 +23,17 @@ interface SNLIData {
     label5: string;
 }
 
+interface BaseAnnotation {
+    id: number | null;
+    session: number | null;
+    createdAt: string;
+    createdBy: string;
+    removedAt: string | null;
+    removedBy: string | null;
+    notes: string;
+    removable: boolean;
+}
+
 export enum KnowledgeBaseRelationship {
     EQUAL = "equal",
     NOT_EQUAL = "not_equal",
@@ -30,8 +41,7 @@ export enum KnowledgeBaseRelationship {
     SUPERSET = "superset",
 }
 
-interface KnowledgeBaseItem {
-    id: number | null;
+export interface KnowledgeBaseAnnotation extends BaseAnnotation {
     entity1: string;
     relationship: KnowledgeBaseRelationship;
     entity2: string;
@@ -43,18 +53,14 @@ export interface Label {
     description: string;
 }
 
-interface AttachmentInfo {
-    userName: string;
-    date: string;
+export interface LabelAnnotation extends BaseAnnotation {
+    label: Label;
     attachedByCurrentUser: boolean;
 }
 
-export interface ProblemLabel {
-    id: number;
-    text: string;
-    description: string;
-    attachedInfo: AttachmentInfo | null;
-    removable: boolean;
+interface Annotation {
+    kbAnnotations: KnowledgeBaseAnnotation[];
+    labelAnnotations: LabelAnnotation[];
 }
 
 interface ProblemBase {
@@ -63,8 +69,7 @@ interface ProblemBase {
     premises: string[];
     hypothesis: string | null;
     entailmentLabel: EntailmentLabel;
-    kbItems: KnowledgeBaseItem[];
-    labels: ProblemLabel[];
+    annotations: Annotation | null;
 }
 
 interface SickProblem extends ProblemBase {

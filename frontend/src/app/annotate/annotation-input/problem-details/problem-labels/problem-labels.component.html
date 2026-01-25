@@ -1,14 +1,14 @@
 <div class="d-flex align-items-center flex-wrap gap-2">
-    @for (label of sortedLabels(); track label.text) {
+    @for (annotation of sortedAnnotations(); track annotation.label.text) {
     <div class="label-pill">
         <fa-icon
             [icon]="faSearch"
             class="label-icon"
-            [ngbTooltip]="getTooltipText(label)"
+            [ngbTooltip]="getTooltipText(annotation)"
             placement="top"
         >
         </fa-icon>
-        <span class="label-text">{{ label.text }}</span>
+        <span class="label-text">{{ annotation.label.text }}</span>
     </div>
     } @empty {
     <i class="text-muted" i18n>No labels attached to this problem yet</i>

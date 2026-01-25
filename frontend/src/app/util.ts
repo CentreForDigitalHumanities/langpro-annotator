@@ -1,24 +1,23 @@
-import { ProblemLabel } from "./types";
+import { LabelAnnotation } from "./types";
 
 /**
  * Make sure that the user's own labels are always last.
  */
-function sortLabels(labels: ProblemLabel[]): ProblemLabel[] {
-    const userLabels = labels.filter(label => label.attachedInfo?.attachedByCurrentUser);
-    const otherLabels = labels.filter(label => !label.attachedInfo?.attachedByCurrentUser);
+function sortAnnotations(labelAnnotations: LabelAnnotation[]): LabelAnnotation[] {
+    const userLabels = labelAnnotations.filter(annotation => annotation.attachedByCurrentUser);
+    const otherLabels = labelAnnotations.filter(annotation => !annotation.attachedByCurrentUser);
     return [...otherLabels, ...userLabels];
 }
 
 /**
  * Get the tooltip text for a problem label.
  */
-function getLabelTooltipText(label: ProblemLabel): string {
+function getLabelTooltipText(annotation: LabelAnnotation): string {
+    const label = annotation.label;
     let tooltip = label.description;
-    if (label.attachedInfo) {
-        const dateStr = formatDate(label.attachedInfo.date);
-        const attachedUser = label.attachedInfo.attachedByCurrentUser ? $localize`you` : label.attachedInfo.userName;
-        tooltip += `\n\nAttached by ${attachedUser} on ${dateStr}`;
-    }
+    const dateStr = formatDate(annotation.createdAt);
+    const attachedUser = annotation.attachedByCurrentUser ? $localize`you` : annotation.createdBy;
+    tooltip += `\n\nAttached by ${attachedUser} on ${dateStr}`;
     return tooltip;
 }
 
@@ -32,9 +31,15 @@ function sum(list: number[]) {
 /**
  * Format a date string into a human-readable format.
  */
-function formatDate(date: string): string {
-    const dateStr = new Date(date);
-    return Intl.DateTimeFormat(undefined, { year: 'numeric', month: 'long', day: 'numeric' }).format(dateStr);
+function formatDate(date: string | null | undefined): string {
+    if (!date) {
+        return '';
+    }
+    const dateObj = new Date(date);
+    if (isNaN(dateObj.getTime())) {
+        return '';
+    }
+    return Intl.DateTimeFormat(undefined, { year: 'numeric', month: 'long', day: 'numeric' }).format(dateObj);
 }
 
-export { sum, formatDate, sortLabels, getLabelTooltipText };
+export { sum, formatDate, sortAnnotations, getLabelTooltipText };

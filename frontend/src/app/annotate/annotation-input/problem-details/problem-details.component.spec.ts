@@ -66,7 +66,7 @@ describe("ProblemDetailsComponent", () => {
                 section: null,
                 subsection: null,
                 comment: null,
-                labels: [],
+                labelAnnotations: [],
             });
         });
 
@@ -100,7 +100,7 @@ describe("ProblemDetailsComponent", () => {
                 section: "Quantifiers",
                 subsection: "Some",
                 comment: "A test note",
-                labels: [],
+                labelAnnotations: [],
             });
         });
 

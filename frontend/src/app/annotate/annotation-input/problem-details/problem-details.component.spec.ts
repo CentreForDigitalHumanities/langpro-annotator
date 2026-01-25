@@ -16,9 +16,8 @@ const createMockProblem = (
     entailmentLabel,
     premises: ["premise"],
     hypothesis: "hypothesis",
-    kbItems: [],
-    labels: [],
     extraData,
+    annotations: null,
 });
 
 describe("ProblemDetailsComponent", () => {

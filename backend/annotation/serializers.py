@@ -31,10 +31,10 @@ class AnnotationBaseSerializer(serializers.ModelSerializer):
             "id",
             "session",
             "problem",
-            "created_at",
-            "created_by",
-            "removed_at",
-            "removed_by",
+            "createdAt",
+            "createdBy",
+            "removedAt",
+            "removedBy",
             "notes",
             "removable",
         ]
@@ -121,8 +121,7 @@ class LabelAnnotationSerializer(AnnotationBaseSerializer):
 
     def get_attachedByCurrentUser(self, annotation: LabelAnnotation) -> bool:
         """Determine if the label was attached by the current user."""
-        request = self.context.get("request")
-        user: User | AnonymousUser | None = request.user if request else None
+        user: User | AnonymousUser | None = self.context.get("user", None)
 
         if user and user.is_anonymous is False:
             return annotation.created_by.pk == user.pk
@@ -130,8 +129,7 @@ class LabelAnnotationSerializer(AnnotationBaseSerializer):
 
     def get_removable(self, annotation: LabelAnnotation) -> bool:
         """Determine if the label annotation is removable by the current user."""
-        request = self.context.get("request")
-        user: User | AnonymousUser | None = request.user if request else None
+        user: User | AnonymousUser | None = self.context.get("user", None)
 
         if user is None or user.is_anonymous:
             return False
@@ -168,7 +166,9 @@ class AnnotationSerializer(serializers.Serializer):
         label_annotations = LabelAnnotation.objects.filter(
             problem=problem, session=last_session, removed_at__isnull=True
         )
-        return LabelAnnotationSerializer(label_annotations, many=True).data
+        return LabelAnnotationSerializer(
+            label_annotations, many=True, context=self.context
+        ).data
 
     def _get_problem_and_last_session(self):
         problem = self.context.get("problem", None)
@@ -184,7 +184,7 @@ class AnnotationSerializer(serializers.Serializer):
 class SelectedLabelSerializer(serializers.Serializer):
     """Serializer for a selected label in the save labels input."""
 
-    id = serializers.IntegerField()
+    id = serializers.IntegerField(required=False)
 
     def validate_id(self, value):
         """Validate that the label exists."""

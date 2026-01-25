@@ -21,7 +21,7 @@ from django.views.generic import RedirectView
 
 from rest_framework import routers
 
-from annotation.views import LabelView
+from annotation.views import LabelAnnotationView
 from problem.views.problem import ProblemView
 
 from .index import index
@@ -30,7 +30,7 @@ from .i18n import i18n
 
 api_router = routers.DefaultRouter()  # register viewsets with this router
 api_router.register(r"problem", ProblemView, basename="problem")
-api_router.register(r"label", LabelView, basename="labels")
+api_router.register(r"label", LabelAnnotationView, basename="labels")
 
 
 if settings.PROXY_FRONTEND:

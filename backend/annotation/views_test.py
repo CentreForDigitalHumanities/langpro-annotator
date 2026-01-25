@@ -1,7 +1,7 @@
 import pytest
 from rest_framework import status
 
-from annotation.models import Label, LabelAnnotation
+from annotation.models import AnnotationSession, Label, LabelAnnotation
 
 
 @pytest.fixture
@@ -23,22 +23,36 @@ def another_label(db):
 
 
 @pytest.fixture
-def labeling_by_annotator(db, sample_problem, sample_label, annotator):
+def annotation_session_annotator(db, annotator):
+    """Creates an annotation session for the annotator."""
+    return AnnotationSession.objects.create(user=annotator)
+
+
+@pytest.fixture
+def annotation_session_master(db, master_annotator):
+    """Creates an annotation session for the master annotator."""
+    return AnnotationSession.objects.create(user=master_annotator)
+
+
+@pytest.fixture
+def labeling_by_annotator(db, sample_problem, sample_label, annotator, annotation_session_annotator):
     """Creates a labeling attached by an annotator."""
     return LabelAnnotation.objects.create(
         problem=sample_problem,
         label=sample_label,
-        attached_by=annotator,
+        session=annotation_session_annotator,
+        created_by=annotator,
     )
 
 
 @pytest.fixture
-def labeling_by_master(db, sample_problem, another_label, master_annotator):
+def labeling_by_master(db, sample_problem, another_label, master_annotator, annotation_session_master):
     """Creates a labeling attached by a master annotator."""
     return LabelAnnotation.objects.create(
         problem=sample_problem,
         label=another_label,
-        attached_by=master_annotator,
+        session=annotation_session_master,
+        created_by=master_annotator,
     )
 
 
@@ -128,7 +142,7 @@ class TestSaveLabelingsPermissions:
         labeling = LabelAnnotation.objects.get(
             problem=sample_problem, label=sample_label
         )
-        assert labeling.attached_by == annotator
+        assert labeling.created_by == annotator
         assert labeling.notes == "Test remark"
 
     def test_master_annotator_can_save_labelings(

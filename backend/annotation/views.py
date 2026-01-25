@@ -10,7 +10,7 @@ from rest_framework.permissions import (
     SAFE_METHODS,
 )
 
-from annotation.models import Label, Labeling
+from annotation.models import AnnotationSession, Label, LabelAnnotation
 from annotation.serializers import (
     LabelSerializer,
     SaveLabelsInputSerializer,
@@ -20,7 +20,7 @@ from user.models import User
 from langpro_annotator.logger import logger
 
 
-class SaveLabelingsPermission(IsAuthenticated):
+class SaveLabelAnnotationPermission(IsAuthenticated):
     """Permission class for saving labelings."""
 
     def has_permission(self, request, view):
@@ -33,12 +33,12 @@ class SaveLabelingsPermission(IsAuthenticated):
         return request.user.has_perm("annotation.add_labeling")
 
 
-class LabelView(ModelViewSet):
+class LabelAnnotationView(ModelViewSet):
     """
-    ViewSet for Label model.
+    ViewSet for the Label and LabelAnnotation models.
 
     GET: All users can list and retrieve labels.
-    POST: Only selected users can save labelings (attach/remove labels from problems).
+    POST: Only selected users can save label annotations (attach/remove labels from problems).
     """
 
     queryset = Label.objects.all().order_by("text")
@@ -48,11 +48,11 @@ class LabelView(ModelViewSet):
     def get_permissions(self):
         if self.request.method in SAFE_METHODS:
             return [AllowAny()]
-        return [SaveLabelingsPermission()]
+        return [SaveLabelAnnotationPermission()]
 
     def create(self, request: Request) -> Response:
         """
-        Save labelings for a problem (attach/remove labels).
+        Create annotations by attaching/removing labels to/from a problem.
 
         Expects a payload with:
         - problemId: ID of the problem
@@ -65,74 +65,90 @@ class LabelView(ModelViewSet):
 
         problem_id = validated_data["problemId"]
         selected_labels = validated_data["selectedLabels"]
-        remarks = validated_data.get("remarks", "")
+        notes = validated_data.get("remarks", "")
 
         problem = Problem.objects.get(id=problem_id)
         user: User = request.user  # type: ignore
 
         selected_label_ids = {label["id"] for label in selected_labels}
 
-        self._update_labelings(problem, user, selected_label_ids, remarks)
+        self._update_label_annotations(problem, user, selected_label_ids, notes)
 
         return Response({"ok": True})
 
-    def _update_labelings(
+    def _update_label_annotations(
         self,
         problem: Problem,
         user: User,
         selected_label_ids: set[int],
-        remarks: str,
+        notes: str,
     ) -> None:
-        """Update labelings for a problem based on selected labels."""
+        """Update label annotations for a problem based on selected labels."""
 
         with transaction.atomic():
-            active_labelings = Labeling.objects.filter(
-                problem=problem, removed_at__isnull=True
-            ).select_related("label", "attached_by")
+            # Get or create an annotation session for this user
+            session, _ = AnnotationSession.objects.get_or_create(
+                user=user, defaults={"user": user}
+            )
 
-            current_label_ids = {labeling.label.pk for labeling in active_labelings}
+            active_annotations = LabelAnnotation.objects.filter(
+                problem=problem, removed_at__isnull=True
+            ).select_related("label", "created_by")
+
+            current_label_ids = {
+                annotation.label.pk for annotation in active_annotations
+            }
             labels_to_remove = current_label_ids - selected_label_ids
             labels_to_add = selected_label_ids - current_label_ids
 
-            for labeling in active_labelings:
-                if labeling.label.pk in labels_to_remove:
-                    self._remove_labeling(
-                        labeling=labeling,
+            for annotation in active_annotations:
+                if annotation.label.pk in labels_to_remove:
+                    self._mark_as_removed(
+                        label_annotation=annotation,
                         user=user,
-                        remarks=remarks,
+                        notes=notes,
                     )
 
             for label_id in labels_to_add:
-                self._create_labeling(
+                self._create_annotation(
                     label_id=label_id,
                     problem=problem,
                     user=user,
-                    remarks=remarks,
+                    session=session,
+                    notes=notes,
                 )
 
-    def _create_labeling(
-        self, label_id: int, problem: Problem, user: User, remarks: str
+    def _create_annotation(
+        self,
+        label_id: int,
+        problem: Problem,
+        user: User,
+        session: AnnotationSession,
+        notes: str,
     ) -> None:
-        """Create a new labeling."""
+        """Create a new label annotation."""
 
-        Labeling.objects.create(
+        LabelAnnotation.objects.create(
             problem=problem,
             label_id=label_id,
-            attached_by=user,
-            notes=remarks,
+            session=session,
+            created_by=user,
+            notes=notes,
         )
 
-    def _remove_labeling(self, labeling: Labeling, user: User, remarks: str) -> None:
+    def _mark_as_removed(
+        self, label_annotation: LabelAnnotation, user: User, notes: str
+    ) -> None:
         """Mark a labeling as removed."""
 
-        if not user.can_remove_labeling(labeling):
+        if not user.can_remove_label(label_annotation):
             logger.warning(
-                f"User {user.username} attempted to remove label {labeling.label.pk} "
-                f"attached by {labeling.attached_by.username}"
+                f"User {user.username} attempted to remove label {label_annotation.label.pk} "
+                f"attached by {label_annotation.created_by.username}"
             )
             raise PermissionDenied("You can only remove labels you attached yourself.")
-        labeling.removed_at = timezone.now()
-        labeling.removed_by = user
-        if remarks:
-            labeling.notes = remarks
-        labeling.save()
+        label_annotation.removed_at = timezone.now()
+        label_annotation.removed_by = user
+        if notes:
+            label_annotation.notes = notes
+        label_annotation.save()

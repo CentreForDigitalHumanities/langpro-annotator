@@ -137,7 +137,7 @@ class ProblemSerializer(serializers.ModelSerializer):
                     )
         for label_item in labels:
             label_id = label_item.get("id", None)
-            label_serializer = LabelAnnotationSerializer()
+            label_serializer = LabelAnnotationSerializer(context={"request": request})
 
             if label_id is None:
                 # Create new LabelAnnotation

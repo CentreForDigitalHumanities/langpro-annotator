@@ -58,9 +58,9 @@ class User(django_auth_models.AbstractUser):
         """
         return self.has_perm("problem.add_problem")
 
-    def can_remove_labeling(self, label_annotation: LabelAnnotation) -> bool:
+    def can_remove_label(self, label_annotation: LabelAnnotation) -> bool:
         """
-        Determines whether the user can remove a specific labeling.
+        Determines whether the user can remove a specific label (as part of an annotation).
         """
         if self.is_superuser or self.has_perm("annotation.delete_any_labeling"):
             return True

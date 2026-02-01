@@ -201,7 +201,6 @@ class SaveLabelsInputSerializer(serializers.Serializer):
 
     problemId = serializers.IntegerField()
     selectedLabels = SelectedLabelSerializer(many=True, allow_empty=True)
-    remarks = serializers.CharField(required=False, allow_blank=True, default="")
 
     def validate_problemId(self, value):
         """Validate that the problem exists."""

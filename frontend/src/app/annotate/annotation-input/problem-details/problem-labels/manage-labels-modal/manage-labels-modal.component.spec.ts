@@ -86,7 +86,6 @@ describe("ManageLabelsModalComponent", () => {
         expect(component.form.value).toEqual({
             problemId: -1,
             selectedLabelIds: [],
-            remarks: ''
         });
     });
 
@@ -179,15 +178,12 @@ describe("ManageLabelsModalComponent", () => {
     it("should close modal with transformed data", () => {
         component.form.controls.problemId.setValue(42);
         component.form.controls.selectedLabelIds.setValue([1, 2]);
-        component.form.controls.remarks.setValue("Test remarks");
 
         component.closeModal();
 
         expect(mockActiveModal.close).toHaveBeenCalledWith({
             problemId: 42,
             selectedLabelIds: [1, 2],
-            remarks: "Test remarks",
-            selectedLabels: [{ id: 1 }, { id: 2 }]
         });
     });
 

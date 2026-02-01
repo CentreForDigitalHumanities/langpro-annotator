@@ -57,7 +57,6 @@ class LabelAnnotationView(ModelViewSet):
         Expects a payload with:
         - problemId: ID of the problem
         - selectedLabels: List of labels to be attached (with at least 'id' field)
-        - remarks: Optional notes
         """
         serializer = SaveLabelsInputSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -65,14 +64,13 @@ class LabelAnnotationView(ModelViewSet):
 
         problem_id = validated_data["problemId"]
         selected_labels = validated_data["selectedLabels"]
-        notes = validated_data.get("remarks", "")
 
         problem = Problem.objects.get(id=problem_id)
         user: User = request.user  # type: ignore
 
         selected_label_ids = {label["id"] for label in selected_labels}
 
-        self._update_label_annotations(problem, user, selected_label_ids, notes)
+        self._update_label_annotations(problem, user, selected_label_ids)
 
         return Response({"ok": True})
 
@@ -81,7 +79,6 @@ class LabelAnnotationView(ModelViewSet):
         problem: Problem,
         user: User,
         selected_label_ids: set[int],
-        notes: str,
     ) -> None:
         """Update label annotations for a problem based on selected labels."""
 
@@ -106,7 +103,6 @@ class LabelAnnotationView(ModelViewSet):
                     self._mark_as_removed(
                         label_annotation=annotation,
                         user=user,
-                        notes=notes,
                     )
 
             for label_id in labels_to_add:
@@ -115,7 +111,6 @@ class LabelAnnotationView(ModelViewSet):
                     problem=problem,
                     user=user,
                     session=session,
-                    notes=notes,
                 )
 
     def _create_annotation(
@@ -124,7 +119,6 @@ class LabelAnnotationView(ModelViewSet):
         problem: Problem,
         user: User,
         session: AnnotationSession,
-        notes: str,
     ) -> None:
         """Create a new label annotation."""
 
@@ -133,12 +127,9 @@ class LabelAnnotationView(ModelViewSet):
             label_id=label_id,
             session=session,
             created_by=user,
-            notes=notes,
         )
 
-    def _mark_as_removed(
-        self, label_annotation: LabelAnnotation, user: User, notes: str
-    ) -> None:
+    def _mark_as_removed(self, label_annotation: LabelAnnotation, user: User) -> None:
         """Mark a labeling as removed."""
 
         if not user.can_remove_label(label_annotation):
@@ -149,6 +140,4 @@ class LabelAnnotationView(ModelViewSet):
             raise PermissionDenied("You can only remove labels you attached yourself.")
         label_annotation.removed_at = timezone.now()
         label_annotation.removed_by = user
-        if notes:
-            label_annotation.notes = notes
         label_annotation.save()

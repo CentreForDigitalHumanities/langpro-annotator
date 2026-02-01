@@ -13,7 +13,6 @@ import { LabelAnnotation } from '@/types';
 type SelectedLabelsForm = FormGroup<{
     problemId: FormControl<number>;
     selectedLabelIds: FormControl<number[]>;
-    remarks: FormControl<string>;
 }>;
 
 export type ManageLabelsModalResult = ReturnType<SelectedLabelsForm['getRawValue']>;
@@ -34,7 +33,6 @@ export class ManageLabelsModalComponent implements OnInit {
         selectedLabelIds: new FormControl<number[]>([], {
             nonNullable: true,
         }),
-        remarks: new FormControl<string>('', { nonNullable: true }),
     });
 
     /** Takes a Label ID and adds it to selected */

@@ -17,9 +17,11 @@ class AnnotationBaseSerializer(serializers.ModelSerializer):
     Base serializer for AnnotationBase model.
     """
 
-    createdAt = serializers.DateTimeField(source="created_at")
+    createdAt = serializers.DateTimeField(source="created_at", read_only=True)
     createdBy = serializers.PrimaryKeyRelatedField(source="created_by", read_only=True)
-    removedAt = serializers.DateTimeField(source="removed_at", allow_null=True)
+    removedAt = serializers.DateTimeField(
+        source="removed_at", allow_null=True, read_only=True
+    )
     removedBy = serializers.PrimaryKeyRelatedField(
         source="removed_by", allow_null=True, read_only=True
     )
@@ -46,6 +48,7 @@ class AnnotationBaseSerializer(serializers.ModelSerializer):
 
 
 class KnowledgeBaseAnnotationSerializer(AnnotationBaseSerializer):
+    id = serializers.IntegerField(required=False)
     # Mark relationship as required. DRF thinks it is optional because it has a
     # default value in the model.
     relationship = serializers.ChoiceField(
@@ -70,7 +73,7 @@ class KnowledgeBaseAnnotationSerializer(AnnotationBaseSerializer):
         if user is None or user.is_anonymous:
             return False
 
-        return user.has_perm("problem.delete_knowledgebaseannotation")
+        return user.has_perm("annotation.delete_knowledgebaseannotation")
 
     def validate_id(self, value):
         """Validate that the KnowledgeBaseAnnotation ID exists if provided."""

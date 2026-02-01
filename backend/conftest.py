@@ -5,6 +5,7 @@ from django.test import Client as APIClient
 from django.contrib.auth.models import Group, Permission
 from rest_framework.test import APIClient as DRFAPIClient
 
+from annotation.models import AnnotationSession
 from user.models import User, GroupName
 from user.permissions import ANNOTATOR_PERMISSIONS, MASTER_ANNOTATOR_PERMISSIONS
 from problem.models import Problem, Sentence
@@ -118,3 +119,12 @@ def sample_problem(db):
     )
     problem.premises.add(premise)
     return problem
+
+@pytest.fixture
+def annotation_session(db, annotator):
+    """Annotation session for a user with the 'Annotator' role."""
+    return AnnotationSession.objects.create(
+        user=annotator,
+        created_at="2024-01-01T00:00:00Z",
+        updated_at="2024-01-01T00:00:00Z",
+    )

@@ -15,22 +15,30 @@ from annotation.serializers import (
     LabelSerializer,
     SaveLabelsInputSerializer,
 )
+from django.contrib.auth.models import AnonymousUser
 from problem.models import Problem
 from user.models import User
 from langpro_annotator.logger import logger
 
 
 class SaveLabelAnnotationPermission(IsAuthenticated):
-    """Permission class for saving labelings."""
+    """Permission class for saving label annotations."""
 
     def has_permission(self, request, view):
         if not super().has_permission(request, view):
             return False
 
-        if request.user.is_superuser:
+        user: User | AnonymousUser | None = request.user
+
+        if user is None or user.is_anonymous:
+            return False
+
+        if user.is_superuser:
             return True
 
-        return request.user.has_perm("annotation.add_labeling")
+        return user.has_perm("annotation.add_labelannotation") or user.has_perm(
+            "annotation.change_labelannotation"
+        )
 
 
 class LabelAnnotationView(ModelViewSet):
@@ -130,7 +138,7 @@ class LabelAnnotationView(ModelViewSet):
         )
 
     def _mark_as_removed(self, label_annotation: LabelAnnotation, user: User) -> None:
-        """Mark a labeling as removed."""
+        """Mark a label annotation as removed."""
 
         if not user.can_remove_label(label_annotation):
             logger.warning(

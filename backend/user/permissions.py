@@ -2,11 +2,11 @@
 ANNOTATOR_PERMISSIONS = [
     ("problem", "view_silver_problems"),
     ("annotation", "add_knowledgebaseannotation"),
-    ("annotation", "add_label_annotation"),
+    ("annotation", "add_labelannotation"),
     ("annotation", "change_knowledgebaseannotation"),
     ("annotation", "change_labelannotation"),
     ("annotation", "delete_knowledgebaseannotation"),
-    ("annotation", "delete_own_label_annotation"),
+    ("annotation", "delete_own_labelannotation"),
 ]
 
 MASTER_ANNOTATOR_PERMISSIONS = ANNOTATOR_PERMISSIONS + [
@@ -21,5 +21,5 @@ MASTER_ANNOTATOR_PERMISSIONS = ANNOTATOR_PERMISSIONS + [
     ("annotation", "add_label"),
     ("annotation", "change_label"),
     ("annotation", "delete_label"),
-    ("annotation", "delete_any_label_annotation"),
+    ("annotation", "delete_any_labelannotation"),
 ]

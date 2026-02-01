@@ -153,8 +153,8 @@ class LabelAnnotation(BaseAnnotation):
             models.Index(fields=["label", "removed_at"]),
         ]
         permissions = [
-            ("delete_own_label_annotation", "Can remove own label annotation from problems"),
-            ("delete_any_label_annotation", "Can remove any label annotation from problems"),
+            ("delete_own_labelannotation", "Can remove own label annotation from problems"),
+            ("delete_any_labelannotation", "Can remove any label annotation from problems"),
         ]
 
     def __str__(self):

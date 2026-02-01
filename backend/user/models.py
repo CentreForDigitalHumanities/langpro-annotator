@@ -62,10 +62,10 @@ class User(django_auth_models.AbstractUser):
         """
         Determines whether the user can remove a specific label (as part of an annotation).
         """
-        if self.is_superuser or self.has_perm("annotation.delete_any_labeling"):
+        if self.is_superuser or self.has_perm("annotation.delete_any_labelannotation"):
             return True
 
-        if self.has_perm("annotation.delete_own_labeling"):
+        if self.has_perm("annotation.delete_own_labelannotation"):
             return label_annotation.created_by.pk == self.pk
 
         return False

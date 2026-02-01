@@ -202,7 +202,8 @@ describe("ManageLabelsModalComponent", () => {
         const text = component.getAttachedByText(annotation);
 
         expect(text).toContain("you");
-        expect(text).toContain("15 March 2024");
+        // Accept both US and non-US date formats (for GitHub Actions runners.)
+        expect(text).toMatch(/(March 15, 2024|15 March 2024)/);
     });
 
     it("should format attachment text for other user", () => {
@@ -216,7 +217,8 @@ describe("ManageLabelsModalComponent", () => {
         const text = component.getAttachedByText(annotation);
 
         expect(text).toContain("Other User");
-        expect(text).toContain("15 March 2024");
+        // Accept both US and non-US date formats (for GitHub Actions runners.)
+        expect(text).toMatch(/(March 15, 2024|15 March 2024)/);
     });
 
     it("should handle unknown user when creating new annotations", fakeAsync(() => {

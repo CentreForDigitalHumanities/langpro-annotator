@@ -183,7 +183,11 @@ describe("ManageLabelsModalComponent", () => {
 
         expect(mockActiveModal.close).toHaveBeenCalledWith({
             problemId: 42,
-            selectedLabelIds: [1, 2],
+            selectedLabelIds: [{
+                id: 1
+            }, {
+                id: 2
+            }],
         });
     });
 

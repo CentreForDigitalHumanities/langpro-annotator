@@ -132,8 +132,8 @@ export class ManageLabelsModalComponent implements OnInit {
         const formValue = this.form.getRawValue();
         // Transform selectedLabelIds to the expected backend format
         const transformedValue = {
-            ...formValue,
-            selectedLabels: formValue.selectedLabelIds.map(id => ({ id }))
+            problemId: formValue.problemId,
+            selectedLabelIds: formValue.selectedLabelIds.map(id => ({ id }))
         };
         this.activeModal.close(transformedValue);
     }

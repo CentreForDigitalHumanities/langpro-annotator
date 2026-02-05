@@ -92,4 +92,4 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = []
 PROXY_FRONTEND = None
 
-LANGPRO_URL = 'http://localhost:8080'
+LANGPRO_URL = os.environ.get('LANGPRO_CONTAINER') or 'http://localhost:8080'

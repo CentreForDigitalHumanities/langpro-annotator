@@ -13,8 +13,6 @@ export class SubscriptAngleBracketsPipe implements PipeTransform {
         if (!value) {
             return value;
         }
-
-        // Replace <...> with <sub>...</sub>
         return value.replace(/<([^>]+)>/g, '<sub>$1</sub>');
     }
 }

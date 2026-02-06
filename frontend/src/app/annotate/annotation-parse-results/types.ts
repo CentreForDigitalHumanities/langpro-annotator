@@ -20,7 +20,7 @@ export interface BinaryNode {
     left: ParseTreeNode;
     right: ParseTreeNode;
     rule?: string; // e.g., "fa", "ba"
-    cat?: string; // e.g. "NP", "VP<dcl>"
+    cat: string; // e.g. "NP", "VP<dcl>"
 }
 
 export interface VariableNode {
@@ -28,7 +28,6 @@ export interface VariableNode {
     name: string;
     typeInfo: string;
 }
-
 
 export type ParseTreeNode = LeafNode | UnaryNode | BinaryNode | VariableNode;
 

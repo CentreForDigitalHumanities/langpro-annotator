@@ -512,6 +512,7 @@ export const mockResult: ParseResult = {
                     cat: "s<dcl>",
                     left: {
                         type: "binary",
+                        cat: "vp<dcl>, s<dcl>",
                         left: {
                             type: "leaf",
                             lem: "every",

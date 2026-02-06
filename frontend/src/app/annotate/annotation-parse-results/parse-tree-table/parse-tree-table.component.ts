@@ -1,7 +1,7 @@
 import { Component, input, OnInit, signal } from '@angular/core';
 import { BinaryNode, LeafNode, ParseTree, ParseTreeNode, ParseTreeType, UnaryNode, VariableNode } from '../types';
 import { SubscriptAngleBracketsPipe } from './subscript-angle-brackets.pipe';
-import { left } from '@popperjs/core';
+import { ParseTreeHighlightDirective } from './parse-tree-highlight.directive';
 
 interface BaseCell {
     content: string;
@@ -38,7 +38,7 @@ const TreeTypeDisplay: Record<ParseTreeType, string> = {
 
 @Component({
     selector: 'la-parse-tree-table',
-    imports: [SubscriptAngleBracketsPipe],
+    imports: [SubscriptAngleBracketsPipe, ParseTreeHighlightDirective],
     templateUrl: './parse-tree-table.component.html',
     styleUrl: './parse-tree-table.component.scss'
 })

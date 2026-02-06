@@ -1,3 +1,11 @@
+td {
+    transition: background-color 0.2s ease;
+
+    &.highlight {
+        background-color: var(--bs-yellow);
+    }
+}
+
 .leaf-cell,
 .var-cell {
     background-color: var(--bs-light);

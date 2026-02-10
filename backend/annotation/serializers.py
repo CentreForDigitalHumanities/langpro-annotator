@@ -77,12 +77,11 @@ class KnowledgeBaseAnnotationSerializer(AnnotationBaseSerializer):
 
     def validate_id(self, value):
         """Validate that the KnowledgeBaseAnnotation ID exists if provided."""
-        if value is not None:
-            if not KnowledgeBaseAnnotation.objects.filter(id=value).exists():
-                raise serializers.ValidationError(
-                    f"KnowledgeBaseAnnotation item with ID {value} does not exist."
-                )
-        return value
+        if value is None or KnowledgeBaseAnnotation.objects.filter(id=value).exists():
+            return value
+        raise serializers.ValidationError(
+            f"KnowledgeBaseAnnotation item with ID {value} does not exist."
+        )
 
     def update(
         self, instance: KnowledgeBaseAnnotation, validated_data: dict

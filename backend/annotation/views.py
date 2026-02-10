@@ -12,6 +12,7 @@ from rest_framework.permissions import (
 
 from annotation.models import AnnotationSession, Label, LabelAnnotation
 from annotation.serializers import (
+    LabelAnnotationSerializer,
     LabelSerializer,
     SaveLabelsInputSerializer,
 )
@@ -46,7 +47,7 @@ class LabelAnnotationView(ModelViewSet):
     ViewSet for the Label and LabelAnnotation models.
 
     GET: All users can list and retrieve labels.
-    POST: Only selected users can save label annotations (attach/remove labels from problems).
+    POST: Only selected users can save label annotations (attach/remove labels to/from problems).
     """
 
     queryset = Label.objects.all().order_by("text")
@@ -114,28 +115,15 @@ class LabelAnnotationView(ModelViewSet):
                     )
 
             for label_id in labels_to_add:
-                self._create_annotation(
-                    label_id=label_id,
-                    problem=problem,
-                    user=user,
-                    session=session,
+                serializer = LabelAnnotationSerializer(
+                    data={
+                        "problem": problem.pk,
+                        "label_id": label_id,
+                        "session": session.pk,
+                    },
                 )
-
-    def _create_annotation(
-        self,
-        label_id: int,
-        problem: Problem,
-        user: User,
-        session: AnnotationSession,
-    ) -> None:
-        """Create a new label annotation."""
-
-        LabelAnnotation.objects.create(
-            problem=problem,
-            label_id=label_id,
-            session=session,
-            created_by=user,
-        )
+                serializer.is_valid(raise_exception=True)
+                serializer.save(created_by=user)
 
     def _mark_as_removed(self, label_annotation: LabelAnnotation, user: User) -> None:
         """Mark a label annotation as removed."""

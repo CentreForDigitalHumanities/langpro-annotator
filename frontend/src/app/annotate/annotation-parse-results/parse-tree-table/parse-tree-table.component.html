@@ -42,8 +42,10 @@
                             }
 
                             @case ('var') {
-                            <div class="leaf-cell">
-                                <strong>{{ cell.content }}</strong>
+                            <div class="d-flex flex-column gap-1">
+                                <strong class="h5 fw-bold mb-0">
+                                    {{ cell.content }}
+                                </strong>
                                 <br />
                                 <span>{{ cell.typeInfo }}</span>
                             </div>

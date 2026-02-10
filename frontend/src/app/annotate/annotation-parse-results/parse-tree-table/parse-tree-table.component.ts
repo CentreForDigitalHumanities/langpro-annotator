@@ -50,7 +50,8 @@ export class ParseTreeTableComponent implements OnInit {
     public readonly treeTypeDisplay = signal("");
 
     ngOnInit(): void {
-        const rows = this.createTableRows(this.tree().root);
+        const root = this.tree().root;
+        const rows = this.createTableRows(root);
         this.tableRows.push(...rows);
     }
 

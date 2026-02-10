@@ -74,10 +74,11 @@ export class ParseTreeHighlightDirective implements AfterViewInit, OnDestroy {
     private onCellMouseEnter(hoveredCell: CellPosition): void {
         // Clear previous highlights
         this.clearHighlights();
-    
+
+        // Highlight the hovered cell.
         this.renderer.addClass(hoveredCell.element, 'highlight');
 
-        // Highlight child cells (in rows above) that are contained within the hovered cell's column range
+        // Highlight child cells (in rows above).
         this.cellPositions.forEach(cellPos => {
             if (cellPos.rowIndex >= hoveredCell.rowIndex) {
                 // Cell is on a row below or the same as the hovered cell.

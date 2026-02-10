@@ -42,7 +42,6 @@ export interface UnaryNode {
     rule?: string;
 }
 
-// Binary node
 export interface BinaryNode {
     type: 'binary';
     left: ParseTreeNode;

@@ -1,7 +1,16 @@
 from rest_framework import serializers
 
-from annotation.serializers import AnnotationSerializer, KnowledgeBaseAnnotationSerializer, LabelAnnotationSerializer
-from annotation.models import AnnotationSession, KnowledgeBaseAnnotation, Label, LabelAnnotation
+from annotation.serializers import (
+    AnnotationSerializer,
+    KnowledgeBaseAnnotationSerializer,
+    LabelAnnotationSerializer,
+)
+from annotation.models import (
+    AnnotationSession,
+    KnowledgeBaseAnnotation,
+    Label,
+    LabelAnnotation,
+)
 from problem.services import FracasData, SNLIData, SickData
 from problem.models import Problem, Sentence
 
@@ -95,7 +104,9 @@ class ProblemSerializer(serializers.ModelSerializer):
 
         return problem
 
-    def _handle_annotations(self, problem: Problem, kb_items: list[dict], labels: list[dict]) -> None:
+    def _handle_annotations(
+        self, problem: Problem, kb_items: list[dict], labels: list[dict]
+    ) -> None:
         """
         Create or update KnowledgeBase and Label annotations for a problem.
         Creates Annotationsession if it does not exist.
@@ -206,6 +217,7 @@ class ProblemSerializer(serializers.ModelSerializer):
 
         return instance
 
+
 class ProblemInputSerializer(serializers.Serializer):
     """
     Serializer for validating problem input data.
@@ -221,17 +233,16 @@ class ProblemInputSerializer(serializers.Serializer):
     hypothesis = serializers.CharField(
         allow_blank=False, help_text="Hypothesis sentence text"
     )
-    kbItems = serializers.ListField(
-        child=KnowledgeBaseAnnotationSerializer(),
-        required=False,
-        allow_empty=True,
+    kbItems = KnowledgeBaseAnnotationSerializer(
+        many=True,
         help_text="List of knowledge base annotations",
-    )
-    labels = serializers.ListField(
-        child=LabelAnnotationSerializer(),
         required=False,
-        allow_empty=True,
+    )
+
+    labels = LabelAnnotationSerializer(
+        many=True,
         help_text="List of label annotations",
+        required=False,
     )
 
     base = serializers.IntegerField(required=False, allow_null=True)

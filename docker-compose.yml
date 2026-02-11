@@ -19,7 +19,7 @@ services:
             context: ./backend
         environment:
             PGHOST: postgres
-            LANGRPO_CONTAINER: 'http://langpro:8080'
+            LANGPRO_CONTAINER: 'http://langpro:8080'
             LANGPRO_FRONTEND: 'http://frontend:4200'
         depends_on:
             postgres:

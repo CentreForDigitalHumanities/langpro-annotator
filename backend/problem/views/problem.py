@@ -122,20 +122,18 @@ class ProblemView(ModelViewSet):
     ) -> Response:
         input_data = request.data
 
-        input_serializer = ProblemInputSerializer(data=input_data)
-        input_serializer.is_valid(raise_exception=True)
-        validated_input: dict = input_serializer.validated_data  # type: ignore
-
-        problem_serializer = ProblemSerializer(context={"request": request})
+        serializer = ProblemInputSerializer(data=input_data, context={"request": request})
+        serializer.is_valid(raise_exception=True)
+        validated_input: dict = serializer.validated_data  # type: ignore
 
         if problem_id is None:
-            problem = problem_serializer.create(validated_input)  # type: ignore
+            problem = serializer.create(validated_input)  # type: ignore
             status = HTTP_201_CREATED
         else:
             problem_instance = get_object_or_404(
                 Problem, id=problem_id, dataset=Problem.Dataset.USER
             )
-            problem: Problem = problem_serializer.update(
+            problem: Problem = serializer.update(
                 problem_instance, validated_input
             )
             status = HTTP_200_OK

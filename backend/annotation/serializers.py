@@ -55,6 +55,8 @@ class KnowledgeBaseAnnotationSerializer(AnnotationBaseSerializer):
         choices=KnowledgeBaseAnnotation.Relationship.choices,
         required=True,
     )
+    session = serializers.PrimaryKeyRelatedField(read_only=True)
+    problem = serializers.PrimaryKeyRelatedField(read_only=True)
 
     class Meta(AnnotationBaseSerializer.Meta):
         model = KnowledgeBaseAnnotation
@@ -82,17 +84,6 @@ class KnowledgeBaseAnnotationSerializer(AnnotationBaseSerializer):
         raise serializers.ValidationError(
             f"KnowledgeBaseAnnotation item with ID {value} does not exist."
         )
-
-    def update(
-        self, instance: KnowledgeBaseAnnotation, validated_data: dict
-    ) -> KnowledgeBaseAnnotation:
-        """Update an existing KnowledgeBaseAnnotation item."""
-        instance.entity1 = validated_data["entity1"]
-        instance.relationship = validated_data["relationship"]
-        instance.entity2 = validated_data["entity2"]
-        instance.save()
-        return instance
-
 
 class LabelSerializer(serializers.ModelSerializer):
     """

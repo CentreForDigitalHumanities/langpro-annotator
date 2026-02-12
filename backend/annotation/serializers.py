@@ -48,7 +48,7 @@ class AnnotationBaseSerializer(serializers.ModelSerializer):
 
 
 class KnowledgeBaseAnnotationSerializer(AnnotationBaseSerializer):
-    id = serializers.IntegerField(required=False)
+    id = serializers.IntegerField(required=False, allow_null=True)
     # Mark relationship as required. DRF thinks it is optional because it has a
     # default value in the model.
     relationship = serializers.ChoiceField(
@@ -110,6 +110,12 @@ class LabelAnnotationSerializer(AnnotationBaseSerializer):
     """
 
     label = LabelSerializer(read_only=True)
+    label_id = serializers.PrimaryKeyRelatedField(
+        queryset=Label.objects.all(),
+        source="label",
+        write_only=True,
+        required=False,
+    )
     attachedByCurrentUser = serializers.SerializerMethodField()
     removable = serializers.SerializerMethodField()
 
@@ -118,6 +124,7 @@ class LabelAnnotationSerializer(AnnotationBaseSerializer):
         fields = [
             "id",
             "label",
+            "label_id",
             "attachedByCurrentUser",
         ] + AnnotationBaseSerializer.Meta.fields
 

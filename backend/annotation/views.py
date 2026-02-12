@@ -92,10 +92,7 @@ class LabelAnnotationView(ModelViewSet):
         """Update label annotations for a problem based on selected labels."""
 
         with transaction.atomic():
-            # Get or create an annotation session for this user
-            session, _ = AnnotationSession.objects.get_or_create(
-                user=user, defaults={"user": user}
-            )
+            session = AnnotationSession.objects.create(user=user)
 
             active_annotations = LabelAnnotation.objects.filter(
                 problem=problem, removed_at__isnull=True

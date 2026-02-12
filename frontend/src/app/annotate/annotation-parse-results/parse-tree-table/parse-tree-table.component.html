@@ -5,7 +5,7 @@
     <div class="p-4">
         <table class="parse-tree-table" laParseTreeHighlight>
             <tbody>
-                @for (row of tableRows; track $index) {
+                @for (row of tableRows(); track $index) {
                 <tr>
                     @for (cell of row; track $index) {
                     <td

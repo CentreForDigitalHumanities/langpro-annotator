@@ -45,14 +45,11 @@ const TreeTypeDisplay: Record<ParseTreeType, string> = {
 export class ParseTreeTableComponent implements OnInit {
     public readonly tree = input.required<ParseTree>();
 
-    public readonly tableRows: TableCell[][] = [];
-
-    public readonly treeTypeDisplay = signal("");
+    public readonly tableRows = signal<TableCell[][]>([]);
 
     ngOnInit(): void {
         const root = this.tree().root;
-        const rows = this.createTableRows(root);
-        this.tableRows.push(...rows);
+        this.tableRows.set(this.createTableRows(root));
     }
 
     public getTreeTypeDisplay(type: ParseTreeType): string {

@@ -140,6 +140,13 @@ class Label(models.Model):
 
 
 class LabelAnnotation(BaseAnnotation):
+    """
+    The attachment of a label to a problem.
+
+    Each time a label is attached to a problem, a new LabelAnnotation record
+    is created. When removed, the record is marked as removed (not deleted),
+    so the history of labelings is preserved.
+    """
     label = models.ForeignKey(
         Label,
         on_delete=models.CASCADE,

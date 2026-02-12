@@ -124,7 +124,7 @@ class LabelAnnotationSerializer(AnnotationBaseSerializer):
         user: User | AnonymousUser | None = self.context.get("user", None)
 
         if user and user.is_anonymous is False:
-            return annotation.created_by.pk == user.pk
+            return annotation.is_attached_by_user(user)
         return False
 
     def get_removable(self, annotation: LabelAnnotation) -> bool:
@@ -138,7 +138,7 @@ class LabelAnnotationSerializer(AnnotationBaseSerializer):
             return True
 
         if user.has_perm("annotation.delete_own_labelannotation"):
-            return annotation.created_by.pk == user.pk
+            return annotation.is_attached_by_user(user)
 
         return False
 

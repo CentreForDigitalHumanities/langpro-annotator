@@ -173,3 +173,7 @@ class LabelAnnotation(BaseAnnotation):
     def __str__(self):
         status = "active" if self.is_active() else f"removed at {self.removed_at}"
         return f"Label '{self.label.text}' on Problem {self.problem.pk} ({status})"
+
+    def is_attached_by_user(self, user) -> bool:
+        """Check if this label annotation was created by the given user."""
+        return self.created_by == user

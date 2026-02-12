@@ -79,7 +79,7 @@ export class ProblemDetailsComponent {
             baseProblemId: problem.base?.toString() ?? null,
             dataset: problem.dataset,
             entailmentLabel: problem.entailmentLabel,
-            labelAnnotations: problem.annotations?.labelAnnotations ?? [],
+            labelAnnotations: problem.labelAnnotations ?? [],
         };
 
         switch (problem.dataset) {

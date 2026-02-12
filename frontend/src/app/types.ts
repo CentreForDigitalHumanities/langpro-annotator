@@ -58,18 +58,14 @@ export interface LabelAnnotation extends BaseAnnotation {
     attachedByCurrentUser: boolean;
 }
 
-interface Annotation {
-    kbAnnotations: KnowledgeBaseAnnotation[];
-    labelAnnotations: LabelAnnotation[];
-}
-
 interface ProblemBase {
     id: number | null;
     base: number | null;
     premises: string[];
     hypothesis: string | null;
     entailmentLabel: EntailmentLabel;
-    annotations: Annotation | null;
+    kbAnnotations: KnowledgeBaseAnnotation[];
+    labelAnnotations: LabelAnnotation[];
 }
 
 interface SickProblem extends ProblemBase {

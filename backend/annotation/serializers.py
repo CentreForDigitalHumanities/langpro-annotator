@@ -142,45 +142,6 @@ class LabelAnnotationSerializer(AnnotationBaseSerializer):
 
         return False
 
-
-class AnnotationSerializer(serializers.Serializer):
-    kbAnnotations = serializers.SerializerMethodField()
-    labelAnnotations = serializers.SerializerMethodField()
-
-    class Meta:
-        fields = ["kbAnnotations", "labelAnnotations"]
-
-    def get_kbAnnotations(self, obj):
-        problem, last_session = self._get_problem_and_last_session()
-        if not problem or not last_session:
-            return []
-        kb_annotations = KnowledgeBaseAnnotation.objects.filter(
-            problem=problem, session=last_session, removed_at__isnull=True
-        )
-        return KnowledgeBaseAnnotationSerializer(kb_annotations, many=True).data
-
-    def get_labelAnnotations(self, obj):
-        problem, last_session = self._get_problem_and_last_session()
-        if not problem or not last_session:
-            return []
-        label_annotations = LabelAnnotation.objects.filter(
-            problem=problem, session=last_session, removed_at__isnull=True
-        )
-        return LabelAnnotationSerializer(
-            label_annotations, many=True, context=self.context
-        ).data
-
-    def _get_problem_and_last_session(self):
-        problem = self.context.get("problem", None)
-        user = self.context.get("user", None)
-        if not problem or not user or user.is_authenticated is False:
-            return None, None
-        last_session = (
-            AnnotationSession.objects.filter(user=user).order_by("-created_at").first()
-        )
-        return problem, last_session
-
-
 class SelectedLabelSerializer(serializers.Serializer):
     """Serializer for a selected label in the save labels input."""
 

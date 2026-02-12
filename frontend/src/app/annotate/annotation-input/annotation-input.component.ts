@@ -162,7 +162,7 @@ export class AnnotationInputComponent implements OnInit {
     }
 
     private buildForm(problem: Problem): ParseInputForm {
-        const kbItems = this.buildKbForms(problem.annotations?.kbAnnotations ?? []);
+        const kbItems = this.buildKbForms(problem.kbAnnotations ?? []);
 
         return new FormGroup({
             id: new FormControl<number | null>(problem.id, {

@@ -1,12 +1,10 @@
 from rest_framework import serializers
 
-from annotation.serializers import (
-    AnnotationSerializer,
-    KnowledgeBaseAnnotationSerializer,
-)
+from annotation.serializers import KnowledgeBaseAnnotationSerializer, LabelAnnotationSerializer
 from annotation.models import (
     AnnotationSession,
     KnowledgeBaseAnnotation,
+    LabelAnnotation,
 )
 from problem.services import FracasData, SNLIData, SickData
 from problem.models import Problem, Sentence
@@ -23,7 +21,8 @@ class ProblemSerializer(serializers.ModelSerializer):
     hypothesis = serializers.SerializerMethodField()
     entailmentLabel = serializers.CharField(source="entailment_label")
     extraData = serializers.SerializerMethodField()
-    annotations = serializers.SerializerMethodField()
+    kbAnnotations = serializers.SerializerMethodField()
+    labelAnnotations = serializers.SerializerMethodField()
 
     class Meta:
         model = Problem
@@ -35,18 +34,19 @@ class ProblemSerializer(serializers.ModelSerializer):
             "entailmentLabel",
             "extraData",
             "base",
-            "annotations",
+            "kbAnnotations",
+            "labelAnnotations",
         ]
 
-    def get_premises(self, problem):
+    def get_premises(self, problem: Problem):
         """Get list of premise texts."""
         return [premise.text for premise in problem.premises.all()]
 
-    def get_hypothesis(self, problem):
+    def get_hypothesis(self, problem: Problem):
         """Get hypothesis text."""
         return problem.hypothesis.text
 
-    def get_extraData(self, problem):
+    def get_extraData(self, problem: Problem):
         """Get dataset-specific extra data."""
         match problem.dataset:
             case Problem.Dataset.SICK:
@@ -58,17 +58,20 @@ class ProblemSerializer(serializers.ModelSerializer):
             case _:
                 return {}
 
-    def get_annotations(self, problem: Problem):
-        request = self.context.get("request", None)
-        if not request or not request.user:
-            return None
-        return AnnotationSerializer(
-            {},
-            context={
-                "problem": problem,
-                "user": request.user,
-            },
-        ).data
+    def get_kbAnnotations(self, problem: Problem):
+        """Get knowledge base annotations for the problem."""
+        kb_annotations = KnowledgeBaseAnnotation.objects.filter(
+            problem=problem, removed_at__isnull=True
+        )
+        kb_data =  KnowledgeBaseAnnotationSerializer(kb_annotations, many=True).data
+        return kb_data
+
+    def get_labelAnnotations(self, problem: Problem):
+        """Get label annotations for the problem."""
+        label_annotations = LabelAnnotation.objects.filter(
+            problem=problem, removed_at__isnull=True
+        )
+        return LabelAnnotationSerializer(label_annotations, many=True).data
 
 
 class ProblemInputSerializer(serializers.Serializer):

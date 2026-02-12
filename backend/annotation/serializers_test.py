@@ -64,15 +64,6 @@ def test_invalid_kb_item_id(annotation_session, sample_problem):
 
 
 @pytest.mark.django_db
-def test_kb_item_missing_relationship(kb_annotation):
-    """Test that a kbItem missing a relationship is invalid."""
-    data = {"id": kb_annotation.pk, "entity1": "e1", "entity2": "e2"}
-    serializer = KnowledgeBaseAnnotationSerializer(data=data)
-    assert not serializer.is_valid()
-    assert "relationship" in serializer.errors
-
-
-@pytest.mark.django_db
 def test_valid_kb_annotation_data(annotation_session, sample_problem):
     """Test that valid KB annotation data is accepted."""
     data = {

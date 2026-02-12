@@ -1,10 +1,9 @@
 from rest_framework import serializers
 
-from annotation.serializers import KnowledgeBaseAnnotationSerializer, LabelAnnotationSerializer
+from annotation.serializers import KnowledgeBaseAnnotationSerializer
 from annotation.models import (
     AnnotationSession,
     KnowledgeBaseAnnotation,
-    LabelAnnotation,
 )
 from problem.services import FracasData, SNLIData, SickData
 from problem.models import Problem, Sentence
@@ -13,7 +12,6 @@ from problem.models import Problem, Sentence
 class ProblemSerializer(serializers.ModelSerializer):
     """
     Serializer for Problem model output.
-    Handles serialization of problems with all related data including labels.
     """
 
     id = serializers.IntegerField(read_only=True)
@@ -21,8 +19,6 @@ class ProblemSerializer(serializers.ModelSerializer):
     hypothesis = serializers.SerializerMethodField()
     entailmentLabel = serializers.CharField(source="entailment_label")
     extraData = serializers.SerializerMethodField()
-    kbAnnotations = serializers.SerializerMethodField()
-    labelAnnotations = serializers.SerializerMethodField()
 
     class Meta:
         model = Problem
@@ -34,8 +30,6 @@ class ProblemSerializer(serializers.ModelSerializer):
             "entailmentLabel",
             "extraData",
             "base",
-            "kbAnnotations",
-            "labelAnnotations",
         ]
 
     def get_premises(self, problem: Problem):
@@ -57,21 +51,6 @@ class ProblemSerializer(serializers.ModelSerializer):
                 return SNLIData.serialize(problem.extra_data)
             case _:
                 return {}
-
-    def get_kbAnnotations(self, problem: Problem):
-        """Get knowledge base annotations for the problem."""
-        kb_annotations = KnowledgeBaseAnnotation.objects.filter(
-            problem=problem, removed_at__isnull=True
-        )
-        kb_data =  KnowledgeBaseAnnotationSerializer(kb_annotations, many=True).data
-        return kb_data
-
-    def get_labelAnnotations(self, problem: Problem):
-        """Get label annotations for the problem."""
-        label_annotations = LabelAnnotation.objects.filter(
-            problem=problem, removed_at__isnull=True
-        )
-        return LabelAnnotationSerializer(label_annotations, many=True).data
 
 
 class ProblemInputSerializer(serializers.Serializer):

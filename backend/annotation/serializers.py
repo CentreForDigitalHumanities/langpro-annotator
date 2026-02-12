@@ -3,7 +3,6 @@ from rest_framework import serializers
 from django.contrib.auth.models import AnonymousUser
 
 from annotation.models import (
-    AnnotationSession,
     KnowledgeBaseAnnotation,
     Label,
     LabelAnnotation,
@@ -25,7 +24,7 @@ class AnnotationBaseSerializer(serializers.ModelSerializer):
     removedBy = serializers.PrimaryKeyRelatedField(
         source="removed_by", allow_null=True, read_only=True
     )
-    removable = serializers.SerializerMethodField()
+    removable = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = None  # To be set in subclasses
@@ -48,6 +47,13 @@ class AnnotationBaseSerializer(serializers.ModelSerializer):
 
 
 class KnowledgeBaseAnnotationSerializer(AnnotationBaseSerializer):
+    """
+    Serializer for the KnowledgeBaseAnnotation model.
+
+    Requires context to be set with the current user for determining
+    removability, e.g. KnowledgeBaseAnnotationSerializer(annotation, context={"user": request.user})
+    """
+
     id = serializers.IntegerField(required=False, allow_null=True)
     # Mark relationship as required. DRF thinks it is optional because it has a
     # default value in the model.
@@ -69,8 +75,7 @@ class KnowledgeBaseAnnotationSerializer(AnnotationBaseSerializer):
 
     def get_removable(self, annotation: KnowledgeBaseAnnotation) -> bool:
         """Determine if the KB annotation is removable by the current user."""
-        request = self.context.get("request")
-        user: User | AnonymousUser | None = request.user if request else None
+        user: User | AnonymousUser | None = self.context.get("user", None)
 
         if user is None or user.is_anonymous:
             return False
@@ -98,6 +103,9 @@ class LabelSerializer(serializers.ModelSerializer):
 class LabelAnnotationSerializer(AnnotationBaseSerializer):
     """
     Serializer for LabelAnnotation model.
+
+    Requires context to be set with the current user for determining
+    removability, e.g. LabelAnnotationSerializer(annotation, context={"user": request.user})
     """
 
     label = LabelSerializer(read_only=True)
@@ -107,8 +115,8 @@ class LabelAnnotationSerializer(AnnotationBaseSerializer):
         write_only=True,
         required=False,
     )
-    attachedByCurrentUser = serializers.SerializerMethodField()
-    removable = serializers.SerializerMethodField()
+    attachedByCurrentUser = serializers.SerializerMethodField(read_only=True)
+    removable = serializers.SerializerMethodField(read_only=True)
 
     class Meta(AnnotationBaseSerializer.Meta):
         model = LabelAnnotation
@@ -117,6 +125,7 @@ class LabelAnnotationSerializer(AnnotationBaseSerializer):
             "label",
             "label_id",
             "attachedByCurrentUser",
+            "removable",
         ] + AnnotationBaseSerializer.Meta.fields
 
     def get_attachedByCurrentUser(self, annotation: LabelAnnotation) -> bool:

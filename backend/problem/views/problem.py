@@ -3,6 +3,7 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.status import HTTP_201_CREATED, HTTP_200_OK
+from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 
 from django.shortcuts import get_object_or_404
 
@@ -12,7 +13,9 @@ from problem.problem_details import (
 )
 from problem.models import Problem
 from problem.serializers import ProblemInputSerializer, ProblemSerializer
-from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
+
+from annotation.models import KnowledgeBaseAnnotation, LabelAnnotation
+from annotation.serializers import KnowledgeBaseAnnotationSerializer, LabelAnnotationSerializer
 
 
 class CreateProblemPermission(IsAuthenticated):
@@ -92,9 +95,28 @@ class ProblemView(ModelViewSet):
 
         serializer = self.get_serializer(problem)
 
+        kb_annotations = KnowledgeBaseAnnotation.objects.filter(
+            problem=problem, removed_at__isnull=True
+        )
+        label_annotations = LabelAnnotation.objects.filter(
+            problem=problem, removed_at__isnull=True
+        )
+
+        # kbAnnotations and labelAnnotations are not included in the
+        # ProblemSerializer because they require additional context for
+        # determining removability, so we serialize them separately here with
+        # the proper context.
         return Response(
             {
-                "problem": serializer.data,
+                "problem": {
+                    **serializer.data,
+                    "kbAnnotations": KnowledgeBaseAnnotationSerializer(
+                        kb_annotations, context={"user": request.user}, many=True
+                    ).data,
+                    "labelAnnotations": LabelAnnotationSerializer(
+                        label_annotations, context={"user": request.user}, many=True
+                    ).data,
+                },
                 "index": problem_index,
                 "first": related_problem_ids.first,
                 "previous": related_problem_ids.previous,
@@ -122,7 +144,9 @@ class ProblemView(ModelViewSet):
     ) -> Response:
         input_data = request.data
 
-        serializer = ProblemInputSerializer(data=input_data, context={"request": request})
+        serializer = ProblemInputSerializer(
+            data=input_data, context={"request": request}
+        )
         serializer.is_valid(raise_exception=True)
         validated_input: dict = serializer.validated_data  # type: ignore
 
@@ -133,9 +157,7 @@ class ProblemView(ModelViewSet):
             problem_instance = get_object_or_404(
                 Problem, id=problem_id, dataset=Problem.Dataset.USER
             )
-            problem: Problem = serializer.update(
-                problem_instance, validated_input
-            )
+            problem: Problem = serializer.update(problem_instance, validated_input)
             status = HTTP_200_OK
 
         return Response({"id": problem.pk}, status=status)

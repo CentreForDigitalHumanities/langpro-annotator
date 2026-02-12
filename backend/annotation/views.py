@@ -113,6 +113,7 @@ class LabelAnnotationView(ModelViewSet):
 
             for label_id in labels_to_add:
                 serializer = LabelAnnotationSerializer(
+                    context={"user": user},
                     data={
                         "problem": problem.pk,
                         "label_id": label_id,

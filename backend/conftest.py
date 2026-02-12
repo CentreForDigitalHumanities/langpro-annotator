@@ -5,7 +5,7 @@ from django.test import Client as APIClient
 from django.contrib.auth.models import Group, Permission
 from rest_framework.test import APIClient as DRFAPIClient
 
-from annotation.models import AnnotationSession
+from annotation.models import AnnotationSession, KnowledgeBaseAnnotation, Label, LabelAnnotation
 from user.models import User, GroupName
 from user.permissions import ANNOTATOR_PERMISSIONS, MASTER_ANNOTATOR_PERMISSIONS
 from problem.models import Problem, Sentence
@@ -127,4 +127,35 @@ def annotation_session(db, annotator):
         user=annotator,
         created_at="2024-01-01T00:00:00Z",
         updated_at="2024-01-01T00:00:00Z",
+    )
+
+@pytest.fixture
+def kb_annotation(db, sample_problem, annotation_session):
+    return KnowledgeBaseAnnotation.objects.create(
+        problem=sample_problem,
+        entity1="e1",
+        entity2="e2",
+        relationship=KnowledgeBaseAnnotation.Relationship.EQUAL,
+        session=annotation_session,
+        created_at="2024-01-01T00:00:00Z",
+        created_by=annotation_session.user,
+    )
+
+
+@pytest.fixture
+def sample_label(db):
+    """Create a sample label for testing."""
+    return Label.objects.create(
+        text="Ambiguous", description="This problem contains ambiguous language."
+    )
+
+
+@pytest.fixture
+def label_annotation(db, sample_problem, annotation_session, sample_label):
+    """Create a label annotation for testing."""
+    return LabelAnnotation.objects.create(
+        problem=sample_problem,
+        label=sample_label,
+        session=annotation_session,
+        created_by=annotation_session.user,
     )

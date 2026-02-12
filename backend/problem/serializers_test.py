@@ -3,7 +3,7 @@ from rest_framework.exceptions import ValidationError
 
 from annotation.models import AnnotationSession, KnowledgeBaseAnnotation
 
-from .serializers import ProblemInputSerializer
+from .serializers import ProblemInputSerializer, ProblemSerializer
 from .models import Problem, Sentence
 
 
@@ -130,3 +130,16 @@ def test_blank_hypothesis_invalid():
     serializer = ProblemInputSerializer(data=data)
     assert not serializer.is_valid()
     assert "hypothesis" in serializer.errors
+
+@pytest.mark.django_db
+def test_annotation_fields(
+    sample_problem, annotation_session, kb_annotation, label_annotation
+):
+    """Test AnnotationSerializer returns both KB and label annotations."""
+    serializer = ProblemSerializer(sample_problem)
+    data: dict[str, Any] = serializer.data  # type: ignore
+
+    assert "kbAnnotations" in data
+    assert "labelAnnotations" in data
+    assert len(data["kbAnnotations"]) > 0
+    assert len(data["labelAnnotations"]) > 0

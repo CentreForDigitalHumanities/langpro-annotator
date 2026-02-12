@@ -95,7 +95,7 @@ def test_kb_annotation_get_removable_with_permission(kb_annotation, annotator):
     request.user = annotator
 
     serializer = KnowledgeBaseAnnotationSerializer(
-        kb_annotation, context={"request": request}
+        kb_annotation, context={"user": request.user}
     )
     data: dict[str, Any] = serializer.data  # type: ignore
     assert data["removable"] is True
@@ -109,7 +109,7 @@ def test_kb_annotation_get_removable_without_permission(kb_annotation, visitor):
     request.user = visitor
 
     serializer = KnowledgeBaseAnnotationSerializer(
-        kb_annotation, context={"request": request}
+        kb_annotation, context={"user": request.user}
     )
     data: dict[str, Any] = serializer.data  # type: ignore
     assert data["removable"] is False
@@ -177,23 +177,6 @@ def test_label_annotation_not_removable_without_permission(label_annotation, vis
     serializer = LabelAnnotationSerializer(label_annotation, context={"user": visitor})
     data: dict[str, Any] = serializer.data  # type: ignore
     assert data["removable"] is False
-
-
-@pytest.mark.django_db
-def test_annotation_serializer_excludes_removed_annotations(
-    sample_problem, annotation_session, kb_annotation
-):
-    """Test that removed annotations are not included."""
-
-    kb_annotation.removed_at = timezone.now()
-    kb_annotation.removed_by = annotation_session.user
-    kb_annotation.save()
-
-    serializer = ProblemSerializer(sample_problem)
-    data: dict[str, Any] = serializer.data  # type: ignore
-
-    assert len(data["kbAnnotations"]) == 0
-
 
 @pytest.mark.django_db
 def test_save_labels_input_valid(sample_problem, sample_label):

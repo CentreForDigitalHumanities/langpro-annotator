@@ -1,4 +1,4 @@
-import { Component, input, OnInit, signal } from '@angular/core';
+import { Component, computed, input } from '@angular/core';
 import { BinaryNode, LeafNode, ParseTree, ParseTreeNode, ParseTreeType, UnaryNode, VariableNode } from '../types';
 import { SubscriptAngleBracketsPipe } from './subscript-angle-brackets.pipe';
 import { ParseTreeHighlightDirective } from './parse-tree-highlight.directive';
@@ -42,15 +42,13 @@ const TreeTypeDisplay: Record<ParseTreeType, string> = {
     templateUrl: './parse-tree-table.component.html',
     styleUrl: './parse-tree-table.component.scss'
 })
-export class ParseTreeTableComponent implements OnInit {
+export class ParseTreeTableComponent {
     public readonly tree = input.required<ParseTree>();
 
-    public readonly tableRows = signal<TableCell[][]>([]);
-
-    ngOnInit(): void {
+    public readonly tableRows = computed<TableCell[][]>(() => {
         const root = this.tree().root;
-        this.tableRows.set(this.createTableRows(root));
-    }
+        return this.createTableRows(root);
+    });
 
     public getTreeTypeDisplay(type: ParseTreeType): string {
         return TreeTypeDisplay[type] || "Unknown Type";

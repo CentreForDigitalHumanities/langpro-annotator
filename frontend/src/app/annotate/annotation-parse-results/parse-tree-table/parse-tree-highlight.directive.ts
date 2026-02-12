@@ -13,6 +13,8 @@ interface CellPosition {
 })
 export class ParseTreeHighlightDirective implements AfterViewInit, OnDestroy {
     private cellPositions: CellPosition[] = [];
+    // Lists 'unlisten' functions returned by Renderer2, used to clean up event
+    // listeners on destroy.
     private listeners: (() => void)[] = [];
 
     constructor(

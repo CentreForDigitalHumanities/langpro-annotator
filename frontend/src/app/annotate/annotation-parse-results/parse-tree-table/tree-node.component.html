@@ -1,0 +1,48 @@
+@let hasChildren = node().children.length > 0;
+<div
+    class="tree-node d-flex flex-column"
+    [class.terminal-node]="!hasChildren"
+>
+    @if (hasChildren) {
+    <div class="d-flex">
+        @for (childRow of node().children; track $index) {
+        <la-tree-node [node]="childRow" />
+        }
+    </div>
+    }
+
+    <div class="node-content d-flex flex-column align-items-center p-2 gap-1">
+        @if (node().rule) {
+        <span class="badge rounded-pill text-bg-secondary mt-2">
+            {{ node().rule }}
+        </span>
+        } @switch (node().type) { @case ('leaf') {
+        <div class="d-flex flex-column align-items-center gap-2">
+            <div class="h5 mb-0">
+                <strong>{{ node().leaf?.lem }}</strong>
+            </div>
+            <div class="text-secondary">
+                <small>{{ node().leaf?.tok }}</small>
+                <br />
+                <small>{{ node().leaf?.pos }}</small>
+                <br />
+                <small>{{ node().leaf?.ner }}</small>
+            </div>
+            <div [innerHTML]="node().content | subscriptAngleBrackets"></div>
+        </div>
+        } @case ('var') {
+        <div class="d-flex flex-column gap-1">
+            <strong class="h5 fw-bold mb-0">
+                {{ node().content }}
+            </strong>
+            <br />
+            <span>{{ node().var?.typeInfo }}</span>
+        </div>
+        } @case ('node') {
+        <p
+            class="mb-0"
+            [innerHTML]="node().content | subscriptAngleBrackets"
+        ></p>
+        } }
+    </div>
+</div>

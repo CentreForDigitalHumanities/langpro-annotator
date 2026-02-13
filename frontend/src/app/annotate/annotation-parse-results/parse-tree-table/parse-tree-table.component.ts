@@ -1,32 +1,6 @@
 import { Component, computed, input } from '@angular/core';
 import { BinaryNode, LeafNode, ParseTree, ParseTreeNode, ParseTreeType, UnaryNode, VariableNode } from '../types';
-import { SubscriptAngleBracketsPipe } from './subscript-angle-brackets.pipe';
-import { ParseTreeHighlightDirective } from './parse-tree-highlight.directive';
-
-interface BaseCell {
-    content: string;
-    rule?: string;
-    colspan: number;
-}
-
-interface NodeCell extends BaseCell {
-    type: "node";
-}
-
-interface LeafCell extends BaseCell {
-    type: "leaf";
-    tok: string;
-    lem: string;
-    pos: string;
-    ner: string;
-}
-
-interface VarCell extends BaseCell {
-    type: "var";
-    typeInfo: string;
-}
-
-type TableCell = NodeCell | LeafCell | VarCell;
+import { TreeNodeComponent, TreeNodeDisplay } from './tree-node.component';
 
 const TreeTypeDisplay: Record<ParseTreeType, string> = {
     [ParseTreeType.CCG_DERIVATION]: 'CCG Derivation',
@@ -38,23 +12,22 @@ const TreeTypeDisplay: Record<ParseTreeType, string> = {
 
 @Component({
     selector: 'la-parse-tree-table',
-    imports: [SubscriptAngleBracketsPipe, ParseTreeHighlightDirective],
+    imports: [TreeNodeComponent],
     templateUrl: './parse-tree-table.component.html',
     styleUrl: './parse-tree-table.component.scss'
 })
 export class ParseTreeTableComponent {
     public readonly tree = input.required<ParseTree>();
 
-    public readonly tableRows = computed<TableCell[][]>(() => {
-        const root = this.tree().root;
-        return this.createTableRows(root);
+    public readonly rootNode = computed<TreeNodeDisplay>(() => {
+        return this.buildDisplayTree(this.tree().root);
     });
 
-    public getTreeTypeDisplay(type: ParseTreeType): string {
-        return TreeTypeDisplay[type] || "Unknown Type";
-    }
+    public treeType = computed(() => {
+        return TreeTypeDisplay[this.tree().type] || "Unknown Type";
+    });
 
-    private createTableRows(node: ParseTreeNode): TableCell[][] {
+    private buildDisplayTree(node: ParseTreeNode): TreeNodeDisplay {
         switch (node.type) {
             case 'leaf':
                 return this.buildLeafNode(node);
@@ -67,73 +40,52 @@ export class ParseTreeTableComponent {
         }
     }
 
-    private getRowWidth(row: TableCell[]): number {
-        return row.reduce((sum, cell) => sum + cell.colspan, 0);
-    }
-
-    private buildLeafNode(node: LeafNode): TableCell[][] {
-        return [[{
-            ...node,
+    private buildLeafNode(node: LeafNode): TreeNodeDisplay {
+        return {
+            type: 'leaf',
             content: node.cat,
-            colspan: 1,
-        }]];
+            children: [],
+            leaf: {
+                tok: node.tok,
+                lem: node.lem,
+                pos: node.pos,
+                ner: node.ner
+            }
+        };
     }
 
-    private buildVariableNode(node: VariableNode): TableCell[][] {
-        return [[{
-            type: "var",
-            colspan: 1,
+    private buildVariableNode(node: VariableNode): TreeNodeDisplay {
+        return {
+            type: 'var',
             content: node.name,
-            typeInfo: node.typeInfo
-        }]];
+            children: [],
+            var: {
+                typeInfo: node.typeInfo
+            }
+        };
     }
 
-    private buildBinaryNode(node: BinaryNode): TableCell[][] {
-        const leftRows = this.createTableRows(node.left);
-        const rightRows = this.createTableRows(node.right);
+    private buildBinaryNode(node: BinaryNode): TreeNodeDisplay {
+        const left = this.buildDisplayTree(node.left);
+        const right = this.buildDisplayTree(node.right);
 
-        // Pad shorter side with empty rows
-        const maxRows = Math.max(leftRows.length, rightRows.length);
-
-        while (leftRows.length < maxRows) {
-            const previousRow = leftRows[leftRows.length - 1];
-            const leftWidth = previousRow ? this.getRowWidth(previousRow) : 1;
-            leftRows.push([{ content: '', colspan: leftWidth, type: "node" }]);
-        }
-        while (rightRows.length < maxRows) {
-            const previousRow = rightRows[rightRows.length - 1];
-            const rightWidth = previousRow ? this.getRowWidth(previousRow) : 1;
-            rightRows.push([{ content: '', colspan: rightWidth, type: "node" }]);
-        }
-
-        // Combine rows horizontally
-        const combinedRows: TableCell[][] = [];
-        for (let i = 0; i < maxRows; i++) {
-            combinedRows.push([...leftRows[i], ...rightRows[i]]);
-        }
-
-        // Add parent node row
-        const binaryTotalWidth = this.getRowWidth(combinedRows[0]);
-        combinedRows.push([{
+        return {
+            type: 'node',
             content: node.cat,
             rule: node.rule,
-            colspan: binaryTotalWidth,
-            type: "node"
-        }]);
-
-        return combinedRows;
+            children: [left, right]
+        };
     }
 
-    private buildUnaryNode(node: UnaryNode): TableCell[][] {
-        const childRows = this.createTableRows(node.child);
-        const unaryTotalWidth = this.getRowWidth(childRows[0]);
-        childRows.push([{
+    private buildUnaryNode(node: UnaryNode): TreeNodeDisplay {
+        const child = this.buildDisplayTree(node.child);
+
+        return {
+            type: 'node',
             content: node.cat,
             rule: node.rule,
-            colspan: unaryTotalWidth,
-            type: "node"
-        }]);
-        return childRows;
+            children: [child]
+        };
     }
 
 }

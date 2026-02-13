@@ -1,0 +1,22 @@
+.tree-node {
+    transition: background-color 0.2s ease;
+    min-height: 10em;
+    text-align: center;
+
+    &:hover:not(:has(.tree-node:hover)) {
+        background-color: var(--bs-yellow);
+
+        .tree-node {
+            background-color: var(--bs-yellow);
+        }
+    }
+}
+
+:not(.terminal-node) > .node-content {
+    border-top: 1px solid var(--bs-gray-500);
+}
+
+.terminal-node {
+    background-color: var(--bs-light);
+    min-width: 5rem;
+}

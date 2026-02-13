@@ -1,68 +1,10 @@
 <div class="border border-secondary rounded overflow-hidden">
     <div class="card-header text-bg-secondary p-3">
-        <h3 class="h5 fw-bold">{{ getTreeTypeDisplay(tree().type) }}</h3>
+        <h3 class="h5 fw-bold">{{ treeType() }}</h3>
     </div>
     <div class="p-4">
-        <table class="parse-tree-table" laParseTreeHighlight>
-            <tbody>
-                @for (row of tableRows(); track $index) {
-                <tr>
-                    @for (cell of row; track $index) {
-                    <td
-                        [attr.colspan]="cell.colspan"
-                        class="p-2 align-top text-center border"
-                        [class]="cell.type + '-cell'"
-                    >
-                        @if (cell.rule) {
-                            <span class="badge rounded pill text-bg-secondary">
-                                {{ cell.rule }}
-                            </span>
-                        }
-
-                        @switch (cell.type) {
-                            @case ('leaf') {
-                            <div class="d-flex flex-column align-items-center gap-2">
-                                <div class="h5 mb-0">
-                                    <strong>{{ cell.lem }}</strong>
-                                </div>
-                                <div class="text-secondary">
-                                    <small>{{ cell.tok }}</small>
-                                    <br />
-                                    <small>{{ cell.pos }}</small>
-                                    <br />
-                                    <small>{{ cell.ner }}</small>
-                                </div>
-                                <div
-                                    class="category"
-                                    [innerHTML]="
-                                        cell.content | subscriptAngleBrackets
-                                    "
-                                ></div>
-                            </div>
-                            }
-
-                            @case ('var') {
-                            <div class="d-flex flex-column gap-1">
-                                <strong class="h5 fw-bold mb-0">
-                                    {{ cell.content }}
-                                </strong>
-                                <br />
-                                <span>{{ cell.typeInfo }}</span>
-                            </div>
-                            }
-
-                            @case ('node') {
-                                <p
-                                    class="mb-0"
-                                    [innerHTML]="cell.content | subscriptAngleBrackets"
-                                ></p>
-                            }
-                        }
-                    </td>
-                    }
-                </tr>
-                }
-            </tbody>
-        </table>
+        <div class="d-flex border border-secondary">
+            <la-tree-node [node]="rootNode()" />
+        </div>
     </div>
 </div>

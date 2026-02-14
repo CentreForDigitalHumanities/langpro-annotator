@@ -19,13 +19,9 @@ const TreeTypeDisplay: Record<ParseTreeType, string> = {
 export class ParseTreeTableComponent {
     public readonly tree = input.required<ParseTree>();
 
-    public readonly rootNode = computed<TreeNodeDisplay>(() => {
-        return this.buildDisplayTree(this.tree().root);
-    });
+    public rootNode = computed(() => this.buildDisplayTree(this.tree().root));
 
-    public treeType = computed(() => {
-        return TreeTypeDisplay[this.tree().type] || "Unknown Type";
-    });
+    public treeType = computed(() => TreeTypeDisplay[this.tree().type] || "Unknown Type");
 
     private buildDisplayTree(node: ParseTreeNode): TreeNodeDisplay {
         switch (node.type) {

@@ -3,6 +3,8 @@
     min-height: 10em;
     text-align: center;
 
+    // Only highlight the current hovered node
+    // and its children, not its ancestors.
     &:hover:not(:has(.tree-node:hover)) {
         background-color: var(--bs-yellow);
 

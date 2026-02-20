@@ -4,7 +4,7 @@ import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
 import { Label, LabelAnnotation } from "@/types";
 import { ProblemService } from "@/services/problem.service";
 import { AuthService } from "@/services/auth.service";
-import { BehaviorSubject } from "rxjs";
+import { BehaviorSubject, Observable } from "rxjs";
 
 describe("ManageLabelsModalComponent", () => {
     let component: ManageLabelsModalComponent;
@@ -90,13 +90,9 @@ describe("ManageLabelsModalComponent", () => {
     });
 
     it("should populate availableLabels$ with all labels initially", fakeAsync(() => {
-        let availableLabels: Label[] = [];
-        component.availableLabels$.subscribe(labels => {
-            availableLabels = labels;
-        });
-        tick();
+        const availableLabels = getSubscriptionValue(component.availableLabels$);
 
-        expect(availableLabels.length).toBe(3);
+        expect(availableLabels?.length).toBe(3);
         expect(availableLabels).toContain(testLabel1);
         expect(availableLabels).toContain(testLabel2);
         expect(availableLabels).toContain(testLabel3);
@@ -106,13 +102,9 @@ describe("ManageLabelsModalComponent", () => {
         component.form.controls.selectedLabelIds.setValue([1, 2]);
         tick();
 
-        let availableLabels: Label[] = [];
-        component.availableLabels$.subscribe(labels => {
-            availableLabels = labels;
-        });
-        tick();
+        const availableLabels = getSubscriptionValue(component.availableLabels$);
 
-        expect(availableLabels.length).toBe(1);
+        expect(availableLabels?.length).toBe(1);
         expect(availableLabels).toContain(testLabel3);
         expect(availableLabels).not.toContain(testLabel1);
         expect(availableLabels).not.toContain(testLabel2);
@@ -145,17 +137,13 @@ describe("ManageLabelsModalComponent", () => {
         component.form.controls.selectedLabelIds.setValue([testLabel1.id]);
         tick();
 
-        let shownLabels: LabelAnnotation[] = [];
-        component.shownLabels$.subscribe(labels => {
-            shownLabels = labels;
-        });
-        tick();
+        const shownLabels = getSubscriptionValue(component.shownLabels$);
 
-        expect(shownLabels.length).toBe(1);
-        expect(shownLabels[0].label).toEqual(testLabel1);
-        expect(shownLabels[0].id).toBeNull();
-        expect(shownLabels[0].attachedByCurrentUser).toBe(true);
-        expect(shownLabels[0].createdBy).toBe("Current User");
+        expect(shownLabels?.length).toBe(1);
+        expect(shownLabels?.[0].label).toEqual(testLabel1);
+        expect(shownLabels?.[0].id).toBeNull();
+        expect(shownLabels?.[0].attachedByCurrentUser).toBe(true);
+        expect(shownLabels?.[0].createdBy).toBe("Current User");
     }));
 
     it("should preserve existing LabelAnnotation objects in shownLabels$", fakeAsync(() => {
@@ -163,16 +151,12 @@ describe("ManageLabelsModalComponent", () => {
         component.form.controls.selectedLabelIds.setValue([testLabel1.id]);
         tick();
 
-        let shownLabels: LabelAnnotation[] = [];
-        component.shownLabels$.subscribe(labels => {
-            shownLabels = labels;
-        });
-        tick();
+        const shownLabels = getSubscriptionValue(component.shownLabels$);
 
-        expect(shownLabels.length).toBe(1);
-        expect(shownLabels[0]).toBe(testAttachedLabel);
-        expect(shownLabels[0].id).toBe(999);
-        expect(shownLabels[0].createdBy).toBe("Other User");
+        expect(shownLabels?.length).toBe(1);
+        expect(shownLabels?.[0]).toBe(testAttachedLabel);
+        expect(shownLabels?.[0].id).toBe(999);
+        expect(shownLabels?.[0].createdBy).toBe("Other User");
     }));
 
     it("should close modal with transformed data", () => {
@@ -211,21 +195,13 @@ describe("ManageLabelsModalComponent", () => {
         component.form.controls.selectedLabelIds.setValue([testLabel1.id]);
         tick();
 
-        let shownLabels: LabelAnnotation[] = [];
-        component.shownLabels$.subscribe(labels => {
-            shownLabels = labels;
-        });
-        tick();
+        const shownLabels = getSubscriptionValue(component.shownLabels$);
 
-        expect(shownLabels[0].createdBy).toBe("Unknown user");
+        expect(shownLabels?.[0].createdBy).toBe("Unknown user");
     }));
 
     it("should set loadingLabels$ to false after labels are available", fakeAsync(() => {
-        let loading = true;
-        component.loadingLabels$.subscribe(isLoading => {
-            loading = isLoading;
-        });
-        tick();
+        const loading = getSubscriptionValue(component.loadingLabels$);
 
         expect(loading).toBe(false);
     }));
@@ -248,12 +224,21 @@ describe("ManageLabelsModalComponent", () => {
         component.form.controls.selectedLabelIds.setValue([999]); // Non-existent label ID
         tick();
 
-        let shownLabels: LabelAnnotation[] = [];
-        component.shownLabels$.subscribe(labels => {
-            shownLabels = labels;
-        });
-        tick();
+        const shownLabels = getSubscriptionValue(component.shownLabels$);
 
-        expect(shownLabels.length).toBe(0);
+        expect(shownLabels?.length).toBe(0);
     }));
 });
+
+/**
+ * Subscribe to an observable and update the provided value variable with
+ * emitted values.
+ */
+function getSubscriptionValue<T>(observ: Observable<T>): T | undefined {
+    let value: T | undefined;
+    observ.subscribe(val => {
+        value = val;
+    });
+    tick();
+    return value;
+}

@@ -30,6 +30,7 @@ function sum(list: number[]) {
 
 /**
  * Format a date string into a human-readable format.
+ * Uses en-GB locale for consistent formatting across environments.
  */
 function formatDate(date: string | null | undefined): string {
     if (!date) {
@@ -39,7 +40,7 @@ function formatDate(date: string | null | undefined): string {
     if (isNaN(dateObj.getTime())) {
         return '';
     }
-    return Intl.DateTimeFormat(undefined, { year: 'numeric', month: 'long', day: 'numeric' }).format(dateObj);
+    return Intl.DateTimeFormat('en-GB', { year: 'numeric', month: 'long', day: 'numeric' }).format(dateObj);
 }
 
 export { sum, formatDate, sortAnnotations, getLabelTooltipText };

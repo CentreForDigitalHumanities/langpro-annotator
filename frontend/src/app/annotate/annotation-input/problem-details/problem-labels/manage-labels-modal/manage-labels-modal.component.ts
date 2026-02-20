@@ -5,10 +5,10 @@ import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { ProblemService } from '@/services/problem.service';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { AuthService } from '@/services/auth.service';
-import { map, combineLatest, Subject, startWith, defer, Observable } from 'rxjs';
+import { map, combineLatest, Subject, startWith, defer, Observable, filter } from 'rxjs';
 import { AsyncPipe } from '@angular/common';
 import { formatDate } from '@/util';
-import { LabelAnnotation } from '@/types';
+import { Label, LabelAnnotation } from '@/types';
 
 type SelectedLabelsForm = FormGroup<{
     problemId: FormControl<number>;
@@ -47,55 +47,20 @@ export class ManageLabelsModalComponent implements OnInit {
         startWith(this.form.controls.selectedLabelIds.value),
     ));
 
-    /** Combines selected IDs with existing annotations and all labels to show what's selected */
-    public shownLabels$: Observable<LabelAnnotation[]> = combineLatest([
-        this.allLabels$,
+    public allLabelsAndSelectedIds = combineLatest([
+        this.allLabels$.pipe(filter(labels => labels.length > 0)),
         this.selectedLabelIds$
-    ]).pipe(
-        map(([allLabels, selectedIds]) => {
-            if (!allLabels) {
-                return [];
-            }
-            // Show existing annotations that are still selected, plus new ones
-            return selectedIds.map(labelId => {
-                const existing = this.currentAnnotations.find(a => a.label.id === labelId);
-                if (existing) {
-                    return existing;
-                }
-                // Create a simple display object for newly selected labels
-                const label = allLabels.find(l => l.id === labelId);
-                if (!label) {
-                    return null;
-                }
+    ]);
 
-                const newAnnotation: LabelAnnotation = {
-                    id: null,
-                    label,
-                    createdAt: new Date().toISOString(),
-                    createdBy: this.currentUserName() ?? $localize`Unknown user`,
-                    attachedByCurrentUser: true,
-                    session: null,
-                    removedAt: null,
-                    removedBy: null,
-                    notes: '',
-                    removable: true,
-
-                };
-                return newAnnotation;
-            }).filter((a) => a !== null);
-        })
+    /**
+     * Turns selected label IDs into objects that are used in the template.
+    */
+    public shownLabels$: Observable<LabelAnnotation[]> = this.allLabelsAndSelectedIds.pipe(
+        map(([allLabels, selectedIds]) => this.convertSelectedIdsToAnnotations(selectedIds, allLabels)),
     );
 
-    public availableLabels$ = combineLatest([
-        this.allLabels$,
-        this.selectedLabelIds$
-    ]).pipe(
-        map(([allLabels, selectedIds]) => {
-            if (!allLabels) {
-                return [];
-            }
-            return allLabels.filter(label => !selectedIds.includes(label.id));
-        })
+    public availableLabels$ = this.allLabelsAndSelectedIds.pipe(
+        map(([allLabels, selectedIds]) => allLabels.filter(label => !selectedIds.includes(label.id))),
     );
 
     public loadingLabels$ = this.availableLabels$.pipe(
@@ -146,4 +111,42 @@ export class ManageLabelsModalComponent implements OnInit {
     private currentUserName = toSignal(
         this.authService.currentUser$.pipe(map((user) => user?.username))
     );
+
+    private convertSelectedIdsToAnnotations(selectedIds: number[], allLabels: Label[]): LabelAnnotation[] {
+        const existingAnnotationMap = new Map(
+            this.currentAnnotations.map(a => [a.label.id, a])
+        );
+        const allLabelsMap = new Map(allLabels.map(l => [l.id, l]));
+        const currentUser = this.currentUserName() ?? $localize`Unknown user`;
+
+        return selectedIds.map(labelId => {
+            // Try to find existing annotation first
+            const existing = existingAnnotationMap.get(labelId);
+            if (existing) {
+                return existing;
+            }
+
+            return this.createAnnotationForId(labelId, allLabelsMap, currentUser);
+        }).filter(annotation => annotation !== null);
+    }
+
+    private createAnnotationForId(labelId: number, allLabels: Map<number, Label>, currentUser: string): LabelAnnotation | null {
+        const label = allLabels.get(labelId);
+        if (!label) {
+            return null;
+        }
+
+        return {
+            id: null,
+            label,
+            createdAt: new Date().toISOString(),
+            createdBy: currentUser,
+            attachedByCurrentUser: true,
+            session: null,
+            removedAt: null,
+            removedBy: null,
+            notes: '',
+            removable: true,
+        } as LabelAnnotation;
+    }
 }

@@ -15,14 +15,14 @@ from problem.serializers import ProblemSerializer
 
 
 @pytest.mark.django_db
-def test_invalid_kb_item_id(annotation_session, sample_problem):
+def test_invalid_kb_item_id(annotator_session, sample_problem):
     """Test that a non-existent kbItem ID is invalid."""
     data = {
         "id": 9999,
         "relationship": "equal",
         "entity1": "e1",
         "entity2": "e2",
-        "session": annotation_session.pk,
+        "session": annotator_session.pk,
         "problem": sample_problem.pk,
     }
     serializer = KnowledgeBaseAnnotationSerializer(data=data)
@@ -31,13 +31,13 @@ def test_invalid_kb_item_id(annotation_session, sample_problem):
 
 
 @pytest.mark.django_db
-def test_valid_kb_annotation_data(annotation_session, sample_problem):
+def test_valid_kb_annotation_data(annotator_session, sample_problem):
     """Test that valid KB annotation data is accepted."""
     data = {
         "relationship": "equal",
         "entity1": "cat",
         "entity2": "feline",
-        "session": annotation_session.pk,
+        "session": annotator_session.pk,
         "problem": sample_problem.pk,
     }
     serializer = KnowledgeBaseAnnotationSerializer(data=data)
@@ -142,6 +142,25 @@ def test_label_annotation_removable_by_creator(label_annotation, annotator):
 
 
 @pytest.mark.django_db
+def test_label_annotation_not_removable_by_non_creator(
+    label_annotation, annotator, master_annotator
+):
+    """Test that a regular Annotator user cannot remove annotation they did not create."""
+    perm = Permission.objects.get(codename="delete_own_labelannotation")
+    annotator.user_permissions.add(perm)
+
+    # Change the creator to a different user
+    label_annotation.created_by = master_annotator
+    label_annotation.save()
+
+    serializer = LabelAnnotationSerializer(
+        label_annotation, context={"user": annotator}
+    )
+    data: dict[str, Any] = serializer.data  # type: ignore
+    assert data["removable"] is False
+
+
+@pytest.mark.django_db
 def test_label_annotation_removable_by_master(label_annotation, master_annotator):
     """Test that master annotator can remove any annotation."""
     serializer = LabelAnnotationSerializer(
@@ -157,6 +176,7 @@ def test_label_annotation_not_removable_without_permission(label_annotation, vis
     serializer = LabelAnnotationSerializer(label_annotation, context={"user": visitor})
     data: dict[str, Any] = serializer.data  # type: ignore
     assert data["removable"] is False
+
 
 @pytest.mark.django_db
 def test_save_labels_input_valid(sample_problem, sample_label):

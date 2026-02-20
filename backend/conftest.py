@@ -5,7 +5,12 @@ from django.test import Client as APIClient
 from django.contrib.auth.models import Group, Permission
 from rest_framework.test import APIClient as DRFAPIClient
 
-from annotation.models import AnnotationSession, KnowledgeBaseAnnotation, Label, LabelAnnotation
+from annotation.models import (
+    AnnotationSession,
+    KnowledgeBaseAnnotation,
+    Label,
+    LabelAnnotation,
+)
 from user.models import User, GroupName
 from user.permissions import ANNOTATOR_PERMISSIONS, MASTER_ANNOTATOR_PERMISSIONS
 from problem.models import Problem, Sentence
@@ -120,8 +125,9 @@ def sample_problem(db):
     problem.premises.add(premise)
     return problem
 
+
 @pytest.fixture
-def annotation_session(db, annotator):
+def annotator_session(db, annotator):
     """Annotation session for a user with the 'Annotator' role."""
     return AnnotationSession.objects.create(
         user=annotator,
@@ -129,16 +135,27 @@ def annotation_session(db, annotator):
         updated_at="2024-01-01T00:00:00Z",
     )
 
+
 @pytest.fixture
-def kb_annotation(db, sample_problem, annotation_session):
+def master_annotator_session(db, master_annotator):
+    """Creates an annotation session for the master annotator."""
+    return AnnotationSession.objects.create(
+        user=master_annotator,
+        created_at="2024-01-01T00:00:00Z",
+        updated_at="2024-01-01T00:00:00Z",
+    )
+
+
+@pytest.fixture
+def kb_annotation(db, sample_problem, annotator_session):
     return KnowledgeBaseAnnotation.objects.create(
         problem=sample_problem,
         entity1="e1",
         entity2="e2",
         relationship=KnowledgeBaseAnnotation.Relationship.EQUAL,
-        session=annotation_session,
+        session=annotator_session,
         created_at="2024-01-01T00:00:00Z",
-        created_by=annotation_session.user,
+        created_by=annotator_session.user,
     )
 
 
@@ -151,11 +168,11 @@ def sample_label(db):
 
 
 @pytest.fixture
-def label_annotation(db, sample_problem, annotation_session, sample_label):
+def label_annotation(db, sample_problem, annotator_session, sample_label):
     """Create a label annotation for testing."""
     return LabelAnnotation.objects.create(
         problem=sample_problem,
         label=sample_label,
-        session=annotation_session,
-        created_by=annotation_session.user,
+        session=annotator_session,
+        created_by=annotator_session.user,
     )

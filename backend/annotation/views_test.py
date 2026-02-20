@@ -23,19 +23,9 @@ def another_label(db):
 
 
 @pytest.fixture
-def annotator_session(db, annotator):
-    """Creates an annotation session for the annotator."""
-    return AnnotationSession.objects.create(user=annotator)
-
-
-@pytest.fixture
-def master_annotator_session(db, master_annotator):
-    """Creates an annotation session for the master annotator."""
-    return AnnotationSession.objects.create(user=master_annotator)
-
-
-@pytest.fixture
-def label_annotation_by_annotator(db, sample_problem, sample_label, annotator, annotator_session):
+def label_annotation_by_annotator(
+    db, sample_problem, sample_label, annotator, annotator_session
+):
     """Creates a label_annotation attached by an annotator."""
     return LabelAnnotation.objects.create(
         problem=sample_problem,
@@ -46,7 +36,9 @@ def label_annotation_by_annotator(db, sample_problem, sample_label, annotator, a
 
 
 @pytest.fixture
-def label_annotation_by_master(db, sample_problem, another_label, master_annotator, master_annotator_session):
+def label_annotation_by_master(
+    db, sample_problem, another_label, master_annotator, master_annotator_session
+):
     """Creates a label_annotation attached by a master annotator."""
     return LabelAnnotation.objects.create(
         problem=sample_problem,
@@ -211,7 +203,11 @@ class TestRemoveLabelAnnotationPermissions:
         assert label_annotation_by_master.removed_at is not None
 
     def test_master_annotator_can_remove_others_label_annotation(
-        self, api_client, master_annotator, sample_problem, label_annotation_by_annotator
+        self,
+        api_client,
+        master_annotator,
+        sample_problem,
+        label_annotation_by_annotator,
     ):
         """Master annotators should be able to remove labels attached by others."""
         api_client.force_authenticate(user=master_annotator)

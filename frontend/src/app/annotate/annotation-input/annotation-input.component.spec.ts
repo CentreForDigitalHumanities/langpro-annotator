@@ -53,37 +53,35 @@ describe("AnnotationInputComponent", () => {
                 premises: ["First premise", "Second premise"],
                 hypothesis: "Test hypothesis",
                 entailmentLabel: EntailmentLabel.ENTAILMENT,
-                annotations: {
-                    kbAnnotations: [
-                        {
-                            id: 456,
-                            entity1: "cat",
-                            entity2: "animal",
-                            relationship: KnowledgeBaseRelationship.SUBSET,
-                            createdAt: "",
-                            createdBy: "",
-                            removedAt: null,
-                            removedBy: null,
-                            notes: "",
-                            session: null,
-                            removable: true
-                        },
-                        {
-                            id: 789,
-                            entity1: "dog",
-                            entity2: "pet",
-                            relationship: KnowledgeBaseRelationship.EQUAL,
-                            createdAt: "",
-                            createdBy: "",
-                            removedAt: null,
-                            removedBy: null,
-                            notes: "",
-                            session: null,
-                            removable: true
-                        }
-                    ],
-                    labelAnnotations: []
-                },
+                kbAnnotations: [
+                    {
+                        id: 456,
+                        entity1: "cat",
+                        entity2: "animal",
+                        relationship: KnowledgeBaseRelationship.SUBSET,
+                        createdAt: "",
+                        createdBy: "",
+                        removedAt: null,
+                        removedBy: null,
+                        notes: "",
+                        session: null,
+                        removable: true
+                    },
+                    {
+                        id: 789,
+                        entity1: "dog",
+                        entity2: "pet",
+                        relationship: KnowledgeBaseRelationship.EQUAL,
+                        createdAt: "",
+                        createdBy: "",
+                        removedAt: null,
+                        removedBy: null,
+                        notes: "",
+                        session: null,
+                        removable: true
+                    }
+                ],
+                labelAnnotations: [],
                 dataset: Dataset.USER,
                 extraData: null
             };
@@ -126,10 +124,8 @@ describe("AnnotationInputComponent", () => {
                 premises: [],
                 hypothesis: "Empty test hypothesis",
                 entailmentLabel: EntailmentLabel.NEUTRAL,
-                annotations: {
-                    kbAnnotations: [],
-                    labelAnnotations: []
-                },
+                kbAnnotations: [],
+                labelAnnotations: [],
                 dataset: Dataset.USER,
                 extraData: null
             };
@@ -152,11 +148,8 @@ describe("AnnotationInputComponent", () => {
                 entailmentLabel: EntailmentLabel.CONTRADICTION,
                 dataset: Dataset.USER,
                 extraData: null,
-                annotations: {
-                    kbAnnotations: [],
-                    labelAnnotations: [],
-
-                },
+                kbAnnotations: [],
+                labelAnnotations: [],
             };
 
             const form = component['buildForm'](mockProblem);
@@ -178,11 +171,8 @@ describe("AnnotationInputComponent", () => {
                 entailmentLabel: EntailmentLabel.UNKNOWN,
                 dataset: Dataset.USER,
                 extraData: null,
-                annotations: {
-                    kbAnnotations: [],
-                    labelAnnotations: [],
-
-                }
+                kbAnnotations: [],
+                labelAnnotations: [],
             };
 
             component['navigateToNewProblem'](mockProblem);
@@ -202,10 +192,8 @@ describe("AnnotationInputComponent", () => {
                 entailmentLabel: EntailmentLabel.UNKNOWN,
                 dataset: Dataset.USER,
                 extraData: null,
-                annotations: {
-                    kbAnnotations: [],
-                    labelAnnotations: [],
-                }
+                kbAnnotations: [],
+                labelAnnotations: [],
             };
 
             component['navigateToNewProblem'](mockProblem);

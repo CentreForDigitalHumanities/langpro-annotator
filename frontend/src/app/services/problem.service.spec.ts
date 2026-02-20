@@ -58,7 +58,8 @@ describe("ProblemService", () => {
                         pairId: 1,
                         relatednessScore: 4.5
                     },
-                    annotations: null,
+                    kbAnnotations: [],
+                    labelAnnotations: [],
                 },
                 index: 1,
                 total: 1,

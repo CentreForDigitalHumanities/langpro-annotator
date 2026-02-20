@@ -17,7 +17,8 @@ const createMockProblem = (
     premises: ["premise"],
     hypothesis: "hypothesis",
     extraData,
-    annotations: null,
+    kbAnnotations: [],
+    labelAnnotations: [],
 });
 
 describe("ProblemDetailsComponent", () => {

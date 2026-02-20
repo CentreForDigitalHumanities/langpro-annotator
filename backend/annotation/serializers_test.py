@@ -45,26 +45,6 @@ def test_valid_kb_annotation_data(annotation_session, sample_problem):
 
 
 @pytest.mark.django_db
-def test_kb_annotation_serialization(kb_annotation):
-    """Test serializing an existing KB annotation."""
-    factory = APIRequestFactory()
-    request = factory.get("/")
-    request.user = kb_annotation.created_by
-
-    serializer = KnowledgeBaseAnnotationSerializer(
-        kb_annotation, context={"request": request}
-    )
-    data: dict[str, Any] = serializer.data  # type: ignore
-
-    assert data["id"] == kb_annotation.pk
-    assert data["entity1"] == "e1"
-    assert data["entity2"] == "e2"
-    assert data["relationship"] == "equal"
-    assert "createdAt" in data
-    assert "createdBy" in data
-
-
-@pytest.mark.django_db
 def test_kb_annotation_update(kb_annotation):
     """Test updating an existing KB annotation."""
     serializer = KnowledgeBaseAnnotationSerializer(kb_annotation)

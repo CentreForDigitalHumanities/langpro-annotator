@@ -23,35 +23,35 @@ def another_label(db):
 
 
 @pytest.fixture
-def annotation_session_annotator(db, annotator):
+def annotator_session(db, annotator):
     """Creates an annotation session for the annotator."""
     return AnnotationSession.objects.create(user=annotator)
 
 
 @pytest.fixture
-def annotation_session_master(db, master_annotator):
+def master_annotator_session(db, master_annotator):
     """Creates an annotation session for the master annotator."""
     return AnnotationSession.objects.create(user=master_annotator)
 
 
 @pytest.fixture
-def label_annotation_by_annotator(db, sample_problem, sample_label, annotator, annotation_session_annotator):
+def label_annotation_by_annotator(db, sample_problem, sample_label, annotator, annotator_session):
     """Creates a label_annotation attached by an annotator."""
     return LabelAnnotation.objects.create(
         problem=sample_problem,
         label=sample_label,
-        session=annotation_session_annotator,
+        session=annotator_session,
         created_by=annotator,
     )
 
 
 @pytest.fixture
-def label_annotation_by_master(db, sample_problem, another_label, master_annotator, annotation_session_master):
+def label_annotation_by_master(db, sample_problem, another_label, master_annotator, master_annotator_session):
     """Creates a label_annotation attached by a master annotator."""
     return LabelAnnotation.objects.create(
         problem=sample_problem,
         label=another_label,
-        session=annotation_session_master,
+        session=master_annotator_session,
         created_by=master_annotator,
     )
 

@@ -1,4 +1,4 @@
-import { Dataset, EntailmentLabel, Problem, ProblemLabel } from "../../../types";
+import { Dataset, EntailmentLabel, LabelAnnotation, Problem } from "../../../types";
 import { Component, computed, inject, input } from "@angular/core";
 import { EntailmentLabelBadgeComponent } from "./entailment-label-badge/entailment-label-badge.component";
 import { faArrowUpRightFromSquare, faQuestionCircle } from "@fortawesome/free-solid-svg-icons";
@@ -18,7 +18,7 @@ export interface ProblemDetails {
     section: string | null;
     subsection: string | null;
     comment: string | null;
-    labels: ProblemLabel[];
+    labelAnnotations: LabelAnnotation[];
 }
 
 @Component({
@@ -73,13 +73,13 @@ export class ProblemDetailsComponent {
     private extractDetails(problem: Problem): ProblemDetails | null {
         const shared: Pick<
             ProblemDetails,
-            "problemId" | "dataset" | "entailmentLabel" | "labels" | "baseProblemId"
+            "problemId" | "dataset" | "entailmentLabel" | "labelAnnotations" | "baseProblemId"
         > = {
             problemId: problem.id?.toString() ?? $localize`new`,
             baseProblemId: problem.base?.toString() ?? null,
             dataset: problem.dataset,
             entailmentLabel: problem.entailmentLabel,
-            labels: problem.labels
+            labelAnnotations: problem.labelAnnotations ?? [],
         };
 
         switch (problem.dataset) {

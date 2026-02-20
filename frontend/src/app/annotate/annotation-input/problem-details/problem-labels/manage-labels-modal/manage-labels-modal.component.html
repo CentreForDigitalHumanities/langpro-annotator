@@ -19,26 +19,33 @@
             </tr>
         </thead>
         <tbody>
-            @for (label of selectedLabels$ | async; track label.id) {
+            @for (annotation of shownLabels$ | async; track annotation.label.id)
+            {
             <tr
-                [class.clickable-row]="label.removable"
-                (click)="label.removable ? removeLabel(label.id) : null"
+                [class.clickable-row]="annotation.removable"
+                (click)="
+                    annotation.removable
+                        ? removeLabel(annotation.label.id)
+                        : null
+                "
             >
                 <td class="align-middle">
                     <div class="label-pill">
-                        <span class="label-text">{{ label.text }}</span>
+                        <span class="label-text">{{
+                            annotation.label.text
+                        }}</span>
                     </div>
                 </td>
                 <td class="align-middle">
-                    {{ label.description }}
-                    @if (getAttachedByText(label)) {
+                    {{ annotation.label.description }}
+                    @if (getAttachedByText(annotation)) {
                     <div class="text-muted small mt-1">
-                        {{ getAttachedByText(label) }}
+                        {{ getAttachedByText(annotation) }}
                     </div>
                     }
                 </td>
                 <td class="align-middle">
-                    @if (label.removable) {
+                    @if (annotation.removable) {
                     <span class="text-danger" i18n>Click to remove</span>
                     }
                 </td>
@@ -66,14 +73,22 @@
             @if (loadingLabels$ | async) {
             <tr>
                 <td colspan="3" class="text-center py-3">
-                    <div class="spinner-border spinner-border-sm text-secondary" role="status">
-                        <span class="visually-hidden" i18n>Loading labels...</span>
+                    <div
+                        class="spinner-border spinner-border-sm text-secondary"
+                        role="status"
+                    >
+                        <span class="visually-hidden" i18n
+                            >Loading labels...</span
+                        >
                     </div>
                 </td>
             </tr>
             } @else {
             @for (label of availableLabels$ | async; track label.id) {
-            <tr class="clickable-row align-middle" (click)="addLabel(label.id)">
+            <tr
+                class="clickable-row align-middle"
+                (click)="addLabelAnnotation(label.id)"
+            >
                 <td>
                     <div class="label-pill">
                         <span class="label-text">{{ label.text }}</span>
@@ -96,19 +111,6 @@
             }
         </tbody>
     </table>
-
-    <section>
-        <div class="d-flex flex-column">
-            <label for="remarks" class="form-label" i18n>
-                Remarks / justification
-            </label>
-            <textarea
-                id="remarks"
-                rows="3"
-                [formControl]="form.controls.remarks"
-            ></textarea>
-        </div>
-    </section>
 </div>
 <div class="modal-footer">
     <button type="button" class="btn btn-primary" (click)="closeModal()" i18n>

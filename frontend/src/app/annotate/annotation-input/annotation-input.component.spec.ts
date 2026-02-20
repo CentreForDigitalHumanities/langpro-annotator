@@ -53,21 +53,35 @@ describe("AnnotationInputComponent", () => {
                 premises: ["First premise", "Second premise"],
                 hypothesis: "Test hypothesis",
                 entailmentLabel: EntailmentLabel.ENTAILMENT,
-                kbItems: [
+                kbAnnotations: [
                     {
                         id: 456,
                         entity1: "cat",
                         entity2: "animal",
-                        relationship: KnowledgeBaseRelationship.SUBSET
+                        relationship: KnowledgeBaseRelationship.SUBSET,
+                        createdAt: "",
+                        createdBy: "",
+                        removedAt: null,
+                        removedBy: null,
+                        notes: "",
+                        session: null,
+                        removable: true
                     },
                     {
                         id: 789,
                         entity1: "dog",
                         entity2: "pet",
-                        relationship: KnowledgeBaseRelationship.EQUAL
+                        relationship: KnowledgeBaseRelationship.EQUAL,
+                        createdAt: "",
+                        createdBy: "",
+                        removedAt: null,
+                        removedBy: null,
+                        notes: "",
+                        session: null,
+                        removable: true
                     }
                 ],
-                labels: [],
+                labelAnnotations: [],
                 dataset: Dataset.USER,
                 extraData: null
             };
@@ -110,8 +124,8 @@ describe("AnnotationInputComponent", () => {
                 premises: [],
                 hypothesis: "Empty test hypothesis",
                 entailmentLabel: EntailmentLabel.NEUTRAL,
-                kbItems: [],
-                labels: [],
+                kbAnnotations: [],
+                labelAnnotations: [],
                 dataset: Dataset.USER,
                 extraData: null
             };
@@ -123,9 +137,6 @@ describe("AnnotationInputComponent", () => {
 
             const premisesArray = form.get('premises') as FormArray;
             expect(premisesArray.length).toBe(0);
-
-            const kbItemsArray = form.get('kbItems') as FormArray;
-            expect(kbItemsArray.length).toBe(0);
         });
 
         it('should create form controls with required validators', () => {
@@ -135,10 +146,10 @@ describe("AnnotationInputComponent", () => {
                 premises: ["Test premise"],
                 hypothesis: "Test hypothesis",
                 entailmentLabel: EntailmentLabel.CONTRADICTION,
-                kbItems: [],
-                labels: [],
                 dataset: Dataset.USER,
-                extraData: null
+                extraData: null,
+                kbAnnotations: [],
+                labelAnnotations: [],
             };
 
             const form = component['buildForm'](mockProblem);
@@ -158,10 +169,10 @@ describe("AnnotationInputComponent", () => {
                 premises: [],
                 hypothesis: "",
                 entailmentLabel: EntailmentLabel.UNKNOWN,
-                kbItems: [],
-                labels: [],
                 dataset: Dataset.USER,
-                extraData: null
+                extraData: null,
+                kbAnnotations: [],
+                labelAnnotations: [],
             };
 
             component['navigateToNewProblem'](mockProblem);
@@ -179,10 +190,10 @@ describe("AnnotationInputComponent", () => {
                 premises: [],
                 hypothesis: "",
                 entailmentLabel: EntailmentLabel.UNKNOWN,
-                kbItems: [],
-                labels: [],
                 dataset: Dataset.USER,
-                extraData: null
+                extraData: null,
+                kbAnnotations: [],
+                labelAnnotations: [],
             };
 
             component['navigateToNewProblem'](mockProblem);

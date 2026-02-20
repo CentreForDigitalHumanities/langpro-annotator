@@ -11,7 +11,7 @@ import {
 import { PremisesFormComponent } from "./premises-form/premises-form.component";
 import { KnowledgeBaseFormComponent } from "./knowledge-base-form/knowledge-base-form.component";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { Dataset, KnowledgeBaseRelationship, Problem } from "../../types";
+import { Dataset, KnowledgeBaseAnnotation, KnowledgeBaseRelationship, Problem } from "../../types";
 import { faCheck, faCopy, faExclamationCircle, faFloppyDisk, faTrash, faTree, faWrench } from "@fortawesome/free-solid-svg-icons";
 import { ProblemDetailsComponent } from "./problem-details/problem-details.component";
 import { map, Subject } from "rxjs";
@@ -28,10 +28,11 @@ export type ParseInputForm = FormGroup<{
     base: FormControl<number | null>;
     premises: FormArray<FormControl<string>>;
     hypothesis: FormControl<string>;
-    kbItems: FormArray<KnowledgeBaseItemsForm>;
+    kbItems: FormArray<KBItemForm>;
 }>;
 
-type KnowledgeBaseItemsForm = FormGroup<{
+
+type KBItemForm = FormGroup<{
     id: FormControl<number | null>;
     entity1: FormControl<string>;
     relationship: FormControl<KnowledgeBaseRelationship>;
@@ -161,7 +162,7 @@ export class AnnotationInputComponent implements OnInit {
     }
 
     private buildForm(problem: Problem): ParseInputForm {
-        const kbItems = this.buildKbForms(problem.kbItems);
+        const kbItems = this.buildKbForms(problem.kbAnnotations ?? []);
 
         return new FormGroup({
             id: new FormControl<number | null>(problem.id, {
@@ -183,10 +184,10 @@ export class AnnotationInputComponent implements OnInit {
                 validators: [Validators.required],
                 nonNullable: true,
             }),
-            kbItems: new FormArray<KnowledgeBaseItemsForm>(kbItems),
+            kbItems: new FormArray<KBItemForm>(kbItems),
         });
     }
-    private buildKbForms(inputKbItems: Problem['kbItems']): KnowledgeBaseItemsForm[] {
+    private buildKbForms(inputKbItems: KnowledgeBaseAnnotation[]): KBItemForm[] {
         return inputKbItems.map(item => new FormGroup({
             id: new FormControl<number | null>(item.id, {
                 nonNullable: true

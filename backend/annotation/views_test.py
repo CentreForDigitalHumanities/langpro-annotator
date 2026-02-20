@@ -1,7 +1,7 @@
 import pytest
 from rest_framework import status
 
-from annotation.models import Label, Labeling
+from annotation.models import AnnotationSession, Label, LabelAnnotation
 
 
 @pytest.fixture
@@ -23,22 +23,28 @@ def another_label(db):
 
 
 @pytest.fixture
-def labeling_by_annotator(db, sample_problem, sample_label, annotator):
-    """Creates a labeling attached by an annotator."""
-    return Labeling.objects.create(
+def label_annotation_by_annotator(
+    db, sample_problem, sample_label, annotator, annotator_session
+):
+    """Creates a label_annotation attached by an annotator."""
+    return LabelAnnotation.objects.create(
         problem=sample_problem,
         label=sample_label,
-        attached_by=annotator,
+        session=annotator_session,
+        created_by=annotator,
     )
 
 
 @pytest.fixture
-def labeling_by_master(db, sample_problem, another_label, master_annotator):
-    """Creates a labeling attached by a master annotator."""
-    return Labeling.objects.create(
+def label_annotation_by_master(
+    db, sample_problem, another_label, master_annotator, master_annotator_session
+):
+    """Creates a label_annotation attached by a master annotator."""
+    return LabelAnnotation.objects.create(
         problem=sample_problem,
         label=another_label,
-        attached_by=master_annotator,
+        session=master_annotator_session,
+        created_by=master_annotator,
     )
 
 
@@ -82,160 +88,157 @@ class TestLabelViewGetPermissions:
         assert response.status_code == status.HTTP_200_OK
 
 
-class TestSaveLabelingsPermissions:
-    """Tests for POST permissions (saving labelings) on the Label endpoint."""
+class TestSavelabel_annotationsPermissions:
+    """Tests for POST permissions (saving label_annotations) on the Label endpoint."""
 
-    def test_unauthenticated_user_cannot_save_labelings(
+    def test_unauthenticated_user_cannot_save_label_annotations(
         self, api_client, sample_problem, sample_label
     ):
-        """Unauthenticated users should not be able to save labelings."""
+        """Unauthenticated users should not be able to save label_annotations."""
         data = {
             "problemId": sample_problem.id,
             "selectedLabels": [{"id": sample_label.id}],
-            "remarks": "",
         }
         response = api_client.post("/api/label/", data, format="json")
         assert response.status_code == status.HTTP_401_UNAUTHORIZED
 
-    def test_visitor_cannot_save_labelings(
+    def test_visitor_cannot_save_label_annotations(
         self, api_client, visitor, sample_problem, sample_label
     ):
-        """Visitors should not be able to save labelings."""
+        """Visitors should not be able to save label_annotations."""
         api_client.force_authenticate(user=visitor)
         data = {
             "problemId": sample_problem.id,
             "selectedLabels": [{"id": sample_label.id}],
-            "remarks": "",
         }
         response = api_client.post("/api/label/", data, format="json")
         assert response.status_code == status.HTTP_403_FORBIDDEN
 
-    def test_annotator_can_save_labelings(
+    def test_annotator_can_save_label_annotations(
         self, api_client, annotator, sample_problem, sample_label
     ):
-        """Annotators should be able to save labelings."""
+        """Annotators should be able to save label_annotations."""
         api_client.force_authenticate(user=annotator)
         data = {
             "problemId": sample_problem.id,
             "selectedLabels": [{"id": sample_label.id}],
-            "remarks": "Test remark",
         }
         response = api_client.post("/api/label/", data, format="json")
         assert response.status_code == status.HTTP_200_OK
         assert response.data["ok"] is True
 
-        # Verify labeling was created
-        labeling = Labeling.objects.get(problem=sample_problem, label=sample_label)
-        assert labeling.attached_by == annotator
-        assert labeling.notes == "Test remark"
+        # Verify label_annotation was created
+        label_annotation = LabelAnnotation.objects.get(
+            problem=sample_problem, label=sample_label
+        )
+        assert label_annotation.created_by == annotator
 
-    def test_master_annotator_can_save_labelings(
+    def test_master_annotator_can_save_label_annotations(
         self, api_client, master_annotator, sample_problem, sample_label
     ):
-        """Master annotators should be able to save labelings."""
+        """Master annotators should be able to save label_annotations."""
         api_client.force_authenticate(user=master_annotator)
         data = {
             "problemId": sample_problem.id,
             "selectedLabels": [{"id": sample_label.id}],
-            "remarks": "",
         }
         response = api_client.post("/api/label/", data, format="json")
         assert response.status_code == status.HTTP_200_OK
         assert response.data["ok"] is True
 
 
-class TestRemoveLabelingPermissions:
-    """Tests for labeling removal permissions."""
+class TestRemoveLabelAnnotationPermissions:
+    """Tests for label_annotation removal permissions."""
 
-    def test_annotator_can_remove_own_labeling(
-        self, api_client, annotator, sample_problem, labeling_by_annotator
+    def test_annotator_can_remove_own_label_annotation(
+        self, api_client, annotator, sample_problem, label_annotation_by_annotator
     ):
         """Annotators should be able to remove labels they attached."""
         api_client.force_authenticate(user=annotator)
         data = {
             "problemId": sample_problem.id,
             "selectedLabels": [],  # Empty = remove the existing label
-            "remarks": "Removing my own label",
         }
         response = api_client.post("/api/label/", data, format="json")
         assert response.status_code == status.HTTP_200_OK
 
-        # Verify labeling was marked as removed
-        labeling_by_annotator.refresh_from_db()
-        assert labeling_by_annotator.removed_at is not None
-        assert labeling_by_annotator.removed_by == annotator
+        # Verify label_annotation was marked as removed
+        label_annotation_by_annotator.refresh_from_db()
+        assert label_annotation_by_annotator.removed_at is not None
+        assert label_annotation_by_annotator.removed_by == annotator
 
-    def test_annotator_cannot_remove_others_labeling(
-        self, api_client, annotator, sample_problem, labeling_by_master
+    def test_annotator_cannot_remove_others_label_annotation(
+        self, api_client, annotator, sample_problem, label_annotation_by_master
     ):
         """Annotators should not be able to remove labels attached by others."""
         api_client.force_authenticate(user=annotator)
         data = {
             "problemId": sample_problem.id,
             "selectedLabels": [],  # Empty = try to remove the existing label
-            "remarks": "",
         }
         response = api_client.post("/api/label/", data, format="json")
         assert response.status_code == status.HTTP_403_FORBIDDEN
         assert (
-            "You can only remove labels you attached yourself" in response.data["detail"]
+            "You can only remove labels you attached yourself"
+            in response.data["detail"]
         )
 
-        # Verify labeling was NOT removed
-        labeling_by_master.refresh_from_db()
-        assert labeling_by_master.removed_at is None
+        # Verify label_annotation was NOT removed
+        label_annotation_by_master.refresh_from_db()
+        assert label_annotation_by_master.removed_at is None
 
-    def test_master_annotator_can_remove_own_labeling(
-        self, api_client, master_annotator, sample_problem, labeling_by_master
+    def test_master_annotator_can_remove_own_label_annotation(
+        self, api_client, master_annotator, sample_problem, label_annotation_by_master
     ):
         """Master annotators should be able to remove labels they attached."""
         api_client.force_authenticate(user=master_annotator)
         data = {
             "problemId": sample_problem.id,
             "selectedLabels": [],
-            "remarks": "",
         }
         response = api_client.post("/api/label/", data, format="json")
         assert response.status_code == status.HTTP_200_OK
 
-        labeling_by_master.refresh_from_db()
-        assert labeling_by_master.removed_at is not None
+        label_annotation_by_master.refresh_from_db()
+        assert label_annotation_by_master.removed_at is not None
 
-    def test_master_annotator_can_remove_others_labeling(
-        self, api_client, master_annotator, sample_problem, labeling_by_annotator
+    def test_master_annotator_can_remove_others_label_annotation(
+        self,
+        api_client,
+        master_annotator,
+        sample_problem,
+        label_annotation_by_annotator,
     ):
         """Master annotators should be able to remove labels attached by others."""
         api_client.force_authenticate(user=master_annotator)
         data = {
             "problemId": sample_problem.id,
             "selectedLabels": [],
-            "remarks": "Removing annotator's label",
         }
         response = api_client.post("/api/label/", data, format="json")
         assert response.status_code == status.HTTP_200_OK
 
-        labeling_by_annotator.refresh_from_db()
-        assert labeling_by_annotator.removed_at is not None
-        assert labeling_by_annotator.removed_by == master_annotator
+        label_annotation_by_annotator.refresh_from_db()
+        assert label_annotation_by_annotator.removed_at is not None
+        assert label_annotation_by_annotator.removed_by == master_annotator
 
 
-class TestLabelingAddAndRemove:
-    """Tests for adding / removing labelings."""
+class TestLabelAnnotationAddAndRemove:
+    """Tests for adding / removing label_annotations."""
 
-    def test_adding_label_creates_labeling(
+    def test_adding_label_creates_label_annotation(
         self, api_client, annotator, sample_problem, sample_label
     ):
-        """Adding a label should create a new Labeling record."""
+        """Adding a label should create a new label_annotation record."""
         api_client.force_authenticate(user=annotator)
         data = {
             "problemId": sample_problem.id,
             "selectedLabels": [{"id": sample_label.id}],
-            "remarks": "",
         }
         response = api_client.post("/api/label/", data, format="json")
         assert response.status_code == status.HTTP_200_OK
 
-        assert Labeling.objects.filter(
+        assert LabelAnnotation.objects.filter(
             problem=sample_problem, label=sample_label, removed_at__isnull=True
         ).exists()
 
@@ -247,44 +250,42 @@ class TestLabelingAddAndRemove:
         data = {
             "problemId": sample_problem.id,
             "selectedLabels": [{"id": sample_label.id}, {"id": another_label.id}],
-            "remarks": "",
         }
         response = api_client.post("/api/label/", data, format="json")
         assert response.status_code == status.HTTP_200_OK
 
-        active_labelings = Labeling.objects.filter(
+        active_label_annotations = LabelAnnotation.objects.filter(
             problem=sample_problem, removed_at__isnull=True
         )
-        assert active_labelings.count() == 2
+        assert active_label_annotations.count() == 2
 
     def test_keeping_existing_labels_unchanged(
         self,
         api_client,
         annotator,
         sample_problem,
-        labeling_by_annotator,
+        label_annotation_by_annotator,
         another_label,
     ):
         """Labels already attached should remain if still in selectedLabels."""
-        original_labeling_id = labeling_by_annotator.id
+        original_label_annotation_id = label_annotation_by_annotator.id
         api_client.force_authenticate(user=annotator)
         data = {
             "problemId": sample_problem.id,
             "selectedLabels": [
-                {"id": labeling_by_annotator.label.id},
+                {"id": label_annotation_by_annotator.label.id},
                 {"id": another_label.id},
             ],
-            "remarks": "",
         }
         response = api_client.post("/api/label/", data, format="json")
         assert response.status_code == status.HTTP_200_OK
 
-        # Original labeling should still be active
-        labeling_by_annotator.refresh_from_db()
-        assert labeling_by_annotator.id == original_labeling_id
-        assert labeling_by_annotator.removed_at is None
+        # Original label_annotation should still be active
+        label_annotation_by_annotator.refresh_from_db()
+        assert label_annotation_by_annotator.id == original_label_annotation_id
+        assert label_annotation_by_annotator.removed_at is None
 
-        # New labeling should be created
-        assert Labeling.objects.filter(
+        # New label_annotation should be created
+        assert LabelAnnotation.objects.filter(
             problem=sample_problem, label=another_label, removed_at__isnull=True
         ).exists()

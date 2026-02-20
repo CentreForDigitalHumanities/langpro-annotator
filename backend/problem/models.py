@@ -74,27 +74,3 @@ class Problem(models.Model):
         except Exception as e:
             logger.exception(f"Error getting index for problem {self.pk}: {e}")
             return None
-
-
-class KnowledgeBase(models.Model):
-    class Relationship(models.TextChoices):
-        EQUAL = "equal", "Equal"
-        NOT_EQUAL = "not_equal", "Not Equal"
-        SUBSET = "subset", "Subset"
-        SUPERSET = "superset", "Superset"
-
-    entity1 = models.CharField(max_length=255)
-
-    entity2 = models.CharField(max_length=255)
-
-    relationship = models.CharField(
-        max_length=255,
-        choices=Relationship.choices,
-        default=Relationship.EQUAL,
-    )
-
-    problem = models.ForeignKey(
-        Problem,
-        on_delete=models.CASCADE,
-        related_name="knowledge_bases",
-    )

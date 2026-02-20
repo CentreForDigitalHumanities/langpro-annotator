@@ -54,12 +54,12 @@ describe("ProblemService", () => {
                     premises: ["a"],
                     hypothesis: "b",
                     entailmentLabel: EntailmentLabel.ENTAILMENT,
-                    kbItems: [],
-                    labels: [],
                     extraData: {
                         pairId: 1,
                         relatednessScore: 4.5
-                    }
+                    },
+                    kbAnnotations: [],
+                    labelAnnotations: [],
                 },
                 index: 1,
                 total: 1,

@@ -27,6 +27,7 @@ const fakeUser: User = {
     canCreateProblem: false,
     canEditProblem: false,
     canEditKb: false,
+    canAddLabelAnnotations: false,
 };
 
 @Injectable({ providedIn: "root" })

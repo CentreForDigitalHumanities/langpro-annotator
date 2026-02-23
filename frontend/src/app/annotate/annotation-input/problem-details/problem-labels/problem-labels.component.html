@@ -13,12 +13,14 @@
     } @empty {
     <i class="text-muted" i18n>No labels attached to this problem yet</i>
     }
-    <button
-        type="button"
-        class="btn btn-sm btn-outline-primary manage-button"
-        (click)="openManageLabelsModal()"
-        i18n
-    >
-        Manage labels
-    </button>
+    @if (canManageLabels$ | async) {
+        <button
+            type="button"
+            class="btn btn-sm btn-outline-primary manage-button"
+            (click)="openManageLabelsModal()"
+            i18n
+        >
+            Manage labels
+        </button>
+    }
 </div>

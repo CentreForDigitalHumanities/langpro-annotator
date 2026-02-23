@@ -33,6 +33,7 @@ export const parseUserData = (result: UserResponse | null): User | null => {
         result.canEditProblem,
         result.canCreateProblem,
         result.canEditKb,
+        result.canAddLabelAnnotations,
     );
 };
 

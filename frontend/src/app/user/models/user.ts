@@ -9,6 +9,7 @@ export interface UserResponse {
     canEditProblem: boolean;
     canCreateProblem: boolean;
     canEditKb: boolean;
+    canAddLabelAnnotations: boolean;
 }
 
 // Corresponds to frontend user type.
@@ -31,6 +32,7 @@ export class User {
         public canEditProblem: boolean,
         public canCreateProblem: boolean,
         public canEditKb: boolean,
+        public canAddLabelAnnotations: boolean,
     ) { }
 }
 

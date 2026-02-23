@@ -183,7 +183,7 @@ describe("ManageLabelsModalComponent", () => {
             createdAt: "2024-03-15T10:30:00Z"
         };
 
-        const text = component.getAttachedByText(annotation);
+        const text = component.getAttachedBy(annotation);
 
         expect(text).toContain("you");
         expect(text).toContain('15 March 2024');

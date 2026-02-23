@@ -9,16 +9,17 @@ function sortAnnotations(labelAnnotations: LabelAnnotation[]): LabelAnnotation[]
     return [...otherLabels, ...userLabels];
 }
 
+function getAttachedByText(annotation: LabelAnnotation): string {
+    const attachedUser = annotation.attachedByCurrentUser ? $localize`you` : annotation.createdBy;
+    return $localize`Attached by ${attachedUser} on ${formatDate(annotation.createdAt)}`;
+}
+
 /**
  * Get the tooltip text for a problem label.
  */
 function getLabelTooltipText(annotation: LabelAnnotation): string {
-    const label = annotation.label;
-    let tooltip = label.description;
-    const dateStr = formatDate(annotation.createdAt);
-    const attachedUser = annotation.attachedByCurrentUser ? $localize`you` : annotation.createdBy;
-    tooltip += `\n\nAttached by ${attachedUser} on ${dateStr}`;
-    return tooltip;
+    const attachedBy = getAttachedByText(annotation);
+    return `${annotation.label.description} -- ${attachedBy}`;
 }
 
 /**
@@ -43,4 +44,4 @@ function formatDate(date: string | null | undefined): string {
     return Intl.DateTimeFormat('en-GB', { year: 'numeric', month: 'long', day: 'numeric' }).format(dateObj);
 }
 
-export { sum, formatDate, sortAnnotations, getLabelTooltipText };
+export { sum, formatDate, sortAnnotations, getLabelTooltipText, getAttachedByText };

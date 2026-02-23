@@ -7,7 +7,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { AuthService } from '@/services/auth.service';
 import { map, combineLatest, Subject, startWith, defer, Observable, filter } from 'rxjs';
 import { AsyncPipe } from '@angular/common';
-import { formatDate } from '@/util';
+import { getAttachedByText } from '@/util';
 import { Label, LabelAnnotation } from '@/types';
 
 type SelectedLabelsForm = FormGroup<{
@@ -103,10 +103,7 @@ export class ManageLabelsModalComponent implements OnInit {
         this.activeModal.close(transformedValue);
     }
 
-    public getAttachedByText(annotation: LabelAnnotation): string {
-        const attachedUser = annotation.attachedByCurrentUser ? $localize`you` : annotation.createdBy;
-        return $localize`Attached by ${attachedUser} on ${formatDate(annotation.createdAt)}`;
-    }
+    public getAttachedBy = getAttachedByText;
 
     private currentUserName = toSignal(
         this.authService.currentUser$.pipe(map((user) => user?.username))

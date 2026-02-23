@@ -17,7 +17,7 @@ class AnnotationBaseSerializer(serializers.ModelSerializer):
     """
 
     createdAt = serializers.DateTimeField(source="created_at", read_only=True)
-    createdBy = serializers.PrimaryKeyRelatedField(source="created_by", read_only=True)
+    createdBy = serializers.SerializerMethodField(method_name="get_createdBy", read_only=True)
     removedAt = serializers.DateTimeField(
         source="removed_at", allow_null=True, read_only=True
     )
@@ -44,6 +44,18 @@ class AnnotationBaseSerializer(serializers.ModelSerializer):
     def get_removable(self, annotation) -> bool:
         """This should be overridden in subclasses."""
         raise NotImplementedError("Subclasses must implement get_removable method.")
+
+    def get_createdBy(self, annotation) -> str | None:
+        """
+        Return the full name of the user who created the annotation or a
+        default string if not available.
+        """
+        default = "unknown user"
+        if annotation.created_by is None:
+            return default
+
+        created_by_name = f"{annotation.created_by.first_name} {annotation.created_by.last_name}".strip()
+        return created_by_name if created_by_name else default
 
 
 class KnowledgeBaseAnnotationSerializer(AnnotationBaseSerializer):

@@ -25,6 +25,7 @@ const fakeUserResponse: UserResponse = {
     canEditProblem: false,
     canEditKb: false,
     canAddLabelAnnotations: false,
+    canCopyProblem: false,
 };
 
 const fakeAdminResponse: UserResponse = {
@@ -39,6 +40,7 @@ const fakeAdminResponse: UserResponse = {
     canEditProblem: true,
     canEditKb: true,
     canAddLabelAnnotations: true,
+    canCopyProblem: true,
 };
 
 describe("UserMenuComponent", () => {

@@ -18,7 +18,7 @@
                 label="Parse and proof"
                 (click)="startParse()"
             />
-            @if (appMode === 'browse') {
+            @if (appMode === 'browse' && (canCopyProblem$ | async)) {
             <a
                 class="btn btn-secondary d-flex align-items-center justify-content-center"
                 [routerLink]="['/', 'annotate', 'new']"

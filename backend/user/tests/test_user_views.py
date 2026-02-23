@@ -15,6 +15,7 @@ def test_user_details(user_client, user_data):
         "canCreateProblem": False,
         "canEditProblem": False,
         "canEditKb": False,
+        "canCopyProblem": False,
     }
 
 

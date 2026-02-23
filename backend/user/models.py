@@ -59,6 +59,13 @@ class User(django_auth_models.AbstractUser):
         return self.has_perm("problem.add_problem")
 
     @property
+    def can_copy_problem(self) -> bool:
+        """
+        Determines whether the user can copy existing problems.
+        """
+        return self.has_perm("problem.copy_problems")
+
+    @property
     def can_edit_kb(self) -> bool:
         """
         Determines whether the user can edit knowledge base items.

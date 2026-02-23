@@ -13,6 +13,7 @@ class CustomUserDetailsSerializer(UserDetailsSerializer):
     )
     canEditKb = serializers.BooleanField(read_only=True, source="can_edit_kb")
     canAddLabelAnnotations = serializers.BooleanField(read_only=True, source="can_add_label_annotations")
+    canCopyProblem = serializers.BooleanField(read_only=True, source="can_copy_problem")
 
     class Meta(UserDetailsSerializer.Meta):
 
@@ -28,5 +29,6 @@ class CustomUserDetailsSerializer(UserDetailsSerializer):
             "canCreateProblem",
             "canEditKb",
             "canAddLabelAnnotations",
+            "canCopyProblem",
         )
         read_only_fields = ["isStaff", "id", "email"]

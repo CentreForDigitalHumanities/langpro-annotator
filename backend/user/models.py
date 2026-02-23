@@ -66,7 +66,7 @@ class User(django_auth_models.AbstractUser):
         This includes adding, editing and deleting, as these are all part of
         the same permission in our current implementation.
         """
-        return self.has_perm("kb.change_knowledgebase")
+        return self.has_perm("annotation.change_knowledgebaseannotation")
 
     def can_remove_label(self, label_annotation: LabelAnnotation) -> bool:
         """

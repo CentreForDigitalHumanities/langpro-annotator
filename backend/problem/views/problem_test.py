@@ -136,7 +136,7 @@ class TestProblemViewPermissions:
     def test_visitor_cannot_update_problem(
         self, client, visitor, sample_problem, problem_input_data
     ):
-        """Visitors should not be able to update problems."""
+        """Visitors should not be able to update problems or KB items."""
         client.force_login(user=visitor)
         response = client.patch(
             f"/api/problem/{sample_problem.id}/",
@@ -145,17 +145,17 @@ class TestProblemViewPermissions:
         )
         assert response.status_code == status.HTTP_403_FORBIDDEN
 
-    def test_annotator_cannot_update_problem(
+    def test_annotator_can_update_problem(
         self, client, annotator, sample_problem, problem_input_data
     ):
-        """Annotators should not be able to update problems."""
+        """Annotators should be able to update KB items (but not problems)."""
         client.force_login(user=annotator)
         response = client.patch(
             f"/api/problem/{sample_problem.id}/",
             problem_input_data,
             content_type="application/json",
         )
-        assert response.status_code == status.HTTP_403_FORBIDDEN
+        assert response.status_code == status.HTTP_200_OK
 
     def test_master_annotator_can_update_problem(
         self, client, master_annotator, sample_problem, problem_input_data

@@ -80,7 +80,7 @@ class KnowledgeBaseAnnotationSerializer(AnnotationBaseSerializer):
         if user is None or user.is_anonymous:
             return False
 
-        return user.has_perm("annotation.delete_knowledgebaseannotation")
+        return user.has_perm("annotation.change_knowledgebaseannotation")
 
     def validate_id(self, value):
         """Validate that the KnowledgeBaseAnnotation ID exists if provided."""

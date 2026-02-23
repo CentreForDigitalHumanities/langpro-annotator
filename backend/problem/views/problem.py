@@ -25,7 +25,7 @@ class CreateProblemPermission(IsAuthenticated):
 
 class EditProblemPermission(IsAuthenticated):
     def has_permission(self, request, view):
-        return super().has_permission(request, view) and request.user.can_edit_problem
+        return super().has_permission(request, view) and (request.user.can_edit_problem or request.user.can_edit_kb)
 
 
 class ProblemView(ModelViewSet):

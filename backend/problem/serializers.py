@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from django.utils import timezone
 
 from annotation.serializers import KnowledgeBaseAnnotationSerializer
 from annotation.models import (
@@ -120,8 +121,7 @@ class ProblemInputSerializer(serializers.Serializer):
         problem.premises.set(premise_sentences)
 
         kb_items = validated_data.get("kbItems", [])
-        if kb_items:
-            self._create_update_kb_annotations(problem, kb_items)
+        self._handle_kb_annotations(problem, kb_items)
 
         return problem
 
@@ -157,20 +157,39 @@ class ProblemInputSerializer(serializers.Serializer):
         serializer.is_valid(raise_exception=True)
         serializer.save(problem=problem, session=session, created_by=session.user)
 
-    def _create_update_kb_annotations(
+    def _mark_kb_not_in_input_as_removed(
+        self, problem: Problem, kb_items: list[dict], session: AnnotationSession
+    ) -> None:
+        """
+        Marks KnowledgeBase annotations for a problem that are not included in
+        the provided list of kb_items as removed.
+        """
+        kb_item_ids = {kb_item.get("id") for kb_item in kb_items if kb_item.get("id") is not None}
+
+        annotations_to_delete = KnowledgeBaseAnnotation.objects.filter(
+            problem=problem,
+            removed_at__isnull=True
+        ).exclude(id__in=kb_item_ids)
+
+        for annotation in annotations_to_delete:
+            annotation.removed_at = timezone.now()
+            annotation.removed_by = session.user
+            annotation.save()
+
+    def _handle_kb_annotations(
         self, problem: Problem, kb_items: list[dict]
     ) -> None:
         """
-        Creates or update KnowledgeBase and Label annotations for a problem.
+        Creates, updates and deletes KnowledgeBase annotations for a problem.
         Creates an annotation session if it does not exist.
-
-        TODO: handle deletions!
         """
         request = self.context.get("request", None)
-        if not request or not request.user.is_authenticated:
+        if not request or not request.user.is_authenticated or not request.user.can_edit_kb:
             return
 
         session = AnnotationSession.objects.create(user=request.user)
+
+        self._mark_kb_not_in_input_as_removed(problem, kb_items, session)
 
         for kb_item in kb_items:
             self._create_update_kb_annotation(kb_item, problem, session)
@@ -183,8 +202,7 @@ class ProblemInputSerializer(serializers.Serializer):
 
         # KB annotations can be made for all problems.
         kb_items = validated_data.get("kbItems", [])
-        if kb_items:
-            self._create_update_kb_annotations(instance, kb_items)
+        self._handle_kb_annotations(instance, kb_items)
 
         # Other fields can only be updated for user-created problems.
         if instance.dataset != Problem.Dataset.USER:

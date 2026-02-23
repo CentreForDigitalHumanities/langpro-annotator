@@ -71,5 +71,6 @@ export class KnowledgeBaseFormComponent {
 
     public removeKnowledgeBaseItem(index: number): void {
         this.form().controls.kbItems.removeAt(index);
+        this.form().markAsDirty();
     }
 }

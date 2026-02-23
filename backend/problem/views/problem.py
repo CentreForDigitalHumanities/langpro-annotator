@@ -155,7 +155,7 @@ class ProblemView(ModelViewSet):
             status = HTTP_201_CREATED
         else:
             problem_instance = get_object_or_404(
-                Problem, id=problem_id, dataset=Problem.Dataset.USER
+                Problem, id=problem_id
             )
             problem: Problem = serializer.update(problem_instance, validated_input)
             status = HTTP_200_OK

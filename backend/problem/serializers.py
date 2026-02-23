@@ -77,11 +77,9 @@ class ProblemInputSerializer(serializers.Serializer):
     base = serializers.IntegerField(required=False, allow_null=True)
 
     def validate_id(self, value):
-        """Validate that the Problem ID, if provided, exists and belongs to a user-created problem."""
+        """Validate that the Problem ID, if provided, exists."""
         if value is not None:
-            if not Problem.objects.filter(
-                id=value, dataset=Problem.Dataset.USER
-            ).exists():
+            if not Problem.objects.filter(id=value).exists():
                 raise serializers.ValidationError(
                     f"Problem with ID {value} does not exist."
                 )

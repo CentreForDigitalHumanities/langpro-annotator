@@ -32,6 +32,7 @@ export const parseUserData = (result: UserResponse | null): User | null => {
         result.role,
         result.canEditProblem,
         result.canCreateProblem,
+        result.canEditKb,
     );
 };
 

@@ -7,8 +7,8 @@ import { faPlus, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { ParseInputForm } from "../annotation-input.component";
 import { KnowledgeBaseRelationship } from "@/types";
 import { IconButtonComponent } from "@/shared/icon-button/icon-button.component";
-
-import { ProblemService } from "@/services/problem.service";
+import { AuthService } from "@/services/auth.service";
+import { map } from "rxjs";
 
 
 const relationshipDisplayMapping: Record<KnowledgeBaseRelationship, string> = {
@@ -26,7 +26,7 @@ const relationshipDisplayMapping: Record<KnowledgeBaseRelationship, string> = {
     styleUrls: ["./knowledge-base-form.component.scss"],
 })
 export class KnowledgeBaseFormComponent {
-    private problemService = inject(ProblemService);
+    private authService = inject(AuthService);
 
     public form = input.required<ParseInputForm>();
 
@@ -35,7 +35,9 @@ export class KnowledgeBaseFormComponent {
     public faPlus = faPlus;
     public faTrash = faTrash;
 
-    public appMode$ = this.problemService.appMode$;
+    public canEditKb$ = this.authService.currentUser$.pipe(
+        map(user => user?.canEditKb ?? false)
+    );
 
     public addKnowledgeBaseItem(): void {
         const newItem = new FormGroup({

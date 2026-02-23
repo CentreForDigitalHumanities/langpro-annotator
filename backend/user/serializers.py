@@ -11,6 +11,7 @@ class CustomUserDetailsSerializer(UserDetailsSerializer):
     canCreateProblem = serializers.BooleanField(
         read_only=True, source="can_create_problem"
     )
+    canEditKb = serializers.BooleanField(read_only=True, source="can_edit_kb")
 
     class Meta(UserDetailsSerializer.Meta):
 
@@ -24,5 +25,6 @@ class CustomUserDetailsSerializer(UserDetailsSerializer):
             "role",
             "canEditProblem",
             "canCreateProblem",
+            "canEditKb",
         )
         read_only_fields = ["isStaff", "id", "email"]

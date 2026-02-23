@@ -1,5 +1,4 @@
 @let kbControls = form().controls.kbItems.controls;
-@let appMode = appMode$ | async;
 
 <form [formGroup]="form()">
     <fieldset>
@@ -7,7 +6,7 @@
             class="form-label h6 fw-bold d-flex align-items-center justify-content-between"
         >
             <span i18n>Knowledge base items</span>
-            @if (appMode === 'add' || appMode === 'edit') {
+            @if (canEditKb$ | async) {
             <la-icon-button
                 [icon]="faPlus"
                 iconPosition="right"
@@ -26,7 +25,7 @@
         `${i}-${kbItem.value.entity1}-${kbItem.value.relationship}-${kbItem.value.entity2}`)
         {
         <li class="mb-3">
-            @if (appMode === 'add' || appMode === 'edit') {
+            @if (canEditKb$ | async) {
             <div [formGroupName]="i" class="input-group">
                 <input
                     type="text"

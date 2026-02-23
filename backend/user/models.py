@@ -58,6 +58,16 @@ class User(django_auth_models.AbstractUser):
         """
         return self.has_perm("problem.add_problem")
 
+    @property
+    def can_edit_kb(self) -> bool:
+        """
+        Determines whether the user can edit knowledge base items.
+
+        This includes adding, editing and deleting, as these are all part of
+        the same permission in our current implementation.
+        """
+        return self.has_perm("kb.change_knowledgebase")
+
     def can_remove_label(self, label_annotation: LabelAnnotation) -> bool:
         """
         Determines whether the user can remove a specific label (as part of an annotation).

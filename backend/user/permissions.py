@@ -3,7 +3,6 @@ ANNOTATOR_PERMISSIONS = [
     ("problem", "view_silver_problems"),
     ("annotation", "change_knowledgebaseannotation"),
     ("annotation", "add_labelannotation"),
-    ("annotation", "change_labelannotation"),
     ("annotation", "delete_own_labelannotation"),
 ]
 

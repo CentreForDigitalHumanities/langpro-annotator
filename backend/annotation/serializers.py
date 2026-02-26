@@ -3,6 +3,7 @@ from rest_framework import serializers
 from django.contrib.auth.models import AnonymousUser
 
 from annotation.models import (
+    BaseAnnotation,
     KnowledgeBaseAnnotation,
     Label,
     LabelAnnotation,
@@ -46,16 +47,9 @@ class AnnotationBaseSerializer(serializers.ModelSerializer):
         raise NotImplementedError("Subclasses must implement get_removable method.")
 
     def get_createdBy(self, annotation) -> str | None:
-        """
-        Return the full name of the user who created the annotation or a
-        default string if not available.
-        """
-        default = "unknown user"
-        if annotation.created_by is None:
-            return default
+        """Returns the full name of the user who created the annotation."""
+        return annotation.created_by.get_full_name()
 
-        created_by_name = f"{annotation.created_by.first_name} {annotation.created_by.last_name}".strip()
-        return created_by_name if created_by_name else default
 
 
 class KnowledgeBaseAnnotationSerializer(AnnotationBaseSerializer):

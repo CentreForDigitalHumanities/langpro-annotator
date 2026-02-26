@@ -65,7 +65,7 @@ def test_kb_annotation_update(kb_annotation):
 def test_kb_annotation_get_removable_with_permission(kb_annotation, annotator):
     """Test that get_removable returns True when user has permission."""
     permission = Permission.objects.get(
-        codename="delete_knowledgebaseannotation", content_type__app_label="annotation"
+        codename="change_knowledgebaseannotation", content_type__app_label="annotation"
     )
     annotator.user_permissions.add(permission)
     annotator.refresh_from_db()

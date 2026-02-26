@@ -8,6 +8,7 @@ export interface UserResponse {
     role: string;
     canEditProblem: boolean;
     canCreateProblem: boolean;
+    canEditKb: boolean;
 }
 
 // Corresponds to frontend user type.
@@ -29,6 +30,7 @@ export class User {
         public role: UserRole,
         public canEditProblem: boolean,
         public canCreateProblem: boolean,
+        public canEditKb: boolean,
     ) { }
 }
 

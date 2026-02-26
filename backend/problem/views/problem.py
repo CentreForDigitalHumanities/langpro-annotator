@@ -25,7 +25,7 @@ class CreateProblemPermission(IsAuthenticated):
 
 class EditProblemPermission(IsAuthenticated):
     def has_permission(self, request, view):
-        return super().has_permission(request, view) and request.user.can_edit_problem
+        return super().has_permission(request, view) and (request.user.can_edit_problem or request.user.can_edit_kb)
 
 
 class ProblemView(ModelViewSet):
@@ -155,7 +155,7 @@ class ProblemView(ModelViewSet):
             status = HTTP_201_CREATED
         else:
             problem_instance = get_object_or_404(
-                Problem, id=problem_id, dataset=Problem.Dataset.USER
+                Problem, id=problem_id
             )
             problem: Problem = serializer.update(problem_instance, validated_input)
             status = HTTP_200_OK

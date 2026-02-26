@@ -14,6 +14,7 @@ def test_user_details(user_client, user_data):
         "role": "visitor",
         "canCreateProblem": False,
         "canEditProblem": False,
+        "canEditKb": False,
     }
 
 

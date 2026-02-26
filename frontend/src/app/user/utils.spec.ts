@@ -42,6 +42,7 @@ describe("User utils", () => {
                 role: "visitor",
                 canCreateProblem: false,
                 canEditProblem: false,
+                canEditKb: false,
             };
             const user = parseUserData(result);
             expect(user).toBeInstanceOf(User);

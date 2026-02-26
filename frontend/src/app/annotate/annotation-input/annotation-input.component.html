@@ -15,7 +15,7 @@
             <la-icon-button
                 buttonStyle="success"
                 [icon]="faTree"
-                label="Start parse"
+                label="Parse and prove"
                 (click)="startParse()"
             />
             @if (appMode === 'browse') {
@@ -34,7 +34,7 @@
                 <span class="ms-2" i18n>Copy problem</span>
             </a>
             }
-            @if ((appMode === 'edit' || appMode === 'add') && userProblem) {
+            @if (this.form.dirty) {
             <la-icon-button
                 buttonStyle="primary"
                 [icon]="faFloppyDisk"

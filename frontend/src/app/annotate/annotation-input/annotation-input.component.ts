@@ -145,6 +145,7 @@ export class AnnotationInputComponent implements OnInit {
         }
         const input = this.form.getRawValue();
         this.problemService.submit$.next(input);
+        this.form.markAsPristine();
     }
 
     private navigateToNewProblem(problem: Problem | null): void {

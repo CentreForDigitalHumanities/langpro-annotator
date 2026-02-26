@@ -171,8 +171,10 @@ class ProblemInputSerializer(serializers.Serializer):
             removed_at__isnull=True
         ).exclude(id__in=kb_item_ids)
 
+        current_time = timezone.now()
+
         for annotation in annotations_to_delete:
-            annotation.removed_at = timezone.now()
+            annotation.removed_at = current_time
             annotation.removed_by = session.user
             annotation.save()
 

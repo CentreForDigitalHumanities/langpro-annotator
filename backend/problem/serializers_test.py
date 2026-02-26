@@ -6,6 +6,7 @@ from problem.serializers_test_utils import input_serializer_with_user
 from .serializers import ProblemInputSerializer
 from .models import Problem, Sentence
 
+
 @pytest.fixture
 def hypothesis_sentence(db):
     return Sentence.objects.create(text="Hypothesis")
@@ -36,6 +37,7 @@ def non_user_problem(db, hypothesis_sentence, premise_sentence):
     )
     problem.premises.add(premise_sentence)
     return problem
+
 
 @pytest.mark.django_db
 def test_valid_create_data():
@@ -87,6 +89,7 @@ def test_invalid_id_non_existent():
         serializer.is_valid(raise_exception=True)
     assert "does not exist" in str(exc_info.value)
 
+
 @pytest.mark.django_db
 def test_empty_premises_invalid():
     """Test that an empty list of premises is invalid."""
@@ -127,9 +130,11 @@ def test_kb_create_no_permission(user_problem, visitor):
     ]
 
     serializer = input_serializer_with_user(visitor)
-    serializer._handle_kb_annotations(user_problem, kb_input) # type: ignore
+    serializer._handle_kb_annotations(user_problem, kb_input)  # type: ignore
 
-    assert KnowledgeBaseAnnotation.objects.filter(problem=user_problem).count() == 0, "No KB annotations should be created without permission."
+    assert (
+        KnowledgeBaseAnnotation.objects.filter(problem=user_problem).count() == 0
+    ), "No KB annotations should be created without permission."
 
 
 @pytest.mark.django_db
@@ -139,21 +144,29 @@ def test_kb_update_no_permission(user_problem, kb_annotation, visitor):
     kb_annotation.save()
     original_entity1 = kb_annotation.entity1
 
+    updated_entity_1 = "updated_entity"
+
     kb_input = [
         {
             "id": kb_annotation.pk,
-            "entity1": "updated_cat",
+            "entity1": updated_entity_1,
             "entity2": kb_annotation.entity2,
             "relationship": kb_annotation.relationship,
         }
     ]
 
+    # Preconditions
+    assert original_entity1 != updated_entity_1
+
     serializer = input_serializer_with_user(visitor)
-    serializer._handle_kb_annotations(user_problem, kb_input) # type: ignore
+    serializer._handle_kb_annotations(user_problem, kb_input)  # type: ignore
 
     # Verify KB annotation was not updated
     kb_annotation.refresh_from_db()
-    assert kb_annotation.entity1 == original_entity1, "KB annotation should not have been modified without permission."
+    assert (
+        kb_annotation.entity1 == original_entity1
+    ), "KB annotation should not have been modified without permission."
+    assert updated_entity_1 != original_entity1
 
 
 @pytest.mark.django_db
@@ -165,11 +178,14 @@ def test_kb_mark_removed_no_permission(user_problem, kb_annotation, visitor):
     kb_input = []  # Empty list should mark any existing KB items as removed.
 
     serializer = input_serializer_with_user(visitor)
-    serializer._handle_kb_annotations(user_problem, kb_input) # type: ignore
+    serializer._handle_kb_annotations(user_problem, kb_input)  # type: ignore
 
     # Verify KB annotation was not removed
     kb_annotation.refresh_from_db()
-    assert kb_annotation.removed_at is None, "KB annotation should not have been marked as removed without permission."
+    assert (
+        kb_annotation.removed_at is None
+    ), "KB annotation should not have been marked as removed without permission."
+
 
 @pytest.mark.django_db
 def test_create_single_kb_annotation(user_problem, annotator):
@@ -186,9 +202,7 @@ def test_create_single_kb_annotation(user_problem, annotator):
     serializer = input_serializer_with_user(annotator)
     serializer._handle_kb_annotations(user_problem, kb_input)
 
-    kb_annotations = KnowledgeBaseAnnotation.objects.filter(
-        problem=user_problem, removed_at__isnull=True
-    )
+    kb_annotations = KnowledgeBaseAnnotation.objects.filter(problem=user_problem)
     assert kb_annotations.count() == 1, "One KB annotation should have been created."
 
     kb = kb_annotations.first()
@@ -278,7 +292,9 @@ def test_create_and_update_multiple_kb_annotations(
     kb_annotations = KnowledgeBaseAnnotation.objects.filter(
         problem=user_problem, removed_at__isnull=True
     )
-    assert kb_annotations.count() == 3, "There should be three new active KB annotations after update."
+    assert (
+        kb_annotations.count() == 3
+    ), "There should be three new active KB annotations after update."
 
     # Verify the updated annotation
     kb_annotation.refresh_from_db()
@@ -288,7 +304,9 @@ def test_create_and_update_multiple_kb_annotations(
 
     # Verify the new annotations
     new_annotations = kb_annotations.exclude(id=kb_annotation.pk)
-    assert new_annotations.count() == 2, "There should be two new KB annotations after update."
+    assert (
+        new_annotations.count() == 2
+    ), "There should be two new KB annotations after update."
 
     entities = [(kb.entity1, kb.entity2) for kb in new_annotations]
     assert ("new_e1", "new_e2") in entities
@@ -360,3 +378,144 @@ def test_create_update_and_remove_kb_annotations(
     assert new_annotation.entity1 == "new_e1"
     assert new_annotation.entity2 == "new_e2"
     assert new_annotation.relationship == "superset"
+
+
+@pytest.mark.django_db
+def test_create_problem_with_kb_annotations(annotator):
+    """Test creating a problem with KB annotations through create()."""
+    data = {
+        "premises": ["A cat is running."],
+        "hypothesis": "A cat is moving.",
+        "kbItems": [
+            {
+                "entity1": "cat",
+                "entity2": "feline",
+                "relationship": "equal",
+                "notes": "Test note",
+            },
+            {
+                "entity1": "running",
+                "entity2": "moving",
+                "relationship": "subset",
+            },
+        ],
+    }
+
+    serializer = input_serializer_with_user(annotator, data=data)
+    assert serializer.is_valid(raise_exception=True)
+    problem = serializer.save()
+
+    # Verify problem was created
+    assert problem.pk is not None
+    assert problem.dataset == Problem.Dataset.USER
+    assert problem.hypothesis.text == "A cat is moving."
+    assert problem.premises.count() == 1
+    assert problem.premises.first().text == "A cat is running."
+
+    # Verify KB annotations were created
+    kb_annotations = KnowledgeBaseAnnotation.objects.filter(problem=problem)
+    assert kb_annotations.count() == 2
+
+    kb1 = kb_annotations.get(entity1="cat")
+    assert kb1.entity2 == "feline"
+    assert kb1.relationship == "equal"
+    assert kb1.notes == "Test note"
+    assert kb1.created_by == annotator
+
+    kb2 = kb_annotations.get(entity1="running")
+    assert kb2.entity2 == "moving"
+    assert kb2.relationship == "subset"
+    assert kb2.created_by == annotator
+
+
+@pytest.mark.django_db
+def test_create_problem_with_multiple_premises_and_kb(annotator):
+    """Test creating a problem with multiple premises."""
+    data = {
+        "premises": ["Birds can fly.", "Penguins are birds."],
+        "hypothesis": "Penguins can fly.",
+    }
+
+    serializer = input_serializer_with_user(annotator, data=data)
+    assert serializer.is_valid(raise_exception=True)
+    problem = serializer.save()
+
+    assert problem.premises.count() == 2
+    premise_texts = [p.text for p in problem.premises.all()]
+    assert "Birds can fly." in premise_texts
+    assert "Penguins are birds." in premise_texts
+    assert problem.hypothesis.text == "Penguins can fly."
+
+
+@pytest.mark.django_db
+def test_update_user_problem_with_new_kb_annotations(user_problem, annotator):
+    """Test updating a user problem adds new KB annotations through update()."""
+    data = {
+        "id": user_problem.pk,
+        "premises": ["Updated premise."],
+        "hypothesis": "Updated hypothesis.",
+        "kbItems": [
+            {
+                "entity1": "new_entity1",
+                "entity2": "new_entity2",
+                "relationship": "subset",
+            }
+        ],
+    }
+
+    assert (
+        KnowledgeBaseAnnotation.objects.filter(problem=user_problem).count() == 0
+    ), "Precondition: user_problem should have no KB annotations."
+
+    serializer = input_serializer_with_user(annotator, data=data, instance=user_problem)
+    assert serializer.is_valid(raise_exception=True)
+    updated_problem = serializer.save()
+
+    # Verify problem was updated
+    assert updated_problem.pk == user_problem.pk
+    assert updated_problem.hypothesis.text == "Updated hypothesis."
+    assert updated_problem.premises.first().text == "Updated premise."
+
+    # Verify KB annotation was added
+    kb_annotations = KnowledgeBaseAnnotation.objects.filter(problem=updated_problem)
+    assert kb_annotations.count() == 1
+    kb_annotation = kb_annotations.first()
+    assert kb_annotation is not None
+    assert kb_annotation.entity1 == "new_entity1"
+
+
+@pytest.mark.django_db
+def test_update_non_user_problem_adds_kb_only(non_user_problem, annotator):
+    """Test updating a non-user problem only adds KB annotations, not other fields."""
+    original_hypothesis = non_user_problem.hypothesis.text
+    original_premise_count = non_user_problem.premises.count()
+
+    data = {
+        "id": non_user_problem.pk,
+        "premises": ["This should be ignored."],
+        "hypothesis": "This should also be ignored.",
+        "kbItems": [
+            {
+                "entity1": "entity1",
+                "entity2": "entity2",
+                "relationship": "equal",
+            }
+        ],
+    }
+
+    # Preconditions
+    assert KnowledgeBaseAnnotation.objects.filter(problem=non_user_problem).count() == 0, "Non_user_problem should have no KB annotations to begin with."
+    assert original_hypothesis != data["hypothesis"]
+
+    serializer = input_serializer_with_user(annotator, data=data, instance=non_user_problem)
+    assert serializer.is_valid(raise_exception=True)
+    updated_problem = serializer.save()
+
+    # Verify problem fields were not updated
+    assert updated_problem.hypothesis.text == original_hypothesis
+    assert updated_problem.premises.count() == original_premise_count
+
+    # Verify KB annotation was added
+    kb_annotations = KnowledgeBaseAnnotation.objects.filter(problem=updated_problem)
+    assert kb_annotations.count() == 1
+

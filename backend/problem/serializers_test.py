@@ -378,3 +378,144 @@ def test_create_update_and_remove_kb_annotations(
     assert new_annotation.entity1 == "new_e1"
     assert new_annotation.entity2 == "new_e2"
     assert new_annotation.relationship == "superset"
+
+
+@pytest.mark.django_db
+def test_create_problem_with_kb_annotations(annotator):
+    """Test creating a problem with KB annotations through create()."""
+    data = {
+        "premises": ["A cat is running."],
+        "hypothesis": "A cat is moving.",
+        "kbItems": [
+            {
+                "entity1": "cat",
+                "entity2": "feline",
+                "relationship": "equal",
+                "notes": "Test note",
+            },
+            {
+                "entity1": "running",
+                "entity2": "moving",
+                "relationship": "subset",
+            },
+        ],
+    }
+
+    serializer = input_serializer_with_user(annotator, data=data)
+    assert serializer.is_valid(raise_exception=True)
+    problem = serializer.save()
+
+    # Verify problem was created
+    assert problem.pk is not None
+    assert problem.dataset == Problem.Dataset.USER
+    assert problem.hypothesis.text == "A cat is moving."
+    assert problem.premises.count() == 1
+    assert problem.premises.first().text == "A cat is running."
+
+    # Verify KB annotations were created
+    kb_annotations = KnowledgeBaseAnnotation.objects.filter(problem=problem)
+    assert kb_annotations.count() == 2
+
+    kb1 = kb_annotations.get(entity1="cat")
+    assert kb1.entity2 == "feline"
+    assert kb1.relationship == "equal"
+    assert kb1.notes == "Test note"
+    assert kb1.created_by == annotator
+
+    kb2 = kb_annotations.get(entity1="running")
+    assert kb2.entity2 == "moving"
+    assert kb2.relationship == "subset"
+    assert kb2.created_by == annotator
+
+
+@pytest.mark.django_db
+def test_create_problem_with_multiple_premises_and_kb(annotator):
+    """Test creating a problem with multiple premises."""
+    data = {
+        "premises": ["Birds can fly.", "Penguins are birds."],
+        "hypothesis": "Penguins can fly.",
+    }
+
+    serializer = input_serializer_with_user(annotator, data=data)
+    assert serializer.is_valid(raise_exception=True)
+    problem = serializer.save()
+
+    assert problem.premises.count() == 2
+    premise_texts = [p.text for p in problem.premises.all()]
+    assert "Birds can fly." in premise_texts
+    assert "Penguins are birds." in premise_texts
+    assert problem.hypothesis.text == "Penguins can fly."
+
+
+@pytest.mark.django_db
+def test_update_user_problem_with_new_kb_annotations(user_problem, annotator):
+    """Test updating a user problem adds new KB annotations through update()."""
+    data = {
+        "id": user_problem.pk,
+        "premises": ["Updated premise."],
+        "hypothesis": "Updated hypothesis.",
+        "kbItems": [
+            {
+                "entity1": "new_entity1",
+                "entity2": "new_entity2",
+                "relationship": "subset",
+            }
+        ],
+    }
+
+    assert (
+        KnowledgeBaseAnnotation.objects.filter(problem=user_problem).count() == 0
+    ), "Precondition: user_problem should have no KB annotations."
+
+    serializer = input_serializer_with_user(annotator, data=data, instance=user_problem)
+    assert serializer.is_valid(raise_exception=True)
+    updated_problem = serializer.save()
+
+    # Verify problem was updated
+    assert updated_problem.pk == user_problem.pk
+    assert updated_problem.hypothesis.text == "Updated hypothesis."
+    assert updated_problem.premises.first().text == "Updated premise."
+
+    # Verify KB annotation was added
+    kb_annotations = KnowledgeBaseAnnotation.objects.filter(problem=updated_problem)
+    assert kb_annotations.count() == 1
+    kb_annotation = kb_annotations.first()
+    assert kb_annotation is not None
+    assert kb_annotation.entity1 == "new_entity1"
+
+
+@pytest.mark.django_db
+def test_update_non_user_problem_adds_kb_only(non_user_problem, annotator):
+    """Test updating a non-user problem only adds KB annotations, not other fields."""
+    original_hypothesis = non_user_problem.hypothesis.text
+    original_premise_count = non_user_problem.premises.count()
+
+    data = {
+        "id": non_user_problem.pk,
+        "premises": ["This should be ignored."],
+        "hypothesis": "This should also be ignored.",
+        "kbItems": [
+            {
+                "entity1": "entity1",
+                "entity2": "entity2",
+                "relationship": "equal",
+            }
+        ],
+    }
+
+    # Preconditions
+    assert KnowledgeBaseAnnotation.objects.filter(problem=non_user_problem).count() == 0, "Non_user_problem should have no KB annotations to begin with."
+    assert original_hypothesis != data["hypothesis"]
+
+    serializer = input_serializer_with_user(annotator, data=data, instance=non_user_problem)
+    assert serializer.is_valid(raise_exception=True)
+    updated_problem = serializer.save()
+
+    # Verify problem fields were not updated
+    assert updated_problem.hypothesis.text == original_hypothesis
+    assert updated_problem.premises.count() == original_premise_count
+
+    # Verify KB annotation was added
+    kb_annotations = KnowledgeBaseAnnotation.objects.filter(problem=updated_problem)
+    assert kb_annotations.count() == 1
+

@@ -59,6 +59,13 @@ class User(django_auth_models.AbstractUser):
         return self.has_perm("problem.add_problem")
 
     @property
+    def can_copy_problem(self) -> bool:
+        """
+        Determines whether the user can copy existing problems.
+        """
+        return self.has_perm("problem.copy_problems")
+
+    @property
     def can_edit_kb(self) -> bool:
         """
         Determines whether the user can edit knowledge base items.
@@ -68,9 +75,16 @@ class User(django_auth_models.AbstractUser):
         """
         return self.has_perm("annotation.change_knowledgebaseannotation")
 
-    def can_remove_label(self, label_annotation: LabelAnnotation) -> bool:
+    @property
+    def can_add_label_annotations(self) -> bool:
         """
-        Determines whether the user can remove a specific label (as part of an annotation).
+        Determines whether the user can add label annotations.
+        """
+        return self.has_perm("annotation.add_labelannotation")
+
+    def can_remove_label_annotation(self, label_annotation: LabelAnnotation) -> bool:
+        """
+        Determines whether the user can mark a specific label annotation as removed.
         """
         if self.is_superuser or self.has_perm("annotation.delete_any_labelannotation"):
             return True

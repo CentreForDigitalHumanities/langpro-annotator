@@ -23,7 +23,9 @@ const fakeUserResponse: UserResponse = {
     role: UserRole.VISITOR,
     canCreateProblem: false,
     canEditProblem: false,
-    canEditKb: false
+    canEditKb: false,
+    canAddLabelAnnotations: false,
+    canCopyProblem: false,
 };
 
 const fakeAdminResponse: UserResponse = {
@@ -36,7 +38,9 @@ const fakeAdminResponse: UserResponse = {
     role: UserRole.MASTER_ANNOTATOR,
     canCreateProblem: true,
     canEditProblem: true,
-    canEditKb: false
+    canEditKb: true,
+    canAddLabelAnnotations: true,
+    canCopyProblem: true,
 };
 
 describe("UserMenuComponent", () => {

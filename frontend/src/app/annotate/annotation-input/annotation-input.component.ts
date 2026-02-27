@@ -90,6 +90,10 @@ export class AnnotationInputComponent implements OnInit {
         map(user => user?.canEditProblem ?? false)
     );
 
+    public canCopyProblem$ = this.authService.currentUser$.pipe(
+        map(user => user?.canCopyProblem ?? false)
+    );
+
     ngOnInit(): void {
         this.problemService.problem$
             .pipe(takeUntilDestroyed(this.destroyRef))

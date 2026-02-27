@@ -33,6 +33,8 @@ export const parseUserData = (result: UserResponse | null): User | null => {
         result.canEditProblem,
         result.canCreateProblem,
         result.canEditKb,
+        result.canAddLabelAnnotations,
+        result.canCopyProblem,
     );
 };
 
@@ -52,6 +54,7 @@ export const encodeUserData = (data: Partial<User>): Partial<UserResponse> => {
         firstName: data.firstName,
         lastName: data.lastName,
         isStaff: data.isStaff,
+        canCopyProblem: data.canCopyProblem,
     };
     // Remove undefined values from object.
     return Object.fromEntries(

@@ -2,7 +2,6 @@ import pytest
 from rest_framework.exceptions import ValidationError
 
 from annotation.models import KnowledgeBaseAnnotation
-from problem.serializers_test_utils import input_serializer_with_user
 from .serializers import ProblemInputSerializer
 from .models import Problem, Sentence
 
@@ -129,8 +128,8 @@ def test_create_single_kb_annotation(user_problem, annotator):
         }
     ]
 
-    serializer = input_serializer_with_user(annotator)
-    serializer.handle_kb_annotations(user_problem, kb_input, annotator)
+    serializer = ProblemInputSerializer()
+    serializer.handle_kb_annotations(user_problem, kb_input, annotator)  # type: ignore
 
     kb_annotations = KnowledgeBaseAnnotation.objects.filter(problem=user_problem)
     assert kb_annotations.count() == 1, "One KB annotation should have been created."
@@ -160,8 +159,8 @@ def test_update_single_kb_annotation(user_problem, kb_annotation, annotator):
         }
     ]
 
-    serializer = input_serializer_with_user(annotator)
-    serializer.handle_kb_annotations(user_problem, kb_input, annotator)
+    serializer = ProblemInputSerializer()
+    serializer.handle_kb_annotations(user_problem, kb_input, annotator)  # type: ignore
 
     # Verify KB annotation was updated
     kb_annotation.refresh_from_db()
@@ -180,8 +179,8 @@ def test_mark_kb_annotation_as_removed(user_problem, kb_annotation, annotator):
 
     kb_input = []  # Empty list should mark existing as removed
 
-    serializer = input_serializer_with_user(annotator)
-    serializer.handle_kb_annotations(user_problem, kb_input, annotator)
+    serializer = ProblemInputSerializer()
+    serializer.handle_kb_annotations(user_problem, kb_input, annotator)  # type: ignore
 
     # Verify KB annotation was marked as removed
     kb_annotation.refresh_from_db()
@@ -216,8 +215,8 @@ def test_create_and_update_multiple_kb_annotations(
         },
     ]
 
-    serializer = input_serializer_with_user(annotator)
-    serializer.handle_kb_annotations(user_problem, kb_input, annotator)
+    serializer = ProblemInputSerializer()
+    serializer.handle_kb_annotations(user_problem, kb_input, annotator)  # type: ignore
 
     kb_annotations = KnowledgeBaseAnnotation.objects.filter(
         problem=user_problem, removed_at__isnull=True
@@ -281,8 +280,8 @@ def test_create_update_and_remove_kb_annotations(
         },
     ]
 
-    serializer = input_serializer_with_user(annotator)
-    serializer.handle_kb_annotations(user_problem, kb_input, annotator)
+    serializer = ProblemInputSerializer()
+    serializer.handle_kb_annotations(user_problem, kb_input, annotator)  # type: ignore
 
     # Verify kb1 was updated.
     kb1.refresh_from_db()
@@ -307,4 +306,3 @@ def test_create_update_and_remove_kb_annotations(
     assert new_annotation.entity1 == "new_e1"
     assert new_annotation.entity2 == "new_e2"
     assert new_annotation.relationship == "superset"
-

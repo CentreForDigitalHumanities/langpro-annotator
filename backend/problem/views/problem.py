@@ -164,7 +164,7 @@ class ProblemView(ModelViewSet):
 
         input_data = request.data
 
-        serializer = ProblemInputSerializer(data=input_data, context={"user": user})
+        serializer = ProblemInputSerializer(data=input_data)
         serializer.is_valid(raise_exception=True)
         validated_input: dict = serializer.validated_data  # type: ignore
 

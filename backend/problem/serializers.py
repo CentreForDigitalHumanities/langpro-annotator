@@ -8,6 +8,7 @@ from annotation.models import (
 )
 from problem.services import FracasData, SNLIData, SickData
 from problem.models import Problem, Sentence
+from user.models import User
 
 
 class ProblemSerializer(serializers.ModelSerializer):
@@ -98,32 +99,10 @@ class ProblemInputSerializer(serializers.Serializer):
     def create(self, validated_data: dict) -> Problem:
         """
         Create a new Problem instance from validated input data.
-        Handles creation of related Sentence and KnowledgeBase objects.
         """
-        premise_sentences = [
-            Sentence.objects.get_or_create(text=premise)[0]
-            for premise in validated_data["premises"]
-        ]
+        new_user_problem = Problem(dataset=Problem.Dataset.USER, extra_data={})
 
-        hypothesis_sentence = Sentence.objects.get_or_create(
-            text=validated_data["hypothesis"]
-        )[0]
-
-        problem = Problem.objects.create(
-            base_id=validated_data.get("base", None),
-            hypothesis=hypothesis_sentence,
-            dataset=Problem.Dataset.USER,
-            # TODO: Determine entailment label based on LangPro parser output.
-            entailment_label=Problem.EntailmentLabel.UNKNOWN,
-            extra_data={},
-        )
-
-        problem.premises.set(premise_sentences)
-
-        kb_items = validated_data.get("kbItems", [])
-        self._handle_kb_annotations(problem, kb_items)
-
-        return problem
+        return self._update_core_problem_fields(new_user_problem, validated_data)
 
     def _create_update_kb_annotation(
         self, kb_item: dict, problem: Problem, session: AnnotationSession
@@ -164,11 +143,12 @@ class ProblemInputSerializer(serializers.Serializer):
         Marks KnowledgeBase annotations for a problem that are not included in
         the provided list of kb_items as removed.
         """
-        kb_item_ids = {kb_item.get("id") for kb_item in kb_items if kb_item.get("id") is not None}
+        kb_item_ids = {
+            kb_item.get("id") for kb_item in kb_items if kb_item.get("id") is not None
+        }
 
         annotations_to_delete = KnowledgeBaseAnnotation.objects.filter(
-            problem=problem,
-            removed_at__isnull=True
+            problem=problem, removed_at__isnull=True
         ).exclude(id__in=kb_item_ids)
 
         current_time = timezone.now()
@@ -178,18 +158,14 @@ class ProblemInputSerializer(serializers.Serializer):
             annotation.removed_by = session.user
             annotation.save()
 
-    def _handle_kb_annotations(
-        self, problem: Problem, kb_items: list[dict]
+    def handle_kb_annotations(
+        self, problem: Problem, kb_items: list[dict], user: User
     ) -> None:
         """
         Creates, updates and deletes KnowledgeBase annotations for a problem.
         Creates an annotation session if it does not exist.
         """
-        request = self.context.get("request", None)
-        if not request or not request.user.is_authenticated or not request.user.can_edit_kb:
-            return
-
-        session = AnnotationSession.objects.create(user=request.user)
+        session = AnnotationSession.objects.create(user=user)
 
         self._mark_kb_not_in_input_as_removed(problem, kb_items, session)
 
@@ -198,18 +174,19 @@ class ProblemInputSerializer(serializers.Serializer):
 
     def update(self, instance: Problem, validated_data: dict) -> Problem:
         """
-        Update an existing Problem instance from validated input data.
-        Handles updating of related Sentence and KnowledgeBase objects.
+        Updates Problem core fields from validated input data.
         """
-
-        # KB annotations can be made for all problems.
-        kb_items = validated_data.get("kbItems", [])
-        self._handle_kb_annotations(instance, kb_items)
-
-        # Other fields can only be updated for user-created problems.
+        # Only USER-problems can be updated.
         if instance.dataset != Problem.Dataset.USER:
             return instance
 
+        return self._update_core_problem_fields(instance, validated_data)
+    
+    def _update_core_problem_fields(self, instance: Problem, validated_data: dict) -> Problem:
+        """
+        Updates core Problem fields (premises, hypothesis, base) from validated
+        input data.
+        """
         instance.hypothesis = Sentence.objects.get_or_create(
             text=validated_data["hypothesis"],
         )[0]

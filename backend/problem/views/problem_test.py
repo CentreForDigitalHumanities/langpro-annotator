@@ -1,6 +1,8 @@
 import pytest
 from rest_framework import status
 
+from problem.models import Problem
+
 
 @pytest.fixture
 def problem_input_data():
@@ -9,7 +11,14 @@ def problem_input_data():
         "premises": ["Test premise 1", "Test premise 2"],
         "hypothesis": "Test hypothesis",
         "entailmentLabel": "neutral",
-        "kbItems": [],
+        "kbItems": [
+            {
+                "entity1": "dog",
+                "entity2": "canine",
+                "relationship": "equal",
+                "notes": "Test note",
+            }
+        ],
     }
 
 
@@ -120,12 +129,12 @@ class TestProblemViewPermissions:
         assert response.status_code == status.HTTP_201_CREATED
         assert "id" in response.json()
 
-    # Update
+    # Update core problem fields (hypothesis, premises, base)
 
     def test_unauthenticated_user_cannot_update_problem(
         self, client, sample_problem, problem_input_data
     ):
-        """Unauthenticated users should not be able to update problems."""
+        """Unauthenticated users should not be able to update core problem fields."""
         response = client.patch(
             f"/api/problem/{sample_problem.id}/",
             problem_input_data,
@@ -136,7 +145,7 @@ class TestProblemViewPermissions:
     def test_visitor_cannot_update_problem(
         self, client, visitor, sample_problem, problem_input_data
     ):
-        """Visitors should not be able to update problems or KB items."""
+        """Visitors should not be able to update core problem fields."""
         client.force_login(user=visitor)
         response = client.patch(
             f"/api/problem/{sample_problem.id}/",
@@ -145,10 +154,114 @@ class TestProblemViewPermissions:
         )
         assert response.status_code == status.HTTP_403_FORBIDDEN
 
-    def test_annotator_can_update_problem(
+    def test_annotators_cannot_update_problem(
         self, client, annotator, sample_problem, problem_input_data
     ):
-        """Annotators should be able to update KB items (but not problems)."""
+        """Annotators should not be able to update core problem fields."""
+
+        # Make sure the update would change something.
+        old_hypothesis = sample_problem.hypothesis.text
+        old_premise = sample_problem.premises.first().text
+        assert old_hypothesis != problem_input_data["hypothesis"]
+        assert old_premise != problem_input_data["premises"][0]
+
+        client.force_login(user=annotator)
+        response = client.patch(
+            f"/api/problem/{sample_problem.id}/",
+            problem_input_data,
+            content_type="application/json",
+        )
+
+        # Status code 200 because KB items are updated in the same view.
+        assert response.status_code == status.HTTP_200_OK
+
+        sample_problem.refresh_from_db()
+        assert sample_problem.hypothesis.text == old_hypothesis
+        assert sample_problem.premises.first().text == old_premise
+
+    def test_master_annotator_can_update_user_problem(
+        self, client, master_annotator, sample_problem, problem_input_data
+    ):
+        """Master annotators should be able to update core fields on user-created problems."""
+
+        old_hypothesis = sample_problem.hypothesis.text
+        old_premise = sample_problem.premises.first().text
+
+        assert sample_problem.dataset == Problem.Dataset.USER
+        assert old_hypothesis != problem_input_data["hypothesis"]
+        assert old_premise != problem_input_data["premises"][0]
+
+        client.force_login(user=master_annotator)
+        response = client.patch(
+            f"/api/problem/{sample_problem.id}/",
+            problem_input_data,
+            content_type="application/json",
+        )
+
+        # Status code 200 because KB items are updated in the same view.
+        assert response.status_code == status.HTTP_200_OK
+
+        sample_problem.refresh_from_db()
+        assert sample_problem.hypothesis.text == problem_input_data["hypothesis"]
+        assert sample_problem.premises.first().text == problem_input_data["premises"][0]
+
+    def test_master_annotator_cannot_update_non_user_problem(
+        self, client, master_annotator, sample_problem, problem_input_data
+    ):
+        """Master annotators should not be able to update core fields on non-user-created problems."""
+        # Change the sample problem to be non-user-created.
+        sample_problem.dataset = Problem.Dataset.SNLI
+        sample_problem.save()
+
+        old_hypothesis = sample_problem.hypothesis.text
+        old_premise = sample_problem.premises.first().text
+
+        assert old_hypothesis != problem_input_data["hypothesis"]
+        assert old_premise != problem_input_data["premises"][0]
+
+        client.force_login(user=master_annotator)
+        response = client.patch(
+            f"/api/problem/{sample_problem.id}/",
+            problem_input_data,
+            content_type="application/json",
+        )
+
+        # Status code 200 because KB items are updated in the same view.
+        assert response.status_code == status.HTTP_200_OK
+
+        sample_problem.refresh_from_db()
+        # Core fields should not be updated since the problem is not user-created.
+        assert sample_problem.hypothesis.text == old_hypothesis
+        assert sample_problem.premises.first().text == old_premise
+
+    # Update KB annotations
+
+    def test_unauthenticated_user_cannot_update_kb_annotations(
+        self, client, sample_problem, problem_input_data
+    ):
+        response = client.patch(
+            f"/api/problem/{sample_problem.id}/",
+            problem_input_data,
+            content_type="application/json",
+        )
+        assert response.status_code == status.HTTP_401_UNAUTHORIZED
+
+    def test_visitor_cannot_update_kb_annotations(
+        self, client, visitor, sample_problem, problem_input_data
+    ):
+        client.force_login(user=visitor)
+        response = client.patch(
+            f"/api/problem/{sample_problem.id}/",
+            problem_input_data,
+            content_type="application/json",
+        )
+        assert response.status_code == status.HTTP_403_FORBIDDEN
+
+    def test_annotator_can_create_kb_annotations(
+        self, client, annotator, sample_problem, problem_input_data
+    ):
+        assert sample_problem.knowledgebaseannotations.count() == 0
+
         client.force_login(user=annotator)
         response = client.patch(
             f"/api/problem/{sample_problem.id}/",
@@ -157,10 +270,66 @@ class TestProblemViewPermissions:
         )
         assert response.status_code == status.HTTP_200_OK
 
-    def test_master_annotator_can_update_problem(
+        sample_problem.refresh_from_db()
+        assert (
+            sample_problem.knowledgebaseannotations.count() == 1
+        ), "Annotator should be able to create a KB annotation."
+        kb_annotation = sample_problem.knowledgebaseannotations.first()
+        assert (
+            kb_annotation.entity1 == problem_input_data["kbItems"][0]["entity1"]
+        ), "KB annotation entity1 should match input data."
+
+    def test_annotator_can_update_kb_annotations(
+        self, client, annotator, sample_problem, problem_input_data, kb_annotation
+    ):
+        assert sample_problem.knowledgebaseannotations.count() == 1
+        first_kb = sample_problem.knowledgebaseannotations.first()
+        assert first_kb.entity1 != problem_input_data["kbItems"][0]["entity1"]
+
+        problem_input_data["kbItems"][0]["id"] = kb_annotation.id
+
+        client.force_login(user=annotator)
+        response = client.patch(
+            f"/api/problem/{sample_problem.id}/",
+            problem_input_data,
+            content_type="application/json",
+        )
+        assert response.status_code == status.HTTP_200_OK
+
+        sample_problem.refresh_from_db()
+        kb_annotation.refresh_from_db()
+
+        assert (
+            sample_problem.knowledgebaseannotations.count() == 1
+        ), "Updating a KB annotation as an annotator should not create a new one."
+        assert (
+            kb_annotation.entity1 == problem_input_data["kbItems"][0]["entity1"]
+        ), "Annotator should be able to update a KB annotation."
+
+    def test_annotator_can_remove_kb_annotations(
+        self, client, annotator, sample_problem, problem_input_data, kb_annotation
+    ):
+        assert kb_annotation.removed_at is None
+        problem_input_data["kbItems"] = []
+
+        client.force_login(user=annotator)
+        response = client.patch(
+            f"/api/problem/{sample_problem.id}/",
+            problem_input_data,
+            content_type="application/json",
+        )
+        assert response.status_code == status.HTTP_200_OK
+
+        kb_annotation.refresh_from_db()
+        assert (
+            kb_annotation.removed_at is not None
+        ), "Annotator should be able to mark a KB annotation as removed."
+
+    def test_master_annotator_can_create_kb_annotations(
         self, client, master_annotator, sample_problem, problem_input_data
     ):
-        """Master annotators should be able to update user-created problems."""
+        assert sample_problem.knowledgebaseannotations.count() == 0
+
         client.force_login(user=master_annotator)
         response = client.patch(
             f"/api/problem/{sample_problem.id}/",
@@ -168,6 +337,71 @@ class TestProblemViewPermissions:
             content_type="application/json",
         )
         assert response.status_code == status.HTTP_200_OK
+
+        sample_problem.refresh_from_db()
+        assert (
+            sample_problem.knowledgebaseannotations.count() == 1
+        ), "Master annotator should be able to create a KB annotation."
+        kb_annotation = sample_problem.knowledgebaseannotations.first()
+        assert (
+            kb_annotation.entity1 == problem_input_data["kbItems"][0]["entity1"]
+        ), "KB annotation entity1 should match input data."
+
+    def test_master_annotator_can_update_kb_annotations(
+        self,
+        client,
+        master_annotator,
+        sample_problem,
+        problem_input_data,
+        kb_annotation,
+    ):
+        assert sample_problem.knowledgebaseannotations.count() == 1
+        first_kb = sample_problem.knowledgebaseannotations.first()
+        assert first_kb.entity1 != problem_input_data["kbItems"][0]["entity1"]
+
+        problem_input_data["kbItems"][0]["id"] = kb_annotation.id
+
+        client.force_login(user=master_annotator)
+        response = client.patch(
+            f"/api/problem/{sample_problem.id}/",
+            problem_input_data,
+            content_type="application/json",
+        )
+        assert response.status_code == status.HTTP_200_OK
+
+        sample_problem.refresh_from_db()
+        kb_annotation.refresh_from_db()
+
+        assert (
+            sample_problem.knowledgebaseannotations.count() == 1
+        ), "Updating a KB annotation as a master annotator should not create a new one."
+        assert (
+            kb_annotation.entity1 == problem_input_data["kbItems"][0]["entity1"]
+        ), "Master annotator should be able to update a KB annotation."
+
+    def test_master_annotator_can_remove_kb_annotations(
+        self,
+        client,
+        master_annotator,
+        sample_problem,
+        problem_input_data,
+        kb_annotation,
+    ):
+        assert kb_annotation.removed_at is None
+        problem_input_data["kbItems"] = []
+
+        client.force_login(user=master_annotator)
+        response = client.patch(
+            f"/api/problem/{sample_problem.id}/",
+            problem_input_data,
+            content_type="application/json",
+        )
+        assert response.status_code == status.HTTP_200_OK
+
+        kb_annotation.refresh_from_db()
+        assert (
+            kb_annotation.removed_at is not None
+        ), "Master annotator should be able to mark a KB annotation as removed."
 
 
 class TestUserRoleProperties:

@@ -2,7 +2,12 @@ from rest_framework.decorators import action
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
-from rest_framework.status import HTTP_201_CREATED, HTTP_200_OK
+from rest_framework.status import (
+    HTTP_201_CREATED,
+    HTTP_200_OK,
+    HTTP_401_UNAUTHORIZED,
+    HTTP_403_FORBIDDEN,
+)
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 
 from django.shortcuts import get_object_or_404
@@ -15,7 +20,11 @@ from problem.models import Problem
 from problem.serializers import ProblemInputSerializer, ProblemSerializer
 
 from annotation.models import KnowledgeBaseAnnotation, LabelAnnotation
-from annotation.serializers import KnowledgeBaseAnnotationSerializer, LabelAnnotationSerializer
+from annotation.serializers import (
+    KnowledgeBaseAnnotationSerializer,
+    LabelAnnotationSerializer,
+)
+from user.models import User
 
 
 class CreateProblemPermission(IsAuthenticated):
@@ -25,7 +34,9 @@ class CreateProblemPermission(IsAuthenticated):
 
 class EditProblemPermission(IsAuthenticated):
     def has_permission(self, request, view):
-        return super().has_permission(request, view) and (request.user.can_edit_problem or request.user.can_edit_kb)
+        return super().has_permission(request, view) and (
+            request.user.can_edit_problem or request.user.can_edit_kb
+        )
 
 
 class ProblemView(ModelViewSet):
@@ -142,22 +153,47 @@ class ProblemView(ModelViewSet):
     def _handle_update_create_problem(
         self, request: Request, problem_id: int | None
     ) -> Response:
+        user: User | None = request.user
+
+        # Only authenticated users can create or update problems.
+        if not user or not user.is_authenticated:
+            return Response(
+                {"detail": "Authentication credentials were not provided."},
+                status=HTTP_401_UNAUTHORIZED,
+            )
+
         input_data = request.data
 
-        serializer = ProblemInputSerializer(
-            data=input_data, context={"request": request}
-        )
+        serializer = ProblemInputSerializer(data=input_data)
         serializer.is_valid(raise_exception=True)
         validated_input: dict = serializer.validated_data  # type: ignore
 
+        status = HTTP_200_OK
+
         if problem_id is None:
+            if not user.can_create_problem:
+                return Response(
+                    {"detail": "User is not authorized to create problems."},
+                    status=HTTP_403_FORBIDDEN,
+                )
             problem = serializer.create(validated_input)  # type: ignore
             status = HTTP_201_CREATED
-        else:
-            problem_instance = get_object_or_404(
-                Problem, id=problem_id
+
+        elif not (user.can_edit_problem or user.can_edit_kb):
+            return Response(
+                {
+                    "detail": "User is not authorized to edit problems or knowledge base annotations."
+                },
+                status=HTTP_403_FORBIDDEN,
             )
-            problem: Problem = serializer.update(problem_instance, validated_input)
-            status = HTTP_200_OK
+
+        else:
+            problem = get_object_or_404(Problem, id=problem_id)
+            if user.can_edit_problem:
+                problem: Problem = serializer.update(problem, validated_input)  # type: ignore
+
+        kb_items = validated_input.get("kbItems", [])
+        if user.can_edit_kb:
+            serializer.handle_kb_annotations(problem=problem, kb_items=kb_items, user=user)  # type: ignore
 
         return Response({"id": problem.pk}, status=status)

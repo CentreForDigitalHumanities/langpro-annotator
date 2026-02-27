@@ -130,7 +130,7 @@ def test_kb_create_no_permission(user_problem, visitor):
     ]
 
     serializer = input_serializer_with_user(visitor)
-    serializer._handle_kb_annotations(user_problem, kb_input)  # type: ignore
+    serializer.handle_kb_annotations(user_problem, kb_input)  # type: ignore
 
     assert (
         KnowledgeBaseAnnotation.objects.filter(problem=user_problem).count() == 0
@@ -159,7 +159,7 @@ def test_kb_update_no_permission(user_problem, kb_annotation, visitor):
     assert original_entity1 != updated_entity_1
 
     serializer = input_serializer_with_user(visitor)
-    serializer._handle_kb_annotations(user_problem, kb_input)  # type: ignore
+    serializer.handle_kb_annotations(user_problem, kb_input)  # type: ignore
 
     # Verify KB annotation was not updated
     kb_annotation.refresh_from_db()
@@ -178,7 +178,7 @@ def test_kb_mark_removed_no_permission(user_problem, kb_annotation, visitor):
     kb_input = []  # Empty list should mark any existing KB items as removed.
 
     serializer = input_serializer_with_user(visitor)
-    serializer._handle_kb_annotations(user_problem, kb_input)  # type: ignore
+    serializer.handle_kb_annotations(user_problem, kb_input)  # type: ignore
 
     # Verify KB annotation was not removed
     kb_annotation.refresh_from_db()
@@ -200,7 +200,7 @@ def test_create_single_kb_annotation(user_problem, annotator):
     ]
 
     serializer = input_serializer_with_user(annotator)
-    serializer._handle_kb_annotations(user_problem, kb_input)
+    serializer.handle_kb_annotations(user_problem, kb_input)
 
     kb_annotations = KnowledgeBaseAnnotation.objects.filter(problem=user_problem)
     assert kb_annotations.count() == 1, "One KB annotation should have been created."
@@ -231,7 +231,7 @@ def test_update_single_kb_annotation(user_problem, kb_annotation, annotator):
     ]
 
     serializer = input_serializer_with_user(annotator)
-    serializer._handle_kb_annotations(user_problem, kb_input)
+    serializer.handle_kb_annotations(user_problem, kb_input)
 
     # Verify KB annotation was updated
     kb_annotation.refresh_from_db()
@@ -251,7 +251,7 @@ def test_mark_kb_annotation_as_removed(user_problem, kb_annotation, annotator):
     kb_input = []  # Empty list should mark existing as removed
 
     serializer = input_serializer_with_user(annotator)
-    serializer._handle_kb_annotations(user_problem, kb_input)
+    serializer.handle_kb_annotations(user_problem, kb_input)
 
     # Verify KB annotation was marked as removed
     kb_annotation.refresh_from_db()
@@ -287,7 +287,7 @@ def test_create_and_update_multiple_kb_annotations(
     ]
 
     serializer = input_serializer_with_user(annotator)
-    serializer._handle_kb_annotations(user_problem, kb_input)
+    serializer.handle_kb_annotations(user_problem, kb_input)
 
     kb_annotations = KnowledgeBaseAnnotation.objects.filter(
         problem=user_problem, removed_at__isnull=True
@@ -353,7 +353,7 @@ def test_create_update_and_remove_kb_annotations(
     ]
 
     serializer = input_serializer_with_user(annotator)
-    serializer._handle_kb_annotations(user_problem, kb_input)
+    serializer.handle_kb_annotations(user_problem, kb_input)
 
     # Verify kb1 was updated.
     kb1.refresh_from_db()
@@ -504,10 +504,14 @@ def test_update_non_user_problem_adds_kb_only(non_user_problem, annotator):
     }
 
     # Preconditions
-    assert KnowledgeBaseAnnotation.objects.filter(problem=non_user_problem).count() == 0, "Non_user_problem should have no KB annotations to begin with."
+    assert (
+        KnowledgeBaseAnnotation.objects.filter(problem=non_user_problem).count() == 0
+    ), "Non_user_problem should have no KB annotations to begin with."
     assert original_hypothesis != data["hypothesis"]
 
-    serializer = input_serializer_with_user(annotator, data=data, instance=non_user_problem)
+    serializer = input_serializer_with_user(
+        annotator, data=data, instance=non_user_problem
+    )
     assert serializer.is_valid(raise_exception=True)
     updated_problem = serializer.save()
 
@@ -518,4 +522,3 @@ def test_update_non_user_problem_adds_kb_only(non_user_problem, annotator):
     # Verify KB annotation was added
     kb_annotations = KnowledgeBaseAnnotation.objects.filter(problem=updated_problem)
     assert kb_annotations.count() == 1
-

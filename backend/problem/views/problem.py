@@ -2,7 +2,12 @@ from rest_framework.decorators import action
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
-from rest_framework.status import HTTP_201_CREATED, HTTP_200_OK, HTTP_401_UNAUTHORIZED, HTTP_403_FORBIDDEN
+from rest_framework.status import (
+    HTTP_201_CREATED,
+    HTTP_200_OK,
+    HTTP_401_UNAUTHORIZED,
+    HTTP_403_FORBIDDEN,
+)
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 
 from django.shortcuts import get_object_or_404
@@ -173,13 +178,22 @@ class ProblemView(ModelViewSet):
                 )
             problem = serializer.create(validated_input)  # type: ignore
             status = HTTP_201_CREATED
+
+        elif not (user.can_edit_problem or user.can_edit_kb):
+                return Response(
+                    {
+                        "detail": "User is not authorized to edit problems or knowledge base annotations."
+                    },
+                    status=HTTP_403_FORBIDDEN,
+                )
         
         else:
-            problem_instance = get_object_or_404(Problem, id=problem_id)
-            problem: Problem = serializer.update(problem_instance, validated_input) if user.can_edit_problem else problem_instance
-            
+            problem = get_object_or_404(Problem, id=problem_id)
+            if user.can_edit_problem:
+                problem: Problem = serializer.update(problem, validated_input)  # type: ignore
+
         kb_items = validated_input.get("kbItems", [])
-        if kb_items:
-            serializer.handle_kb_annotations(problem=problem, kb_items=kb_items, user=user)
+        if user.can_edit_kb:
+            serializer.handle_kb_annotations(problem=problem, kb_items=kb_items, user=user)  # type: ignore
 
         return Response({"id": problem.pk}, status=status)

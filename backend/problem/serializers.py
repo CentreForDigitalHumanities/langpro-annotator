@@ -100,7 +100,7 @@ class ProblemInputSerializer(serializers.Serializer):
         """
         Create a new Problem instance from validated input data.
         """
-        new_user_problem = Problem(dataset=Problem.Dataset.USER)
+        new_user_problem = Problem(dataset=Problem.Dataset.USER, extra_data={})
 
         return self._update_core_problem_fields(new_user_problem, validated_data)
 

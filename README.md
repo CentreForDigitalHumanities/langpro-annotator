@@ -36,23 +36,25 @@ The matrix below shows the permissions for each role. Not all permissions are cu
 
 (Last updated: November 14th, 2025)
 
-|                            | Visitor | Annotator | Master Annotator |
-| -------------------------- | ------- | --------- | ---------------- |
-| Browse gold problems       | Yes     | Yes       | Yes              |
-| Browse silver problems     | No      | Yes       | Yes              |
-| Edit KB items              | No      | Yes       | Yes              |
-| Add labels                 | No      | Yes       | Yes              |
-| Remove own labels          | No      | Yes       | Yes              |
-| Remove other users' labels | No      | No        | Yes              |
-| Add problems               | No      | No        | Yes              |
-| Copy problems              | No      | No        | Yes              |
-| Update user problems       | No      | No        | Yes              |
-| Delete problems            | No      | No        | Yes              |
-| Edit existing problems     | No      | No        | Yes              |
-| See hidden problems        | No      | No        | Yes              |
-| Silver/gold problems       | No      | No        | Yes              |
-| Hide/unhide problems       | No      | No        | Yes              |
-| Manage users               | No      | No        | Yes              |
+|                          | Unregistered users | Registered Users | Annotators | Master Annotators |
+| ------------------------ | ------------------ | ---------------- | ---------- | ----------------- |
+| Browse gold problems     | Yes                | Yes              | Yes        | Yes               |
+| Browse silver problems   | No                 | Yes              | Yes        | Yes               |
+| Browse bronze problems   | No                 | Yes              | Yes        | Yes               |
+| Add/edit/remove KB items | No                 | No               | Yes        | Yes               |
+| Add labels               | No                 | No               | Yes        | Yes               |
+| Remove own labels        | No                 | No               | Yes        | Yes               |
+| Remove others' labels    | No                 | No               | No         | Yes               |
+| Copy problems            | No                 | No               | No         | Yes               |
+| See hidden problems      | No                 | No               | No         | Yes               |
+| Gold/ungold problems     | No                 | No               | No         | Yes               |
+| Hide/unhide problems     | No                 | No               | No         | Yes               |
+| Manage users             | No                 | No               | No         | Yes               |
+
+NB:
+- 'Bronze' problems are problems that are 'untouched' (i.e., non-annotated) problems. These do not have knowledge base items or labels, and have no edits made to their syntactic parses and tableaus.
+- 'Silver' problems are problems that have been annotated with labels and/or knowledge base items, but have not been marked as 'gold'.
+- 'Gold' problems are problems that have been marked as 'gold' by a Master Annotator.
 
 ## Licence
 

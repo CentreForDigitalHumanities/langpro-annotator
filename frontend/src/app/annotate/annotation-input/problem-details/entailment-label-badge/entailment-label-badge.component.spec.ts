@@ -15,7 +15,7 @@ describe("EntailmentLabelBadgeComponent", () => {
         fixture = TestBed.createComponent(EntailmentLabelBadgeComponent);
         component = fixture.componentInstance;
         const componentRef = fixture.componentRef;
-        componentRef.setInput("judgement", EntailmentLabel.ENTAILMENT);
+        componentRef.setInput("entailmentLabel", EntailmentLabel.ENTAILMENT);
         fixture.detectChanges();
     });
 

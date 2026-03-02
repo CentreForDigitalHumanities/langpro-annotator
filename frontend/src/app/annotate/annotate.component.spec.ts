@@ -5,6 +5,7 @@ import { ActivatedRoute } from "@angular/router";
 import { of } from "rxjs";
 import { provideHttpClient } from "@angular/common/http";
 import { provideHttpClientTesting } from "@angular/common/http/testing";
+import { CommonModule } from "@angular/common";
 
 describe("AnnotateComponent", () => {
     let component: AnnotateComponent;
@@ -12,13 +13,15 @@ describe("AnnotateComponent", () => {
 
     beforeEach(async () => {
         await TestBed.configureTestingModule({
-            imports: [AnnotateComponent],
+            imports: [AnnotateComponent, CommonModule],
             providers: [
                 provideHttpClient(),
                 provideHttpClientTesting(),
                 {
                     provide: ActivatedRoute,
                     useValue: {
+                        url: of([]),
+                        paramMap: of({}),
                         queryParamMap: of({})
                     }
                 }

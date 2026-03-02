@@ -1,8 +1,6 @@
 from django.db import models
-from django.contrib.postgres.fields import ArrayField
 from django.db.models import QuerySet
 
-from problem.services import FracasData, SNLIData, SickData
 from langpro_annotator.logger import logger
 
 
@@ -29,6 +27,15 @@ class Problem(models.Model):
         default=Dataset.USER,
     )
 
+    base = models.ForeignKey(
+        "self",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="derived_problems",
+        help_text="The base problem from which this problem was derived, if any.",
+    )
+
     premises = models.ManyToManyField(
         Sentence,
         related_name="premise_problems",
@@ -48,6 +55,16 @@ class Problem(models.Model):
 
     extra_data = models.JSONField()
 
+    class Meta:
+        permissions = [
+            ("view_gold_problems", "Can view gold problems"),
+            ("view_silver_problems", "Can view silver problems"),
+            ("view_hidden_problems", "Can view hidden problems"),
+            ("copy_problems", "Can copy problems"),
+            ("change_problem_status", "Can change problem status"),
+            ("change_problem_visibility", "Can change problem visibility"),
+        ]
+
     def get_index(self, qs: QuerySet) -> int | None:
         """
         Get the index of this Problem in a given queryset of problems, ordered by pk.
@@ -57,51 +74,3 @@ class Problem(models.Model):
         except Exception as e:
             logger.exception(f"Error getting index for problem {self.pk}: {e}")
             return None
-
-    def serialize(self) -> dict:
-        """
-        Serialize the Problem instance to a dictionary.
-        """
-
-        match self.dataset:
-            case self.Dataset.SICK:
-                serialized_extra_data = SickData.serialize(self.extra_data)
-            case self.Dataset.FRACAS:
-                serialized_extra_data = FracasData.serialize(self.extra_data)
-            case self.Dataset.SNLI:
-                serialized_extra_data = SNLIData.serialize(self.extra_data)
-            case _:
-                serialized_extra_data = {}
-
-        return {
-            "id": self.pk,
-            "dataset": self.dataset,
-            "premises": [premise.text for premise in self.premises.all()],
-            "hypothesis": self.hypothesis.text,
-            "entailmentLabel": self.entailment_label,
-            "extraData": serialized_extra_data,
-        }
-
-
-class KnowledgeBase(models.Model):
-    class Relationship(models.TextChoices):
-        EQUAL = "equal", "Equal"
-        NOT_EQUAL = "not_equal", "Not Equal"
-        SUBSET = "subset", "Subset"
-        SUPERSET = "superset", "Superset"
-
-    entity1 = models.CharField(max_length=255)
-
-    entity2 = models.CharField(max_length=255)
-
-    relationship = models.CharField(
-        max_length=255,
-        choices=Relationship.choices,
-        default=Relationship.EQUAL,
-    )
-
-    problem = models.ForeignKey(
-        Problem,
-        on_delete=models.CASCADE,
-        related_name="knowledge_bases",
-    )

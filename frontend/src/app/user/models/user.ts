@@ -2,9 +2,21 @@ export interface UserResponse {
     id: number;
     username: string;
     email: string;
-    first_name: string;
-    last_name: string;
-    is_staff: boolean;
+    firstName: string;
+    lastName: string;
+    isStaff: boolean;
+    role: string;
+    canEditProblem: boolean;
+    canCreateProblem: boolean;
+    canEditKb: boolean;
+}
+
+// Corresponds to frontend user type.
+export enum UserRole {
+    SUPERUSER = "superuser",
+    ANNOTATOR = "annotator",
+    MASTER_ANNOTATOR = "master_annotator",
+    VISITOR = "visitor",
 }
 
 export class User {
@@ -14,8 +26,12 @@ export class User {
         public email: string,
         public firstName: string,
         public lastName: string,
-        public isStaff: boolean
-    ) {}
+        public isStaff: boolean,
+        public role: UserRole,
+        public canEditProblem: boolean,
+        public canCreateProblem: boolean,
+        public canEditKb: boolean,
+    ) { }
 }
 
 export interface UserRegistration {

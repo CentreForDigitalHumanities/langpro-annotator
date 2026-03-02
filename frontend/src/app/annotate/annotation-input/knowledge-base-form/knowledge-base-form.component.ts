@@ -1,33 +1,33 @@
-import { Component, input } from "@angular/core";
+import { Component, inject, input } from "@angular/core";
 import { FormGroup, Validators, FormControl } from "@angular/forms";
 import { CommonModule } from "@angular/common";
 import { ReactiveFormsModule } from "@angular/forms";
 import { FontAwesomeModule } from "@fortawesome/angular-fontawesome";
 import { faPlus, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { ParseInputForm } from "../annotation-input.component";
+import { KnowledgeBaseRelationship } from "@/types";
+import { IconButtonComponent } from "@/shared/icon-button/icon-button.component";
+import { AuthService } from "@/services/auth.service";
+import { map } from "rxjs";
 
-export enum KnowledgeBaseRelationship {
-    EQUAL = "EQUAL",
-    NOT_EQUAL = "NOT_EQUAL",
-    SUBSET = "SUBSET",
-    SUPERSET = "SUPERSET",
-}
 
 const relationshipDisplayMapping: Record<KnowledgeBaseRelationship, string> = {
-    EQUAL: "is equal to",
-    NOT_EQUAL: "is not equal to",
-    SUBSET: "is a subset of",
-    SUPERSET: "is a superset of",
+    equal: "is equal to",
+    not_equal: "is not equal to",
+    subset: "is a subset of",
+    superset: "is a superset of",
 };
 
 @Component({
     selector: "la-knowledge-base-form",
     standalone: true,
-    imports: [CommonModule, ReactiveFormsModule, FontAwesomeModule],
+    imports: [CommonModule, ReactiveFormsModule, FontAwesomeModule, IconButtonComponent],
     templateUrl: "./knowledge-base-form.component.html",
     styleUrls: ["./knowledge-base-form.component.scss"],
 })
 export class KnowledgeBaseFormComponent {
+    private authService = inject(AuthService);
+
     public form = input.required<ParseInputForm>();
 
     public relationshipTypes = Object.values(KnowledgeBaseRelationship);
@@ -35,8 +35,15 @@ export class KnowledgeBaseFormComponent {
     public faPlus = faPlus;
     public faTrash = faTrash;
 
+    public canEditKb$ = this.authService.currentUser$.pipe(
+        map(user => user?.canEditKb ?? false)
+    );
+
     public addKnowledgeBaseItem(): void {
         const newItem = new FormGroup({
+            id: new FormControl<number | null>(null, {
+                nonNullable: true
+            }),
             entity1: new FormControl<string>("", {
                 validators: [Validators.required],
                 nonNullable: true,
@@ -64,5 +71,6 @@ export class KnowledgeBaseFormComponent {
 
     public removeKnowledgeBaseItem(index: number): void {
         this.form().controls.kbItems.removeAt(index);
+        this.form().markAsDirty();
     }
 }

@@ -1,18 +1,24 @@
-import { Component, computed, input } from "@angular/core";
-import { Dataset, EntailmentLabel, ProblemResponse } from "../../../types";
+import { Dataset, EntailmentLabel, LabelAnnotation, Problem } from "../../../types";
+import { Component, computed, inject, input } from "@angular/core";
 import { EntailmentLabelBadgeComponent } from "./entailment-label-badge/entailment-label-badge.component";
-import { faQuestionCircle } from "@fortawesome/free-solid-svg-icons";
+import { faArrowUpRightFromSquare, faQuestionCircle } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeModule } from "@fortawesome/angular-fontawesome";
 import { NgbTooltipModule } from "@ng-bootstrap/ng-bootstrap";
 import { datasetLabels } from "@/shared/displayTextMappings";
+import { ProblemLabelsComponent } from "./problem-labels/problem-labels.component";
+import { CommonModule } from "@angular/common";
+import { RouterModule } from "@angular/router";
+import { ProblemService } from "@/services/problem.service";
 
 export interface ProblemDetails {
     problemId: string;
+    baseProblemId: string | null;
     dataset: Dataset;
     entailmentLabel: EntailmentLabel;
     section: string | null;
     subsection: string | null;
     comment: string | null;
+    labelAnnotations: LabelAnnotation[];
 }
 
 @Component({
@@ -20,14 +26,20 @@ export interface ProblemDetails {
     standalone: true,
     imports: [
         EntailmentLabelBadgeComponent,
+        ProblemLabelsComponent,
         FontAwesomeModule,
         NgbTooltipModule,
+        CommonModule,
+        RouterModule,
     ],
     templateUrl: "./problem-details.component.html",
     styleUrl: "./problem-details.component.scss",
 })
 export class ProblemDetailsComponent {
-    public readonly problem = input.required<ProblemResponse | null>();
+    public readonly problem = input.required<Problem>();
+    private problemService = inject(ProblemService);
+
+    public appMode$ = this.problemService.appMode$;
 
     public problemDetails = computed(() => {
         const problem = this.problem();
@@ -38,6 +50,7 @@ export class ProblemDetailsComponent {
     });
 
     public faQuestionCircle = faQuestionCircle;
+    public faArrowUpRight = faArrowUpRightFromSquare;
     public datasetLabels = datasetLabels;
 
     public sectionString = computed<string | null>(() => {
@@ -57,23 +70,19 @@ export class ProblemDetailsComponent {
         return null;
     });
 
-    private extractDetails(
-        response: ProblemResponse | null,
-    ): ProblemDetails | null {
-        if (!response?.problem) {
-            return null;
-        }
-
+    private extractDetails(problem: Problem): ProblemDetails | null {
         const shared: Pick<
             ProblemDetails,
-            "problemId" | "dataset" | "entailmentLabel"
+            "problemId" | "dataset" | "entailmentLabel" | "labelAnnotations" | "baseProblemId"
         > = {
-            problemId: response.problem.id.toString(),
-            dataset: response.problem.dataset,
-            entailmentLabel: response.problem.entailmentLabel,
+            problemId: problem.id?.toString() ?? $localize`new`,
+            baseProblemId: problem.base?.toString() ?? null,
+            dataset: problem.dataset,
+            entailmentLabel: problem.entailmentLabel,
+            labelAnnotations: problem.labelAnnotations ?? [],
         };
 
-        switch (response.problem.dataset) {
+        switch (problem.dataset) {
             case Dataset.SICK:
                 return {
                     ...shared,
@@ -84,9 +93,9 @@ export class ProblemDetailsComponent {
             case Dataset.FRACAS:
                 return {
                     ...shared,
-                    section: response.problem.extraData.sectionName,
-                    subsection: response.problem.extraData.subsectionName,
-                    comment: response.problem.extraData.note || null,
+                    section: problem.extraData.sectionName,
+                    subsection: problem.extraData.subsectionName,
+                    comment: problem.extraData.note || null,
                 };
             case Dataset.SNLI:
                 return {

@@ -1,10 +1,9 @@
-import { ParseInput } from '@/annotate/annotation-input/annotation-input.component';
-import { ProblemResponse } from '@/types';
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { Subject, switchMap, catchError, of, first, Observer } from 'rxjs';
+import { Subject, switchMap, catchError, of, first } from 'rxjs';
+import { ParseInput } from '@/annotate/annotation-input/annotation-input.component';
 
-export type ParseResponse = any
+export type ParseResponse = any;
 
 @Injectable({
     providedIn: 'root'
@@ -12,9 +11,9 @@ export type ParseResponse = any
 export class ParseService {
     private http = inject(HttpClient);
 
-    private submit = new Subject<ParseInput>();
+    public submit$ = new Subject<ParseInput>();
 
-    private parse$ = this.submit.pipe(
+    public parse$ = this.submit$.pipe(
         switchMap((form) =>
             this.http.post<ParseResponse>("/api/problem/parse", form).pipe(
                 catchError((error) => {
@@ -27,6 +26,6 @@ export class ParseService {
 
     public startParse(input: ParseInput, handler: (response: ParseResponse) => void) {
         this.parse$.pipe(first()).subscribe(handler);
-        this.submit.next(input);
+        this.submit$.next(input);
     }
 }

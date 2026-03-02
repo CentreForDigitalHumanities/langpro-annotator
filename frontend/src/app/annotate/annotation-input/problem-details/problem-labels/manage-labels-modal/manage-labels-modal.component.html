@@ -1,0 +1,127 @@
+<div class="modal-header">
+    <h5 class="modal-title" i18n>Manage Labels</h5>
+    <button
+        type="button"
+        class="btn-close"
+        aria-label="Close"
+        i18n-aria-label
+        (click)="activeModal.dismiss()"
+    ></button>
+</div>
+<div class="modal-body">
+    <h6 i18n>Attached labels</h6>
+    <table class="table table-hover table-sm mb-4 clickable-table">
+        <thead>
+            <tr>
+                <th scope="col" i18n>Label</th>
+                <th scope="col" i18n>Description</th>
+                <th scope="col" i18n>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            @for (annotation of shownLabels$ | async; track annotation.label.id)
+            {
+            <tr
+                [class.clickable-row]="annotation.removable"
+                (click)="
+                    annotation.removable
+                        ? removeLabel(annotation.label.id)
+                        : null
+                "
+            >
+                <td class="align-middle">
+                    <div class="label-pill">
+                        <span class="label-text">{{
+                            annotation.label.text
+                        }}</span>
+                    </div>
+                </td>
+                <td class="align-middle">
+                    {{ annotation.label.description }}
+                    @if (getAttachedByText(annotation)) {
+                    <div class="text-muted small mt-1">
+                        {{ getAttachedByText(annotation) }}
+                    </div>
+                    }
+                </td>
+                <td class="align-middle">
+                    @if (annotation.removable) {
+                    <span class="text-danger" i18n>Click to remove</span>
+                    }
+                </td>
+            </tr>
+            } @empty {
+            <tr>
+                <td colspan="3" class="text-muted" i18n>
+                    No labels are currently attached.
+                </td>
+            </tr>
+            }
+        </tbody>
+    </table>
+
+    <h6 i18n>Available labels</h6>
+    <table class="table table-hover table-sm clickable-table">
+        <thead>
+            <tr>
+                <th scope="col" i18n>Label</th>
+                <th scope="col" i18n>Description</th>
+                <th scope="col" i18n>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (loadingLabels$ | async) {
+            <tr>
+                <td colspan="3" class="text-center py-3">
+                    <div
+                        class="spinner-border spinner-border-sm text-secondary"
+                        role="status"
+                    >
+                        <span class="visually-hidden" i18n
+                            >Loading labels...</span
+                        >
+                    </div>
+                </td>
+            </tr>
+            } @else {
+            @for (label of availableLabels$ | async; track label.id) {
+            <tr
+                class="clickable-row align-middle"
+                (click)="addLabelAnnotation(label.id)"
+            >
+                <td>
+                    <div class="label-pill">
+                        <span class="label-text">{{ label.text }}</span>
+                    </div>
+                </td>
+                <td>{{ label.description }}</td>
+                <td>
+                    <span class="text-primary fit-content" i18n
+                        >Click to add</span
+                    >
+                </td>
+            </tr>
+            } @empty {
+            <tr>
+                <td colspan="3" class="text-muted" i18n>
+                    All labels have been attached.
+                </td>
+            </tr>
+            }
+            }
+        </tbody>
+    </table>
+</div>
+<div class="modal-footer">
+    <button type="button" class="btn btn-primary" (click)="closeModal()" i18n>
+        Save and close
+    </button>
+    <button
+        type="button"
+        class="btn btn-secondary"
+        (click)="activeModal.dismiss()"
+        i18n
+    >
+        Close
+    </button>
+</div>

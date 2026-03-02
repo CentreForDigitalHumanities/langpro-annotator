@@ -1,4 +1,3 @@
-from typing import Optional
 from dataclasses import dataclass
 
 from django.http import QueryDict
@@ -10,16 +9,16 @@ from problem.models import Problem
 
 @dataclass
 class RelatedProblemIds:
-    first: Optional[str] = None
-    previous: Optional[str] = None
-    next: Optional[str] = None
-    last: Optional[str] = None
-    total: Optional[int] = None
+    first: int | None = None
+    previous: int | None = None
+    next: int | None = None
+    last: int | None = None
+    total: int | None = None
 
 
 def get_related_problem_ids(
     problem_qs: QuerySet[Problem],
-    problem_id: Optional[int],
+    problem_id: int | None = None,
 ) -> RelatedProblemIds:
     """
     Retrieves the IDs of surrounding problem objects
@@ -44,10 +43,10 @@ def get_related_problem_ids(
             problem = None
 
     return RelatedProblemIds(
-        first=str(first_problem.pk) if first_problem else None,
-        previous=str(previous_problem.pk) if previous_problem else None,
-        next=str(next_problem.pk) if next_problem else None,
-        last=str(last_problem.pk) if last_problem else None,
+        first=first_problem.pk if first_problem else None,
+        previous=previous_problem.pk if previous_problem else None,
+        next=next_problem.pk if next_problem else None,
+        last=last_problem.pk if last_problem else None,
         total=total,
     )
 
@@ -70,8 +69,9 @@ def get_filters(query_params: QueryDict) -> Q | None:
         filters &= Q(dataset=dataset)
     if entailment_label:
         filters &= Q(entailment_label=entailment_label)
-    if gold is not None:
-        raise NotImplementedError()
+    if gold:
+        logger.warning(f"Filtering by gold is not implemented yet.")
+        pass
     if text:
         filters &= Q(
             Q(hypothesis__text__icontains=text) | Q(premises__text__icontains=text)

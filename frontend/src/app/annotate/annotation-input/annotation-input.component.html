@@ -1,12 +1,60 @@
-@if (problem?.id) {
+@let problem = problem$ | async;
+@let appMode = appMode$ | async;
+@let userProblem = isUserProblem$ | async;
+@if (problem) {
 <div class="card">
     <div class="card-body">
         <la-problem-details [problem]="problem" />
         @if (form) {
         <div class="d-flex flex-column">
-            <la-premises-form class="subform" [form]="form" />
+            <la-premises-form [form]="form" />
             <hr />
-            <la-knowledge-base-form class="subform" [form]="form" />
+            <la-knowledge-base-form [form]="form" />
+        </div>
+        <div class="d-flex justify-content-between mt-3">
+            <la-icon-button
+                buttonStyle="success"
+                [icon]="faTree"
+                label="Parse and prove"
+                (click)="startParse()"
+            />
+            @if (appMode === 'browse') {
+            <a
+                class="btn btn-secondary d-flex align-items-center justify-content-center"
+                [routerLink]="['/', 'annotate', 'new']"
+                [queryParams]="{base: form.getRawValue().id }"
+
+            >
+                <fa-icon
+                    [icon]="faCopy"
+                    class="fa-md"
+                    aria-hidden="true"
+                    focusable="false"
+                />
+                <span class="ms-2" i18n>Copy problem</span>
+            </a>
+            }
+            @if (this.form.dirty) {
+            <la-icon-button
+                buttonStyle="primary"
+                [icon]="faFloppyDisk"
+                label="Save problem"
+                (click)="saveProblem()"
+            />
+            } @else if (userProblem && (canEditProblem$ | async)) {
+            <a
+                class="btn btn-secondary d-flex align-items-center justify-content-center"
+                [routerLink]="['./edit']"
+                queryParamsHandling="preserve"
+            >
+                <fa-icon
+                    [icon]="faWrench"
+                    aria-hidden="true"
+                    focusable="false"
+                ></fa-icon>
+                <span class="ms-3" i18n>Edit problem</span>
+            </a>
+            }
         </div>
         }
     </div>

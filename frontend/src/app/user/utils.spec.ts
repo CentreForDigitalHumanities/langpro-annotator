@@ -1,6 +1,6 @@
 import { TestBed } from "@angular/core/testing";
 import { FormGroup, FormControl, Validators } from "@angular/forms";
-import { User, UserResponse } from "./models/user";
+import { User, UserResponse, UserRole } from "./models/user";
 import {
     parseUserData,
     encodeUserData,
@@ -36,9 +36,13 @@ describe("User utils", () => {
                 id: 1,
                 username: "testuser",
                 email: "test@example.com",
-                first_name: "Test",
-                last_name: "User",
-                is_staff: true,
+                firstName: "Test",
+                lastName: "User",
+                isStaff: true,
+                role: "visitor",
+                canCreateProblem: false,
+                canEditProblem: false,
+                canEditKb: false,
             };
             const user = parseUserData(result);
             expect(user).toBeInstanceOf(User);
@@ -48,6 +52,9 @@ describe("User utils", () => {
             expect(user?.firstName).toBe("Test");
             expect(user?.lastName).toBe("User");
             expect(user?.isStaff).toBe(true);
+            expect(user?.role).toBe(UserRole.VISITOR);
+            expect(user?.canEditProblem).toBe(false);
+            expect(user?.canCreateProblem).toBe(false);
         });
     });
 
@@ -66,9 +73,9 @@ describe("User utils", () => {
                 id: 1,
                 username: "testuser",
                 email: "test@example.com",
-                first_name: "Test",
-                last_name: "User",
-                is_staff: true,
+                firstName: "Test",
+                lastName: "User",
+                isStaff: true,
             });
         });
     });

@@ -1,17 +1,6 @@
-.problem-detail-container {
-    position: relative;
-}
-
-.entailment-label-container {
-    position: absolute;
-    top: 1em;
-    right: 1em;
-    display: flex;
-    gap: 0.5em;
-}
-
 .table {
     td:first-child {
         width: 8em;
+        color: var(--bs-secondary-color);
     }
 }

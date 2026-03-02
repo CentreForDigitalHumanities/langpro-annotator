@@ -4,12 +4,15 @@ import { NavigatorComponent } from "./navigator/navigator.component";
 import { AnnotationInputComponent, ParseInput } from "./annotation-input/annotation-input.component";
 import { SearchComponent } from "./search/search.component";
 import { FontAwesomeModule } from "@fortawesome/angular-fontawesome";
-import { faTree } from "@fortawesome/free-solid-svg-icons";
-import { ParseResponse, ParseService } from "@/services/parse.service";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { ProblemResponse } from "@/types";
+import { faBinoculars, faPlus } from "@fortawesome/free-solid-svg-icons";
+import { ActivatedRoute, RouterLinkWithHref } from "@angular/router";
 import { ProblemService } from "@/services/problem.service";
-import { Tree } from "@/tree";
+import { combineLatest, distinctUntilChanged, map } from "rxjs";
+import { CommonModule } from "@angular/common";
+import { Dataset } from "@/types";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { AuthService } from "@/services/auth.service";
+import areParamsEqual from "@/shared/areParamsEqual";
 
 @Component({
     selector: "la-annotate",
@@ -20,42 +23,49 @@ import { Tree } from "@/tree";
         AnnotationInputComponent,
         SearchComponent,
         FontAwesomeModule,
+        CommonModule,
+        RouterLinkWithHref,
     ],
     templateUrl: "./annotate.component.html",
     styleUrl: "./annotate.component.scss",
 })
 export class AnnotateComponent implements OnInit {
-    public faTree = faTree;
-    private destroyRef = inject(DestroyRef);
-    private parseService = inject(ParseService);
+    private route = inject(ActivatedRoute);
     private problemService = inject(ProblemService);
+    private authService = inject(AuthService);
+    private destroyRef = inject(DestroyRef);
 
-    public ccgTrees: Tree<string>[] = [];
+    public faPlus = faPlus;
+    public faBinoculars = faBinoculars;
 
-    private problem: ProblemResponse | null = null;
+    public appMode$ = this.problemService.appMode$;
+    public firstProblemId$ = this.problemService.firstProblemId$;
 
-    ngOnInit() {
-        // TODO: This is wrong. It seems silly to keep a local copy of the problem,
-        // and it's also not connected to the form, so any edits will not affect
-        // the requests
-        this.problemService.problem$
-            .pipe(takeUntilDestroyed(this.destroyRef))
-            .subscribe((problem) => {
-                this.problem = problem;
+    public isUserProblem$ = this.problemService.problem$.pipe(
+        map(problem => problem?.dataset === Dataset.USER)
+    );
+
+    public canCreateProblem$ = this.authService.currentUser$.pipe(
+        map(user => user?.canCreateProblem ?? false)
+    );
+
+    ngOnInit(): void {
+        const editParam$ = this.route.url.pipe(
+            map(segments => segments.some(segment => segment.path === "edit")),
+            distinctUntilChanged(),
+        );
+
+        combineLatest([
+            this.route.paramMap,
+            this.route.queryParamMap,
+            editParam$
+        ])
+            .pipe(
+                distinctUntilChanged((oldParams, newParams) => areParamsEqual(oldParams, newParams)),
+                takeUntilDestroyed(this.destroyRef)
+            )
+            .subscribe(([params, queryParams, edit]) => {
+                this.problemService.allParams$.next({ params, queryParams, edit });
             });
-    }
-
-    onParse(response: ParseResponse) {
-        console.log("Parse response:", response);
-        this.ccgTrees = response!.data.ccg_trees.map((tree: any) => new Tree(tree));
-    }
-
-    startParse() {
-        let input: ParseInput = {
-            premises: this.problem?.problem?.premises!,
-            hypothesis: this.problem?.problem?.hypothesis!,
-            kbItems: []
-        };
-        this.parseService.startParse(input, (r) => this.onParse(r));
     }
 }

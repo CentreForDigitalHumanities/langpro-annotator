@@ -23,11 +23,49 @@ interface SNLIData {
     label5: string;
 }
 
-interface ProblemBase {
+interface BaseAnnotation {
+    id: number | null;
+    session: number | null;
+    createdAt: string;
+    createdBy: string;
+    removedAt: string | null;
+    removedBy: string | null;
+    notes: string;
+    removable: boolean;
+}
+
+export enum KnowledgeBaseRelationship {
+    EQUAL = "equal",
+    NOT_EQUAL = "not_equal",
+    SUBSET = "subset",
+    SUPERSET = "superset",
+}
+
+export interface KnowledgeBaseAnnotation extends BaseAnnotation {
+    entity1: string;
+    relationship: KnowledgeBaseRelationship;
+    entity2: string;
+}
+
+export interface Label {
     id: number;
+    text: string;
+    description: string;
+}
+
+export interface LabelAnnotation extends BaseAnnotation {
+    label: Label;
+    attachedByCurrentUser: boolean;
+}
+
+interface ProblemBase {
+    id: number | null;
+    base: number | null;
     premises: string[];
     hypothesis: string | null;
     entailmentLabel: EntailmentLabel;
+    kbAnnotations: KnowledgeBaseAnnotation[];
+    labelAnnotations: LabelAnnotation[];
 }
 
 interface SickProblem extends ProblemBase {
@@ -50,18 +88,28 @@ interface UserProblem extends ProblemBase {
     extraData: null;
 }
 
-type Problem = SickProblem | FracasProblem | SNLIProblem | UserProblem;
+export type Problem = SickProblem | FracasProblem | SNLIProblem | UserProblem;
 
-export interface ProblemResponse {
-    id: number | null;
+interface BaseResponse {
+    error: string | null;
+}
+
+export interface ProblemResponse extends BaseResponse {
     index: number | null;
     problem: Problem | null;
-    error: string | null;
-    firstProblemId: string | null;
-    previousProblemId: string | null;
-    nextProblemId: string | null;
-    lastProblemId: string | null;
-    totalProblems: number;
+    first: number | null;
+    previous: number | null;
+    next: number | null;
+    last: number | null;
+    total: number;
+}
+
+export interface SaveProblemResponse extends BaseResponse {
+    id: number | null;
+}
+
+export interface SaveLabelsResponse extends BaseResponse {
+    ok: boolean;
 }
 
 export enum Dataset {

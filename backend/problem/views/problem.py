@@ -168,6 +168,9 @@ class ProblemView(ModelViewSet):
         serializer.is_valid(raise_exception=True)
         validated_input: dict = serializer.validated_data  # type: ignore
 
+        # Note that 200 OK is returned even if the user is only authorized to
+        # update KB annotations, but not core problem fields, because the
+        # request is not entirely forbidden in that case.
         status = HTTP_200_OK
 
         if problem_id is None:

@@ -172,7 +172,10 @@ class TestProblemViewPermissions:
             content_type="application/json",
         )
 
-        # Status code 200 because KB items are updated in the same view.
+        # The user is not authorized to update core problem fields, so one
+        # might expect a 403 FORBIDDEN. However, annotator users /are/ allowed
+        # to update KB annotations in the same view, so the request is not
+        # entirely forbidden, resulting in a 200 OK status code.
         assert response.status_code == status.HTTP_200_OK
 
         sample_problem.refresh_from_db()

@@ -38,9 +38,9 @@
                 </td>
                 <td class="align-middle">
                     {{ annotation.label.description }}
-                    @if (getAttachedByText(annotation)) {
+                    @if (getAttachedBy(annotation); as attachmentText) {
                     <div class="text-muted small mt-1">
-                        {{ getAttachedByText(annotation) }}
+                        {{ attachmentText }}
                     </div>
                     }
                 </td>

@@ -1,6 +1,7 @@
 @let problem = problem$ | async;
 @let appMode = appMode$ | async;
 @let userProblem = isUserProblem$ | async;
+@let editingOrAdding = appMode === 'edit' || appMode === 'add';
 @if (problem) {
 <div class="card">
     <div class="card-body">
@@ -18,7 +19,7 @@
                 label="Parse and prove"
                 (click)="startParse()"
             />
-            @if (appMode === 'browse') {
+            @if (appMode === 'browse' && (canCopyProblem$ | async)) {
             <a
                 class="btn btn-secondary d-flex align-items-center justify-content-center"
                 [routerLink]="['/', 'annotate', 'new']"
@@ -34,7 +35,7 @@
                 <span class="ms-2" i18n>Copy problem</span>
             </a>
             }
-            @if (this.form.dirty) {
+            @if (this.form.dirty || editingOrAdding) {
             <la-icon-button
                 buttonStyle="primary"
                 [icon]="faFloppyDisk"

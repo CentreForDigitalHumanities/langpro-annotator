@@ -37,9 +37,7 @@ class SaveLabelAnnotationPermission(IsAuthenticated):
         if user.is_superuser:
             return True
 
-        return user.has_perm("annotation.add_labelannotation") or user.has_perm(
-            "annotation.change_labelannotation"
-        )
+        return user.has_perm("annotation.add_labelannotation")
 
 
 class LabelAnnotationView(ModelViewSet):
@@ -126,7 +124,7 @@ class LabelAnnotationView(ModelViewSet):
     def _mark_as_removed(self, label_annotation: LabelAnnotation, user: User) -> None:
         """Mark a label annotation as removed."""
 
-        if not user.can_remove_label(label_annotation):
+        if not user.can_remove_label_annotation(label_annotation):
             logger.warning(
                 f"User {user.username} attempted to remove label {label_annotation.label.pk} "
                 f"attached by {label_annotation.created_by.username}"

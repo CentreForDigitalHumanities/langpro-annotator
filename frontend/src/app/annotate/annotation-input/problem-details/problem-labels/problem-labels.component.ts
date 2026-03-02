@@ -4,16 +4,18 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { NgbTooltipModule, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ManageLabelsModalComponent, ManageLabelsModalResult } from './manage-labels-modal/manage-labels-modal.component';
 import { LabelAnnotation, SaveLabelsResponse } from '@/types';
-import { catchError, Subject, switchMap } from 'rxjs';
+import { catchError, map, Subject, switchMap } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ToastService } from '@/services/toast.service';
 import { HttpClient } from '@angular/common/http';
 import { ProblemService } from '@/services/problem.service';
 import { getLabelTooltipText, sortAnnotations } from '@/util';
+import { AuthService } from '@/services/auth.service';
+import { CommonModule } from '@angular/common';
 
 @Component({
     selector: 'la-problem-labels',
-    imports: [FontAwesomeModule, NgbTooltipModule],
+    imports: [FontAwesomeModule, NgbTooltipModule, CommonModule],
     templateUrl: './problem-labels.component.html',
     styleUrl: './problem-labels.component.scss'
 })
@@ -22,6 +24,7 @@ export class ProblemLabelsComponent implements OnInit {
     private toastService = inject(ToastService);
     private http = inject(HttpClient);
     private problemService = inject(ProblemService);
+    private authService = inject(AuthService);
 
     public problemId = input.required<string>();
     public labelAnnotations = input.required<LabelAnnotation[]>();
@@ -31,6 +34,10 @@ export class ProblemLabelsComponent implements OnInit {
     });
 
     public faSearch = faSearch;
+
+    public canManageLabels$ = this.authService.currentUser$.pipe(
+        map(user => user?.canAddLabelAnnotations ?? false)
+    );
 
     private saveLabels$ = new Subject<ManageLabelsModalResult>();
 

@@ -38,6 +38,18 @@
             <p class="text-muted" i18n>
                 This will update this problem in the database.
             </p>
+            } @if (firstProblemId) {
+            <a
+                class="btn btn-secondary d-flex align-items-center justify-content-center"
+                [routerLink]="['/', 'annotate', firstProblemId.toString()]"
+            >
+                <fa-icon
+                    [icon]="faBinoculars"
+                    aria-hidden="true"
+                    focusable="false"
+                ></fa-icon>
+                <span class="ms-3" i18n>Browse existing problems</span>
+            </a>
             }
         </section>
         } @else {
@@ -59,18 +71,6 @@
                     focusable="false"
                 ></fa-icon>
                 <span class="ms-3" i18n>Add new problem</span>
-            </a>
-            } @else if (firstProblemId) {
-            <a
-                class="btn btn-secondary d-flex align-items-center justify-content-center"
-                [routerLink]="['/', 'annotate', firstProblemId.toString()]"
-            >
-                <fa-icon
-                    [icon]="faBinoculars"
-                    aria-hidden="true"
-                    focusable="false"
-                ></fa-icon>
-                <span class="ms-3" i18n>Browse existing problems</span>
             </a>
             }
         </div>

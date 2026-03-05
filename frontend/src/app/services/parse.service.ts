@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { Subject, switchMap, catchError, of, first } from 'rxjs';
+import { Subject, switchMap, catchError, of } from 'rxjs';
 import { ParseInput } from '@/annotate/annotation-input/annotation-input.component';
 
 export type ParseResponse = any;
@@ -23,9 +23,4 @@ export class ParseService {
             )
         )
     );
-
-    public startParse(input: ParseInput, handler: (response: ParseResponse) => void) {
-        this.parse$.pipe(first()).subscribe(handler);
-        this.submit$.next(input);
-    }
 }

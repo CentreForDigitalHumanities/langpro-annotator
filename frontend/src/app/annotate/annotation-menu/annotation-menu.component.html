@@ -9,9 +9,7 @@
             <span i18n>CCG / LLF</span>
         </button>
         <ng-template ngbNavContent>
-            @for(tree of ccgTrees; track $index) {
-                <la-parse-svg [tree]="tree"></la-parse-svg>
-            }
+            <la-annotation-parse-results />
         </ng-template>
     </li>
     <li [ngbNavItem]="2">

@@ -17,12 +17,11 @@ import { ProblemDetailsComponent } from "./problem-details/problem-details.compo
 import { map, Subject } from "rxjs";
 import { ActivatedRoute, Router, RouterLinkWithHref } from "@angular/router";
 import { ProblemService } from "@/services/problem.service";
-import { ParseResponse, ParseService } from "@/services/parse.service";
+import { ParseService } from "@/services/parse.service";
 import { FontAwesomeModule } from "@fortawesome/angular-fontawesome";
 import { ToastService } from "@/services/toast.service";
 import { AuthService } from "@/services/auth.service";
 import { IconButtonComponent } from "@/shared/icon-button/icon-button.component";
-import { Tree } from "@/tree";
 
 export type ParseInputForm = FormGroup<{
     id: FormControl<number | null>;
@@ -74,8 +73,6 @@ export class AnnotationInputComponent implements OnInit {
 
     public submit$ = new Subject<void>();
 
-    public ccgTrees: Tree<string>[] = [];
-
     public faCopy = faCopy;
     public faCheck = faCheck;
     public faTree = faTree;
@@ -123,19 +120,6 @@ export class AnnotationInputComponent implements OnInit {
             });
             this.router.navigate(["/", "annotate", response.id]);
         });
-
-        // Subscription needed to ensure a request is actually made.
-        // TODO: replace this with actual parse results.
-        this.parseService.parse$
-            .pipe(takeUntilDestroyed(this.destroyRef))
-            .subscribe((response) => {
-                console.log("Parse response:", response);
-            });
-    }
-
-    onParse(response: ParseResponse) {
-        console.log("Parse response:", response);
-        this.ccgTrees = response!.data.ccg_trees.map((tree: any) => new Tree(tree));
     }
 
     public startParse(): void {
@@ -143,7 +127,7 @@ export class AnnotationInputComponent implements OnInit {
             return;
         }
         const input = this.form.getRawValue();
-        this.parseService.startParse(input, (r) => this.onParse(r));
+        this.parseService.submit$.next(input);
     }
 
     public saveProblem(): void {

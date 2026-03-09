@@ -1,0 +1,25 @@
+<svg:g>
+    @if (expanded) {
+        <svg:g parse-term [term]="treeNode.value" (onSize)="updateDimensions($event)" (click)="termClick()"></svg:g>
+    }
+    @else {
+        <svg:text class="expand-plus" role="button" x="0" [attr.y]="nodeHeight()" text-anchor="middle" dominant-baseline="middle"
+                (click)="termClick()">+
+        </svg:text>
+    }
+
+    @if (showSubtrees()) {
+        @if (treeNode.children) {
+            @for (child of treeNode.children; track $index; let i = $index) {
+                <svg:path [attr.d]="subtreeLinkPath(i)" stroke="steelblue" fill="none"/>
+            }
+        }
+
+        <svg:g attr.transform="translate(0, {{ nodeHeight() + levelHeight }})">
+            @for (child of treeNode.children; track $index; let i = $index) {
+                <svg:g parse-tree [treeNode]="child" attr.transform="translate({{subtreePosition(i)}}, 0)"
+                (onSize)="updateSubDimensions($event)"></svg:g>
+            }
+        </svg:g>
+    }
+</svg:g>

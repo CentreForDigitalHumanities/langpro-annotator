@@ -1,3 +1,5 @@
+import requests
+from django.conf import settings
 from dataclasses import dataclass, field, asdict
 
 from django.http import JsonResponse
@@ -65,19 +67,21 @@ class ParseView(APIView):
     def send_to_parser(self, data: ParserInput) -> dict | None:
         """Send frontend data to downstream LangPro service."""
 
-        logger.info("Sending to LangPro service:", asdict(data))
+        logger.info(f"Sending to LangPro service: {asdict(data)}")
 
-        # try:
-        #     response = requests.post(
-        #         url=f"{LANGPRO_URL}/parse",
-        #         json=asdict(data),
-        #         headers={"Content-Type": "application/json"},
-        #     )
-        #     response.raise_for_status()
-        #     return response.json()
-        # except requests.RequestException as e:
-        #     logger.exception(f"Error sending request to LangPro: {e}")
-        #     return None
+        params = asdict(data)
+        # ask LangPro container to return results in a format suitable for
+        # this application
+        params['format'] = 'annotator'
 
-
-        return {"ok": "true"}
+        try:
+            response = requests.post(
+                url=f"{settings.LANGPRO_URL}/api/prove/",
+                json=params,
+                headers={"Content-Type": "application/json"},
+            )
+            response.raise_for_status()
+            return response.json()
+        except requests.RequestException as e:
+            logger.exception(f"Error sending request to LangPro: {e}")
+            raise

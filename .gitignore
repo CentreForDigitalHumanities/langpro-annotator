@@ -37,3 +37,9 @@ venv.bak/
 node_modules/
 frontend/src/environments/version.ts
 *~
+
+# ProofBank datasets
+/backend/SICK.txt
+/backend/fracas.xml
+/backend/snli_1.0_dev.txt
+/backend/snli_1.0_test.txt

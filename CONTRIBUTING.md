@@ -4,7 +4,9 @@ This document contains basic documentation for developing LangPro Annotator.
 
 ## Before you start
 
-You need to install the following software, *unless* you will be using Docker:
+This repository has a submodule that requires [git-lfs][git-lfs]. It is recommended that you install git-lfs before cloning the repository to a local disk.
+
+You also need to install the following software, *unless* you will be using Docker:
 
  - PostgreSQL >= 10, client, server and C libraries
  - Python >= 3.8, <= 3.10
@@ -14,17 +16,32 @@ You need to install the following software, *unless* you will be using Docker:
  - Node.js >= 14.20.0
  - Yarn
 
+After cloning the repository, run the following commands once in order to obtain a local copy of [langpro-container][container] and its recursive submodule [LangPro][langpro]:
+
+``` sh
+git submodule init
+# customize clone URL in .git/config before proceeding (if needed)
+git submodule update --recursive
+```
+
+If you don't need to customize clone URLs, you can also do both steps at once with `git submodule update --init --recursive`.
+
 [1]: https://wiki.python.org/moin/WindowsCompilers
+[git-lfs]: https://git-lfs.com/
+[container]: https://github.com/CentreForDigitalHumanities/langpro-container
+[langpro]: https://github.com/kovvalsky/LangPro
 
 ## How it works
 
-This project integrates three isolated subprojects, each inside its own subdirectory with its own code, package dependencies and tests:
+This project integrates four isolated subprojects, each inside its own subdirectory with its own code, package dependencies and tests:
 
  - **backend**: the server side web application based on [Django][3] and [DRF][4]
 
  - **frontend**: the client side web application based on [Angular](https://angular.io)
 
  - **functional-tests**: the functional test suite based on [playwright][6] and [pytest][7]
+
+ - **langpro-container**: a git submodule that provides a backend for parsing and proving problems
 
 [3]: https://www.djangoproject.com
 [4]: https://www.django-rest-framework.org

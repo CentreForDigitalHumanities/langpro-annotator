@@ -1,6 +1,6 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { TableauTerm } from './tableau-term.component';
-import { Dimensions } from './types';
+import { Dimensions } from '@/types';
 import { sum } from "@/util";
 
 @Component({

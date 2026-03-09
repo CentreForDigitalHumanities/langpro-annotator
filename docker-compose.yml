@@ -1,3 +1,6 @@
+include:
+    - ./langpro-container/compose.yaml
+
 services:
     postgres:
         image: postgres:15
@@ -16,6 +19,7 @@ services:
             context: ./backend
         environment:
             PGHOST: postgres
+            LANGPRO_CONTAINER: 'http://langpro:80'
             LANGPRO_FRONTEND: 'http://frontend:4200'
         depends_on:
             postgres:

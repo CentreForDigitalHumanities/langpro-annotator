@@ -124,14 +124,6 @@ export class AnnotationInputComponent implements OnInit {
             });
             this.router.navigate(["/", "annotate", response.id]);
         });
-
-        // Subscription needed to ensure a request is actually made.
-        // TODO: replace this with actual parse results.
-        this.parseService.parse$
-            .pipe(takeUntilDestroyed(this.destroyRef))
-            .subscribe((response) => {
-                console.log("Parse response:", response);
-            });
     }
 
     public startParse(): void {

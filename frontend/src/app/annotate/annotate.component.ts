@@ -1,7 +1,7 @@
 import { Component, DestroyRef, inject, OnInit } from "@angular/core";
 import { AnnotationMenuComponent } from "./annotation-menu/annotation-menu.component";
 import { NavigatorComponent } from "./navigator/navigator.component";
-import { AnnotationInputComponent, ParseInput } from "./annotation-input/annotation-input.component";
+import { AnnotationInputComponent } from "./annotation-input/annotation-input.component";
 import { SearchComponent } from "./search/search.component";
 import { FontAwesomeModule } from "@fortawesome/angular-fontawesome";
 import { faBinoculars, faPlus } from "@fortawesome/free-solid-svg-icons";

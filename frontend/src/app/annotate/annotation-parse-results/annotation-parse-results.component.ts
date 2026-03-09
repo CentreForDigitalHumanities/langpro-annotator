@@ -1,7 +1,7 @@
 import { Component, DestroyRef, inject, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { mockResult } from "./mockParseResult";
-import { ParseResponse, ParseService } from "@/services/parse.service";
+import { ParseService } from "@/services/parse.service";
 import { ParseTreeTableComponent } from "./parse-tree-table/parse-tree-table.component";
 import { NgbAccordionModule } from "@ng-bootstrap/ng-bootstrap";
 

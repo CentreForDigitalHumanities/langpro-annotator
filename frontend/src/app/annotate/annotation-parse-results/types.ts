@@ -1,57 +1,22 @@
-// TODO: update these types to match the actual data structure returned
-// by LangPro's syntactic parser.
+export type LeafNode = {
+    // Fixed order: rule, token, lemma, POS tag, NER tag, category.
+    node: [string, string, string, string, string, string];
+};
 
-export interface ParseResult {
-    parser: string;
-    sentences: ParsedSentence[];
-}
+export type UnaryNode = {
+    node: string;
+    children: [CCGNode];
+};
 
-export interface ParsedSentence {
-    id: string;
-    text: string;
-    parses: ParseTree[];
-}
+export type BinaryNode = {
+    node: string;
+    children: [CCGNode, CCGNode];
+};
 
-export interface ParseTree {
-    type: ParseTreeType;
-    root: ParseTreeNode;
-}
+export type CCGNode = LeafNode | UnaryNode | BinaryNode;
 
-export enum ParseTreeType {
-    CCG_DERIVATION,
-    CCG_TERM,
-    CORRECTED_CCG_TERM,
-    FIRST_LLF
-}
 
-export type ParseTreeNode = LeafNode | UnaryNode | BinaryNode | VariableNode;
-
-export interface LeafNode {
-    type: 'leaf';
-    lem: string;
-    tok: string;
-    pos: string;
-    ner: string;
-    cat: string;
-}
-
-export interface UnaryNode {
-    type: 'unary';
-    child: ParseTreeNode;
-    cat: string;
-    rule?: string;
-}
-
-export interface BinaryNode {
-    type: 'binary';
-    left: ParseTreeNode;
-    right: ParseTreeNode;
-    cat: string; // e.g. "NP", "VP<dcl>"
-    rule?: string; // e.g., "fa", "ba"
-}
-
-export interface VariableNode {
-    type: 'var';
-    name: string;
-    typeInfo: string;
-}
+export type ParseResponseData = {
+    ccg_trees: CCGNode[];
+    proofs: unknown[];
+};

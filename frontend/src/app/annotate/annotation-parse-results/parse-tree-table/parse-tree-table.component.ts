@@ -1,14 +1,104 @@
 import { Component, computed, input } from '@angular/core';
-import { BinaryNode, LeafNode, ParseTree, ParseTreeNode, ParseTreeType, UnaryNode, VariableNode } from '../types';
-import { TreeNodeComponent, TreeNodeDisplay } from './tree-node.component';
+import { TreeNodeComponent } from './tree-node.component';
+import { CCGNode, LeafNode, BinaryNode, UnaryNode } from "../types";
+import { TreeNodeDisplay } from "./tree-node.component";
 
-const TreeTypeDisplay: Record<ParseTreeType, string> = {
-    [ParseTreeType.CCG_DERIVATION]: 'CCG Derivation',
-    [ParseTreeType.CCG_TERM]: 'CCG Term',
-    [ParseTreeType.CORRECTED_CCG_TERM]: 'Corrected CCG Term',
-    [ParseTreeType.FIRST_LLF]: 'First LLF'
-};
+export function buildDisplayTree(node: CCGNode): TreeNodeDisplay {
+    if (nodeIsLeaf(node)) {
+        return buildLeafNode(node);
+    } else if (nodeIsBinary(node)) {
+        return buildBinaryNode(node);
+    } else if (nodeIsUnary(node)) {
+        return buildUnaryNode(node);
+    } else {
+        return {
+            children: [],
+            content: "Unknown Node Type",
+            type: 'node'
+        };
+    }
+}
 
+function nodeIsLeaf(node: CCGNode): node is LeafNode {
+    return Array.isArray(node.node);
+}
+
+function nodeIsBinary(node: CCGNode): node is BinaryNode {
+    return 'children' in node && node.children.length === 2;
+}
+
+function nodeIsUnary(node: CCGNode): node is UnaryNode {
+    return 'children' in node && node.children.length === 1;
+}
+
+function buildLeafNode(node: LeafNode): TreeNodeDisplay {
+    const [_rule, tok, lem, pos, ner, cat] = node.node;
+    return {
+        type: 'leaf',
+        content: cat,
+        children: [],
+        leaf: { tok, lem, pos, ner }
+    };
+}
+
+function buildBinaryNode(node: BinaryNode): TreeNodeDisplay {
+    const left = buildDisplayTree(node.children[0]);
+    const right = buildDisplayTree(node.children[1]);
+
+    const { content, rule } = extractRule(node.node);
+
+    return {
+        type: 'node',
+        content: content,
+        rule: rule,
+        children: [left, right]
+    };
+}
+
+function buildUnaryNode(node: UnaryNode): TreeNodeDisplay {
+    const child = buildDisplayTree(node.children[0]);
+
+    const { content, rule } = extractRule(node.node);
+
+    return {
+        type: 'node',
+        content: content,
+        rule: rule,
+        children: [child]
+    };
+}
+
+/**
+ * Parses a node string to extract the rule and the content.
+ * 
+ * A node string is usually of the form "A(B)", where a is the rule applied 
+ * and B is the resulting category. The rule is anything everything before
+ * the first parenthesis. Everything within it is the content. For example, 
+ * in "fa(s:ng-np)", "fa" is the rule and "s:ng-np" is the content.
+ * 
+ * Due to a bug in the CCG parser, sometimes the node string can have 
+ * multiple layers of parentheses, e.g. fa(((s:ng-np)-(s:ng-np))). 
+ * function only strips off the first.
+ * 
+ */
+function extractRule(nodeString: string): { rule: string, content: string; } {
+    const firstParen = nodeString.indexOf('(');
+    const lastParen = nodeString.lastIndexOf(')');
+
+    // Return a fallback value if the string is not what we expect.
+    if (firstParen === -1 || lastParen === -1 || lastParen < firstParen) {
+        return {
+            rule: "",
+            content: nodeString
+        };
+    }
+
+    const rule = nodeString.slice(0, firstParen);
+    // Strip off any remaining parentheses due to the CCG parser bug.
+    const content = nodeString.slice(firstParen + 1, lastParen).replaceAll('(', '').replaceAll(')', '');
+
+    return { rule, content };
+}
 
 @Component({
     selector: 'la-parse-tree-table',
@@ -17,71 +107,7 @@ const TreeTypeDisplay: Record<ParseTreeType, string> = {
     styleUrl: './parse-tree-table.component.scss'
 })
 export class ParseTreeTableComponent {
-    public readonly tree = input.required<ParseTree>();
+    public readonly tree = input.required<CCGNode>();
 
-    public rootNode = computed(() => this.buildDisplayTree(this.tree().root));
-
-    public treeType = computed(() => TreeTypeDisplay[this.tree().type] || "Unknown Type");
-
-    private buildDisplayTree(node: ParseTreeNode): TreeNodeDisplay {
-        switch (node.type) {
-            case 'leaf':
-                return this.buildLeafNode(node);
-            case 'binary':
-                return this.buildBinaryNode(node);
-            case 'unary':
-                return this.buildUnaryNode(node);
-            case 'var':
-                return this.buildVariableNode(node);
-        }
-    }
-
-    private buildLeafNode(node: LeafNode): TreeNodeDisplay {
-        return {
-            type: 'leaf',
-            content: node.cat,
-            children: [],
-            leaf: {
-                tok: node.tok,
-                lem: node.lem,
-                pos: node.pos,
-                ner: node.ner
-            }
-        };
-    }
-
-    private buildVariableNode(node: VariableNode): TreeNodeDisplay {
-        return {
-            type: 'var',
-            content: node.name,
-            children: [],
-            var: {
-                typeInfo: node.typeInfo
-            }
-        };
-    }
-
-    private buildBinaryNode(node: BinaryNode): TreeNodeDisplay {
-        const left = this.buildDisplayTree(node.left);
-        const right = this.buildDisplayTree(node.right);
-
-        return {
-            type: 'node',
-            content: node.cat,
-            rule: node.rule,
-            children: [left, right]
-        };
-    }
-
-    private buildUnaryNode(node: UnaryNode): TreeNodeDisplay {
-        const child = this.buildDisplayTree(node.child);
-
-        return {
-            type: 'node',
-            content: node.cat,
-            rule: node.rule,
-            children: [child]
-        };
-    }
-
+    public displayTree = computed(() => buildDisplayTree(this.tree()));
 }

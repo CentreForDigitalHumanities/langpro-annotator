@@ -38,6 +38,19 @@ export class ParseService {
         this.parseResults$,
         this.clearOnNewProblem$
     );
+
+    public proofs$ = this.parse$.pipe(map(extractProofs));
+}
+
+function extractProofs(
+    response: ParseResponse | {data: null, error: any} | null
+) {
+    if (!response || !response.data) return null;
+    const {entailment, contradiction} = response.data.proofs;
+    return {
+        entailment: nltk2tableau(entailment),
+        contradiction: nltk2tableau(contradiction),
+    };
 }
 
 const emptyTableau = (): any => ({nodes: []});

@@ -1,0 +1,28 @@
+<svg:g role="button" attr.transform="translate({{-totalW/2}}, 0)">
+@if(id) {
+    <svg:rect [attr.x]="-padding/2" y="0" [attr.width]="idW" [attr.height]="height" fill="silver"></svg:rect>
+    <svg:text #idText x="0" y="10" dominant-baseline="middle" fill="white">{{ id }}</svg:text>
+}
+
+@if(bg) {
+    <svg:rect [attr.x]="headX" [attr.width]="headW" [attr.height]="height" [attr.fill]="bg"></svg:rect>
+}
+
+@if(end) {
+    <svg:circle [attr.cx]="headX + 5" [attr.cy]="12" r="10" fill="salmon"/>
+    <svg:text #headText [attr.x]="headX" y="12" dominant-baseline="middle" font-weight="bold" fill="white">⛌</svg:text>
+}
+@else {
+    <svg:text #headText [attr.x]="headX" y="10" dominant-baseline="middle">{{ head }}</svg:text>
+}
+
+@if(args) {
+    <svg:rect [attr.x]="argsX - padding/2" [attr.width]="argsW" [attr.height]="height" fill="khaki"></svg:rect>
+    <svg:text #argsText [attr.x]="argsX" y="10" dominant-baseline="middle">{{ args }}</svg:text>
+}
+
+@if(rule) {
+<svg:text [attr.x]="totalW/2" y="30" style="font-size:.8em;" text-anchor="middle" dominant-baseline="middle">{{ rule }}</svg:text>
+}
+
+</svg:g>

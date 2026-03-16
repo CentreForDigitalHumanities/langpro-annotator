@@ -1,12 +1,12 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
-import { TableauTerm } from './tableau-term.component';
+import { TableauNode } from './tableau-node.component';
 import { Dimensions } from '@/types';
 import { sum } from "@/util";
 
 @Component({
     selector: "[tableau-tree]",
     standalone: true,
-    imports: [TableauTerm],
+    imports: [TableauNode],
     templateUrl: "./tableau-tree.component.svg",
     styleUrl: "./tableau-tree.component.scss",
 })
@@ -26,7 +26,7 @@ export class TableauTree {
 
     levelHeight = 40;
 
-    /* Width of the tree node, has to be determined dynamically via onSize events from terms */
+    /* Width of the tree node, has to be determined dynamically via onSize events from nodes */
     width = 0;
     /* Height isn't stored in a member variable, because it can be computed as needed */
 
@@ -90,7 +90,7 @@ export class TableauTree {
         return sum(this.tree.nodes.slice(0, idx).map(this.nodeHeight));
     }
 
-    termClick(idx: number) {
+    nodeClick(idx: number) {
         // the last node can't be collapsed
         // unless there are subtrees
         if (idx < this.expanded.length - 1 || this.tree.subtrees) {

@@ -1,8 +1,9 @@
 <svg:g>
     @for (node of visibleNodes(); track $index; let i = $index) {
         <svg:g attr.transform="translate(0, {{ nodeY(i) }})">
-            <svg:g node [id]="node.id" [head]="node.head" [args]="node.args" [end]="node.end"
-                [sign]="node.sign" (onSize)="updateDimensions($event)" [rule]="node.rule"
+            <svg:g node [id]="node.id" [mod]="node.mod" [head]="node.head"
+                [args]="node.args" [end]="node.end" [sign]="node.sign"
+                (onSize)="updateDimensions($event)" [rule]="node.rule"
                 (click)="nodeClick($index)"
                 ></svg:g>
             @if(!expanded[$index]) {

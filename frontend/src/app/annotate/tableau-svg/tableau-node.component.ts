@@ -13,6 +13,9 @@ export class TableauNode {
     public id?: number;
 
     @Input()
+    public mod?: string;
+
+    @Input()
     public args?: string;
 
     @Input()
@@ -33,6 +36,9 @@ export class TableauNode {
     @ViewChild('headText')
     headText?: ElementRef<SVGTextElement>;
 
+    @ViewChild('modText')
+    modText?: ElementRef<SVGTextElement>;
+
     @ViewChild('argsText')
     argsText?: ElementRef<SVGTextElement>;
 
@@ -43,6 +49,8 @@ export class TableauNode {
     height = 20;
 
     idW = 0;
+    modX = 0;
+    modW = 0;
     headX = 0;
     headW = 0;
     argsX = 0;
@@ -51,11 +59,17 @@ export class TableauNode {
 
     ngAfterViewChecked() {
         this.idW = this.idText ? this.idText.nativeElement.getComputedTextLength() + this.padding : 0;
+        this.modX = this.idW;
+        this.modW = this.modText ? this.modText.nativeElement.getComputedTextLength() + this.padding : 0;
         this.argsW = this.argsText ? this.argsText.nativeElement.getComputedTextLength() + this.padding : 0;
-        this.headX = this.idW;
         this.headW = this.headText ? this.headText.nativeElement.getComputedTextLength() : 0;
+        this.headX = this.modX + this.modW;
         this.argsX =  this.headX + this.headW + this.padding;
-        this.totalW = this.headText ? this.argsW + this.idW + this.headText.nativeElement.getComputedTextLength() : 0;
+        this.totalW = (
+            this.headText ?
+            this.argsW + this.idW + this.headW + this.modW :
+            0
+        );
 
         this.onSize.emit({width: this.totalW, height: this.height});
     }

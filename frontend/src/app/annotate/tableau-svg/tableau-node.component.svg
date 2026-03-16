@@ -4,6 +4,11 @@
     <svg:text #idText x="0" y="10" dominant-baseline="middle" fill="white">{{ id }}</svg:text>
 }
 
+@if(mod) {
+    <svg:rect [attr.x]="modX - padding/2" [attr.width]="modW" [attr.height]="height" fill="lavender"></svg:rect>
+    <svg:text #modText [attr.x]="modX" y="10" dominant-baseline="middle">{{ mod }}</svg:text>
+}
+
 @if(sign != null) {
     <svg:rect [attr.x]="headX" [attr.width]="headW" [attr.height]="height" [attr.fill]="sign === true ? 'honeydew' : 'mistyrose'"></svg:rect>
 }

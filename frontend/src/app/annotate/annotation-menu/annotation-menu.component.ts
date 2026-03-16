@@ -7,7 +7,7 @@ import {
     faPenNib,
 } from "@fortawesome/free-solid-svg-icons";
 import { AnnotationParseResultsComponent } from "../annotation-parse-results/annotation-parse-results.component";
-import { AnnotationTableauComponent } from "../annotation-tableau/annotation-tableau.component";
+import { TableauSVG } from '../tableau-svg/tableau-svg.component';
 import { AnnotationCommentsComponent } from "../annotation-comments/annotation-comments.component";
 
 @Component({
@@ -17,7 +17,7 @@ import { AnnotationCommentsComponent } from "../annotation-comments/annotation-c
         NgbNavModule,
         FontAwesomeModule,
         AnnotationParseResultsComponent,
-        AnnotationTableauComponent,
+        TableauSVG,
         AnnotationCommentsComponent,
     ],
     templateUrl: "./annotation-menu.component.html",

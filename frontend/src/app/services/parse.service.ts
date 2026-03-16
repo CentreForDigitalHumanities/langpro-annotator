@@ -39,3 +39,58 @@ export class ParseService {
         this.clearOnNewProblem$
     );
 }
+
+const emptyTableau = (): any => ({nodes: []});
+const pairNodes = (other: any[]) =>
+    (node: any, index: number) => [node, other[index]];
+
+export function nltk2tableau(nltk: any) {
+    const tree = emptyTableau();
+    const todo = [[nltk, tree]];
+    while (todo.length) {
+        // @ts-ignore
+        let task: [any, any] = todo.pop();
+        let newTasks = nltkNode2tableauNode(...task);
+        todo.push(...newTasks);
+    }
+    return tree;
+}
+
+function nltkNode2tableauNode(nltk: any, tree: any) {
+    const node: any = {};
+    tree.nodes.push(node);
+    const lines = nltk.node.split('\n');
+    if (lines[0] === 'Closed') {
+        node.rule = lines[1];
+    } else if (lines[0] !== 'Model') {
+        const sign = lines.pop();
+        node.sign = (sign === 'True');
+        const tagLine = lines.shift().split(':');
+        node.id = +tagLine[0];
+        if (tagLine[1]) node.rule = tagLine[1];
+        const back = lines.pop();
+        if (back.startsWith('[')) {
+            node.args = back.slice(1, -1);
+        } else {
+            node.head = back;
+        }
+        const front = lines.shift();
+        if (front != null) {
+            if (front.startsWith('[')) {
+                node.mod = front.slice(1, -1);
+            } else {
+                node.head = front;
+            }
+        }
+        if (lines.length) node.head = lines[0];
+    }
+    if (!nltk.children || !nltk.children.length) {
+        node.end = true;
+        return [];
+    }
+    if (nltk.children.length === 1) {
+        return [[nltk.children[0], tree]];
+    }
+    tree.subtrees = nltk.children.map(emptyTableau);
+    return nltk.children.map(pairNodes(tree.subtrees));
+}

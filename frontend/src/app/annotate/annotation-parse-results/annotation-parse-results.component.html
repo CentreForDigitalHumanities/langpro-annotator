@@ -1,17 +1,21 @@
-@let ccgTrees = (parseResults$ | async)?.ccg_trees;
+@let ccgParses = (parseResults$ | async);
 <div>
     <div ngbAccordion>
-        @for (tree of ccgTrees; track $index) {
+        @for (parse of ccgParses; track $index) {
         <div ngbAccordionItem>
             <h2 ngbAccordionHeader>
                 <button ngbAccordionButton>
-                     --sentence-text--
+                    {{ parse.sentence }}
                 </button>
             </h2>
             <div ngbAccordionCollapse>
                 <div ngbAccordionBody>
                     <ng-template>
-                        <la-parse-tree-table [tree]="tree" />
+                        <div class="d-flex flex-column gap-3 overflow-x-scroll">
+                            @for (tree of parse.ccgTrees; track $index) {
+                            <la-parse-tree-table [tree]="tree" />
+                            }
+                        </div>
                     </ng-template>
                 </div>
             </div>

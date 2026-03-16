@@ -2,6 +2,7 @@ import { Component, computed, input } from '@angular/core';
 import { TreeNodeComponent } from './tree-node.component';
 import { CCGNode, LeafNode, BinaryNode, UnaryNode } from "../types";
 import { TreeNodeDisplay } from "./tree-node.component";
+import { TreeWithType } from '../annotation-parse-results.component';
 
 export function buildDisplayTree(node: CCGNode): TreeNodeDisplay {
     if (nodeIsLeaf(node)) {
@@ -20,7 +21,7 @@ export function buildDisplayTree(node: CCGNode): TreeNodeDisplay {
 }
 
 function nodeIsLeaf(node: CCGNode): node is LeafNode {
-    return Array.isArray(node.node);
+    return !('children' in node);
 }
 
 function nodeIsBinary(node: CCGNode): node is BinaryNode {
@@ -70,16 +71,16 @@ function buildUnaryNode(node: UnaryNode): TreeNodeDisplay {
 
 /**
  * Parses a node string to extract the rule and the content.
- * 
- * A node string is usually of the form "A(B)", where a is the rule applied 
+ *
+ * A node string is usually of the form "A(B)", where a is the rule applied
  * and B is the resulting category. The rule is anything everything before
- * the first parenthesis. Everything within it is the content. For example, 
+ * the first parenthesis. Everything within it is the content. For example,
  * in "fa(s:ng-np)", "fa" is the rule and "s:ng-np" is the content.
- * 
- * Due to a bug in the CCG parser, sometimes the node string can have 
- * multiple layers of parentheses, e.g. fa(((s:ng-np)-(s:ng-np))). 
+ *
+ * Due to a bug in the CCG parser, sometimes the node string can have
+ * multiple layers of parentheses, e.g. fa(((s:ng-np)-(s:ng-np))).
  * function only strips off the first.
- * 
+ *
  */
 function extractRule(nodeString: string): { rule: string, content: string; } {
     const firstParen = nodeString.indexOf('(');
@@ -107,7 +108,8 @@ function extractRule(nodeString: string): { rule: string, content: string; } {
     styleUrl: './parse-tree-table.component.scss'
 })
 export class ParseTreeTableComponent {
-    public readonly tree = input.required<CCGNode>();
+    public readonly tree = input.required<TreeWithType>();
 
-    public displayTree = computed(() => buildDisplayTree(this.tree()));
+    public displayTree = computed(() => buildDisplayTree(this.tree().tree));
+    public treeType = computed(() => this.tree().type);
 }

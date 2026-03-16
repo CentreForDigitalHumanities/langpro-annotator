@@ -15,8 +15,14 @@ export type BinaryNode = {
 
 export type CCGNode = LeafNode | UnaryNode | BinaryNode;
 
+export type ParseTreeType = 'ccg_tree' | 'ccg_term' | 'corr_term' | 'llf';
+
+export interface CCGParse {
+    sentence: string;
+    ccg_trees: Record<ParseTreeType, CCGNode>;
+};
 
 export type ParseResponseData = {
-    ccg_trees: CCGNode[];
+    ccg_parses: CCGParse[];
     proofs: unknown[];
 };

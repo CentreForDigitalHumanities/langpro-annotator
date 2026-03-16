@@ -15,9 +15,8 @@ export class TableauNode {
     @Input()
     public args?: string;
 
-    /* background color, should probably be replaced by an enum type with the color lookup done elsewhere */
     @Input()
-    public bg?: string;
+    public sign?: boolean;
 
     @Input()
     public head: string = '';

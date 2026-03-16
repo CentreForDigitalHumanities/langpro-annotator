@@ -4,8 +4,8 @@
     <svg:text #idText x="0" y="10" dominant-baseline="middle" fill="white">{{ id }}</svg:text>
 }
 
-@if(bg) {
-    <svg:rect [attr.x]="headX" [attr.width]="headW" [attr.height]="height" [attr.fill]="bg"></svg:rect>
+@if(sign != null) {
+    <svg:rect [attr.x]="headX" [attr.width]="headW" [attr.height]="height" [attr.fill]="sign === true ? 'honeydew' : 'mistyrose'"></svg:rect>
 }
 
 @if(end) {

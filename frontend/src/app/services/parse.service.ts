@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { Subject, switchMap, catchError, of, merge, map } from 'rxjs';
+import { Subject, switchMap, catchError, of, merge, map, share } from 'rxjs';
 import { ParseInput } from '@/annotate/annotation-input/annotation-input.component';
 import { ProblemService } from './problem.service';
 import { ParseResponseData } from '@/types';
@@ -31,7 +31,8 @@ export class ParseService {
                     return of({ data: null, error: error.message || "An error occurred while parsing the problem." });
                 }),
             )
-        )
+        ),
+        share()
     );
 
     public parse$ = merge(

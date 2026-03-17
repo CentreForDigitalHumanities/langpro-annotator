@@ -75,7 +75,7 @@ function nltkNode2tableauNode(nltk: any, tree: any) {
     const lines = nltk.node.split('\n');
     if (lines[0] === 'Closed') {
         node.rule = lines[1];
-    } else if (lines[0] !== 'Model') {
+    } else if (lines.length >= 3) {
         const sign = lines.pop();
         node.sign = (sign === 'True');
         const tagLine = lines.shift().split(':');
@@ -96,6 +96,8 @@ function nltkNode2tableauNode(nltk: any, tree: any) {
             }
         }
         if (lines.length) node.head = lines[0];
+    } else if (lines[0] !== 'Model') {
+        node.head = nltk.node;
     }
     if (!nltk.children || !nltk.children.length) {
         node.end = true;

@@ -1,9 +1,8 @@
-import { Component, ChangeDetectorRef} from '@angular/core';
+import { Component, ChangeDetectorRef, input } from '@angular/core';
 import { CommonModule } from "@angular/common";
 import { Subject } from "rxjs";
 import { Dimensions } from '@/types';
 import { TableauTree } from './tableau-tree.component';
-import mockTableau from '@/shared/mockTableauTree';
 
 @Component({
     selector: "la-tableau-svg",
@@ -28,5 +27,5 @@ export class TableauSVG {
         this.cdref.detectChanges();
     }
 
-    tree: any = mockTableau;
+    public readonly tree = input.required<any>();
 }

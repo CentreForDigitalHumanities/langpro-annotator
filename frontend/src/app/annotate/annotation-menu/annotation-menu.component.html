@@ -1,3 +1,5 @@
+@let proofs = proofs$ | async;
+
 <ul ngbNav #nav="ngbNav" [(activeId)]="active" class="nav-tabs flex-nowrap">
     <li [ngbNavItem]="1">
         <button ngbNavLink>
@@ -19,7 +21,9 @@
         </button>
         <ng-template ngbNavContent>
             <section>
-                <la-tableau-svg></la-tableau-svg>
+                @if (proofs) {
+                <la-tableau-svg [tree]="proofs.entailment"></la-tableau-svg>
+                }
             </section>
         </ng-template>
     </li>

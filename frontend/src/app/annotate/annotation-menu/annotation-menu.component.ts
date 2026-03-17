@@ -4,7 +4,6 @@ import { FontAwesomeModule } from "@fortawesome/angular-fontawesome";
 import { NgbNavModule } from "@ng-bootstrap/ng-bootstrap";
 import {
     faSquarePollHorizontal,
-    faTree,
     faPenNib,
 } from "@fortawesome/free-solid-svg-icons";
 
@@ -34,6 +33,5 @@ export class AnnotationMenuComponent {
     public active = 1;
 
     public faSquarePollHorizontal = faSquarePollHorizontal;
-    public faTree = faTree;
     public faPenNib = faPenNib;
 }

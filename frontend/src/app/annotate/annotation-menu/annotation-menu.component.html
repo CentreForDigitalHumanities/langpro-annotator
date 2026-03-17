@@ -17,7 +17,7 @@
     <li [ngbNavItem]="2">
         <button ngbNavLink>
             <fa-icon [icon]="faTree" class="me-2" aria-hidden="true" />
-            <span i18n>Tableau / Proof</span>
+            <span i18n>Proof / Entailment</span>
         </button>
         <ng-template ngbNavContent>
             <section>
@@ -28,6 +28,19 @@
         </ng-template>
     </li>
     <li [ngbNavItem]="3">
+        <button ngbNavLink>
+            <fa-icon [icon]="faTree" class="me-2" aria-hidden="true" />
+            <span i18n>Proof / Contradiction</span>
+        </button>
+        <ng-template ngbNavContent>
+            <section>
+                @if (proofs) {
+                <la-tableau-svg [tree]="proofs.contradiction"></la-tableau-svg>
+                }
+            </section>
+        </ng-template>
+    </li>
+    <li [ngbNavItem]="4">
         <button ngbNavLink>
             <fa-icon [icon]="faPenNib" class="me-2" aria-hidden="true" />
             <span i18n>Comments / History</span>

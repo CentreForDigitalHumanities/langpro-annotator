@@ -74,6 +74,8 @@ const internalNodePattern = /^(?<id>\d+):?(?<rule>.+)?(\n\[(?<mod>.+)\])?\n(?<he
 const emptyTableau = (): any => ({nodes: []});
 const pairNodes = (other: any[]) =>
     (node: any, index: number) => [node, other[index]];
+const quotes = /'/g;
+const unquote = (text: string) => text.replace(quotes, '');
 
 /**
  * Given a single proof in serialized NLTK.Tree format, return the same proof in
@@ -172,7 +174,7 @@ function parseNltkNode(text: string) {
         head: match.groups['head'],
         sign: match.groups['sign'] === 'True',
     };
-    if (match.groups['rule']) result.rule = match.groups['rule'];
+    if (match.groups['rule']) result.rule = unquote(match.groups['rule']);
     if (match.groups['mod']) result.mod = match.groups['mod'];
     if (match.groups['args']) result.args = match.groups['args'];
     return result;

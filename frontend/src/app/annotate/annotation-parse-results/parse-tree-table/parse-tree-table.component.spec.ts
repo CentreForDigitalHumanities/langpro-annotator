@@ -1,17 +1,12 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { ParseTreeTableComponent } from './parse-tree-table.component';
-import { ParseTree, ParseTreeType } from '../types';
+import { TreeWithType } from '../annotation-parse-results.component';
 
-const mockTree: ParseTree = {
-    type: ParseTreeType.CCG_DERIVATION,
-    root: {
-        type: "leaf",
-        lem: "dog",
-        tok: "Dog",
-        pos: "NN",
-        ner: "O",
-        cat: "N"
+const mockTree: TreeWithType = {
+    type: "CCG Tree",
+    tree: {
+        node: ["NP", "The", "the", "DT", "O", "NP"],
     }
 }
 

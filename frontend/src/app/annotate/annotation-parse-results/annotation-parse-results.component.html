@@ -1,24 +1,28 @@
+@let ccgParses = (parseResults$ | async);
 <div>
-    <h3>Parser: {{ parseResults.parser }}</h3>
     <div ngbAccordion>
-        @for (sentence of parseResults.sentences; track sentence.id) {
+        @for (parse of ccgParses; track $index) {
         <div ngbAccordionItem>
             <h2 ngbAccordionHeader>
                 <button ngbAccordionButton>
-                    {{ sentence.id }}: {{ sentence.text }}
+                    {{ parse.sentence }}
                 </button>
             </h2>
             <div ngbAccordionCollapse>
                 <div ngbAccordionBody>
                     <ng-template>
-                        <div class="d-flex flex-wrap gap-3 align-items-stretch">
-                            @for (parse of sentence.parses; track $index) {
-                            <la-parse-tree-table [tree]="parse" />
+                        <div class="d-flex flex-column gap-3 overflow-x-scroll">
+                            @for (tree of parse.ccgTrees; track $index) {
+                            <la-parse-tree-table [tree]="tree" />
                             }
                         </div>
                     </ng-template>
                 </div>
             </div>
+        </div>
+        } @empty {
+        <div class="mt-3">
+            <i class="text-muted" i18n>No parse results to display yet. Press the 'Parse and Prove' button to see the parse results.</i>
         </div>
         }
     </div>

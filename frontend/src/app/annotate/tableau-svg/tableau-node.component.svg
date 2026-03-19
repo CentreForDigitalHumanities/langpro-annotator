@@ -14,7 +14,7 @@
 }
 
 @if(end) {
-    <svg:circle [attr.cx]="headX + 5" [attr.cy]="12" r="10" fill="salmon"/>
+    <svg:circle [attr.cx]="headX + 8" [attr.cy]="11" r="10" fill="salmon"/>
     <svg:text #headText [attr.x]="headX" y="12" dominant-baseline="middle" font-weight="bold" fill="white">⛌</svg:text>
 }
 @else {

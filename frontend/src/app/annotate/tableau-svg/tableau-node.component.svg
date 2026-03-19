@@ -15,7 +15,7 @@
 
 @if(end) {
     <svg:circle [attr.cx]="headX + 8" [attr.cy]="11" r="10" fill="salmon"/>
-    <svg:text #headText [attr.x]="headX" y="12" dominant-baseline="middle" font-weight="bold" fill="white">⛌</svg:text>
+    <svg:text #headText [attr.x]="headX" y="12" dominant-baseline="middle" font-weight="bold" fill="white">{{rule ? '⛌' : '⭘'}}</svg:text>
 }
 @else {
     <svg:text #headText [attr.x]="headX" y="10" dominant-baseline="middle">{{ head }}</svg:text>
@@ -26,8 +26,8 @@
     <svg:text #argsText [attr.x]="argsX" y="10" dominant-baseline="middle">{{ args }}</svg:text>
 }
 
-@if(rule) {
-<svg:text [attr.x]="totalW/2" y="30" style="font-size:.8em;" text-anchor="middle" dominant-baseline="middle">{{ rule }}</svg:text>
+@if(rule || end) {
+<svg:text [attr.x]="totalW/2" y="30" style="font-size:.8em;" text-anchor="middle" dominant-baseline="middle">{{ rule || 'Open branch' }}</svg:text>
 }
 
 </svg:g>

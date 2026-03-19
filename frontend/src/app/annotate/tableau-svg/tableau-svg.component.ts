@@ -1,7 +1,7 @@
 import { Component, ChangeDetectorRef, ElementRef, input } from '@angular/core';
 import { CommonModule } from "@angular/common";
 import { Subject } from "rxjs";
-import { Dimensions } from '@/types';
+import { Dimensions, ProofTree } from '@/types';
 import { TableauTree } from './tableau-tree.component';
 
 @Component({
@@ -34,5 +34,5 @@ export class TableauSVG {
         });
     }
 
-    public readonly tree = input.required<any>();
+    public readonly tree = input.required<ProofTree>();
 }

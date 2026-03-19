@@ -3,7 +3,12 @@ import { inject, Injectable } from '@angular/core';
 import { Subject, switchMap, catchError, of, merge, map, share } from 'rxjs';
 import { ParseInput } from '@/annotate/annotation-input/annotation-input.component';
 import { ProblemService } from './problem.service';
-import { ParseResponse } from '@/types';
+import {
+    ParseResponse,
+    NLTKTree,
+    ProofNode,
+    ProofTree,
+} from '@/types';
 
 
 @Injectable({
@@ -66,11 +71,13 @@ const closedLeafPattern = /^Closed\n(?<rule>.+)$/;
 const internalNodePattern = /^(?<id>\d+):?(?<rule>.+)?(\n\[(?<mod>.+)\])?\n(?<head>.+)(\n\[(?<args>.+)\])?\n(?<sign>True|False)$/;
 
 // Helpers for the functions below.
-const emptyTableau = (): any => ({nodes: []});
+const emptyTableau = (): ProofTree => ({nodes: []});
 const pairNodes = (other: any[]) =>
     (node: any, index: number) => [node, other[index]];
 const quotes = /'/g;
 const unquote = (text: string) => text.replace(quotes, '');
+
+type ProofConversionThunk = [NLTKTree, ProofTree];
 
 /**
  * Given a single proof in serialized NLTK.Tree format, return the same proof in
@@ -80,7 +87,7 @@ const unquote = (text: string) => text.replace(quotes, '');
  * This function can handle proof trees of arbitrary depth without causing a
  * stack overflow.
  */
-export function nltk2tableau(nltk: any) {
+export function nltk2tableau(nltk: NLTKTree): ProofTree {
     const tree = emptyTableau();
     // We will be using trampolining instead of recursion. A general but
     // admittedly not very helpful description can be found in the first bullet
@@ -95,7 +102,7 @@ export function nltk2tableau(nltk: any) {
     // `nltkNode2tableauNode`, we leave this implicit in the thunk
     // representation. It consists only of the arguments that we are passing to
     // the function.
-    const todo = [[nltk, tree]];
+    const todo: ProofConversionThunk[] = [[nltk, tree]];
     // The core of the trampoline. Process one thunk at a time. We know we are
     // done when the list is empty.
     while (todo.length) {
@@ -105,7 +112,7 @@ export function nltk2tableau(nltk: any) {
         // guaranteed to be nonempty on the next line, hence the silencing
         // comment.
         // @ts-ignore
-        const task: [any, any] = todo.pop();
+        const task = todo.pop() as ProofConversionThunk;
         // Processing a thunk might produce zero or more new thunks, depending
         // on the number of children of the processed node.
         const newTasks = nltkNode2tableauNode(...task);
@@ -120,14 +127,15 @@ export function nltk2tableau(nltk: any) {
  * trampoline (in `nltk2tableau`) and returns thunks instead of recursing into
  * child nodes.
  */
-function nltkNode2tableauNode(nltk: any, tree: any) {
+function nltkNode2tableauNode(nltk: NLTKTree, tree: ProofTree):
+ProofConversionThunk[] {
     // `nltk` is in a strictly nested format: each node contains its children.
     // Our own format does not follow this rule: chains of nodes with single
     // children are stored as adjacent elements in an array. `tree` is the
     // object that contains this array (`tree.nodes`). When there is a
     // bifurcation, the subtrees are stored inside `tree` rather than in the
     // bifurcating node.
-    const node: any = parseNltkNode(nltk.node);
+    const node = parseNltkNode(nltk.node);
     tree.nodes.push(node);
     // With the node itself having been decoded, now comes the part where a
     // "normal" function would recurse and where we return follow-up thunks
@@ -151,17 +159,19 @@ function nltkNode2tableauNode(nltk: any, tree: any) {
     // We essentially do a `_.zip(nltk.children, tree.subtrees)` in order to
     // create the thunks. I could have fumbled with `Iterator.zip` instead, but
     // that feels like more hassle and the polyfill would be huge.
-    return nltk.children.map(pairNodes(tree.subtrees));
+    return nltk.children.map(pairNodes(tree.subtrees)) as ProofConversionThunk[];
 }
 
 /**
  * Decode the payload of a serialized nltk.Tree node, where all information is
  * combined in a single string, back to an object with explicitly labeled parts.
  */
-function parseNltkNode(text: string) {
+function parseNltkNode(text: string): ProofNode {
     if (openLeafPattern.test(text)) return {};
     let match;
-    if (match = text.match(closedLeafPattern)) return match.groups;
+    if (match = text.match(closedLeafPattern)) {
+        return match.groups as unknown as ProofNode;
+    }
     match = text.match(internalNodePattern);
     if (!match || !match.groups) return {head: text};
     const result: any = {

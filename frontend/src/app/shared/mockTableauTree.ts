@@ -1,4 +1,6 @@
-export default {
+import { ProofTree } from '@/types';
+
+const tree: ProofTree = {
     nodes: [
         {id: 1, head: '(every man)(be work)', sign: true},
         {id: 2, head: '(every ((who (be work)) person))(λF.((a (expensive car))(λE.((have E) F))))', sign: true},
@@ -49,3 +51,5 @@ export default {
         }
     ]
 };
+
+export default tree;

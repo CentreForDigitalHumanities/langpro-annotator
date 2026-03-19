@@ -1,4 +1,6 @@
-export default {
+import { NLTKTree } from '@/types';
+
+const tree: NLTKTree = {
     "children": [
         {
             "children": [
@@ -127,3 +129,5 @@ export default {
     ],
     "node": "1:\n(every man)(be work)\nTrue"
 };
+
+export default tree;

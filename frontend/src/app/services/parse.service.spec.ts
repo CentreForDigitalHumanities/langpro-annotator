@@ -2,6 +2,7 @@ import { TestBed } from '@angular/core/testing';
 
 import { provideHttpClient } from '@angular/common/http';
 
+import { NLTKTree, ProofTree } from '@/types';
 import { ParseService, nltk2tableau } from './parse.service';
 import realNltk from '@/shared/mockNltkProof';
 import realTableau from '@/shared/mockTableauTree';
@@ -23,14 +24,14 @@ describe('ParseService', () => {
 
 describe('nltk2tableau', () => {
     it('handles a trivial dead end', () => {
-        const nltk = {node: 'Model'};
-        const tableau = {nodes: [{end: true}]};
+        const nltk: NLTKTree = {node: 'Model'};
+        const tableau: ProofTree = {nodes: [{end: true}]};
         expect(nltk2tableau(nltk)).toEqual(tableau);
     });
 
     it('handles a closing end', () => {
-        const nltk = {node: 'Closed\ncl_subsumption([1, 2])'};
-        const tableau = {nodes: [{
+        const nltk: NLTKTree = {node: 'Closed\ncl_subsumption([1, 2])'};
+        const tableau: ProofTree = {nodes: [{
             end: true,
             rule: 'cl_subsumption([1, 2])',
         }]};
@@ -38,7 +39,7 @@ describe('nltk2tableau', () => {
     });
 
     it('handles nested nodes', () => {
-        const nltk = {
+        const nltk: NLTKTree = {
             node: '1\nterm\nTrue',
             children: [{
                 node: '2:some_rule([1])\nanotherterm\n[c1]\nFalse',
@@ -53,7 +54,7 @@ describe('nltk2tableau', () => {
                 }],
             }],
         };
-        const tableau = {
+        const tableau: ProofTree = {
             nodes: [{
                 id: 1,
                 head: 'term',
@@ -85,7 +86,7 @@ describe('nltk2tableau', () => {
     });
 
     it('can handle branching', () => {
-        const nltk = {
+        const nltk: NLTKTree = {
             node: '1:rule([1, 2])\nterm\n[arg]\nFalse',
             children: [{
                 node: 'Model',
@@ -93,7 +94,7 @@ describe('nltk2tableau', () => {
                 node: 'Closed\nclosing_rule([1])',
             }],
         };
-        const tableau = {
+        const tableau: ProofTree = {
             nodes: [{
                 id: 1,
                 rule: 'rule([1, 2])',
@@ -111,8 +112,8 @@ describe('nltk2tableau', () => {
     });
 
     it('does not cause a stack overflow', () => {
-        let nltk: any = {node: 'Model'};
-        const tableau: any = {nodes: []};
+        let nltk: NLTKTree = {node: 'Model'};
+        const tableau: ProofTree = {nodes: []};
         for (let i = 0; i < 100000; ++i) {
             nltk = {
                 node: '1\nterm\nFalse',

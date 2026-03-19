@@ -1,6 +1,6 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { TableauNode } from './tableau-node.component';
-import { Dimensions } from '@/types';
+import { Dimensions, ProofTree, ProofNode } from '@/types';
 import { sum } from "@/util";
 
 @Component({
@@ -13,13 +13,13 @@ import { sum } from "@/util";
 export class TableauTree {
     expanded: boolean[] = [];
 
-    _tree: any;
+    _tree: ProofTree = {nodes: []};
     @Input()
-    get tree(): any {
+    get tree(): ProofTree {
         return this._tree;
     }
 
-    set tree(value: any) {
+    set tree(value: ProofTree) {
         this._tree = value;
         this.expanded = value.nodes.map(() => true);
     }
@@ -61,7 +61,8 @@ export class TableauTree {
     /* Determines the X coordinate of where subtree of index `idx` should be drawn */
     subtreePosition(idx: number) {
         let widthWithPadding = 1.15 * this.subWidth;
-        return widthWithPadding * idx - (widthWithPadding / 2) * (this.tree.subtrees.length - 1);
+        const subtreeCount = this.tree.subtrees!.length;
+        return widthWithPadding * idx - (widthWithPadding / 2) * (subtreeCount - 1);
     }
 
     /* Generates a path definition for linking the end of the current node to subtree index `idx` */
@@ -76,7 +77,7 @@ export class TableauTree {
         ].join(' ');
     }
 
-    nodeHeight(node: any) {
+    nodeHeight(node: ProofNode) {
         // note that in this case height includes bottom padding for the node
         return node.rule ? 60 : 40;
     }

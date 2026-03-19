@@ -1,6 +1,6 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { ParseTerm } from './parse-term.component';
-import { Dimensions, CCGTerm } from '@/types';
+import { Dimensions } from '@/types';
 import { TreeNode } from "@/tree";
 
 @Component({
@@ -14,7 +14,7 @@ export class ParseTree {
     expanded: boolean = true;
 
     @Input()
-    treeNode: TreeNode<CCGTerm> = {value: [], children: []};
+    treeNode: TreeNode<string[]> = {value: [], children: []};
 
     levelHeight = 40;
 

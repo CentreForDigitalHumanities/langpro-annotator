@@ -20,7 +20,7 @@
             <span i18n>Proof / Entailment</span>
         </button>
         <ng-template ngbNavContent>
-            <section style="overflow-x: scroll;">
+            <section class="overflow-x-scroll">
                 @if (proofs) {
                 <la-tableau-svg [tree]="proofs.entailment"></la-tableau-svg>
                 }

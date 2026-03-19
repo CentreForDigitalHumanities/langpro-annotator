@@ -12,12 +12,12 @@ export interface TreeWithType {
     tree: CCGNode;
 }
 
-interface FlattenedParseResult {
+interface UnfoldedParseResult {
     sentence: string;
     ccgTrees: TreeWithType[];
 }
 
-function flattenResult(parse: CCGParse): FlattenedParseResult {
+function unfoldParseResult(parse: CCGParse): UnfoldedParseResult {
     const { ccg_tree, ccg_term, corr_term, llf } = parse.ccg_trees;
     // TODO: Reintroduce the other trees once they are serialized properly.
     return {
@@ -45,7 +45,7 @@ export class AnnotationParseResultsComponent {
 
     public parseResults$ = this.parseService.parse$
         .pipe(
-            map(response => response?.data?.ccg_parses.map(parse => flattenResult(parse)) ?? null),
+            map(response => response?.data?.ccg_parses.map(parse => unfoldParseResult(parse)) ?? null),
             takeUntilDestroyed(this.destroyRef)
         );
 }

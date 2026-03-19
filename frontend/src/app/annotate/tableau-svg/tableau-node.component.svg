@@ -14,8 +14,8 @@
 }
 
 @if(end) {
-    <svg:circle [attr.cx]="headX + 8" [attr.cy]="11" r="10" fill="salmon"/>
-    <svg:text #headText [attr.x]="headX" y="12" dominant-baseline="middle" font-weight="bold" fill="white">{{rule ? '⛌' : '⭘'}}</svg:text>
+    <svg:circle [attr.cx]="totalW / 2" [attr.cy]="11" r="10" fill="salmon"/>
+    <svg:text #headText [attr.x]="totalW / 2 - 8.25" y="11.5625" dominant-baseline="middle" font-weight="bold" fill="white">{{rule ? '⛌' : '⭘'}}</svg:text>
 }
 @else {
     <svg:text #headText [attr.x]="headX" y="10" dominant-baseline="middle">{{ head }}</svg:text>

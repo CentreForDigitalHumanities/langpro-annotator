@@ -172,3 +172,9 @@ export type ParseResponseData = {
         contradiction: NLTKTree,
     };
 };
+
+export type ParseResponse = {
+    data: ParseResponseData;
+    error: string | null;
+};
+

@@ -42,6 +42,9 @@ export class TableauNode {
     @ViewChild('argsText')
     argsText?: ElementRef<SVGTextElement>;
 
+    @ViewChild('ruleText')
+    ruleText?: ElementRef<SVGTextElement>;
+
     @Output()
     public onSize = new EventEmitter<Dimensions>();
 
@@ -65,11 +68,15 @@ export class TableauNode {
         this.headW = this.headText ? this.headText.nativeElement.getComputedTextLength() : 0;
         this.headX = this.modX + this.modW;
         this.argsX =  this.headX + this.headW + this.padding;
-        this.totalW = (
+
+        const mainW = (
             this.headText ?
             this.argsW + this.idW + this.headW + this.modW :
             0
         );
+
+        const ruleW = this.ruleText ? this.ruleText.nativeElement.getComputedTextLength() : 0;
+        this.totalW = Math.max(mainW, ruleW)
 
         this.onSize.emit({width: this.totalW, height: this.height});
     }

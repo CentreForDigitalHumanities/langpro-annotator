@@ -27,7 +27,7 @@
 }
 
 @if(rule || end) {
-<svg:text [attr.x]="totalW/2" y="30" style="font-size:.8em;" text-anchor="middle" dominant-baseline="middle">{{ rule || 'Open branch' }}</svg:text>
+<svg:text #ruleText [attr.x]="totalW/2" y="30" style="font-size:.8em;" text-anchor="middle" dominant-baseline="middle">{{ rule || 'Open branch' }}</svg:text>
 }
 
 </svg:g>

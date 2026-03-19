@@ -65,6 +65,12 @@ function extractProofs(
     };
 }
 
+// Regular expressions matching the stringified nltk.Tree node payloads.
+const openLeafPattern = /^Model$/;
+const closedLeafPattern = /^Closed\n(?<rule>.+)$/;
+const internalNodePattern = /^(?<id>\d+):?(?<rule>.+)?(\n\[(?<mod>.+)\])?\n(?<head>.+)(\n\[(?<args>.+)\])?\n(?<sign>True|False)$/;
+
+// Helpers for the functions below.
 const emptyTableau = (): any => ({nodes: []});
 const pairNodes = (other: any[]) =>
     (node: any, index: number) => [node, other[index]];
@@ -124,37 +130,8 @@ function nltkNode2tableauNode(nltk: any, tree: any) {
     // object that contains this array (`tree.nodes`). When there is a
     // bifurcation, the subtrees are stored inside `tree` rather than in the
     // bifurcating node.
-    const node: any = {};
+    const node: any = parseNltkNode(nltk.node);
     tree.nodes.push(node);
-    // Tease out the different parts of the stringified node payload. The
-    // following lines will be rewritten using regular expressions.
-    const lines = nltk.node.split('\n');
-    if (lines[0] === 'Closed') {
-        node.rule = lines[1];
-    } else if (lines.length >= 3) {
-        const sign = lines.pop();
-        node.sign = (sign === 'True');
-        const tagLine = lines.shift().split(':');
-        node.id = +tagLine[0];
-        if (tagLine[1]) node.rule = tagLine[1];
-        const back = lines.pop();
-        if (back.startsWith('[')) {
-            node.args = back.slice(1, -1);
-        } else {
-            node.head = back;
-        }
-        const front = lines.shift();
-        if (front != null) {
-            if (front.startsWith('[')) {
-                node.mod = front.slice(1, -1);
-            } else {
-                node.head = front;
-            }
-        }
-        if (lines.length) node.head = lines[0];
-    } else if (lines[0] !== 'Model') {
-        node.head = nltk.node;
-    }
     // With the node itself having been decoded, now comes the part where a
     // "normal" function would recurse and where we return follow-up thunks
     // instead.
@@ -178,4 +155,25 @@ function nltkNode2tableauNode(nltk: any, tree: any) {
     // create the thunks. I could have fumbled with `Iterator.zip` instead, but
     // that feels like more hassle and the polyfill would be huge.
     return nltk.children.map(pairNodes(tree.subtrees));
+}
+
+/**
+ * Decode the payload of a serialized nltk.Tree node, where all information is
+ * combined in a single string, back to an object with explicitly labeled parts.
+ */
+function parseNltkNode(text: string) {
+    if (openLeafPattern.test(text)) return {};
+    let match;
+    if (match = text.match(closedLeafPattern)) return match.groups;
+    match = text.match(internalNodePattern);
+    if (!match || !match.groups) return {head: text};
+    const result: any = {
+        id: +match.groups['id'],
+        head: match.groups['head'],
+        sign: match.groups['sign'] === 'True',
+    };
+    if (match.groups['rule']) result.rule = match.groups['rule'];
+    if (match.groups['mod']) result.mod = match.groups['mod'];
+    if (match.groups['args']) result.args = match.groups['args'];
+    return result;
 }

@@ -102,10 +102,10 @@ export function nltk2tableau(nltk: any) {
         // guaranteed to be nonempty on the next line, hence the silencing
         // comment.
         // @ts-ignore
-        let task: [any, any] = todo.pop();
+        const task: [any, any] = todo.pop();
         // Processing a thunk might produce zero or more new thunks, depending
         // on the number of children of the processed node.
-        let newTasks = nltkNode2tableauNode(...task);
+        const newTasks = nltkNode2tableauNode(...task);
         todo.push(...newTasks);
     }
     return tree;

@@ -1,6 +1,6 @@
 import { Component, computed, input } from '@angular/core';
 import { TreeNodeComponent } from './tree-node.component';
-import { CCGNode, LeafNode, BinaryNode, UnaryNode } from "../types";
+import { CCGNode, LeafNode, BinaryNode, UnaryNode } from "@/types";
 import { TreeNodeDisplay } from "./tree-node.component";
 import { TreeWithType } from '../annotation-parse-results.component';
 

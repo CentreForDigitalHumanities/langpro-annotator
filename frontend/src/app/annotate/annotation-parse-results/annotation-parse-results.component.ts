@@ -5,7 +5,7 @@ import { ParseTreeTableComponent } from "./parse-tree-table/parse-tree-table.com
 import { NgbAccordionModule } from "@ng-bootstrap/ng-bootstrap";
 import { map } from "rxjs";
 import { CommonModule } from "@angular/common";
-import { CCGNode, CCGParse } from "./types";
+import { CCGNode, CCGParse } from "@/types";
 
 export interface TreeWithType {
     type: string;

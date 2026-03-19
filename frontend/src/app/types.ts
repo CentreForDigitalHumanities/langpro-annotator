@@ -178,3 +178,21 @@ export type ParseResponse = {
     error: string | null;
 };
 
+//
+// Our internal representation of proof trees
+//
+
+export type ProofNode = {
+    id?: number;
+    rule?: string;
+    mod?: string;
+    head?: string;
+    args?: string;
+    sign?: boolean;
+    end?: true;
+};
+
+export interface ProofTree {
+    nodes: ProofNode[];
+    subtrees?: ProofTree[];
+}

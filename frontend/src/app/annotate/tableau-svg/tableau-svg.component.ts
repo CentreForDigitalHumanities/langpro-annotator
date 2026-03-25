@@ -13,6 +13,8 @@ import { TableauTree } from './tableau-tree.component';
 })
 export class TableauSVG {
 
+    public readonly tree = input.required<ProofTree>();
+
     treeDimensions$ = new Subject<Dimensions>();
     treeDimensions: Dimensions = {width:0, height: 0};
 
@@ -33,6 +35,4 @@ export class TableauSVG {
             left: Math.max(0, width / 2 - 500)
         });
     }
-
-    public readonly tree = input.required<ProofTree>();
 }

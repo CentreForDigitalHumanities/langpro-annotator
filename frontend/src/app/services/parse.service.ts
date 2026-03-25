@@ -109,9 +109,8 @@ export function nltk2tableau(nltk: NLTKTree): ProofTree {
         // The algorithm is written such that the order in which we process
         // child nodes does not matter, so we can simply pop thunks off the back
         // of the todo list. tsc is apparently unable to infer that `todo` is
-        // guaranteed to be nonempty on the next line, hence the silencing
-        // comment.
-        // @ts-ignore
+        // guaranteed to be nonempty on the next line; hence
+        // the type assertion.
         const task = todo.pop() as ProofConversionThunk;
         // Processing a thunk might produce zero or more new thunks, depending
         // on the number of children of the processed node.

@@ -1,13 +1,14 @@
 <svg:g>
     @for (node of visibleNodes(); track $index; let i = $index) {
         <svg:g attr.transform="translate(0, {{ nodeY(i) }})">
-            <svg:g term [idx]="node.idx" [term]="node.term" [label]="node.label" [end]="node.end"
-                [bg]="node.bg" (onSize)="updateDimensions($event)" [rule]="node.rule"
-                (click)="termClick($index)"
+            <svg:g node [id]="node.id" [mod]="node.mod" [head]="node.head!"
+                [args]="node.args" [end]="node.end!" [sign]="node.sign"
+                (onSize)="updateDimensions($event)" [rule]="node.rule"
+                (click)="nodeClick($index)"
                 ></svg:g>
             @if(!expanded[$index]) {
             <svg:text class="expand-plus" role="button" x="0" [attr.y]="nodeHeight(node)" text-anchor="middle" dominant-baseline="middle"
-                      (click)="termClick($index)">+
+                      (click)="nodeClick($index)">+
             </svg:text>
             }
             @else if (!$last) {

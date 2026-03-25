@@ -133,7 +133,7 @@ export interface Dimensions {
 }
 
 //
-// Syntactic parse tree types
+// Syntactic parse and proof tree types from the backend
 //
 
 export type LeafNode = {
@@ -160,8 +160,39 @@ export interface CCGParse {
     ccg_trees: Record<ParseTreeType, CCGNode>;
 };
 
+export interface NLTKTree {
+    node: string;
+    children?: NLTKTree[];
+}
+
 export type ParseResponseData = {
     ccg_parses: CCGParse[];
-    proofs: unknown[];
+    proofs: {
+        entailment: NLTKTree,
+        contradiction: NLTKTree,
+    };
 };
 
+export type ParseResponse = {
+    data: ParseResponseData;
+    error: string | null;
+};
+
+//
+// Our internal representation of proof trees
+//
+
+export type ProofNode = {
+    id?: number;
+    rule?: string;
+    mod?: string;
+    head?: string;
+    args?: string;
+    sign?: boolean;
+    end?: true;
+};
+
+export interface ProofTree {
+    nodes: ProofNode[];
+    subtrees?: ProofTree[];
+}

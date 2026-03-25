@@ -1,32 +1,32 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
-import { TableauTerm } from './tableau-term.component';
-import { Dimensions } from '@/types';
+import { TableauNode } from './tableau-node.component';
+import { Dimensions, ProofTree, ProofNode } from '@/types';
 import { sum } from "@/util";
 
 @Component({
     selector: "[tableau-tree]",
     standalone: true,
-    imports: [TableauTerm],
+    imports: [TableauNode],
     templateUrl: "./tableau-tree.component.svg",
     styleUrl: "./tableau-tree.component.scss",
 })
 export class TableauTree {
     expanded: boolean[] = [];
 
-    _tree: any;
+    _tree: ProofTree = {nodes: []};
     @Input()
-    get tree(): any {
+    get tree(): ProofTree {
         return this._tree;
     }
 
-    set tree(value: any) {
+    set tree(value: ProofTree) {
         this._tree = value;
         this.expanded = value.nodes.map(() => true);
     }
 
     levelHeight = 40;
 
-    /* Width of the tree node, has to be determined dynamically via onSize events from terms */
+    /* Width of the tree node, has to be determined dynamically via onSize events from nodes */
     width = 0;
     /* Height isn't stored in a member variable, because it can be computed as needed */
 
@@ -61,7 +61,8 @@ export class TableauTree {
     /* Determines the X coordinate of where subtree of index `idx` should be drawn */
     subtreePosition(idx: number) {
         let widthWithPadding = 1.15 * this.subWidth;
-        return widthWithPadding * idx - (widthWithPadding / 2) * (this.tree.subtrees.length - 1);
+        const subtreeCount = this.tree.subtrees!.length;
+        return widthWithPadding * idx - (widthWithPadding / 2) * (subtreeCount - 1);
     }
 
     /* Generates a path definition for linking the end of the current node to subtree index `idx` */
@@ -76,7 +77,7 @@ export class TableauTree {
         ].join(' ');
     }
 
-    nodeHeight(node: any) {
+    nodeHeight(node: ProofNode) {
         // note that in this case height includes bottom padding for the node
         return node.rule ? 60 : 40;
     }
@@ -90,7 +91,7 @@ export class TableauTree {
         return sum(this.tree.nodes.slice(0, idx).map(this.nodeHeight));
     }
 
-    termClick(idx: number) {
+    nodeClick(idx: number) {
         // the last node can't be collapsed
         // unless there are subtrees
         if (idx < this.expanded.length - 1 || this.tree.subtrees) {

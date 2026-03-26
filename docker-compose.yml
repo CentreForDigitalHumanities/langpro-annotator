@@ -14,13 +14,17 @@ services:
             - ./backend/create_db.sql:/docker-entrypoint-initdb.d/langpro.sql
         ports:
             - 127.0.0.1:5433:5432
-    backend:
-        build:
-            context: ./backend
+
+    backend-prod: &backend-prod
+        container_name: la-backend
+        profiles: ["prod"]
+        build: ./backend
+        restart: unless-stopped
         environment:
-            PGHOST: postgres
-            LANGPRO_CONTAINER: 'http://langpro:80'
-            LANGPRO_FRONTEND: 'http://frontend:4200'
+            - PGHOST=postgres
+            - LANGPRO_CONTAINER=http://langpro:80
+            - LANGPRO_FRONTEND=http://localhost:4200
+            - DJANGO_DEBUG=0
         depends_on:
             postgres:
                 condition: service_healthy
@@ -28,6 +32,27 @@ services:
             test: 'curl -f localhost:8000/admin/'
         volumes:
             - ./:/usr/src/app
+            - ./logs/django:/usr/src/app/logs
+        expose:
+            - 8000
+        command: >
+            gunicorn langpro_annotator.wsgi:application
+            -w 4
+            -b 0.0.0.0:8000
+            --timeout 600
+            --access-logfile /usr/src/app/logs/access_log
+            --error-logfile /usr/src/app/logs/error_log
+            --capture-output
+
+    backend-dev:
+        <<: *backend-prod
+        restart: no
+        profiles: ["dev"]
+        environment:
+            - PGHOST=postgres
+            - LANGPRO_CONTAINER=http://langpro:80
+            - LANGPRO_FRONTEND=http://localhost:4200
+            - DJANGO_DEBUG=1
         ports:
             - 127.0.0.1:8000:8000
     frontend:

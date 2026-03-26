@@ -2,7 +2,7 @@ Django>=4.0.1,<5
 djangorestframework
 django-livereload-server
 django-revproxy>=0.10.0
-psycopg2
+psycopg2-binary
 pytest
 pytest-django
 pytest-xdist

@@ -3,6 +3,7 @@ include:
 
 services:
     postgres:
+        container_name: la-postgres
         image: postgres:15
         environment:
             - POSTGRES_PASSWORD=postgres
@@ -56,6 +57,7 @@ services:
         ports:
             - 127.0.0.1:8000:8000
     frontend:
+        container_name: la-frontend
         build:
             context: ./frontend
         healthcheck:

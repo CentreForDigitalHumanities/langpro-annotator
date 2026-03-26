@@ -67,15 +67,25 @@ services:
             - DJANGO_DEBUG=1
         ports:
             - 127.0.0.1:8000:8000
-    frontend:
+
+
+    frontend-dev:
+        image: la-frontend-dev
         container_name: la-frontend
+        restart: no
+        profiles: ["dev"]
         build:
             context: ./frontend
+            dockerfile: Dockerfile.dev
         healthcheck:
             test: 'curl -f localhost:4200'
+        expose:
+            - 4200
+            - 9876
         volumes:
             - ./:/usr/src/app
             - frontend-node-modules:/usr/src/app/frontend/node_modules
+        command: ng serve --host 0.0.0.0 --disable-host-check
         ports:
             - 127.0.0.1:4200:4200
             - 127.0.0.1:9876:9876

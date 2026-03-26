@@ -1,0 +1,14 @@
+FROM node:24.14-slim
+
+# Set the working directory.
+WORKDIR /usr/src/app/frontend
+
+# Copy package.json and yarn.lock.
+COPY package.json yarn.lock ./
+
+# Install dependencies.
+RUN yarn global add @angular/cli@19
+RUN yarn install --frozen-lockfile
+
+# Expose the port for the development server.
+EXPOSE 4200

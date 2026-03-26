@@ -43,3 +43,6 @@ frontend/src/environments/version.ts
 /backend/fracas.xml
 /backend/snli_1.0_dev.txt
 /backend/snli_1.0_test.txt
+
+# Docker container logs
+logs/

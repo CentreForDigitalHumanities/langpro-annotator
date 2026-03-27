@@ -41,7 +41,7 @@ services:
             postgres:
                 condition: service_healthy
         healthcheck:
-            test: 'curl -f localhost:8000/admin/'
+            test: "curl -f localhost:8000/admin/"
         volumes:
             - ./backend:/usr/src/app
             - ./logs/django:/usr/src/app/logs
@@ -76,13 +76,14 @@ services:
             context: ./frontend
             dockerfile: Dockerfile.dev
         healthcheck:
-            test: 'curl -f localhost:4200'
+            test: "curl -f localhost:4200"
         expose:
             - 4200
             - 9876
         volumes:
             - ./frontend:/usr/src/app
             - frontend-node-modules:/usr/src/app/node_modules
+            - frontend-angular-cache:/usr/src/app/.angular
         command: ng serve --host 0.0.0.0 --disable-host-check --poll 200
         ports:
             - 127.0.0.1:4200:4200
@@ -98,10 +99,11 @@ services:
             dockerfile: Dockerfile.prod
             args:
                 APP_VERSION: ${APP_VERSION:-0.0.0}
-                SOURCE_URL: ${SOURCE_URL:-https://github.com/CentreForDigitalHumanities/langpro-annotator}
+                SOURCE_URL: https://github.com/CentreForDigitalHumanities/langpro-annotator
         healthcheck:
-            test: 'curl -f localhost:4200'
+            test: "curl -f localhost:8080"
 
 volumes:
     postgres-data:
     frontend-node-modules:
+    frontend-angular-cache:

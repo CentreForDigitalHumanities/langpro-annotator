@@ -36,15 +36,12 @@ services:
         environment:
             - PGHOST=postgres
             - LANGPRO_CONTAINER=http://langpro:80
-            - LANGPRO_FRONTEND=http://localhost:4200
             - DJANGO_DEBUG=0
         depends_on:
             postgres:
                 condition: service_healthy
         healthcheck:
             test: 'curl -f localhost:8000/admin/'
-        expose:
-            - 8000
         volumes:
             - ./backend:/usr/src/app
             - ./logs/django:/usr/src/app/logs
@@ -65,7 +62,6 @@ services:
         environment:
             - PGHOST=postgres
             - LANGPRO_CONTAINER=http://langpro:80
-            - LANGPRO_FRONTEND=http://localhost:4200
             - DJANGO_DEBUG=1
         ports:
             - 127.0.0.1:8000:8000

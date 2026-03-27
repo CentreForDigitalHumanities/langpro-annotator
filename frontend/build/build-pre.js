@@ -1,12 +1,20 @@
 const path = require('path');
 const colors = require('colors/safe');
 const fs = require('fs');
-const appVersion = process.env.APP_VERSION || '0.0.0';
+const appVersion = process.env.APP_VERSION;
+const gitCommit = process.env.GIT_COMMIT;
+const sourceUrl = process.env.SOURCE_URL;
 const { exec } = require('child_process');
 
 console.log(colors.cyan('\nRunning pre-build tasks'));
 
 async function getHash() {
+    // Use environment variable if provided (Docker build)
+    if (gitCommit) {
+        return Promise.resolve(gitCommit);
+    }
+
+    // Otherwise use git (local development)
     return new Promise((resolve, reject) => {
         exec('git rev-parse HEAD', (error, stdout, stderr) => {
             if (error) {
@@ -24,6 +32,12 @@ async function getHash() {
 }
 
 async function getRemoteUrl() {
+    // Use environment variable if provided (Docker build)
+    if (sourceUrl) {
+        return Promise.resolve(sourceUrl);
+    }
+
+    // Otherwise use git (local development)
     return new Promise((resolve, reject) => {
         exec('git config --get remote.origin.url', (error, stdout, stderr) => {
             if (error) {
@@ -59,19 +73,22 @@ Promise.all([
 ]).then(([hash, remoteUrl]) => {
     if (hash === 'unknown' || remoteUrl === 'unknown') {
         console.log(colors.yellow('Git repository not found, using fallback values'));
+        writeVersion(sourceUrl || 'unknown');
+        return;
     }
-    writeVersion(hash, remoteUrl);
+    const sourceUrlWithHash = `${remoteUrl}/tree/${hash}`;
+    writeVersion(sourceUrlWithHash);
 }).catch((error) => {
     console.log(`${colors.red('Could not update version: ')} ${error}`);
     // Write version with fallback values anyway
-    writeVersion('unknown', 'unknown');
+    writeVersion(sourceUrl || 'unknown');
 });
 
-function writeVersion(hash, remoteUrl) {
+function writeVersion(sourceUrl) {
     const versionFilePath = path.join(__dirname + '/../src/environments/version.ts');
     const src = `export const version = '${appVersion}';
 export const buildTime = '${new Date()}';
-export const sourceUrl = '${remoteUrl}/tree/${hash}';
+export const sourceUrl = '${sourceUrl}';
 `;
 
     // ensure version module pulls value from package.json

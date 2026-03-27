@@ -1,33 +1,29 @@
 FROM node:24.14-slim AS builder
 
-# Accept version as build argument
+# Accept version and source URL as build arguments.
 ARG APP_VERSION=0.0.0
 ARG SOURCE_URL=unknown
-
-# Install git for pre-build.js
-RUN apt-get update
-RUN apt-get install -y git
 
 # Set the working directory.
 WORKDIR /usr/src/app
 
-# Copy app dependencies
+# Copy app dependencies.
 COPY package.json yarn.lock ./
 
-# Install app dependencies
+# Install app dependencies.
 RUN yarn install
 
-# Copy app source
+# Copy app source.
 COPY . /usr/src/app
 
-# Set version as environment variable for build scripts
+# Set environment variables for prebuild script.
 ENV APP_VERSION=${APP_VERSION}
 ENV SOURCE_URL=${SOURCE_URL}
 
-# Pre-build
+# Pre-build.
 RUN npm run prebuild
 
-# Build app
+# Build app.
 RUN npm run build -- --output-path=./dist/out --configuration production
 
 # Setup NGINX to serve the app.

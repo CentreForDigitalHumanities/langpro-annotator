@@ -97,7 +97,8 @@ services:
             context: ./frontend
             dockerfile: Dockerfile.prod
             args:
-                APP_VERSION: ${APP_VERSION:-1.0.0}
+                APP_VERSION: ${APP_VERSION:-0.0.0}
+                SOURCE_URL: ${SOURCE_URL:-https://github.com/CentreForDigitalHumanities/langpro-annotator}
         healthcheck:
             test: 'curl -f localhost:4200'
 

@@ -101,7 +101,7 @@ services:
                 APP_VERSION: ${APP_VERSION:-0.0.0}
                 SOURCE_URL: https://github.com/CentreForDigitalHumanities/langpro-annotator
         healthcheck:
-            test: "curl -f localhost:8080"
+            test: "curl -f localhost:4200"
 
 volumes:
     postgres-data:

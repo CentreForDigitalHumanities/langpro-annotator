@@ -12,7 +12,7 @@ COPY requirements.txt .
 RUN pip install -r requirements.txt --no-cache-dir
 
 # Set working directory.
-WORKDIR /usr/src/app/backend
+WORKDIR /usr/src/app
 
 # Copy project files.
 COPY . .

@@ -43,11 +43,11 @@ services:
                 condition: service_healthy
         healthcheck:
             test: 'curl -f localhost:8000/admin/'
-        volumes:
-            - ./:/usr/src/app
-            - ./logs/django:/usr/src/app/logs
         expose:
             - 8000
+        volumes:
+            - ./backend:/usr/src/app
+            - ./logs/django:/usr/src/app/logs
         command: >
             gunicorn langpro_annotator.wsgi:application
             -w 4

@@ -92,10 +92,7 @@
                             "buildTarget": "langpro-annotator:build:nl"
                         }
                     },
-                    "defaultConfiguration": "development",
-                    "options": {
-                        "proxyConfig": "../proxy.conf.json"
-                    }
+                    "defaultConfiguration": "development"
                 },
                 "extract-i18n": {
                     "builder": "ng-extract-i18n-merge:ng-extract-i18n-merge",

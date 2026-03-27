@@ -1,7 +1,7 @@
 const path = require('path');
 const colors = require('colors/safe');
 const fs = require('fs');
-const appVersion = require('../../package.json').version;
+const appVersion = process.env.APP_VERSION || '0.0.0';
 const { exec } = require('child_process');
 
 console.log(colors.cyan('\nRunning pre-build tasks'));
@@ -53,10 +53,18 @@ async function getRemoteUrl() {
     });
 }
 
-Promise.all([getHash(), getRemoteUrl()]).then(([hash, remoteUrl]) => {
+Promise.all([
+    getHash().catch(() => 'unknown'),
+    getRemoteUrl().catch(() => 'unknown')
+]).then(([hash, remoteUrl]) => {
+    if (hash === 'unknown' || remoteUrl === 'unknown') {
+        console.log(colors.yellow('Git repository not found, using fallback values'));
+    }
     writeVersion(hash, remoteUrl);
 }).catch((error) => {
     console.log(`${colors.red('Could not update version: ')} ${error}`);
+    // Write version with fallback values anyway
+    writeVersion('unknown', 'unknown');
 });
 
 function writeVersion(hash, remoteUrl) {

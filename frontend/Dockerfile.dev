@@ -1,7 +1,7 @@
 FROM node:24.14-slim
 
 # Set the working directory.
-WORKDIR /usr/src/app/frontend
+WORKDIR /usr/src/app
 
 # Copy package.json and yarn.lock.
 COPY package.json yarn.lock ./

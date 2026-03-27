@@ -83,9 +83,9 @@ services:
             - 4200
             - 9876
         volumes:
-            - ./:/usr/src/app
-            - frontend-node-modules:/usr/src/app/frontend/node_modules
-        command: ng serve --host 0.0.0.0 --disable-host-check
+            - ./frontend:/usr/src/app
+            - frontend-node-modules:/usr/src/app/node_modules
+        command: ng serve --host 0.0.0.0 --disable-host-check --poll 200
         ports:
             - 127.0.0.1:4200:4200
             - 127.0.0.1:9876:9876

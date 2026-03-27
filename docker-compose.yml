@@ -23,7 +23,6 @@ services:
             test: 'psql -c "\l" postgres postgres'
         volumes:
             - postgres-data:/var/lib/postgresql/data
-            - ./backend/create_db.sql:/docker-entrypoint-initdb.d/langpro.sql
         ports:
             - 127.0.0.1:5433:5432
 

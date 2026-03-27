@@ -34,6 +34,10 @@ services:
         restart: unless-stopped
         environment:
             - PGHOST=postgres
+            - PGUSER=$POSTGRES_USER
+            - PGPASSWORD=$POSTGRES_PASSWORD
+            - PGDATABASE=$POSTGRES_DB
+            - DJANGO_SECRET_KEY=$DJANGO_SECRET_KEY
             - LANGPRO_CONTAINER=http://langpro:80
             - DJANGO_DEBUG=0
         depends_on:
@@ -42,7 +46,6 @@ services:
         healthcheck:
             test: "curl -f localhost:8000/admin/"
         volumes:
-            - ./backend:/usr/src/app
             - ./logs/django:/usr/src/app/logs
         command: >
             gunicorn langpro_annotator.wsgi:application
@@ -62,6 +65,8 @@ services:
             - PGHOST=postgres
             - LANGPRO_CONTAINER=http://langpro:80
             - DJANGO_DEBUG=1
+        volumes:
+            - ./backend:/usr/src/app
         ports:
             - 127.0.0.1:8000:8000
         command: sh -c "python manage.py check && python manage.py migrate && python manage.py runserver 0.0.0.0:8000"

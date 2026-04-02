@@ -33,10 +33,10 @@ api_router.register(r"problem", ProblemView, basename="problem")
 api_router.register(r"label", LabelAnnotationView, basename="labels")
 
 
-if settings.PROXY_FRONTEND:
-    spa_url = re_path(r"^(?P<path>.*)$", proxy_frontend)
-else:
-    spa_url = re_path(r"", index)
+# if settings.PROXY_FRONTEND:
+#     spa_url = re_path(r"^(?P<path>.*)$", proxy_frontend)
+# else:
+#     spa_url = re_path(r"", index)
 
 urlpatterns = [
     path("admin", RedirectView.as_view(url="/admin/", permanent=True)),
@@ -54,5 +54,5 @@ urlpatterns = [
     ),
     path("api/i18n/", i18n),
     path("users/", include("user.urls")),
-    spa_url,  # catch-all; unknown paths to be handled by a SPA
+    # spa_url,  # catch-all; unknown paths to be handled by a SPA
 ]

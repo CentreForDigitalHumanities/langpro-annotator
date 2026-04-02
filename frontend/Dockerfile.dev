@@ -12,3 +12,6 @@ RUN yarn install --frozen-lockfile
 
 # Expose the port for the development server.
 EXPOSE 4200
+
+# Start the development server. The poll flag allows for live reloading.
+CMD ["ng", "serve", "--host", "0.0.0.0", "--disable-host-check", "--poll", "200"]

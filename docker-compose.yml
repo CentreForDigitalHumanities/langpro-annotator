@@ -88,7 +88,6 @@ services:
             - ./frontend:/usr/src/app
             - frontend-node-modules:/usr/src/app/node_modules
             - frontend-angular-cache:/usr/src/app/.angular
-        command: ng serve --host 0.0.0.0 --disable-host-check --poll 200
         ports:
             - 127.0.0.1:4200:4200
             - 127.0.0.1:9876:9876

@@ -24,9 +24,9 @@ function unfoldParseResult(parse: CCGParse): UnfoldedParseResult {
         ...parse,
         ccgTrees: [
             { type: "CCG Tree", tree: ccg_tree },
-            // { type: "CCG Term", tree: ccg_term },
-            // { type: "Corrected CCG Term", tree: corr_term },
-            // { type: "Lambda Logical Form", tree: llf }
+            { type: "CCG Term", tree: ccg_term },
+            { type: "Corrected CCG Term", tree: corr_term },
+            { type: "Lambda Logical Form", tree: llf }
         ]
     };
 }

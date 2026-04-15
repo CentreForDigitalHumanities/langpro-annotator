@@ -24,15 +24,17 @@ SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", "django-insecure-1234567890")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = int(os.getenv("DJANGO_DEBUG", 0)) == 1
 
+# CSRF trusted origins for cross-origin requests
+CSRF_TRUSTED_ORIGINS = []
+
 ALLOWED_HOSTS = ["la-backend"]
+
 if DEBUG:
     ALLOWED_HOSTS.append("localhost")
-
-# CSRF trusted origins for cross-origin requests
-CSRF_TRUSTED_ORIGINS = [
-    "http://localhost:5000",
-    "http://127.0.0.1:5000",
-]
+    CSRF_TRUSTED_ORIGINS.extend([
+        "http://localhost:5000",
+        "http://127.0.0.1:5000",
+    ])
 
 # Application definition
 

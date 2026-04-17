@@ -46,7 +46,7 @@ services:
         healthcheck:
             test: "curl -f localhost:8000/admin/"
         volumes:
-            - ./logs/django:/usr/src/app/logs:z
+            - ./log/django:/usr/src/app/logs:z
             - ./seed/:/usr/src/app/backend/problem/data:z
         command: >
             gunicorn langpro_annotator.wsgi:application

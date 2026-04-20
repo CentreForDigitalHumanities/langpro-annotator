@@ -1,3 +1,6 @@
+import os
+
+
 INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
@@ -104,4 +107,4 @@ LOGGING = {
     },
 }
 
-LANGPRO_URL = "http://localhost:8080"
+LANGPRO_URL = os.environ.get('LANGPRO_CONTAINER') or 'http://localhost:8080'

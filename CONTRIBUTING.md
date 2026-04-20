@@ -55,20 +55,36 @@ If you are reading this document, you'll likely be working with the integrated p
 
 ### Quickstart with Docker
 
+The application can be run in two modes: development mode and production mode. The former is meant for live development, while the latter is meant for simulating deployment conditions as closely as possible.
+
+Begin by creating a `.env` file in the project root with the following contents:
+
+```env
+POSTGRES_USER=my-user-name
+POSTGRES_PASSWORD=my-password
+POSTGRES_DB=langpro
+DJANGO_SECRET_KEY=my-secret-key
+APP_VERSION=1.0.0
+```
+
+Then update the values after the `=` as needed. The `POSTGRES_*` variables are used to configure the PostgreSQL database. The `DJANGO_SECRET_KEY` variable is used to set the Django `SECRET_KEY` setting. The `APP_VERSION` variable is used to set the version of the application, which is displayed in the frontend.
+
+Finally, run the command below to start the application in development mode.
+
 ```console
-docker compose up -d
+docker compose --profile dev up -d
 ```
 
 This will run the frontend and backend applications and watch all source files for changes. To run the backend unittests:
 
 ```console
-docker compose exec backend pytest
+docker compose exec backend-dev pytest
 ```
 
 To run the frontend unittests:
 
 ```console
-docker compose exec frontend yarn ng test --no-browsers
+docker compose exec frontend-dev yarn ng test --no-browsers
 ```
 
 then open http://localhost:9876 in a browser of choice.

@@ -1,10 +1,12 @@
-import { Component, Inject, afterRender } from "@angular/core";
+import { Component, DestroyRef, Inject, afterRender, inject } from "@angular/core";
 import { DOCUMENT } from "@angular/common";
 import { RouterOutlet } from "@angular/router";
 import { MenuComponent } from "./menu/menu.component";
 import { FooterComponent } from "./footer/footer.component";
 import { DarkModeService } from "./services/dark-mode.service";
 import { ToastContainerComponent } from "./toast-container/toast-container.component";
+import { HttpClient } from "@angular/common/http";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 
 @Component({
     selector: "la-root",
@@ -20,6 +22,8 @@ import { ToastContainerComponent } from "./toast-container/toast-container.compo
 })
 export class AppComponent {
     title = "LangPro Annotator";
+    http = inject(HttpClient);
+    destroyRef = inject(DestroyRef);
 
     constructor(
         @Inject(DOCUMENT) private document: Document,
@@ -39,5 +43,9 @@ export class AppComponent {
                 style.href = `${theme}.css`;
             });
         });
+
+        this.http.get("/api/csrf").pipe(
+            takeUntilDestroyed(this.destroyRef)
+        ).subscribe()
     }
 }

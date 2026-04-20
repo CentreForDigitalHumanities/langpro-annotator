@@ -19,13 +19,22 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'kxreeb3bds$oibo7ex#f3bi5r+d(1x5zljo-#ms=i2%ih-!pvn'
+SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", "django-insecure-1234567890")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = int(os.getenv("DJANGO_DEBUG", 0)) == 1
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+# CSRF trusted origins for cross-origin requests
+CSRF_TRUSTED_ORIGINS = []
 
+ALLOWED_HOSTS = ["la-backend"]
+
+if DEBUG:
+    ALLOWED_HOSTS.append("localhost")
+    CSRF_TRUSTED_ORIGINS.extend([
+        "http://localhost:5000",
+        "http://127.0.0.1:5000",
+    ])
 
 # Application definition
 

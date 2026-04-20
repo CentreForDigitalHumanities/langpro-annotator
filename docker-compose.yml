@@ -2,46 +2,113 @@ include:
     - ./langpro-container/compose.yaml
 
 services:
+    nginx:
+        container_name: la-nginx
+        restart: unless-stopped
+        image: nginx:latest
+        volumes:
+            - ./nginx.conf:/etc/nginx/nginx.conf
+        ports:
+            - 127.0.0.1:5000:80
+
     postgres:
+        container_name: la-postgres
         image: postgres:15
+        restart: unless-stopped
         environment:
-            - POSTGRES_PASSWORD=postgres
+            - POSTGRES_USER=$POSTGRES_USER
+            - POSTGRES_PASSWORD=$POSTGRES_PASSWORD
+            - POSTGRES_DB=$POSTGRES_DB
         healthcheck:
-            test: 'psql -c "\l" postgres postgres'
-        restart: always
+            test: ["CMD-SHELL", "pg_isready -U $POSTGRES_USER -d $POSTGRES_DB"]
         volumes:
             - postgres-data:/var/lib/postgresql/data
-            - ./backend/create_db.sql:/docker-entrypoint-initdb.d/langpro.sql
         ports:
             - 127.0.0.1:5433:5432
-    backend:
-        build:
-            context: ./backend
+
+    backend-prod: &backend-prod
+        container_name: la-backend
+        image: la-backend-prod
+        profiles: ["prod"]
+        build: ./backend
+        restart: unless-stopped
         environment:
-            PGHOST: postgres
-            LANGPRO_CONTAINER: 'http://langpro:80'
-            LANGPRO_FRONTEND: 'http://frontend:4200'
+            - PGHOST=postgres
+            - PGUSER=$POSTGRES_USER
+            - PGPASSWORD=$POSTGRES_PASSWORD
+            - PGDATABASE=$POSTGRES_DB
+            - DJANGO_SECRET_KEY=$DJANGO_SECRET_KEY
+            - LANGPRO_CONTAINER=http://langpro:80
+            - DJANGO_DEBUG=0
         depends_on:
             postgres:
                 condition: service_healthy
         healthcheck:
-            test: 'curl -f localhost:8000/admin/'
+            test: "curl -f localhost:8000/admin/"
         volumes:
-            - ./:/usr/src/app
+            - ./logs/django:/usr/src/app/logs:z
+            - ./seed/:/usr/src/app/backend/problem/data:z
+        command: >
+            gunicorn langpro_annotator.wsgi:application
+            -w 4
+            -b 0.0.0.0:8000
+            --timeout 600
+            --log-level debug
+            --access-logfile /usr/src/app/logs/access_log
+            --error-logfile /usr/src/app/logs/error_log
+            --capture-output
+
+    backend-dev:
+        <<: *backend-prod
+        image: la-backend-dev
+        restart: no
+        profiles: ["dev"]
+        environment:
+            - PGHOST=postgres
+            - LANGPRO_CONTAINER=http://langpro:80
+            - DJANGO_DEBUG=1
+        volumes:
+            - ./backend:/usr/src/app
         ports:
             - 127.0.0.1:8000:8000
-    frontend:
+        command: sh -c "python manage.py check && python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
+
+    frontend-dev:
+        image: la-frontend-dev
+        container_name: la-frontend
+        restart: no
+        profiles: ["dev"]
         build:
             context: ./frontend
+            dockerfile: Dockerfile.dev
         healthcheck:
-            test: 'curl -f localhost:4200'
+            test: "curl -f localhost:4200"
+        expose:
+            - 4200
+            - 9876
         volumes:
-            - ./:/usr/src/app
-            - frontend-node-modules:/usr/src/app/frontend/node_modules
+            - ./frontend:/usr/src/app
+            - frontend-node-modules:/usr/src/app/node_modules
+            - frontend-angular-cache:/usr/src/app/.angular
         ports:
             - 127.0.0.1:4200:4200
             - 127.0.0.1:9876:9876
 
+    frontend-prod:
+        image: la-frontend-prod
+        container_name: la-frontend
+        restart: unless-stopped
+        profiles: ["prod"]
+        build:
+            context: ./frontend
+            dockerfile: Dockerfile.prod
+            args:
+                APP_VERSION: ${APP_VERSION:-0.0.0}
+                SOURCE_URL: https://github.com/CentreForDigitalHumanities/langpro-annotator
+        healthcheck:
+            test: "curl -f localhost:4200"
+
 volumes:
     postgres-data:
     frontend-node-modules:
+    frontend-angular-cache:

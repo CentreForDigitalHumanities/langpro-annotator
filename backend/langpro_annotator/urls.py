@@ -22,6 +22,7 @@ from django.views.generic import RedirectView
 from rest_framework import routers
 
 from annotation.views import LabelAnnotationView
+from langpro_annotator.views import csrf_token
 from problem.views.problem import ProblemView
 
 from .index import index
@@ -33,10 +34,10 @@ api_router.register(r"problem", ProblemView, basename="problem")
 api_router.register(r"label", LabelAnnotationView, basename="labels")
 
 
-if settings.PROXY_FRONTEND:
-    spa_url = re_path(r"^(?P<path>.*)$", proxy_frontend)
-else:
-    spa_url = re_path(r"", index)
+# if settings.PROXY_FRONTEND:
+#     spa_url = re_path(r"^(?P<path>.*)$", proxy_frontend)
+# else:
+#     spa_url = re_path(r"", index)
 
 urlpatterns = [
     path("admin", RedirectView.as_view(url="/admin/", permanent=True)),
@@ -53,6 +54,7 @@ urlpatterns = [
         ),
     ),
     path("api/i18n/", i18n),
+    path("api/csrf", csrf_token),
     path("users/", include("user.urls")),
-    spa_url,  # catch-all; unknown paths to be handled by a SPA
+    # spa_url,  # catch-all; unknown paths to be handled by a SPA
 ]

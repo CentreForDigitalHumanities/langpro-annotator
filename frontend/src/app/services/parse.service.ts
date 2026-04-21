@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { Subject, switchMap, catchError, of, merge, map, share } from 'rxjs';
+import { Subject, switchMap, catchError, of, merge, map, share, startWith } from 'rxjs';
 import { ParseInput } from '@/annotate/annotation-input/annotation-input.component';
 import { ProblemService } from './problem.service';
 import {
@@ -43,6 +43,12 @@ export class ParseService {
         ),
         share()
     );
+
+    public inProgress$ = merge(
+        this.submit$.pipe(map(() => true)),
+        this.parseResults$.pipe(map(() => false)),
+        this.clearOnNewProblem$.pipe(map(() => false)),
+    ).pipe(startWith(false));
 
     public parse$ = merge(
         this.parseResults$,

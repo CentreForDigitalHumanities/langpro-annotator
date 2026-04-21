@@ -2,6 +2,7 @@
 @let appMode = appMode$ | async;
 @let userProblem = isUserProblem$ | async;
 @let editingOrAdding = appMode === 'edit' || appMode === 'add';
+@let inProgress = inProgress$ | async;
 @if (problem) {
 <div class="card">
     <div class="card-body">
@@ -13,12 +14,21 @@
             <la-knowledge-base-form [form]="form" />
         </div>
         <div class="d-flex justify-content-between mt-3">
+            @if (!inProgress) {
             <la-icon-button
                 buttonStyle="success"
                 [icon]="faTree"
                 label="Parse and prove"
                 (click)="startParse()"
             />
+            } @else {
+            <la-icon-button
+                buttonStyle="success"
+                [icon]="faHourglass"
+                label="Parsing and proving..."
+                disabled="true"
+            />
+            }
             @if (appMode === 'browse' && (canCopyProblem$ | async)) {
             <a
                 class="btn btn-secondary d-flex align-items-center justify-content-center"

@@ -9,6 +9,7 @@ import {
     ProofNode,
     ProofTree,
 } from '@/types';
+import { ToastService } from './toast.service';
 
 
 @Injectable({
@@ -17,6 +18,7 @@ import {
 export class ParseService {
     private http = inject(HttpClient);
     private problemService = inject(ProblemService);
+    private toastService = inject(ToastService);
 
     // Sink for triggering parse-and-prove requests to the backend.
     public submit$ = new Subject<ParseInput>();
@@ -30,6 +32,11 @@ export class ParseService {
             this.http.post<ParseResponse>("/api/problem/parse", form).pipe(
                 catchError((error) => {
                     console.error(`Error parsing problem:`, error);
+                    this.toastService.show({
+                        header: $localize`Error parsing problem`,
+                        body: error.message || $localize`An error occurred while parsing the problem.`,
+                        type: 'danger',
+                    });
                     return of({ data: null, error: error.message || "An error occurred while parsing the problem." });
                 }),
             )

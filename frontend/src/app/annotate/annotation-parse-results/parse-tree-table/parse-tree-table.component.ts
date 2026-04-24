@@ -37,7 +37,6 @@ function buildLeafNode(node: LeafNode): TreeNodeDisplay {
     const [tok, lem, pos, _cat, ner] = node.node;
     return {
         type: 'leaf',
-        content: cat,
         children: [],
         leaf: { tok, lem, pos, ner }
     };

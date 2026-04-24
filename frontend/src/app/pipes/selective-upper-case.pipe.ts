@@ -1,3 +1,4 @@
+import { TreeType } from "@/annotate/annotation-parse-results/annotation-parse-results.component";
 import { Pipe } from "@angular/core";
 
 const WHITELIST = ["period", "conj"];
@@ -9,10 +10,15 @@ const WHITELIST = ["period", "conj"];
 export class SelectiveUpperCasePipe {
     /**
      * Transforms text by converting all content to uppercase, except for items
-     * in the whitelist.
+     * in the whitelist, and only if for the "CCG Tree" type.
      */
-    transform(value: string): string {
+    transform(value: string, treeType: TreeType): string {
         if (!value) {
+            return value;
+        }
+
+        // Only apply selective uppercase transformation for "CCG Tree" type.
+        if (treeType !== "CCG Tree") {
             return value;
         }
 

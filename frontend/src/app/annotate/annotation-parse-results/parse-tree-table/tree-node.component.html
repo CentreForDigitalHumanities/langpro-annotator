@@ -6,20 +6,17 @@
     @if (hasChildren) {
     <div class="d-flex">
         @for (childRow of node().children; track $index) {
-        <la-tree-node [node]="childRow" />
+        <la-tree-node class="w-100" [node]="childRow" [treeType]="treeType()" />
         }
     </div>
     }
-    <div class="node-content d-flex flex-column align-items-center p-2 gap-1">
-        @if (node().rule) {
-        <span class="badge rounded-pill text-bg-secondary mt-2">
-            {{ node().rule }}
-        </span>
-        }
+    <div
+        class="node-content d-flex flex-column align-items-center px-2 py-1 gap-1"
+    >
         @switch (node().type) {
             @case ('leaf') {
-                <div class="d-flex flex-column align-items-center gap-2">
-                    <div class="h5 mb-0">
+                <div class="d-flex flex-column align-items-center gap-1">
+                    <div class="fw-bold mb-0">
                         <strong>{{ node().leaf?.lem }}</strong>
                     </div>
                     <div class="text-secondary">
@@ -29,21 +26,37 @@
                         <br />
                         <small>{{ node().leaf?.ner }}</small>
                     </div>
-                    <div [innerHTML]="node().content | subscriptAngleBrackets"></div>
+                    @if (node().content; as nodeContent) {
+                        <div [innerHTML]="nodeContent | subscript"></div>
+                    }
                 </div>
             } @case ('var') {
                 <div class="d-flex flex-column gap-1">
                     <strong class="h5 fw-bold mb-0">
                         {{ node().content }}
+                        @if (node().rule) {
+                        <span class="badge rounded-pill text-bg-secondary mt-2">
+                            {{ node().rule }}
+                        </span>
+                        }
                     </strong>
                     <br />
                     <span>{{ node().var?.typeInfo }}</span>
                 </div>
             } @case ('node') {
-                <p
-                    class="mb-0"
-                    [innerHTML]="node().content | subscriptAngleBrackets"
-                ></p>
+                <p class="my-0">
+                    @if (node().rule; as nodeRule) {
+                    <span class="badge rounded-pill text-bg-secondary me-2">
+                        {{ nodeRule }}
+                    </span>
+                    }
+                    @if (node().content; as nodeContent) {
+                    <span
+                        class="mb-0"
+                        [innerHTML]="nodeContent | selectiveUpperCase: treeType() | subscript"
+                    ></span>
+                    }
+                </p>
             }
         }
     </div>

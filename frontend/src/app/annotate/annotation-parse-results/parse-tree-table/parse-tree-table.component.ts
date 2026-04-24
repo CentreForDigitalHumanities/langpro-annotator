@@ -33,7 +33,8 @@ function nodeIsUnary(node: CCGNode): node is UnaryNode {
 }
 
 function buildLeafNode(node: LeafNode): TreeNodeDisplay {
-    const [_rule, tok, lem, pos, ner, cat] = node.node;
+    // "category" (chunker output) is deliberately unused.
+    const [tok, lem, pos, _cat, ner] = node.node;
     return {
         type: 'leaf',
         content: cat,

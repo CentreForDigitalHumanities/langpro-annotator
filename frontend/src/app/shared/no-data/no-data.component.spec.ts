@@ -14,6 +14,8 @@ describe('NoDataComponent', () => {
 
         fixture = TestBed.createComponent(NoDataComponent);
         component = fixture.componentInstance;
+        const componentRef = fixture.componentRef;
+        componentRef.setInput("dataType", "parse");
         fixture.detectChanges();
     });
 

@@ -27,7 +27,7 @@
                         <small>{{ node().leaf?.ner }}</small>
                     </div>
                     @if (node().content; as nodeContent) {
-                        <div [innerHTML]="nodeContent | subscript"></div>
+                        <div [innerHTML]="nodeContent | subscript" class="text-nowrap"></div>
                     }
                 </div>
             } @case ('var') {
@@ -52,7 +52,7 @@
                     }
                     @if (node().content; as nodeContent) {
                     <span
-                        class="mb-0"
+                        class="mb-0 text-nowrap"
                         [innerHTML]="nodeContent | selectiveUpperCase: treeType() | subscript"
                     ></span>
                     }

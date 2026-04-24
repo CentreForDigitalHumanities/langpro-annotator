@@ -7,8 +7,10 @@ import { map } from "rxjs";
 import { CommonModule } from "@angular/common";
 import { CCGNode, CCGParse } from "@/types";
 
+export type TreeType = "CCG Tree" | "CCG Term" | "Corrected CCG Term" | "Lambda Logical Form";
+
 export interface TreeWithType {
-    type: string;
+    type: TreeType;
     tree: CCGNode;
 }
 
@@ -19,7 +21,6 @@ interface UnfoldedParseResult {
 
 function unfoldParseResult(parse: CCGParse): UnfoldedParseResult {
     const { ccg_tree, ccg_term, corr_term, llf } = parse.ccg_trees;
-    // TODO: Reintroduce the other trees once they are serialized properly.
     return {
         ...parse,
         ccgTrees: [

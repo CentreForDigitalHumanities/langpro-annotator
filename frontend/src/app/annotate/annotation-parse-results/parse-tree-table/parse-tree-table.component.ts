@@ -51,8 +51,8 @@ function buildBinaryNode(node: BinaryNode): TreeNodeDisplay {
 
     return {
         type: 'node',
-        content: content,
-        rule: rule,
+        content,
+        rule,
         children: [left, right]
     };
 }
@@ -64,8 +64,8 @@ function buildUnaryNode(node: UnaryNode): TreeNodeDisplay {
 
     return {
         type: 'node',
-        content: content,
-        rule: rule,
+        content,
+        rule,
         children: [child]
     };
 }

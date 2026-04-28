@@ -25,7 +25,7 @@
       "ES2022",
       "dom"
     ],
-    "types": ["jest"]
+    "types": ["jasmine"]
   },
   "angularCompilerOptions": {
     "enableI18nLegacyMessageIdFormat": false,

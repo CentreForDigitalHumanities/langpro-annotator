@@ -6,6 +6,7 @@ import { NgbAccordionModule } from "@ng-bootstrap/ng-bootstrap";
 import { map } from "rxjs";
 import { CommonModule } from "@angular/common";
 import { CCGNode, CCGParse } from "@/types";
+import { NoDataComponent } from "@/shared/no-data/no-data.component";
 
 export interface TreeWithType {
     type: string;
@@ -35,7 +36,12 @@ function unfoldParseResult(parse: CCGParse): UnfoldedParseResult {
 @Component({
     selector: "la-annotation-parse-results",
     standalone: true,
-    imports: [ParseTreeTableComponent, NgbAccordionModule, CommonModule],
+    imports: [
+        ParseTreeTableComponent,
+        NgbAccordionModule,
+        CommonModule,
+        NoDataComponent,
+    ],
     templateUrl: "./annotation-parse-results.component.html",
     styleUrl: "./annotation-parse-results.component.scss",
 })

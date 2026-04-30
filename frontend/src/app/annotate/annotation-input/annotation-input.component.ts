@@ -12,7 +12,7 @@ import { PremisesFormComponent } from "./premises-form/premises-form.component";
 import { KnowledgeBaseFormComponent } from "./knowledge-base-form/knowledge-base-form.component";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { Dataset, KnowledgeBaseAnnotation, KnowledgeBaseRelationship, Problem } from "../../types";
-import { faCheck, faCopy, faExclamationCircle, faFloppyDisk, faTrash, faTree, faWrench } from "@fortawesome/free-solid-svg-icons";
+import { faCheck, faCopy, faExclamationCircle, faFloppyDisk, faHourglass, faTrash, faTree, faWrench } from "@fortawesome/free-solid-svg-icons";
 import { ProblemDetailsComponent } from "./problem-details/problem-details.component";
 import { map, Subject } from "rxjs";
 import { ActivatedRoute, Router, RouterLinkWithHref } from "@angular/router";
@@ -73,6 +73,8 @@ export class AnnotationInputComponent implements OnInit {
 
     public submit$ = new Subject<void>();
 
+    public inProgress$ = this.parseService.inProgress$;
+
     public faCopy = faCopy;
     public faCheck = faCheck;
     public faTree = faTree;
@@ -80,6 +82,7 @@ export class AnnotationInputComponent implements OnInit {
     public faExclamationCircle = faExclamationCircle;
     public faTrash = faTrash;
     public faWrench = faWrench;
+    public faHourglass = faHourglass;
 
     public appMode$ = this.problemService.appMode$;
     public isUserProblem$ = this.problem$.pipe(

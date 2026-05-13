@@ -11,6 +11,7 @@ export interface UserResponse {
     canEditKb: boolean;
     canAddLabelAnnotations: boolean;
     canCopyProblem: boolean;
+    canChangeProblemVisibility: boolean;
 }
 
 // Corresponds to frontend user type.
@@ -35,6 +36,7 @@ export class User {
         public canEditKb: boolean,
         public canAddLabelAnnotations: boolean,
         public canCopyProblem: boolean,
+        public canChangeProblemVisibility: boolean,
     ) { }
 }
 

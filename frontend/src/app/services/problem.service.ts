@@ -1,6 +1,6 @@
 import { ParseInput } from "@/annotate/annotation-input/annotation-input.component";
 import extractBaseParam from "@/shared/extractBaseParam";
-import { ProblemResponse, SaveProblemResponse, Dataset, EntailmentLabel, Problem, Label } from "@/types";
+import { ProblemResponse, SaveProblemResponse, Dataset, EntailmentLabel, Problem, Label, ToggleVisibilityInput } from "@/types";
 import { HttpClient, HttpParams } from "@angular/common/http";
 import { Injectable, inject } from "@angular/core";
 import { ParamMap } from "@angular/router";
@@ -28,14 +28,32 @@ export class ProblemService {
 
     public allParams$ = new BehaviorSubject<AllParams | null>(null);
 
-    public refetchProblem$ = new Subject<void>();
-
     // Submit a new problem to be saved to the database.
     public submit$ = new Subject<ParseInput>();
+    public refetchProblem$ = new Subject<void>();
+    public toggleVisibility$ = new Subject<ToggleVisibilityInput & { id: number }>();
+
+    private visibilityToggleSuccess$ = this.toggleVisibility$.pipe(
+        exhaustMap(({ id, hidden }) =>
+            this.http.post<ToggleVisibilityInput>(`/api/problem/${id}/set-visibility/`, { hidden }).pipe(
+                catchError((error) => {
+                    this.toastService.show({
+                        header: $localize`Error updating visibility`,
+                        body: error.message || $localize`Could not update problem visibility.`,
+                        type: 'danger',
+                    });
+                    return of(null);
+                })
+            )
+        ),
+        filter(result => result !== null),
+        map(() => this.allParams$.value),
+    );
 
     public problemResponse$: Observable<ProblemResponse | null> = merge(
         this.allParams$,
-        this.refetchProblem$.pipe(map(() => this.allParams$.value))
+        this.refetchProblem$.pipe(map(() => this.allParams$.value)),
+        this.visibilityToggleSuccess$,
     ).pipe(
         filter(allParams => allParams !== null),
         switchMap(({ params, queryParams }) => {
@@ -131,6 +149,7 @@ export class ProblemService {
                 dataset: Dataset.USER,
                 premises: existingProblem?.premises ?? [],
                 entailmentLabel: EntailmentLabel.UNKNOWN,
+                hidden: false,
                 extraData: null,
                 kbAnnotations: existingProblem?.kbAnnotations.map(annotation => ({
                     ...annotation, id: null,

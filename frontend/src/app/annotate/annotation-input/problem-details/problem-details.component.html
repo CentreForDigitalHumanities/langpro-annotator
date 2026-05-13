@@ -1,6 +1,12 @@
 @let appMode = appMode$ | async;
+@let currentUser = currentUser$ | async;
 @if (problemDetails(); as details) {
-<div>
+<div class="position-relative">
+    @if (currentUser?.canChangeProblemVisibility) {
+        <div class="position-absolute top-0 end-0">
+            <la-visibility-toggle [problem]="problem()" />
+        </div>
+    }
     <table class="table table-sm table-borderless">
         <tbody>
             <tr>

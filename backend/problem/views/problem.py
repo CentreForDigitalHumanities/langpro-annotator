@@ -5,6 +5,7 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework.status import (
     HTTP_201_CREATED,
     HTTP_200_OK,
+    HTTP_400_BAD_REQUEST,
     HTTP_401_UNAUTHORIZED,
     HTTP_403_FORBIDDEN,
 )
@@ -39,6 +40,11 @@ class EditProblemPermission(IsAuthenticated):
         )
 
 
+class ChangeProblemVisibilityPermission(IsAuthenticated):
+    def has_permission(self, request, view):
+        return super().has_permission(request, view) and request.user.can_change_problem_visibility
+
+
 class ProblemView(ModelViewSet):
     queryset = Problem.objects.all()
     serializer_class = ProblemSerializer
@@ -48,6 +54,8 @@ class ProblemView(ModelViewSet):
             return [CreateProblemPermission()]
         if self.action == "partial_update":
             return [EditProblemPermission()]
+        if self.action == "set_visibility":
+            return [ChangeProblemVisibilityPermission()]
         return [IsAuthenticatedOrReadOnly()]
 
     def list(self, request: Request) -> Response:
@@ -70,6 +78,23 @@ class ProblemView(ModelViewSet):
         Retrieves the first problem from the queryset.
         """
         return self._get_problem_response(request, pk=None)
+
+    @action(detail=True, methods=["post"], url_path="set-visibility")
+    def set_visibility(self, request: Request, pk: int) -> Response:
+        """
+        Toggles the hidden status of a Problem.
+        Expects a JSON body with a boolean 'hidden' field.
+        """
+        problem = get_object_or_404(Problem, id=pk)
+        hidden = request.data.get("hidden")
+        if not isinstance(hidden, bool):
+            return Response(
+                {"detail": "'hidden' must be a boolean."},
+                status=HTTP_400_BAD_REQUEST,
+            )
+        problem.hidden = hidden
+        problem.save(update_fields=["hidden"])
+        return Response({"hidden": problem.hidden}, status=HTTP_200_OK)
 
     def retrieve(self, request: Request, pk: int | None = None) -> Response:
         """

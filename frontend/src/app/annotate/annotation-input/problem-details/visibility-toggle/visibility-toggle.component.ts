@@ -2,7 +2,7 @@ import { ProblemService } from '@/services/problem.service';
 import { Problem } from '@/types';
 import { Component, inject, input } from '@angular/core';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
+import { faEye, faEyeSlash, faQuestionCircle } from '@fortawesome/free-solid-svg-icons';
 import { NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
@@ -17,6 +17,7 @@ export class VisibilityToggleComponent {
 
     public faEye = faEye;
     public faEyeSlash = faEyeSlash;
+    public faQuestionCircle = faQuestionCircle;
 
     public onToggleHidden(): void {
         const problem = this.problem();

@@ -1,33 +1,31 @@
 @let hidden = problem().hidden;
-
-<div class="d-flex flex-column align-items-center mb-1">
-    <span class="visually-hidden">
-        @if (hidden) {
-        <ng-container i18n>Problem is hidden</ng-container>
-        } @else {
-        <ng-container i18n>Problem is visible</ng-container>
-        }
-    </span>
-    <fa-icon
-        [icon]="hidden ? faEyeSlash : faEye"
-        aria-hidden="true"
-        [ngbTooltip]="hidden ? hiddenTooltip : visibleTooltip"
-    />
-    <ng-template #hiddenTooltip i18n>Hidden</ng-template>
-    <ng-template #visibleTooltip i18n>Visible</ng-template>
-    @if (problem().id) {
-    <div class="form-check form-switch d-flex justify-content-center">
-        <input
-            class="form-check-input"
-            type="checkbox"
-            role="switch"
-            id="hidden-toggle"
-            [checked]="hidden"
-            (change)="onToggleHidden()"
-            [attr.aria-label]="hidden ? 'Mark as visible' : 'Mark as hidden'"
-            i18n-aria-label
-        />
+<div class="position-relative">
+    @if (hidden) {
+    <div class="alert alert-info py-2" role="alert">
+        <fa-icon [icon]="faEyeSlash" class="me-2" aria-hidden="true"></fa-icon>
+        <span i18n>
+            This problem is hidden. Only Master Annotators can see it and change
+            its visibility.
+        </span>
     </div>
-    <label class="form-check-label" for="hidden-toggle" i18n>Hide/Show</label>
     }
+
+    <button
+        class="btn btn-outline-secondary position-absolute end-0 px-2"
+        (click)="onToggleHidden()"
+        [attr.aria-label]="hidden ? 'Mark as visible' : 'Mark as hidden'"
+        i18n-aria-label
+    >
+        <fa-icon
+            [icon]="hidden ? faEye : faEyeSlash"
+            aria-hidden="true"
+        ></fa-icon>
+        <span class="ms-2">
+            @if (hidden) {
+            <ng-container i18n>Show</ng-container>
+            } @else {
+            <ng-container i18n>Hide</ng-container>
+            }
+        </span>
+    </button>
 </div>

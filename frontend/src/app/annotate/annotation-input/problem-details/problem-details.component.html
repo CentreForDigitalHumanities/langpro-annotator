@@ -1,11 +1,10 @@
 @let appMode = appMode$ | async;
 @let currentUser = currentUser$ | async;
+
 @if (problemDetails(); as details) {
-<div class="position-relative">
+<div>
     @if (currentUser?.canChangeProblemVisibility) {
-        <div class="position-absolute top-0 end-0">
-            <la-visibility-toggle [problem]="problem()" />
-        </div>
+    <la-visibility-toggle [problem]="problem()" />
     }
     <table class="table table-sm table-borderless">
         <tbody>
@@ -31,7 +30,7 @@
                 <td>
                     <a [routerLink]="['/annotate', details.baseProblemId]">
                         <span>{{ details.baseProblemId }}</span>
-                        <fa-icon [icon]="faArrowUpRight"  class="ms-2"/>
+                        <fa-icon [icon]="faArrowUpRight" class="ms-2" />
                     </a>
                 </td>
                 } @else if (details.baseProblemId === null) {

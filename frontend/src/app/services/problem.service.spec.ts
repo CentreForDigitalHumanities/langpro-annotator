@@ -60,6 +60,7 @@ describe("ProblemService", () => {
                     },
                     kbAnnotations: [],
                     labelAnnotations: [],
+                    hidden: false,
                 },
                 index: 1,
                 total: 1,
@@ -81,7 +82,7 @@ describe("ProblemService", () => {
                 done();
             });
 
-            const req = httpMock.expectOne(`/api/problem/${mockProblemId}/?text=&dataset=&gold=&entailmentLabel=`);
+            const req = httpMock.expectOne(`/api/problem/${mockProblemId}/?text=&dataset=&gold=&entailmentLabel=&hidden=`);
             expect(req.request.method).toBe("GET");
             req.flush(mockResponse);
         });

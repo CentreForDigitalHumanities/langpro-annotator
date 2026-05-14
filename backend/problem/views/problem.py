@@ -1,4 +1,5 @@
 from rest_framework.decorators import action
+from rest_framework.exceptions import MethodNotAllowed
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
@@ -51,18 +52,7 @@ class ProblemView(ModelViewSet):
         return [IsAuthenticatedOrReadOnly()]
 
     def list(self, request: Request) -> Response:
-        """
-        Lists all Problems in the database, with optional filtering.
-        """
-        filters = get_filters(request.query_params)
-
-        qs = self.get_queryset()
-
-        if filters is not None:
-            qs = qs.filter(filters)
-
-        serializer = self.get_serializer(qs, many=True)
-        return Response(serializer.data, status=HTTP_200_OK)
+        raise MethodNotAllowed(request.method)
 
     @action(detail=False, methods=["get"], url_path="first")
     def first(self, request: Request) -> Response:

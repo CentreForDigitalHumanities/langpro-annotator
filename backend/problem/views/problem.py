@@ -107,7 +107,8 @@ class ProblemView(ModelViewSet):
         Helper method to build the problem response.
         If pk is provided, retrieves that problem; otherwise returns the first problem.
         """
-        filters = get_filters(request.query_params)
+        user = request.user if request.user.is_authenticated else None
+        filters = get_filters(request.query_params, user)
 
         qs = self.get_queryset()
 

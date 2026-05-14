@@ -188,12 +188,14 @@ export class ProblemService {
         const dataset = routeParams.get("dataset");
         const gold = routeParams.get("gold");
         const entailmentLabel = routeParams.get("entailmentLabel");
+        const hidden = routeParams.get("hidden");
 
         const paramRecord: Record<string, string> = {
             text: text ?? '',
             dataset: dataset ?? '',
             gold: gold ?? '',
             entailmentLabel: entailmentLabel ?? '',
+            hidden: hidden ?? '',
         };
 
         return new HttpParams({ fromObject: paramRecord });

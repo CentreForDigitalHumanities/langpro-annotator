@@ -5,6 +5,7 @@ from django.db.models import QuerySet, Q
 
 from langpro_annotator.logger import logger
 from problem.models import Problem
+from user.models import User
 
 
 @dataclass
@@ -51,7 +52,7 @@ def get_related_problem_ids(
     )
 
 
-def get_filters(query_params: QueryDict) -> Q | None:
+def get_filters(query_params: QueryDict, user: User | None = None) -> Q | None:
     """
     Constructs a Django Q object for filtering problems based on query parameters.
     Return None if no valid filters are found in the parameters.
@@ -60,8 +61,11 @@ def get_filters(query_params: QueryDict) -> Q | None:
     entailment_label = query_params.get("entailmentLabel")
     gold = query_params.get("gold")
     text = query_params.get("text")
+    hidden = query_params.get("hidden", None)
 
-    if not (dataset or entailment_label or gold or text):
+    user_can_see_hidden = user.can_see_hidden_problems if user else False
+
+    if not (dataset or entailment_label or gold or text or hidden):
         return None
 
     filters = Q()
@@ -76,5 +80,10 @@ def get_filters(query_params: QueryDict) -> Q | None:
         filters &= Q(
             Q(hypothesis__text__icontains=text) | Q(premises__text__icontains=text)
         )
+
+    if not user_can_see_hidden:
+        filters &= Q(hidden=False)
+    elif hidden and hidden.lower() in ('true', 'false'):
+        filters &= Q(hidden=hidden.lower() == 'true')
 
     return filters

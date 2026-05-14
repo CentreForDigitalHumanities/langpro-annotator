@@ -66,6 +66,13 @@ class User(django_auth_models.AbstractUser):
         return self.has_perm("problem.copy_problems")
 
     @property
+    def can_see_hidden_problems(self) -> bool:
+        """
+        Determines whether the user can see hidden problems.
+        """
+        return self.has_perm("problem.view_hidden_problems")
+
+    @property
     def can_change_problem_visibility(self) -> bool:
         """
         Determines whether the user can change problem visibility (hidden status).

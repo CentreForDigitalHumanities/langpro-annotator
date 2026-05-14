@@ -81,6 +81,42 @@ class TestProblemViewPermissions:
         response = client.get(f"/api/problem/{sample_problem.id}/")
         assert response.status_code == status.HTTP_200_OK
 
+    # Retrieve hidden problems
+
+    def test_user_without_permission_cannot_see_hidden_problem(
+        self, client, annotator, hidden_problem, sample_problem
+    ):
+        """Unauthenticated users should not be able to see hidden problems."""
+        client.force_login(user=annotator)
+        response = client.get(f"/api/problem/{hidden_problem.id}/")
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data['problem']['id'] == sample_problem.id, "Unauthenticated users requesting a hidden problem should receive the first non-hidden problem instead."
+
+    def test_visitor_cannot_see_hidden_problem(self, client, visitor, hidden_problem, sample_problem):
+        """Visitors should not be able to see hidden problems."""
+        client.force_login(user=visitor)
+        response = client.get(f"/api/problem/{hidden_problem.id}/")
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data['problem']['id'] == sample_problem.id, "Visitors requesting a hidden problem should receive the first non-hidden problem instead."
+
+    def test_annotator_cannot_see_hidden_problem(
+        self, client, annotator, hidden_problem, sample_problem
+    ):
+        """Annotators should not be able to see hidden problems."""
+        client.force_login(user=annotator)
+        response = client.get(f"/api/problem/{hidden_problem.id}/")
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data['problem']['id'] == sample_problem.id, "Annotators requesting a hidden problem should receive the first non-hidden problem instead."
+
+    def test_master_annotator_can_see_hidden_problem(
+        self, client, master_annotator, hidden_problem
+    ):
+        """Master annotators should be able to see hidden problems."""
+        client.force_login(user=master_annotator)
+        response = client.get(f"/api/problem/{hidden_problem.id}/")
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data['problem']['id'] == hidden_problem.id, "Master annotators requesting a hidden problem should receive that hidden problem."
+
     # Create
 
     def test_unauthenticated_user_cannot_create_problem(
@@ -236,6 +272,63 @@ class TestProblemViewPermissions:
         # Core fields should not be updated since the problem is not user-created.
         assert sample_problem.hypothesis.text == old_hypothesis
         assert sample_problem.premises.first().text == old_premise
+
+    # Update hidden status
+
+    def test_unauthenticated_user_cannot_update_problem_visibility(
+        self, client, sample_problem
+    ):
+        """Unauthenticated users should not be able to update problem visibility."""
+        response = client.post(
+            f"/api/problem/{sample_problem.id}/set-visibility/",
+            {"hidden": True},
+            content_type="application/json",
+        )
+        assert response.status_code == status.HTTP_401_UNAUTHORIZED
+        sample_problem.refresh_from_db()
+        assert sample_problem.hidden is False
+
+    def test_visitor_cannot_update_problem_visibility(
+        self, client, visitor, sample_problem
+    ):
+        """Visitors should not be able to update problem visibility."""
+        client.force_login(user=visitor)
+        response = client.post(
+            f"/api/problem/{sample_problem.id}/set-visibility/",
+            {"hidden": True},
+            content_type="application/json",
+        )
+        assert response.status_code == status.HTTP_403_FORBIDDEN
+        sample_problem.refresh_from_db()
+        assert sample_problem.hidden is False
+
+    def test_annotator_cannot_update_problem_visibility(
+        self, client, annotator, sample_problem
+    ):
+        """Annotators should not be able to update problem visibility."""
+        client.force_login(user=annotator)
+        response = client.post(
+            f"/api/problem/{sample_problem.id}/set-visibility/",
+            {"hidden": True},
+            content_type="application/json",
+        )
+        assert response.status_code == status.HTTP_403_FORBIDDEN
+        sample_problem.refresh_from_db()
+        assert sample_problem.hidden is False
+
+    def test_master_annotator_can_update_problem_visibility(
+        self, client, master_annotator, sample_problem
+    ):
+        """Master annotators should be able to update problem visibility."""
+        client.force_login(user=master_annotator)
+        response = client.post(
+            f"/api/problem/{sample_problem.id}/set-visibility/",
+            {"hidden": True},
+            content_type="application/json",
+        )
+        assert response.status_code == status.HTTP_200_OK
+        sample_problem.refresh_from_db()
+        assert sample_problem.hidden is True
 
     # Update KB annotations
 

@@ -65,9 +65,6 @@ def get_filters(query_params: QueryDict, user: User | None = None) -> Q | None:
 
     user_can_see_hidden = user.can_see_hidden_problems if user else False
 
-    if not (dataset or entailment_label or gold or text or hidden):
-        return None
-
     filters = Q()
     if dataset:
         filters &= Q(dataset=dataset)

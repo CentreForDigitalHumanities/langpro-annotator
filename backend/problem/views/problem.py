@@ -1,5 +1,4 @@
 from rest_framework.decorators import action
-from rest_framework.exceptions import MethodNotAllowed
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
@@ -11,6 +10,7 @@ from rest_framework.status import (
 )
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 
+from django.http import Http404
 from django.shortcuts import get_object_or_404
 
 from problem.problem_details import (
@@ -52,7 +52,7 @@ class ProblemView(ModelViewSet):
         return [IsAuthenticatedOrReadOnly()]
 
     def list(self, request: Request) -> Response:
-        raise MethodNotAllowed(request.method)
+        raise Http404
 
     @action(detail=False, methods=["get"], url_path="first")
     def first(self, request: Request) -> Response:

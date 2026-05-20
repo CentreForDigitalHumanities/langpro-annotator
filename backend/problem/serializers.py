@@ -21,6 +21,7 @@ class ProblemSerializer(serializers.ModelSerializer):
     hypothesis = serializers.SerializerMethodField()
     entailmentLabel = serializers.CharField(source="entailment_label")
     extraData = serializers.SerializerMethodField()
+    status = serializers.CharField(read_only=True)
 
     class Meta:
         model = Problem
@@ -33,6 +34,8 @@ class ProblemSerializer(serializers.ModelSerializer):
             "extraData",
             "base",
             "hidden",
+            "gold",
+            "status",
         ]
 
     def get_premises(self, problem: Problem):

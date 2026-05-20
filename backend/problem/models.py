@@ -21,6 +21,11 @@ class Problem(models.Model):
         CONTRADICTION = "contradiction", "Contradiction"
         UNKNOWN = "unknown", "Unknown"
 
+    class Status(models.TextChoices):
+        GOLD = "gold", "Gold"
+        SILVER = "silver", "Silver"
+        BRONZE = "bronze", "Bronze"
+
     dataset = models.CharField(
         max_length=255,
         choices=Dataset.choices,
@@ -55,6 +60,8 @@ class Problem(models.Model):
 
     hidden = models.BooleanField(default=False)
 
+    gold = models.BooleanField(default=False)
+
     extra_data = models.JSONField()
 
     class Meta:
@@ -76,3 +83,19 @@ class Problem(models.Model):
         except Exception as e:
             logger.exception(f"Error getting index for problem {self.pk}: {e}")
             return None
+
+    @property
+    def status(self) -> "Problem.Status":
+        """
+        Returns the computed status of this problem:
+        - GOLD if the problem is marked as gold.
+        - SILVER if not gold but has active annotations (KB items or labels).
+        - BRONZE otherwise (no annotations).
+        """
+        if self.gold:
+            return Problem.Status.GOLD
+        has_annotations = (
+            self.knowledgebaseannotations.filter(removed_at__isnull=True).exists()
+            or self.labelannotations.filter(removed_at__isnull=True).exists()
+        )
+        return Problem.Status.SILVER if has_annotations else Problem.Status.BRONZE

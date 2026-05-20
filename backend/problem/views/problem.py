@@ -15,6 +15,7 @@ from django.shortcuts import get_object_or_404
 
 from problem.problem_details import (
     get_filters,
+    apply_status_filter,
     get_related_problem_ids,
 )
 from problem.models import Problem
@@ -76,8 +77,27 @@ class ProblemView(ModelViewSet):
         if filters is not None:
             qs = qs.filter(filters)
 
+        qs = apply_status_filter(qs, request.query_params)
+
         serializer = self.get_serializer(qs, many=True)
         return Response(serializer.data, status=HTTP_200_OK)
+
+    @action(detail=True, methods=["post"], url_path="set-status")
+    def set_status(self, request: Request, pk: int) -> Response:
+        """
+        Toggles the gold status of a Problem.
+        Expects a JSON body with a boolean 'gold' field.
+        """
+        problem = get_object_or_404(Problem, id=pk)
+        gold = request.data.get("gold")
+        if not isinstance(gold, bool):
+            return Response(
+                {"detail": "'gold' must be a boolean."},
+                status=HTTP_400_BAD_REQUEST,
+            )
+        problem.gold = gold
+        problem.save(update_fields=["gold"])
+        return Response({"gold": problem.gold, "status": problem.status}, status=HTTP_200_OK)
 
     @action(detail=False, methods=["get"], url_path="first")
     def first(self, request: Request) -> Response:
@@ -121,6 +141,8 @@ class ProblemView(ModelViewSet):
 
         if filters is not None:
             qs = qs.filter(filters).distinct()
+
+        qs = apply_status_filter(qs, request.query_params)
 
         problem = None
         if pk is not None:

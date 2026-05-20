@@ -1,4 +1,4 @@
-import { Dataset, EntailmentLabel } from "@/types";
+import { Dataset, EntailmentLabel, ProblemStatus } from "@/types";
 
 export const entailmentLabels: Record<EntailmentLabel, string> = {
     [EntailmentLabel.ENTAILMENT]: $localize`Entailment`,
@@ -12,4 +12,10 @@ export const datasetLabels: Record<Dataset, string> = {
     [Dataset.FRACAS]: "FraCaS",
     [Dataset.SNLI]: "SNLI",
     [Dataset.USER]: "User",
+};
+
+export const statusLabels: Record<ProblemStatus, string> = {
+    [ProblemStatus.GOLD]: $localize`Gold`,
+    [ProblemStatus.SILVER]: $localize`Silver`,
+    [ProblemStatus.BRONZE]: $localize`Bronze`,
 };

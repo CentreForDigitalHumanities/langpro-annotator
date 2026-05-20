@@ -1,16 +1,17 @@
-import { Dataset, EntailmentLabel, LabelAnnotation, Problem } from "../../../types";
+import { Dataset, EntailmentLabel, LabelAnnotation, Problem, ProblemStatus } from "../../../types";
 import { Component, computed, inject, input } from "@angular/core";
 import { EntailmentLabelBadgeComponent } from "./entailment-label-badge/entailment-label-badge.component";
-import { faArrowUpRightFromSquare, faQuestionCircle } from "@fortawesome/free-solid-svg-icons";
+import { faArrowUpRightFromSquare, faMedal, faQuestionCircle } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeModule } from "@fortawesome/angular-fontawesome";
 import { NgbTooltipModule } from "@ng-bootstrap/ng-bootstrap";
-import { datasetLabels } from "@/shared/displayTextMappings";
+import { datasetLabels, statusLabels } from "@/shared/displayTextMappings";
 import { ProblemLabelsComponent } from "./problem-labels/problem-labels.component";
 import { CommonModule } from "@angular/common";
 import { RouterModule } from "@angular/router";
 import { ProblemService } from "@/services/problem.service";
 import { AuthService } from "@/services/auth.service";
 import { VisibilityToggleComponent } from "./visibility-toggle/visibility-toggle.component";
+import { GoldToggleComponent } from "./gold-toggle.component";
 
 export interface ProblemDetails {
     problemId: string;
@@ -33,7 +34,8 @@ export interface ProblemDetails {
         NgbTooltipModule,
         CommonModule,
         RouterModule,
-        VisibilityToggleComponent
+        VisibilityToggleComponent,
+        GoldToggleComponent,
     ],
     templateUrl: "./problem-details.component.html",
     styleUrl: "./problem-details.component.scss",
@@ -56,7 +58,10 @@ export class ProblemDetailsComponent {
 
     public faQuestionCircle = faQuestionCircle;
     public faArrowUpRight = faArrowUpRightFromSquare;
+    public faMedal = faMedal;
     public datasetLabels = datasetLabels;
+    public statusLabels = statusLabels;
+    public ProblemStatus = ProblemStatus;
 
     public sectionString = computed<string | null>(() => {
         const problemDetails = this.problemDetails();

@@ -1,4 +1,4 @@
-import { Dataset, EntailmentLabel } from "@/types";
+import { Dataset, EntailmentLabel, ProblemStatus } from "@/types";
 import { CommonModule } from "@angular/common";
 import { Component, DestroyRef, inject } from "@angular/core";
 import {
@@ -15,7 +15,7 @@ import {
     FilterSelectComponent,
     SelectOption,
 } from "./filter-select/filter-select.component";
-import { datasetLabels, entailmentLabels } from "@/shared/displayTextMappings";
+import { datasetLabels, entailmentLabels, statusLabels } from "@/shared/displayTextMappings";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router } from "@angular/router";
 import { IconButtonComponent } from "@/shared/icon-button/icon-button.component";
@@ -24,7 +24,7 @@ import { AuthService } from "@/services/auth.service";
 interface SearchParams {
     dataset: Dataset | null;
     entailmentLabel: EntailmentLabel | null;
-    gold: boolean | null;
+    status: ProblemStatus | null;
     text: string | null;
     hidden: boolean | null;
 }
@@ -56,7 +56,7 @@ export class SearchComponent {
     public form = new FormGroup<SearchParamsForm>({
         dataset: new FormControl<Dataset | null>(null),
         entailmentLabel: new FormControl<EntailmentLabel | null>(null),
-        gold: new FormControl<boolean | null>(null),
+        status: new FormControl<ProblemStatus | null>(null),
         text: new FormControl<string | null>(""),
         hidden: new FormControl<boolean | null>(null),
     });
@@ -85,10 +85,12 @@ export class SearchComponent {
         })
     );
 
-    public goldOptions: SelectOption<boolean>[] = [
-        { value: true, label: $localize`Gold Only` },
-        { value: false, label: $localize`Non-Gold Only` },
-    ];
+    public statusOptions: SelectOption<ProblemStatus>[] = Object.values(ProblemStatus).map(
+        (status) => ({
+            value: status,
+            label: statusLabels[status],
+        })
+    );
 
     public hiddenOptions: SelectOption<boolean>[] = [
         { value: true, label: $localize`Hidden Only` },
@@ -116,7 +118,7 @@ export class SearchComponent {
             this.form.patchValue({
                 dataset: this.isDataset(dataset) ? dataset : null,
                 entailmentLabel: this.isEntailmentLabel(entailmentLabel) ? entailmentLabel : null,
-                gold: queryParams.get('gold') === null ? null : queryParams.get('gold') === 'true',
+                status: this.isProblemStatus(queryParams.get('status')) ? queryParams.get('status') as ProblemStatus : null,
                 text: queryParams.get('text') as string | null,
                 hidden: queryParams.get('hidden') === null ? null : queryParams.get('hidden') === 'true',
             });
@@ -130,6 +132,10 @@ export class SearchComponent {
 
     private isEntailmentLabel(value: string | null): value is EntailmentLabel {
         return value !== null && Object.values(EntailmentLabel).includes(value as EntailmentLabel);
+    }
+
+    private isProblemStatus(value: string | null): value is ProblemStatus {
+        return value !== null && Object.values(ProblemStatus).includes(value as ProblemStatus);
     }
 
     public clearFilters(): void {

@@ -1,11 +1,28 @@
 @let appMode = appMode$ | async;
 @let currentUser = currentUser$ | async;
-
 @if (problemDetails(); as details) {
 <div>
-    @if (currentUser?.canChangeProblemVisibility) {
-    <la-visibility-toggle [problem]="problem()" />
-    }
+    <div class="position-relative d-flex justify-content-end gap-2 mb-2">
+        <span
+            class="badge d-flex align-items-center gap-1"
+            [class.text-bg-warning]="problem().status === ProblemStatus.GOLD"
+            [class.text-bg-secondary]="
+                problem().status === ProblemStatus.SILVER
+            "
+            [class.text-bg-light]="problem().status === ProblemStatus.BRONZE"
+            [ngbTooltip]="statusLabels[problem().status]"
+            aria-hidden="true"
+        >
+            <fa-icon [icon]="faMedal" />
+            {{ statusLabels[problem().status] }}
+        </span>
+        @if (currentUser?.canChangeProblemStatus) {
+        <la-gold-toggle [problem]="problem()" />
+        }
+        @if (currentUser?.canChangeProblemVisibility) {
+        <la-visibility-toggle [problem]="problem()" />
+        }
+    </div>
     <table class="table table-sm table-borderless">
         <tbody>
             <tr>

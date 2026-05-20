@@ -40,18 +40,18 @@
                 [options]="entailmentLabelOptions"
             />
 
-            <label for="annotator" class="form-label" i18n>Gold</label>
+            <label for="annotator" class="form-label" i18n>Status</label>
             <la-filter-select
-                [formControl]="form.controls.gold"
-                [options]="goldOptions"
+                [formControl]="form.controls.status"
+                [options]="statusOptions"
             />
 
             @if (canChangeVisibility) {
-                <label for="hidden" class="form-label" i18n>Visibility</label>
-                <la-filter-select
-                    [formControl]="form.controls.hidden"
-                    [options]="hiddenOptions"
-                />
+            <label for="hidden" class="form-label" i18n>Visibility</label>
+            <la-filter-select
+                [formControl]="form.controls.hidden"
+                [options]="hiddenOptions"
+            />
             }
         </div>
 

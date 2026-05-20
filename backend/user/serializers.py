@@ -19,6 +19,9 @@ class CustomUserDetailsSerializer(UserDetailsSerializer):
     canChangeProblemVisibility = serializers.BooleanField(
         read_only=True, source="can_change_problem_visibility"
     )
+    canChangeProblemStatus = serializers.BooleanField(
+        read_only=True, source="can_change_problem_status"
+    )
 
     class Meta(UserDetailsSerializer.Meta):
 
@@ -36,5 +39,6 @@ class CustomUserDetailsSerializer(UserDetailsSerializer):
             "canAddLabelAnnotations",
             "canCopyProblem",
             "canChangeProblemVisibility",
+            "canChangeProblemStatus",
         )
         read_only_fields = ["isStaff", "id", "email"]

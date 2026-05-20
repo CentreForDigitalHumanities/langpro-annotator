@@ -45,6 +45,11 @@ class ChangeProblemVisibilityPermission(IsAuthenticated):
         return super().has_permission(request, view) and request.user.can_change_problem_visibility
 
 
+class ChangeProblemStatusPermission(IsAuthenticated):
+    def has_permission(self, request, view):
+        return super().has_permission(request, view) and request.user.can_change_problem_status
+
+
 class ProblemView(ModelViewSet):
     queryset = Problem.objects.all()
     serializer_class = ProblemSerializer
@@ -56,6 +61,8 @@ class ProblemView(ModelViewSet):
             return [EditProblemPermission()]
         if self.action == "set_visibility":
             return [ChangeProblemVisibilityPermission()]
+        if self.action == "set_status":
+            return [ChangeProblemStatusPermission()]
         return [IsAuthenticatedOrReadOnly()]
 
     def list(self, request: Request) -> Response:

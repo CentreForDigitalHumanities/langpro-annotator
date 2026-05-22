@@ -1,4 +1,52 @@
-<ul>
-    <li>Annotation history: who did what when?</li>
-    <li>Ability to 'gold'/'ungold' sentences</li>
+@let events = events$ | async; @if (events === null) {
+<p class="text-muted small fst-italic" i18n>Loading…</p>
+} @else if (events.length === 0) {
+<p class="text-muted small fst-italic" i18n>No annotations yet.</p>
+} @else {
+<ul class="list-unstyled d-flex flex-column gap-2 mb-0">
+    @for (event of events; track $index) {
+    <li>
+        <div
+            class="card annotation-event border-0 shadow-sm"
+            [class.annotation-event--added]="event.kind === 'added'"
+            [class.annotation-event--removed]="event.kind === 'removed'"
+        >
+            <div class="card-body py-2 px-3 d-flex align-items-center gap-3">
+                <span
+                    class="badge rounded-pill flex-shrink-0"
+                    [class.text-bg-success]="event.kind === 'added'"
+                    [class.text-bg-danger]="event.kind === 'removed'"
+                >
+                    <fa-icon
+                        [icon]="event.kind === 'added' ? faPlus : faMinus"
+                    />
+                </span>
+                <span
+                    class="flex-shrink-0 text-secondary annotation-kind-icon"
+                    [title]="
+                        event.annotationKind === 'label'
+                            ? 'Label annotation'
+                            : 'Knowledge base annotation'
+                    "
+                >
+                    <fa-icon
+                        [icon]="
+                            event.annotationKind === 'label' ? faTag : faLink
+                        "
+                    />
+                </span>
+                <span class="flex-grow-1 fw-medium annotation-description">{{
+                    event.description
+                }}</span>
+                <span class="text-secondary small text-end flex-shrink-0">
+                    {{ event.actor }}<br />
+                    <span class="text-muted">{{
+                        event.timestamp | date : "medium"
+                    }}</span>
+                </span>
+            </div>
+        </div>
+    </li>
+    }
 </ul>
+}

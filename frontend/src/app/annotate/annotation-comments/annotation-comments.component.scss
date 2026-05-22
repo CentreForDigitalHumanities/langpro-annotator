@@ -1,0 +1,20 @@
+.annotation-event {
+    border-left: 3px solid transparent;
+
+    &--added {
+        border-left-color: var(--bs-success);
+    }
+
+    &--removed {
+        border-left-color: var(--bs-danger);
+    }
+}
+
+.annotation-kind-icon {
+    width: 1rem;
+    text-align: center;
+}
+
+.annotation-description {
+    font-family: monospace;
+}

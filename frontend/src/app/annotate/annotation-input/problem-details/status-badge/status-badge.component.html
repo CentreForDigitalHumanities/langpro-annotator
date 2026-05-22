@@ -1,0 +1,11 @@
+<div
+    class="badge d-flex align-items-center justify-content-center gap-1 py-2"
+    [class.text-bg-warning]="status() === ProblemStatus.GOLD"
+    [class.text-bg-secondary]="status() === ProblemStatus.SILVER"
+    [class.text-bg-light]="status() === ProblemStatus.BRONZE"
+    [ngbTooltip]="statusLabels[status()]"
+    aria-hidden="true"
+>
+    <fa-icon [icon]="faMedal" />
+    <span>{{ statusLabels[status()] }}</span>
+</div>

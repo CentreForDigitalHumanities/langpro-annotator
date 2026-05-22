@@ -8,8 +8,8 @@ import {
     ReactiveFormsModule,
 } from "@angular/forms";
 import { FontAwesomeModule } from "@fortawesome/angular-fontawesome";
-import { faSearch, faTimes } from "@fortawesome/free-solid-svg-icons";
-import { NgbDropdownModule } from "@ng-bootstrap/ng-bootstrap";
+import { faCircleInfo, faSearch, faTimes } from "@fortawesome/free-solid-svg-icons";
+import { NgbDropdownModule, NgbModal } from "@ng-bootstrap/ng-bootstrap";
 import { BehaviorSubject, map } from "rxjs";
 import {
     FilterSelectComponent,
@@ -20,6 +20,7 @@ import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router } from "@angular/router";
 import { IconButtonComponent } from "@/shared/icon-button/icon-button.component";
 import { AuthService } from "@/services/auth.service";
+import { StatusInfoModalComponent } from "./status-info-modal/status-info-modal.component";
 
 interface SearchParams {
     dataset: Dataset | null;
@@ -52,6 +53,7 @@ export class SearchComponent {
     private router = inject(Router);
     private route = inject(ActivatedRoute);
     private authService = inject(AuthService);
+    private modalService = inject(NgbModal);
 
     public form = new FormGroup<SearchParamsForm>({
         dataset: new FormControl<Dataset | null>(null),
@@ -70,6 +72,7 @@ export class SearchComponent {
 
     public faSearch = faSearch;
     public faTimes = faTimes;
+    public faCircleInfo = faCircleInfo;
 
     public datasetOptions: SelectOption<Dataset>[] = Object.values(Dataset).map(
         (dataset) => ({
@@ -140,6 +143,12 @@ export class SearchComponent {
 
     public clearFilters(): void {
         this.form.reset();
+    }
+
+    public showStatusInfoModal(): void {
+        this.modalService.open(StatusInfoModalComponent, {
+            centered: true,
+        });
     }
 
     // Updates the route, which triggers a new query.

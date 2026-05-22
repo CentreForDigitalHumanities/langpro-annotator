@@ -1,28 +1,15 @@
-@let appMode = appMode$ | async;
-@let currentUser = currentUser$ | async;
-@if (problemDetails(); as details) {
-<div>
-    <div class="position-relative d-flex justify-content-end gap-2 mb-2">
-        <span
-            class="badge d-flex align-items-center gap-1"
-            [class.text-bg-warning]="problem().status === ProblemStatus.GOLD"
-            [class.text-bg-secondary]="
-                problem().status === ProblemStatus.SILVER
-            "
-            [class.text-bg-light]="problem().status === ProblemStatus.BRONZE"
-            [ngbTooltip]="statusLabels[problem().status]"
-            aria-hidden="true"
-        >
-            <fa-icon [icon]="faMedal" />
-            {{ statusLabels[problem().status] }}
-        </span>
-        @if (currentUser?.canChangeProblemStatus) {
-        <la-gold-toggle [problem]="problem()" />
-        }
-        @if (currentUser?.canChangeProblemVisibility) {
-        <la-visibility-toggle [problem]="problem()" />
-        }
-    </div>
+@let appMode = appMode$ | async; @let currentUser = currentUser$ | async; @let
+hidden = problem().hidden; @let status = problem().status; @if
+(problemDetails(); as details) { @if (hidden) {
+<div class="alert alert-info py-2" role="alert">
+    <fa-icon [icon]="faEyeSlash" class="me-2" aria-hidden="true"></fa-icon>
+    <span i18n>
+        This problem is hidden. Only Master Annotators can see it and change its
+        visibility.
+    </span>
+</div>
+}
+<div class="d-flex justify-content-between align-items-start mb-3">
     <table class="table table-sm table-borderless">
         <tbody>
             <tr>
@@ -89,5 +76,24 @@
             </tr>
         </tbody>
     </table>
+    <div class="d-flex flex-column align-items-stretch gap-2">
+        <div class="position-relative">
+            <fa-icon
+                role="button"
+                class="position-absolute end-100 top-50 translate-middle"
+                size="sm"
+                [icon]="faCircleInfo"
+                (click)="showStatusInfoModal()"
+                title="Show status info"
+                i18n-title
+            />
+            <la-status-badge [status]="status" />
+        </div>
+        @if (currentUser?.canChangeProblemStatus) {
+        <la-gold-toggle [problem]="problem()" />
+        } @if (currentUser?.canChangeProblemVisibility) {
+        <la-visibility-toggle [problem]="problem()" />
+        }
+    </div>
 </div>
 }

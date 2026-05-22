@@ -1,5 +1,5 @@
-@let loading = loading$ | async;
-@let canChangeVisibility = canChangeVisibility$ | async;
+@let loading = loading$ | async; @let canChangeVisibility = canChangeVisibility$
+| async;
 
 <div class="mb-3">
     <form role="search">
@@ -40,7 +40,19 @@
                 [options]="entailmentLabelOptions"
             />
 
-            <label for="annotator" class="form-label" i18n>Status</label>
+            <div>
+                <label for="annotator" class="form-label me-2" i18n>
+                    Status
+                </label>
+                <fa-icon
+                    role="button"
+                    size="sm"
+                    [icon]="faCircleInfo"
+                    (click)="showStatusInfoModal()"
+                    title="Show status info"
+                    i18n-title
+                />
+            </div>
             <la-filter-select
                 [formControl]="form.controls.status"
                 [options]="statusOptions"

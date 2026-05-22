@@ -1,17 +1,19 @@
-import { Dataset, EntailmentLabel, LabelAnnotation, Problem, ProblemStatus } from "../../../types";
+import { Dataset, EntailmentLabel, LabelAnnotation, Problem } from "../../../types";
 import { Component, computed, inject, input } from "@angular/core";
 import { EntailmentLabelBadgeComponent } from "./entailment-label-badge/entailment-label-badge.component";
-import { faArrowUpRightFromSquare, faMedal, faQuestionCircle } from "@fortawesome/free-solid-svg-icons";
+import { faArrowUpRightFromSquare, faCircleInfo, faEyeSlash, faQuestionCircle } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeModule } from "@fortawesome/angular-fontawesome";
-import { NgbTooltipModule } from "@ng-bootstrap/ng-bootstrap";
-import { datasetLabels, statusLabels } from "@/shared/displayTextMappings";
+import { NgbModal, NgbTooltipModule } from "@ng-bootstrap/ng-bootstrap";
+import { datasetLabels } from "@/shared/displayTextMappings";
 import { ProblemLabelsComponent } from "./problem-labels/problem-labels.component";
 import { CommonModule } from "@angular/common";
 import { RouterModule } from "@angular/router";
 import { ProblemService } from "@/services/problem.service";
 import { AuthService } from "@/services/auth.service";
 import { VisibilityToggleComponent } from "./visibility-toggle/visibility-toggle.component";
-import { GoldToggleComponent } from "./gold-toggle.component";
+import { GoldToggleComponent } from "./gold-toggle/gold-toggle.component";
+import { StatusBadgeComponent } from "./status-badge/status-badge.component";
+import { StatusInfoModalComponent } from "@/annotate/search/status-info-modal/status-info-modal.component";
 
 export interface ProblemDetails {
     problemId: string;
@@ -36,6 +38,7 @@ export interface ProblemDetails {
         RouterModule,
         VisibilityToggleComponent,
         GoldToggleComponent,
+        StatusBadgeComponent,
     ],
     templateUrl: "./problem-details.component.html",
     styleUrl: "./problem-details.component.scss",
@@ -44,6 +47,7 @@ export class ProblemDetailsComponent {
     public readonly problem = input.required<Problem>();
     private problemService = inject(ProblemService);
     private authService = inject(AuthService);
+    private modalService = inject(NgbModal);
 
     public appMode$ = this.problemService.appMode$;
     public currentUser$ = this.authService.currentUser$;
@@ -57,11 +61,10 @@ export class ProblemDetailsComponent {
     });
 
     public faQuestionCircle = faQuestionCircle;
+    public faEyeSlash = faEyeSlash;
     public faArrowUpRight = faArrowUpRightFromSquare;
-    public faMedal = faMedal;
     public datasetLabels = datasetLabels;
-    public statusLabels = statusLabels;
-    public ProblemStatus = ProblemStatus;
+    public faCircleInfo = faCircleInfo;
 
     public sectionString = computed<string | null>(() => {
         const problemDetails = this.problemDetails();
@@ -79,6 +82,12 @@ export class ProblemDetailsComponent {
         }
         return null;
     });
+
+    public showStatusInfoModal(): void {
+        this.modalService.open(StatusInfoModalComponent, {
+            centered: true,
+        });
+    }
 
     private extractDetails(problem: Problem): ProblemDetails | null {
         const shared: Pick<

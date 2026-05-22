@@ -1,18 +1,20 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 
 import { ProblemDetailsComponent } from "./problem-details.component";
-import { Dataset, EntailmentLabel, Problem } from "../../../types";
+import { Dataset, EntailmentLabel, Problem, ProblemStatus } from "@/types";
 import { provideHttpClient } from "@angular/common/http";
+import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
 
 const createMockProblem = (
     id: number,
     dataset: Dataset,
     entailmentLabel: EntailmentLabel,
+    hidden = false,
     extraData: any = {},
 ): Problem => ({
     id,
     base: null,
-    hidden: false,
+    hidden,
     dataset,
     entailmentLabel,
     premises: ["premise"],
@@ -20,16 +22,28 @@ const createMockProblem = (
     extraData,
     kbAnnotations: [],
     labelAnnotations: [],
+    gold: false,
+    status: ProblemStatus.BRONZE
 });
 
 describe("ProblemDetailsComponent", () => {
     let component: ProblemDetailsComponent;
     let fixture: ComponentFixture<ProblemDetailsComponent>;
+    let mockActiveModal: jasmine.SpyObj<NgbActiveModal>;
 
     beforeEach(async () => {
+        mockActiveModal = jasmine.createSpyObj("NgbActiveModal", [
+            "close",
+            "dismiss",
+        ]);
+
+
         await TestBed.configureTestingModule({
             imports: [ProblemDetailsComponent],
-            providers: [provideHttpClient()]
+            providers: [
+                provideHttpClient(),
+                { provide: NgbActiveModal, useValue: mockActiveModal }
+            ]
         }).compileComponents();
 
         fixture = TestBed.createComponent(ProblemDetailsComponent);
@@ -82,6 +96,7 @@ describe("ProblemDetailsComponent", () => {
                 2,
                 Dataset.FRACAS,
                 EntailmentLabel.CONTRADICTION,
+                false,
                 {
                     sectionName: "Quantifiers",
                     subsectionName: "Some",
@@ -116,6 +131,7 @@ describe("ProblemDetailsComponent", () => {
                 5,
                 Dataset.FRACAS,
                 EntailmentLabel.ENTAILMENT,
+                false,
                 { sectionName: "SectionOnly" },
             );
             fixture.componentRef.setInput("problem", problem);
@@ -128,11 +144,31 @@ describe("ProblemDetailsComponent", () => {
                 6,
                 Dataset.FRACAS,
                 EntailmentLabel.ENTAILMENT,
+                false,
                 { subsectionName: "SubsectionOnly" },
             );
             fixture.componentRef.setInput("problem", problem);
             fixture.detectChanges();
             expect(component.sectionString()).toBe("SubsectionOnly");
         });
+    });
+
+    it('should show the alert banner only when the problem is hidden', () => {
+        const getAlert = () =>
+            fixture.nativeElement.querySelector('[role="alert"]');
+
+        expect(getAlert()).toBeNull();
+
+        const problem = createMockProblem(
+            7,
+            Dataset.SNLI,
+            EntailmentLabel.NEUTRAL,
+            true
+        );
+
+        fixture.componentRef.setInput('problem', problem);
+        fixture.detectChanges();
+
+        expect(getAlert()).not.toBeNull();
     });
 });

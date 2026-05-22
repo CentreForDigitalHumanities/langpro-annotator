@@ -6,7 +6,7 @@ import { provideHttpClientTesting } from "@angular/common/http/testing";
 import { provideHttpClient } from "@angular/common/http";
 import { ActivatedRoute, Router } from "@angular/router";
 import { of } from "rxjs";
-import { Dataset, KnowledgeBaseRelationship, Problem, EntailmentLabel } from "../../types";
+import { Dataset, KnowledgeBaseRelationship, Problem, EntailmentLabel, ProblemStatus } from "../../types";
 
 describe("AnnotationInputComponent", () => {
     let component: AnnotationInputComponent;
@@ -84,7 +84,9 @@ describe("AnnotationInputComponent", () => {
                 ],
                 labelAnnotations: [],
                 dataset: Dataset.USER,
-                extraData: null
+                extraData: null,
+                gold: false,
+                status: ProblemStatus.BRONZE
             };
 
             // Access private method.
@@ -129,7 +131,9 @@ describe("AnnotationInputComponent", () => {
                 kbAnnotations: [],
                 labelAnnotations: [],
                 dataset: Dataset.USER,
-                extraData: null
+                extraData: null,
+                gold: false,
+                status: ProblemStatus.BRONZE
             };
 
             const form = component['buildForm'](mockProblem);
@@ -153,6 +157,8 @@ describe("AnnotationInputComponent", () => {
                 extraData: null,
                 kbAnnotations: [],
                 labelAnnotations: [],
+                gold: false,
+                status: ProblemStatus.BRONZE
             };
 
             const form = component['buildForm'](mockProblem);
@@ -177,6 +183,8 @@ describe("AnnotationInputComponent", () => {
                 extraData: null,
                 kbAnnotations: [],
                 labelAnnotations: [],
+                gold: false,
+                status: ProblemStatus.BRONZE
             };
 
             component['navigateToNewProblem'](mockProblem);
@@ -199,6 +207,8 @@ describe("AnnotationInputComponent", () => {
                 extraData: null,
                 kbAnnotations: [],
                 labelAnnotations: [],
+                gold: false,
+                status: ProblemStatus.BRONZE
             };
 
             component['navigateToNewProblem'](mockProblem);

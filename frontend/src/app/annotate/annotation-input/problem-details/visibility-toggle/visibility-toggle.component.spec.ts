@@ -39,16 +39,4 @@ describe('VisibilityToggleComponent', () => {
 
         expect(emitted).toEqual([{ id: 123, hidden: true }]);
     });
-
-    it('should show the alert banner only when the problem is hidden', () => {
-        const getAlert = () =>
-            fixture.nativeElement.querySelector('[role="alert"]');
-
-        expect(getAlert()).toBeNull();
-
-        fixture.componentRef.setInput('problem', { id: 123, hidden: true });
-        fixture.detectChanges();
-
-        expect(getAlert()).not.toBeNull();
-    });
 });

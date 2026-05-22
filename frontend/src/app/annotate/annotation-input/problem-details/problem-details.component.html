@@ -1,14 +1,19 @@
-@let appMode = appMode$ | async; @let currentUser = currentUser$ | async; @let
-hidden = problem().hidden; @let status = problem().status; @if
-(problemDetails(); as details) { @if (hidden) {
-<div class="alert alert-info py-2" role="alert">
-    <fa-icon [icon]="faEyeSlash" class="me-2" aria-hidden="true"></fa-icon>
-    <span i18n>
-        This problem is hidden. Only Master Annotators can see it and change its
-        visibility.
-    </span>
-</div>
-}
+@let appMode = appMode$ | async;
+@let currentUser = currentUser$ | async;
+@let hidden = problem().hidden;
+@let status = problem().status;
+
+@if (problemDetails(); as details) {
+    @if (hidden) {
+    <div class="alert alert-info py-2" role="alert">
+        <fa-icon [icon]="faEyeSlash" class="me-2" aria-hidden="true"></fa-icon>
+        <span i18n>
+            This problem is hidden. Only Master Annotators can see it and change its
+            visibility.
+        </span>
+    </div>
+    }
+
 <div class="d-flex justify-content-between align-items-start mb-3">
     <table class="table table-sm table-borderless">
         <tbody>

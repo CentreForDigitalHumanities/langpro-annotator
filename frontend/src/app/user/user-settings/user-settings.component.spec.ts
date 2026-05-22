@@ -30,6 +30,7 @@ const fakeUser: User = {
     canAddLabelAnnotations: false,
     canCopyProblem: false,
     canChangeProblemVisibility: false,
+    canChangeProblemStatus: false,
 };
 
 @Injectable({ providedIn: "root" })

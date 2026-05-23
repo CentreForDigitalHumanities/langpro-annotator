@@ -2,8 +2,8 @@ import { TestBed } from "@angular/core/testing";
 import { of } from "rxjs";
 
 import { ProblemService } from "@/services/problem.service";
-import { Dataset, EntailmentLabel, KnowledgeBaseRelationship } from "@/types";
-import { AnnotationCommentsComponent, AnnotationEvent } from "./annotation-comments.component";
+import { Dataset, EntailmentLabel, KnowledgeBaseAnnotation, KnowledgeBaseRelationship, LabelAnnotation, Problem } from "@/types";
+import { AnnotationCommentsComponent } from "./annotation-comments.component";
 
 const baseAnnotationFields = {
     id: 1,
@@ -14,8 +14,8 @@ const baseAnnotationFields = {
     removedBy: null,
 };
 
-function setupComponent(kbAnnotations: unknown[] = [], labelAnnotations: unknown[] = []) {
-    const mockProblem = {
+function setupComponent(kbAnnotations: KnowledgeBaseAnnotation[] = [], labelAnnotations: LabelAnnotation[] = []) {
+    const mockProblem: Problem = {
         id: 1,
         base: null,
         premises: [],
@@ -45,7 +45,7 @@ describe("AnnotationCommentsComponent", () => {
         expect(component).toBeTruthy();
     });
 
-    it("emits an 'added' event for each annotation", (done) => {
+    it("emits an 'added' event for each annotation", () => {
         const component = setupComponent(
             [],
             [
@@ -59,21 +59,19 @@ describe("AnnotationCommentsComponent", () => {
             ]
         );
 
-        component.events$.subscribe((events: AnnotationEvent[]) => {
-            expect(events.length).toBe(1);
-            expect(events[0]).toEqual(
-                jasmine.objectContaining({
-                    kind: "added",
-                    annotationKind: "label",
-                    actor: "Alice",
-                    description: "negation",
-                })
-            );
-            done();
-        });
+        const events = component.filteredEvents()!;
+        expect(events.length).toBe(1);
+        expect(events[0]).toEqual(
+            jasmine.objectContaining({
+                kind: "added",
+                annotationKind: "label",
+                actor: "Alice",
+                description: "negation",
+            })
+        );
     });
 
-    it("emits a 'removed' event when removedAt is set", (done) => {
+    it("emits a 'removed' event when removedAt is set", () => {
         const component = setupComponent(
             [
                 {
@@ -90,21 +88,19 @@ describe("AnnotationCommentsComponent", () => {
             []
         );
 
-        component.events$.subscribe((events: AnnotationEvent[]) => {
-            expect(events.length).toBe(2);
-            const removed = events.find((e) => e.kind === "removed");
-            expect(removed).toEqual(
-                jasmine.objectContaining({
-                    kind: "removed",
-                    annotationKind: "knowledgeBase",
-                    description: "cat = feline",
-                })
-            );
-            done();
-        });
+        const events = component.filteredEvents()!;
+        expect(events.length).toBe(2);
+        const removed = events.find((e) => e.kind === "removed");
+        expect(removed).toEqual(
+            jasmine.objectContaining({
+                kind: "removed",
+                annotationKind: "knowledgeBase",
+                description: "cat = feline",
+            })
+        );
     });
 
-    it("sorts events by timestamp descending", (done) => {
+    it("sorts events by timestamp descending", () => {
         const component = setupComponent(
             [],
             [
@@ -127,10 +123,8 @@ describe("AnnotationCommentsComponent", () => {
             ]
         );
 
-        component.events$.subscribe((events: AnnotationEvent[]) => {
-            expect(events[0].description).toBe("latest");
-            expect(events[1].description).toBe("first");
-            done();
-        });
+        const events = component.filteredEvents()!;
+        expect(events[0].description).toBe("latest");
+        expect(events[1].description).toBe("first");
     });
 });

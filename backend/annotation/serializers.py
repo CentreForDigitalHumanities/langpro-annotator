@@ -17,12 +17,14 @@ class AnnotationBaseSerializer(serializers.ModelSerializer):
     """
 
     createdAt = serializers.DateTimeField(source="created_at", read_only=True)
-    createdBy = serializers.SerializerMethodField(method_name="get_createdBy", read_only=True)
+    createdBy = serializers.SerializerMethodField(
+        method_name="get_created_by", read_only=True
+    )
     removedAt = serializers.DateTimeField(
         source="removed_at", allow_null=True, read_only=True
     )
-    removedBy = serializers.PrimaryKeyRelatedField(
-        source="removed_by", allow_null=True, read_only=True
+    removedBy = serializers.SerializerMethodField(
+        method_name="get_removed_by", allow_null=True, read_only=True
     )
     removable = serializers.SerializerMethodField(read_only=True)
 
@@ -45,10 +47,15 @@ class AnnotationBaseSerializer(serializers.ModelSerializer):
         """This should be overridden in subclasses."""
         raise NotImplementedError("Subclasses must implement get_removable method.")
 
-    def get_createdBy(self, annotation) -> str | None:
+    def get_created_by(self, annotation) -> str | None:
         """Returns the full name of the user who created the annotation."""
         return annotation.created_by.get_full_name()
 
+    def get_removed_by(self, annotation) -> str | None:
+        """Returns the full name of the user who removed the annotation, or None if not removed."""
+        if annotation.removed_by:
+            return annotation.removed_by.get_full_name()
+        return None
 
 
 class KnowledgeBaseAnnotationSerializer(AnnotationBaseSerializer):
@@ -94,6 +101,7 @@ class KnowledgeBaseAnnotationSerializer(AnnotationBaseSerializer):
         raise serializers.ValidationError(
             f"KnowledgeBaseAnnotation item with ID {value} does not exist."
         )
+
 
 class LabelSerializer(serializers.ModelSerializer):
     """
@@ -155,6 +163,7 @@ class LabelAnnotationSerializer(AnnotationBaseSerializer):
             return annotation.is_attached_by_user(user)
 
         return False
+
 
 class SelectedLabelSerializer(serializers.Serializer):
     """Serializer for a selected label in the save labels input."""

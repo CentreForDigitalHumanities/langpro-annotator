@@ -1,6 +1,9 @@
-@let events = events$ | async; @if (events === null) {
+@let events = events$ | async;
+
+@if (events === null) {
 <p class="text-muted small fst-italic" i18n>Loading…</p>
-} @else if (events.length === 0) {
+}
+@else if (events.length === 0) {
 <p class="text-muted small fst-italic" i18n>No annotations yet.</p>
 } @else {
 <ul class="list-unstyled d-flex flex-column gap-2 mb-0">

@@ -96,12 +96,8 @@ class ProblemView(ModelViewSet):
 
         serializer = self.get_serializer(problem)
 
-        kb_annotations = KnowledgeBaseAnnotation.objects.filter(
-            problem=problem, removed_at__isnull=True
-        )
-        label_annotations = LabelAnnotation.objects.filter(
-            problem=problem, removed_at__isnull=True
-        )
+        kb_annotations = KnowledgeBaseAnnotation.objects.filter(problem=problem)
+        label_annotations = LabelAnnotation.objects.filter(problem=problem)
 
         # kbAnnotations and labelAnnotations are not included in the
         # ProblemSerializer because they require additional context for

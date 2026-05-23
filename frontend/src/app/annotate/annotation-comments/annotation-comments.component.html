@@ -1,12 +1,80 @@
-@let events = events$ | async;
+@let events = filteredEvents();
 
 @if (events === null) {
 <p class="text-muted small fst-italic" i18n>Loading…</p>
-}
-@else if (events.length === 0) {
-<p class="text-muted small fst-italic" i18n>No annotations yet.</p>
-}
-@else {
+} @else {
+<div
+    class="d-flex align-items-center justify-content-between mb-2 gap-2 flex-wrap"
+>
+    <div class="d-flex gap-2 flex-wrap">
+        <div
+            class="btn-group btn-group-sm"
+            role="group"
+            aria-label="Filter by event kind"
+            i18n-aria-label
+        >
+            <input
+                type="checkbox"
+                class="btn-check"
+                id="filter-added"
+                [checked]="showAdded()"
+                (change)="showAdded.set(!showAdded())"
+            />
+            <label class="btn btn-outline-success" for="filter-added">
+                <fa-icon [icon]="faPlus" class="me-2" />
+                <ng-container i18n>Added</ng-container>
+            </label>
+            <input
+                type="checkbox"
+                class="btn-check"
+                id="filter-removed"
+                [checked]="showRemoved()"
+                (change)="showRemoved.set(!showRemoved())"
+            />
+            <label class="btn btn-outline-danger" for="filter-removed">
+                <fa-icon [icon]="faMinus" class="me-2" />
+                <ng-container i18n>Removed</ng-container>
+            </label>
+        </div>
+        <div
+            class="btn-group btn-group-sm"
+            role="group"
+            aria-label="Filter by annotation type"
+            i18n-aria-label
+        >
+            <input
+                type="checkbox"
+                class="btn-check"
+                id="filter-labels"
+                [checked]="showLabels()"
+                (change)="showLabels.set(!showLabels())"
+            />
+            <label class="btn btn-outline-secondary" for="filter-labels">
+                <fa-icon [icon]="faTag" class="me-2" />
+                <ng-container i18n>Labels</ng-container>
+            </label>
+            <input
+                type="checkbox"
+                class="btn-check"
+                id="filter-kb"
+                [checked]="showKB()"
+                (change)="showKB.set(!showKB())"
+            />
+            <label class="btn btn-outline-secondary" for="filter-kb">
+                <fa-icon [icon]="faBook" class="me-2" />
+                <ng-container i18n>KB items</ng-container>
+            </label>
+        </div>
+    </div>
+    <span class="text-muted small" i18n>
+        Showing {{ events.length }}/{{ totalCount() }} annotations
+    </span>
+</div>
+@if (events.length === 0) {
+<p class="text-muted small fst-italic" i18n>
+    No annotations match the current filters.
+</p>
+} @else {
 <ul class="list-unstyled d-flex flex-column gap-2 mb-0">
     @for (event of events; track $index) {
     @let added = event.kind === "added";
@@ -22,12 +90,16 @@
             <div
                 class="card-body py-2 px-3 d-flex align-items-center justify-content-start gap-3"
             >
-                <fa-icon [icon]="isLabel ? faTag : faBook"/>
+                <fa-icon [icon]="isLabel ? faTag : faBook" />
                 <span class="flex-grow-1">
                     <strong>{{ event.actor }}</strong>
                     {{ event.kind }}
-                    {{ isLabel ? "a label" : "a knowledge base" }}:
-                    <span [class]="isLabel ? 'label-pill ms-1' : 'font-monospace'">{{ event.description }}</span>
+                    {{ isLabel ? "a label" : "a knowledge base item" }}:
+                    <span
+                        [class]="isLabel ? 'label-pill ms-1' : 'font-monospace'"
+                    >
+                        {{ event.description }}
+                    </span>
                 </span>
                 <span class="text-muted small text-end flex-shrink-0">
                     {{ event.timestamp | date : "medium" }}
@@ -37,4 +109,4 @@
     </li>
     }
 </ul>
-}
+} }

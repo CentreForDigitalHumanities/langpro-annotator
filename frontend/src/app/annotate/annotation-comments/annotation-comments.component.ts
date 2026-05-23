@@ -1,8 +1,9 @@
-import { Component, inject } from "@angular/core";
+import { Component, computed, inject, signal } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { FontAwesomeModule } from "@fortawesome/angular-fontawesome";
 import { faPlus, faMinus, faBook, faTag } from "@fortawesome/free-solid-svg-icons";
 import { map } from "rxjs";
+import { toSignal } from "@angular/core/rxjs-interop";
 
 import { ProblemService } from "@/services/problem.service";
 import {
@@ -85,20 +86,40 @@ function labelAnnotationToEvents(annotation: LabelAnnotation): AnnotationEvent[]
 export class AnnotationCommentsComponent {
     private readonly problemService = inject(ProblemService);
 
-    public readonly events$ = this.problemService.problem$.pipe(
-        map((problem) => {
-            if (!problem) {
-                return [];
-            }
-            return [
-                ...problem.kbAnnotations.flatMap(kbAnnotationToEvents),
-                ...problem.labelAnnotations.flatMap(labelAnnotationToEvents),
-            ].sort((a, b) => b.timestamp.localeCompare(a.timestamp));
-        })
+    private allEvents = toSignal(
+        this.problemService.problem$.pipe(
+            map((problem) => {
+                if (!problem) return [];
+                return [
+                    ...problem.kbAnnotations.flatMap(kbAnnotationToEvents),
+                    ...problem.labelAnnotations.flatMap(labelAnnotationToEvents),
+                ].sort((a, b) => b.timestamp.localeCompare(a.timestamp));
+            })
+        ),
+        { initialValue: null }
     );
 
-    public readonly faPlus = faPlus;
-    public readonly faMinus = faMinus;
-    public readonly faBook = faBook;
-    public readonly faTag = faTag;
+    public showAdded = signal(true);
+    public showRemoved = signal(true);
+    public showLabels = signal(true);
+    public showKB = signal(true);
+
+    public filteredEvents = computed(() => {
+        const events = this.allEvents();
+        if (events === null) {
+            return null;
+        }
+        return events.filter(
+            (e) =>
+                (e.kind === "added" ? this.showAdded() : this.showRemoved()) &&
+                (e.annotationKind === "label" ? this.showLabels() : this.showKB())
+        );
+    });
+
+    public totalCount = computed(() => this.allEvents()?.length ?? 0);
+
+    public faPlus = faPlus;
+    public faMinus = faMinus;
+    public faBook = faBook;
+    public faTag = faTag;
 }

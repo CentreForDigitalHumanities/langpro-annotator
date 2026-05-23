@@ -1,7 +1,7 @@
 import { Component, inject } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { FontAwesomeModule } from "@fortawesome/angular-fontawesome";
-import { faTag, faLink, faPlus, faMinus } from "@fortawesome/free-solid-svg-icons";
+import { faPlus, faMinus, faBook, faTag } from "@fortawesome/free-solid-svg-icons";
 import { map } from "rxjs";
 
 import { ProblemService } from "@/services/problem.service";
@@ -99,6 +99,6 @@ export class AnnotationCommentsComponent {
 
     public readonly faPlus = faPlus;
     public readonly faMinus = faMinus;
+    public readonly faBook = faBook;
     public readonly faTag = faTag;
-    public readonly faLink = faLink;
 }

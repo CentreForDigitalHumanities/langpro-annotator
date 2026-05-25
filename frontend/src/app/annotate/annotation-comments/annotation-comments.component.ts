@@ -16,7 +16,7 @@ type AnnotationEventKind = "added" | "removed";
 type AnnotationKind = "label" | "knowledgeBase";
 
 export interface AnnotationEvent {
-    kind: AnnotationEventKind;
+    eventKind: AnnotationEventKind;
     annotationKind: AnnotationKind;
     timestamp: string;
     actor: string;
@@ -30,44 +30,21 @@ const relationshipSymbols: Record<KnowledgeBaseRelationship, string> = {
     [KnowledgeBaseRelationship.SUPERSET]: "⊃",
 };
 
-function kbAnnotationToEvents(annotation: KnowledgeBaseAnnotation): AnnotationEvent[] {
-    const description = `${annotation.entity1} ${relationshipSymbols[annotation.relationship]} ${annotation.entity2}`;
-    const events: AnnotationEvent[] = [
-        {
-            kind: "added",
-            annotationKind: "knowledgeBase",
-            timestamp: annotation.createdAt,
-            actor: annotation.createdBy,
-            description,
-        },
-    ];
+function annotationToEvent(annotation: LabelAnnotation | KnowledgeBaseAnnotation): AnnotationEvent[] {
+    const isLabelAnnotation = "label" in annotation;
+    const description = isLabelAnnotation ? annotation.label.text : `${annotation.entity1} ${relationshipSymbols[annotation.relationship]} ${annotation.entity2}`;
+    const annotationKind: AnnotationKind = isLabelAnnotation ? "label" : "knowledgeBase";
+    const events: AnnotationEvent[] = [{
+        eventKind: "added",
+        annotationKind,
+        timestamp: annotation.createdAt,
+        actor: annotation.createdBy,
+        description,
+    }];
     if (annotation.removedAt && annotation.removedBy) {
         events.push({
-            kind: "removed",
-            annotationKind: "knowledgeBase",
-            timestamp: annotation.removedAt,
-            actor: annotation.removedBy,
-            description,
-        });
-    }
-    return events;
-}
-
-function labelAnnotationToEvents(annotation: LabelAnnotation): AnnotationEvent[] {
-    const description = annotation.label.text;
-    const events: AnnotationEvent[] = [
-        {
-            kind: "added",
-            annotationKind: "label",
-            timestamp: annotation.createdAt,
-            actor: annotation.createdBy,
-            description,
-        },
-    ];
-    if (annotation.removedAt && annotation.removedBy) {
-        events.push({
-            kind: "removed",
-            annotationKind: "label",
+            eventKind: "removed",
+            annotationKind,
             timestamp: annotation.removedAt,
             actor: annotation.removedBy,
             description,
@@ -84,15 +61,17 @@ function labelAnnotationToEvents(annotation: LabelAnnotation): AnnotationEvent[]
     styleUrl: "./annotation-comments.component.scss",
 })
 export class AnnotationCommentsComponent {
-    private readonly problemService = inject(ProblemService);
+    private problemService = inject(ProblemService);
 
     private allEvents = toSignal(
         this.problemService.problem$.pipe(
             map((problem) => {
-                if (!problem) return [];
+                if (!problem) {
+                    return [];
+                }
                 return [
-                    ...problem.kbAnnotations.flatMap(kbAnnotationToEvents),
-                    ...problem.labelAnnotations.flatMap(labelAnnotationToEvents),
+                    ...problem.kbAnnotations.flatMap(annotationToEvent),
+                    ...problem.labelAnnotations.flatMap(annotationToEvent),
                 ].sort((a, b) => b.timestamp.localeCompare(a.timestamp));
             })
         ),
@@ -111,7 +90,7 @@ export class AnnotationCommentsComponent {
         }
         return events.filter(
             (e) =>
-                (e.kind === "added" ? this.showAdded() : this.showRemoved()) &&
+                (e.eventKind === "added" ? this.showAdded() : this.showRemoved()) &&
                 (e.annotationKind === "label" ? this.showLabels() : this.showKB())
         );
     });

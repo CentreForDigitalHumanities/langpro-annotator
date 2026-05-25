@@ -77,7 +77,7 @@
 } @else {
 <ul class="list-unstyled d-flex flex-column gap-2 mb-0">
     @for (event of events; track $index) {
-    @let added = event.kind === "added";
+    @let added = event.eventKind === "added";
     @let isLabel = event.annotationKind === "label";
     <li>
         <div class="card border-0 shadow-sm overflow-hidden d-flex flex-row">
@@ -93,7 +93,7 @@
                 <fa-icon [icon]="isLabel ? faTag : faBook" />
                 <span class="flex-grow-1">
                     <strong>{{ event.actor }}</strong>
-                    {{ event.kind }}
+                    {{ event.eventKind }}
                     {{ isLabel ? "a label" : "a knowledge base item" }}:
                     <span
                         [class]="isLabel ? 'label-pill ms-1' : 'font-monospace'"

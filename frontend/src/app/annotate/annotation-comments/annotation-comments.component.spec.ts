@@ -1,4 +1,4 @@
-import { TestBed } from "@angular/core/testing";
+import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { of } from "rxjs";
 
 import { ProblemService } from "@/services/problem.service";
@@ -14,39 +14,48 @@ const baseAnnotationFields = {
     removedBy: null,
 };
 
-function setupComponent(kbAnnotations: KnowledgeBaseAnnotation[] = [], labelAnnotations: LabelAnnotation[] = []) {
-    const mockProblem: Problem = {
-        id: 1,
-        base: null,
-        premises: [],
-        hypothesis: null,
-        entailmentLabel: EntailmentLabel.UNKNOWN,
-        dataset: Dataset.USER,
-        extraData: null,
-        kbAnnotations,
-        labelAnnotations,
-    };
+describe("AnnotationCommentsComponent", () => {
+    let component: AnnotationCommentsComponent;
+    let fixture: ComponentFixture<AnnotationCommentsComponent>;
 
-    TestBed.configureTestingModule({
-        imports: [AnnotationCommentsComponent],
-        providers: [
-            { provide: ProblemService, useValue: { problem$: of(mockProblem) } },
-        ],
+    beforeEach(async () => {
+        await TestBed.configureTestingModule({
+            imports: [AnnotationCommentsComponent],
+            providers: [
+                { provide: ProblemService, useValue: {} },
+            ],
+        }).compileComponents();
     });
 
-    const fixture = TestBed.createComponent(AnnotationCommentsComponent);
-    fixture.detectChanges();
-    return fixture.componentInstance;
-}
+    // Needed to override the problem$ observable in the providers.
+    function recreateComponent(kbAnnotations: KnowledgeBaseAnnotation[] = [], labelAnnotations: LabelAnnotation[] = []) {
+        const mockProblem: Problem = {
+            id: 1,
+            base: null,
+            premises: [],
+            hypothesis: null,
+            entailmentLabel: EntailmentLabel.UNKNOWN,
+            dataset: Dataset.USER,
+            extraData: null,
+            kbAnnotations,
+            labelAnnotations,
+        };
 
-describe("AnnotationCommentsComponent", () => {
+        TestBed.overrideProvider(ProblemService, { useValue: { problem$: of(mockProblem) } });
+        fixture = TestBed.createComponent(AnnotationCommentsComponent);
+        component = fixture.componentInstance;
+        fixture.detectChanges();
+    }
+
+
+
     it("should create", () => {
-        const component = setupComponent();
+        recreateComponent();
         expect(component).toBeTruthy();
     });
 
     it("emits an 'added' event for each annotation", () => {
-        const component = setupComponent(
+        recreateComponent(
             [],
             [
                 {
@@ -63,7 +72,7 @@ describe("AnnotationCommentsComponent", () => {
         expect(events.length).toBe(1);
         expect(events[0]).toEqual(
             jasmine.objectContaining({
-                kind: "added",
+                eventKind: "added",
                 annotationKind: "label",
                 actor: "Alice",
                 description: "negation",
@@ -72,7 +81,7 @@ describe("AnnotationCommentsComponent", () => {
     });
 
     it("emits a 'removed' event when removedAt is set", () => {
-        const component = setupComponent(
+        recreateComponent(
             [
                 {
                     ...baseAnnotationFields,
@@ -90,10 +99,10 @@ describe("AnnotationCommentsComponent", () => {
 
         const events = component.filteredEvents()!;
         expect(events.length).toBe(2);
-        const removed = events.find((e) => e.kind === "removed");
+        const removed = events.find((e) => e.eventKind === "removed");
         expect(removed).toEqual(
             jasmine.objectContaining({
-                kind: "removed",
+                eventKind: "removed",
                 annotationKind: "knowledgeBase",
                 description: "cat = feline",
             })
@@ -101,7 +110,7 @@ describe("AnnotationCommentsComponent", () => {
     });
 
     it("sorts events by timestamp descending", () => {
-        const component = setupComponent(
+        recreateComponent(
             [],
             [
                 {

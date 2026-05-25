@@ -117,11 +117,12 @@ export class SearchComponent {
         ).subscribe(queryParams => {
             const dataset = queryParams.get('dataset');
             const entailmentLabel = queryParams.get('entailmentLabel');
+            const status = queryParams.get('status');
 
             this.form.patchValue({
                 dataset: this.isDataset(dataset) ? dataset : null,
                 entailmentLabel: this.isEntailmentLabel(entailmentLabel) ? entailmentLabel : null,
-                status: this.isProblemStatus(queryParams.get('status')) ? queryParams.get('status') as ProblemStatus : null,
+                status: this.isProblemStatus(status) ? status : null,
                 text: queryParams.get('text') as string | null,
                 hidden: queryParams.get('hidden') === null ? null : queryParams.get('hidden') === 'true',
             });

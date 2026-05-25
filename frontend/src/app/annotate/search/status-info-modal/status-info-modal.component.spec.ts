@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { StatusInfoModalComponent } from './status-info-modal.component';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { provideHttpClient } from '@angular/common/http';
 
 describe('StatusInfoModalComponent', () => {
     let component: StatusInfoModalComponent;
@@ -9,7 +10,7 @@ describe('StatusInfoModalComponent', () => {
     beforeEach(async () => {
         await TestBed.configureTestingModule({
             imports: [StatusInfoModalComponent],
-            providers: [NgbActiveModal]
+            providers: [NgbActiveModal, provideHttpClient()]
         })
             .compileComponents();
 

@@ -19,6 +19,7 @@ class Problem(models.Model):
         NEUTRAL = "neutral", "Neutral"
         ENTAILMENT = "entailment", "Entailment"
         CONTRADICTION = "contradiction", "Contradiction"
+        CONFLICT = "conflict", "Conflict"
         UNKNOWN = "unknown", "Unknown"
 
     dataset = models.CharField(

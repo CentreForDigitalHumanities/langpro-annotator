@@ -15,7 +15,7 @@ class Command(BaseCommand):
         "yes": Problem.EntailmentLabel.ENTAILMENT,
         "no": Problem.EntailmentLabel.CONTRADICTION,
         "unknown": Problem.EntailmentLabel.NEUTRAL,
-        "undefined": Problem.EntailmentLabel.UNKNOWN,
+        "undefined": Problem.EntailmentLabel.CONFLICT,
     }
 
     def add_arguments(self, parser):

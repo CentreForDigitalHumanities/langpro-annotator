@@ -123,6 +123,7 @@ export enum EntailmentLabel {
     ENTAILMENT = "entailment",
     CONTRADICTION = "contradiction",
     NEUTRAL = "neutral",
+    CONFLICT = "conflict",
     UNKNOWN = "unknown",
 }
 

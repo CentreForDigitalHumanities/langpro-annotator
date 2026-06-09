@@ -5,6 +5,7 @@ export const entailmentLabels: Record<EntailmentLabel, string> = {
     [EntailmentLabel.CONTRADICTION]: $localize`Contradiction`,
     [EntailmentLabel.NEUTRAL]: $localize`Neutral`,
     [EntailmentLabel.UNKNOWN]: $localize`Unknown`,
+    [EntailmentLabel.CONFLICT]: $localize`Conflict`,
 };
 
 export const datasetLabels: Record<Dataset, string> = {

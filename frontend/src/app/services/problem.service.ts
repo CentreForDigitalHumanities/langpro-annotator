@@ -31,7 +31,7 @@ export class ProblemService {
     // Submit a new problem to be saved to the database.
     public submit$ = new Subject<ParseInput>();
     public refetchProblem$ = new Subject<void>();
-    public toggleVisibility$ = new Subject<ToggleVisibilityInput & { id: number }>();
+    public toggleVisibility$ = new Subject<ToggleVisibilityInput & { id: number; }>();
 
     private visibilityToggleSuccess$ = this.toggleVisibility$.pipe(
         exhaustMap(({ id, hidden }) =>
@@ -163,9 +163,12 @@ export class ProblemService {
     }
 
     private existingProblem$(problemId?: string, queryParams?: ParamMap): Observable<ProblemResponse | null> {
-        const httpParams = queryParams ? this.extractSearchParams(queryParams) : undefined;
+        let httpParams = queryParams ? this.extractSearchParams(queryParams) : new HttpParams();
+        if (problemId) {
+            httpParams = httpParams.set('current', problemId);
+        }
 
-        return this.http.get<ProblemResponse>(`/api/problem/${problemId ?? "first"}/`, { params: httpParams }).pipe(
+        return this.http.get<ProblemResponse>(`/api/problem/`, { params: httpParams }).pipe(
             catchError((error) => {
                 const message = `Error fetching ${problemId ? `problem ${problemId}` : "first problem"}`;
                 this.toastService.show({

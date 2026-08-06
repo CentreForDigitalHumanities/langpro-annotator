@@ -79,8 +79,6 @@ function buildUnaryNode(node: UnaryNode): TreeNodeDisplay {
  *
  * If there are more brackets, we ignore them.
  *
- * The rule symbolised by '@' is trivial and all too common, so it is ignored.
- *
  */
 export function extractRule(nodeString: string): { rule: string, content: string; } {
     const firstBracket = nodeString.indexOf('[');
@@ -98,7 +96,7 @@ export function extractRule(nodeString: string): { rule: string, content: string
     // Strip off any remaining brackets.
     const content = nodeString.slice(firstBracket + 1, lastBracket).replaceAll('[', '').replaceAll(']', '');
 
-    return { rule: rule === '@' ? "" : rule, content };
+    return { rule, content };
 }
 
 @Component({

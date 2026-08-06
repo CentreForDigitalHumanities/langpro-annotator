@@ -49,13 +49,6 @@ describe('extractRule', () => {
         });
     });
 
-    describe('trivial @ rule', () => {
-        it('should return empty rule for @ symbol', () => {
-            const result = extractRule('@[np:nb]');
-            expect(result).toEqual({ rule: '', content: 'np:nb' });
-        });
-    });
-
     describe('handle extra brackets', () => {
         it('should strip extra opening brackets from content', () => {
             const result = extractRule('fa[s:[ng-np]');

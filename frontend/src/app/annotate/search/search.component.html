@@ -1,4 +1,5 @@
 @let loading = loading$ | async;
+@let canChangeVisibility = canChangeVisibility$ | async;
 
 <div class="mb-3">
     <form role="search">
@@ -44,6 +45,14 @@
                 [formControl]="form.controls.gold"
                 [options]="goldOptions"
             />
+
+            @if (canChangeVisibility) {
+                <label for="hidden" class="form-label" i18n>Visibility</label>
+                <la-filter-select
+                    [formControl]="form.controls.hidden"
+                    [options]="hiddenOptions"
+                />
+            }
         </div>
 
         <div class="row col-12 mx-auto">

@@ -54,6 +54,8 @@ class Problem(models.Model):
         default=EntailmentLabel.UNKNOWN,
     )
 
+    hidden = models.BooleanField(default=False)
+
     extra_data = models.JSONField()
 
     class Meta:

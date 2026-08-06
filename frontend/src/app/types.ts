@@ -64,6 +64,7 @@ interface ProblemBase {
     premises: string[];
     hypothesis: string | null;
     entailmentLabel: EntailmentLabel;
+    hidden: boolean;
     kbAnnotations: KnowledgeBaseAnnotation[];
     labelAnnotations: LabelAnnotation[];
 }
@@ -196,4 +197,8 @@ export type ProofNode = {
 export interface ProofTree {
     nodes: ProofNode[];
     subtrees?: ProofTree[];
+}
+
+export interface ToggleVisibilityInput {
+    hidden: boolean;
 }

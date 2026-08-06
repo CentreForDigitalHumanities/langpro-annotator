@@ -12,6 +12,7 @@ const createMockProblem = (
 ): Problem => ({
     id,
     base: null,
+    hidden: false,
     dataset,
     entailmentLabel,
     premises: ["premise"],

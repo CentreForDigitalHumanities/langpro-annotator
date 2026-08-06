@@ -9,6 +9,8 @@ import { ProblemLabelsComponent } from "./problem-labels/problem-labels.componen
 import { CommonModule } from "@angular/common";
 import { RouterModule } from "@angular/router";
 import { ProblemService } from "@/services/problem.service";
+import { AuthService } from "@/services/auth.service";
+import { VisibilityToggleComponent } from "./visibility-toggle/visibility-toggle.component";
 
 export interface ProblemDetails {
     problemId: string;
@@ -31,6 +33,7 @@ export interface ProblemDetails {
         NgbTooltipModule,
         CommonModule,
         RouterModule,
+        VisibilityToggleComponent
     ],
     templateUrl: "./problem-details.component.html",
     styleUrl: "./problem-details.component.scss",
@@ -38,8 +41,10 @@ export interface ProblemDetails {
 export class ProblemDetailsComponent {
     public readonly problem = input.required<Problem>();
     private problemService = inject(ProblemService);
+    private authService = inject(AuthService);
 
     public appMode$ = this.problemService.appMode$;
+    public currentUser$ = this.authService.currentUser$;
 
     public problemDetails = computed(() => {
         const problem = this.problem();

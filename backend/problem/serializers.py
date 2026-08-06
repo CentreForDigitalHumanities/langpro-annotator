@@ -32,6 +32,7 @@ class ProblemSerializer(serializers.ModelSerializer):
             "entailmentLabel",
             "extraData",
             "base",
+            "hidden",
         ]
 
     def get_premises(self, problem: Problem):
@@ -181,7 +182,7 @@ class ProblemInputSerializer(serializers.Serializer):
             return instance
 
         return self._update_core_problem_fields(instance, validated_data)
-    
+
     def _update_core_problem_fields(self, instance: Problem, validated_data: dict) -> Problem:
         """
         Updates core Problem fields (premises, hypothesis, base) from validated

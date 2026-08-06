@@ -50,6 +50,7 @@ describe("AnnotationInputComponent", () => {
             const mockProblem: Problem = {
                 id: 123,
                 base: null,
+                hidden: false,
                 premises: ["First premise", "Second premise"],
                 hypothesis: "Test hypothesis",
                 entailmentLabel: EntailmentLabel.ENTAILMENT,
@@ -121,6 +122,7 @@ describe("AnnotationInputComponent", () => {
             const mockProblem: Problem = {
                 id: 123,
                 base: null,
+                hidden: false,
                 premises: [],
                 hypothesis: "Empty test hypothesis",
                 entailmentLabel: EntailmentLabel.NEUTRAL,
@@ -143,6 +145,7 @@ describe("AnnotationInputComponent", () => {
             const mockProblem: Problem = {
                 id: 1,
                 base: null,
+                hidden: false,
                 premises: ["Test premise"],
                 hypothesis: "Test hypothesis",
                 entailmentLabel: EntailmentLabel.CONTRADICTION,
@@ -166,6 +169,7 @@ describe("AnnotationInputComponent", () => {
             const mockProblem: Problem = {
                 id: 12,
                 base: null,
+                hidden: false,
                 premises: [],
                 hypothesis: "",
                 entailmentLabel: EntailmentLabel.UNKNOWN,
@@ -187,6 +191,7 @@ describe("AnnotationInputComponent", () => {
             const mockProblem: Problem = {
                 id: 17,
                 base: null,
+                hidden: false,
                 premises: [],
                 hypothesis: "",
                 entailmentLabel: EntailmentLabel.UNKNOWN,

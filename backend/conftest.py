@@ -125,6 +125,20 @@ def sample_problem(db):
     problem.premises.add(premise)
     return problem
 
+@pytest.fixture
+def hidden_problem(db):
+    """Creates a hidden problem for testing."""
+    hypothesis = Sentence.objects.create(text="This is a hidden hypothesis.")
+    premise = Sentence.objects.create(text="This is a hidden premise.")
+    problem = Problem.objects.create(
+        dataset=Problem.Dataset.USER,
+        hypothesis=hypothesis,
+        entailment_label=Problem.EntailmentLabel.NEUTRAL,
+        extra_data={},
+        hidden=True,
+    )
+    problem.premises.add(premise)
+    return problem
 
 @pytest.fixture
 def annotator_session(db, annotator):

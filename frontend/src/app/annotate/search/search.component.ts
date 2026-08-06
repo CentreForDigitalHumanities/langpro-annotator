@@ -19,12 +19,14 @@ import { datasetLabels, entailmentLabels } from "@/shared/displayTextMappings";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router } from "@angular/router";
 import { IconButtonComponent } from "@/shared/icon-button/icon-button.component";
+import { AuthService } from "@/services/auth.service";
 
 interface SearchParams {
     dataset: Dataset | null;
     entailmentLabel: EntailmentLabel | null;
     gold: boolean | null;
     text: string | null;
+    hidden: boolean | null;
 }
 
 type SearchParamsForm = {
@@ -49,16 +51,22 @@ export class SearchComponent {
     private destroyRef = inject(DestroyRef);
     private router = inject(Router);
     private route = inject(ActivatedRoute);
+    private authService = inject(AuthService);
 
     public form = new FormGroup<SearchParamsForm>({
         dataset: new FormControl<Dataset | null>(null),
         entailmentLabel: new FormControl<EntailmentLabel | null>(null),
         gold: new FormControl<boolean | null>(null),
         text: new FormControl<string | null>(""),
+        hidden: new FormControl<boolean | null>(null),
     });
 
     // TODO: Use actual loading state...
     loading$ = new BehaviorSubject<boolean>(false);
+
+    public canChangeVisibility$ = this.authService.currentUser$.pipe(
+        map(user => user?.canChangeProblemVisibility ?? false)
+    );
 
     public faSearch = faSearch;
     public faTimes = faTimes;
@@ -80,6 +88,11 @@ export class SearchComponent {
     public goldOptions: SelectOption<boolean>[] = [
         { value: true, label: $localize`Gold Only` },
         { value: false, label: $localize`Non-Gold Only` },
+    ];
+
+    public hiddenOptions: SelectOption<boolean>[] = [
+        { value: true, label: $localize`Hidden Only` },
+        { value: false, label: $localize`Visible Only` },
     ];
 
     ngOnInit(): void {
@@ -105,6 +118,7 @@ export class SearchComponent {
                 entailmentLabel: this.isEntailmentLabel(entailmentLabel) ? entailmentLabel : null,
                 gold: queryParams.get('gold') === null ? null : queryParams.get('gold') === 'true',
                 text: queryParams.get('text') as string | null,
+                hidden: queryParams.get('hidden') === null ? null : queryParams.get('hidden') === 'true',
             });
         });
     }

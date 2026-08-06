@@ -7,6 +7,9 @@ from langpro_annotator.logger import logger
 class Sentence(models.Model):
     text = models.TextField()
 
+    def __str__(self):
+        return self.text
+
 
 class Problem(models.Model):
     class Dataset(models.TextChoices):
@@ -77,3 +80,6 @@ class Problem(models.Model):
         except Exception as e:
             logger.exception(f"Error getting index for problem {self.pk}: {e}")
             return None
+
+    def __str__(self):
+        return f"Problem {self.pk} ({self.get_dataset_display()}): {self.get_entailment_label_display()}"  # type: ignore

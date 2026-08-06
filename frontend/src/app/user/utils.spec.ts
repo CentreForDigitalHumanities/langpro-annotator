@@ -45,6 +45,7 @@ describe("User utils", () => {
                 canEditKb: false,
                 canAddLabelAnnotations: false,
                 canCopyProblem: false,
+                canChangeProblemVisibility: false,
             };
             const user = parseUserData(result);
             expect(user).toBeInstanceOf(User);

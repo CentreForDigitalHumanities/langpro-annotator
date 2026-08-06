@@ -64,6 +64,7 @@ interface ProblemBase {
     premises: string[];
     hypothesis: string | null;
     entailmentLabel: EntailmentLabel;
+    hidden: boolean;
     kbAnnotations: KnowledgeBaseAnnotation[];
     labelAnnotations: LabelAnnotation[];
 }
@@ -123,6 +124,7 @@ export enum EntailmentLabel {
     ENTAILMENT = "entailment",
     CONTRADICTION = "contradiction",
     NEUTRAL = "neutral",
+    CONFLICT = "conflict",
     UNKNOWN = "unknown",
 }
 
@@ -137,7 +139,7 @@ export interface Dimensions {
 //
 
 export type LeafNode = {
-    // Fixed order: rule, token, lemma, POS tag, NER tag, category.
+    // Fixed order: rule, lemma, token, POS tag, NER tag, category.
     node: [string, string, string, string, string, string];
 };
 
@@ -195,4 +197,8 @@ export type ProofNode = {
 export interface ProofTree {
     nodes: ProofNode[];
     subtrees?: ProofTree[];
+}
+
+export interface ToggleVisibilityInput {
+    hidden: boolean;
 }

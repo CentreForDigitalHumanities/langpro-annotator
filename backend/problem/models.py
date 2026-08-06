@@ -22,6 +22,7 @@ class Problem(models.Model):
         NEUTRAL = "neutral", "Neutral"
         ENTAILMENT = "entailment", "Entailment"
         CONTRADICTION = "contradiction", "Contradiction"
+        CONFLICT = "conflict", "Conflict"
         UNKNOWN = "unknown", "Unknown"
 
     dataset = models.CharField(
@@ -55,6 +56,8 @@ class Problem(models.Model):
         choices=EntailmentLabel.choices,
         default=EntailmentLabel.UNKNOWN,
     )
+
+    hidden = models.BooleanField(default=False)
 
     extra_data = models.JSONField()
 

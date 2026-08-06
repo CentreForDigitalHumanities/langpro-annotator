@@ -1,5 +1,7 @@
 import { Pipe, PipeTransform } from '@angular/core';
 
+const wrapInLowerCase = (_: string, p1: string, p2: string) => `<sub>${p1.toLocaleLowerCase()}</sub>${p2}`;
+
 @Pipe({
     name: 'subscript',
     standalone: true
@@ -15,7 +17,7 @@ export class SubscriptPipe implements PipeTransform {
             return value;
         }
 
-        return value.replace(/:(.*?)(\\|\/|$|\)|\(|-)/g, (_, p1, p2) => `<sub>${p1.toLocaleLowerCase()}</sub>${p2}`);
+        return value.replace(/:(.*?)(\\|\/|$|\)|\(|-)/g, wrapInLowerCase);
 
     }
 }

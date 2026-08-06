@@ -72,7 +72,7 @@ function buildUnaryNode(node: UnaryNode): TreeNodeDisplay {
 /**
  * Parses a node string to extract the rule and the content.
  *
- * A node string is usually of the form "A[B]", where a is the rule applied
+ * A node string is usually of the form "A[B]", where A is the rule applied
  * and B is the resulting category. The rule is anything everything before
  * the first bracket. Everything within it is the content. For example,
  * in "fa[s:ng-np]", "fa" is the rule and "s:ng-np" is the content.

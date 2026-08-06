@@ -11,6 +11,7 @@ from rest_framework.status import (
 )
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 
+from django.http import Http404
 from django.shortcuts import get_object_or_404
 
 from problem.problem_details import (
@@ -67,20 +68,7 @@ class ProblemView(ModelViewSet):
         return [IsAuthenticatedOrReadOnly()]
 
     def list(self, request: Request) -> Response:
-        """
-        Lists all Problems in the database, with optional filtering.
-        """
-        filters = get_filters(request.query_params)
-
-        qs = self.get_queryset()
-
-        if filters is not None:
-            qs = qs.filter(filters)
-
-        qs = apply_status_filter(qs, request.query_params)
-
-        serializer = self.get_serializer(qs, many=True)
-        return Response(serializer.data, status=HTTP_200_OK)
+        raise Http404
 
     @action(detail=True, methods=["post"], url_path="set-status")
     def set_status(self, request: Request, pk: int) -> Response:

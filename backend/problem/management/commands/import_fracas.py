@@ -14,7 +14,7 @@ class Command(BaseCommand):
     ENTAILMENT_LABELS = {
         "yes": Problem.EntailmentLabel.ENTAILMENT,
         "no": Problem.EntailmentLabel.CONTRADICTION,
-        "unknown": Problem.EntailmentLabel.NEUTRAL,
+        "unknown": Problem.EntailmentLabel.CONFLICT,
         "undefined": Problem.EntailmentLabel.UNKNOWN,
     }
 

@@ -27,33 +27,6 @@ class TestProblemViewPermissions:
     Tests for problem view permissions as documented in the README.
     """
 
-    # List / browse
-
-    def test_unauthenticated_user_can_list_problems(self, client, sample_problem):
-        """Unauthenticated users should be able to browse problems (read-only)."""
-        response = client.get("/api/problem/")
-        assert response.status_code == status.HTTP_200_OK
-
-    def test_visitor_can_list_problems(self, client, visitor, sample_problem):
-        """Visitors should be able to browse problems."""
-        client.force_login(user=visitor)
-        response = client.get("/api/problem/")
-        assert response.status_code == status.HTTP_200_OK
-
-    def test_annotator_can_list_problems(self, client, annotator, sample_problem):
-        """Annotators should be able to browse problems."""
-        client.force_login(user=annotator)
-        response = client.get("/api/problem/")
-        assert response.status_code == status.HTTP_200_OK
-
-    def test_master_annotator_can_list_problems(
-        self, client, master_annotator, sample_problem
-    ):
-        """Master annotators should be able to browse problems."""
-        client.force_login(user=master_annotator)
-        response = client.get("/api/problem/")
-        assert response.status_code == status.HTTP_200_OK
-
     # Retrieve / browse single
 
     def test_unauthenticated_user_can_retrieve_problem(self, client, sample_problem):

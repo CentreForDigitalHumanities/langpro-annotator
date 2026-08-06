@@ -33,10 +33,10 @@ function nodeIsUnary(node: CCGNode): node is UnaryNode {
 }
 
 function buildLeafNode(node: LeafNode): TreeNodeDisplay {
-    const [_rule, tok, lem, pos, ner, cat] = node.node;
+    // "category" (chunker output) is deliberately unused.
+    const [tok, lem, pos, _cat, ner] = node.node;
     return {
         type: 'leaf',
-        content: cat,
         children: [],
         leaf: { tok, lem, pos, ner }
     };
@@ -50,8 +50,8 @@ function buildBinaryNode(node: BinaryNode): TreeNodeDisplay {
 
     return {
         type: 'node',
-        content: content,
-        rule: rule,
+        content,
+        rule,
         children: [left, right]
     };
 }
@@ -63,8 +63,8 @@ function buildUnaryNode(node: UnaryNode): TreeNodeDisplay {
 
     return {
         type: 'node',
-        content: content,
-        rule: rule,
+        content,
+        rule,
         children: [child]
     };
 }
@@ -72,31 +72,29 @@ function buildUnaryNode(node: UnaryNode): TreeNodeDisplay {
 /**
  * Parses a node string to extract the rule and the content.
  *
- * A node string is usually of the form "A(B)", where a is the rule applied
+ * A node string is usually of the form "A[B]", where A is the rule applied
  * and B is the resulting category. The rule is anything everything before
- * the first parenthesis. Everything within it is the content. For example,
- * in "fa(s:ng-np)", "fa" is the rule and "s:ng-np" is the content.
+ * the first bracket. Everything within it is the content. For example,
+ * in "fa[s:ng-np]", "fa" is the rule and "s:ng-np" is the content.
  *
- * Due to a bug in the CCG parser, sometimes the node string can have
- * multiple layers of parentheses, e.g. fa(((s:ng-np)-(s:ng-np))).
- * function only strips off the first.
+ * If there are more brackets, we ignore them.
  *
  */
-function extractRule(nodeString: string): { rule: string, content: string; } {
-    const firstParen = nodeString.indexOf('(');
-    const lastParen = nodeString.lastIndexOf(')');
+export function extractRule(nodeString: string): { rule: string, content: string; } {
+    const firstBracket = nodeString.indexOf('[');
+    const lastBracket = nodeString.lastIndexOf(']');
 
     // Return a fallback value if the string is not what we expect.
-    if (firstParen === -1 || lastParen === -1 || lastParen < firstParen) {
+    if (firstBracket === -1 || lastBracket === -1 || lastBracket < firstBracket) {
         return {
             rule: "",
             content: nodeString
         };
     }
 
-    const rule = nodeString.slice(0, firstParen);
-    // Strip off any remaining parentheses due to the CCG parser bug.
-    const content = nodeString.slice(firstParen + 1, lastParen).replaceAll('(', '').replaceAll(')', '');
+    const rule = nodeString.slice(0, firstBracket);
+    // Strip off any remaining brackets.
+    const content = nodeString.slice(firstBracket + 1, lastBracket).replaceAll('[', '').replaceAll(']', '');
 
     return { rule, content };
 }

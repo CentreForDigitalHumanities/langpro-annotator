@@ -124,6 +124,7 @@ export enum EntailmentLabel {
     ENTAILMENT = "entailment",
     CONTRADICTION = "contradiction",
     NEUTRAL = "neutral",
+    CONFLICT = "conflict",
     UNKNOWN = "unknown",
 }
 
@@ -138,7 +139,7 @@ export interface Dimensions {
 //
 
 export type LeafNode = {
-    // Fixed order: rule, token, lemma, POS tag, NER tag, category.
+    // Fixed order: rule, lemma, token, POS tag, NER tag, category.
     node: [string, string, string, string, string, string];
 };
 

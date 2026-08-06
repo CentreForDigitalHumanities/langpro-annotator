@@ -1,49 +1,64 @@
-@let hasChildren = node().children.length > 0;
+@let displayNode = node();
+@let nodeRule = displayNode.rule ? (displayNode.rule | stripAtRule) : '';
+@let hasChildren = displayNode.children.length > 0;
 <div
     class="tree-node d-flex flex-column"
     [class.terminal-node]="!hasChildren"
 >
     @if (hasChildren) {
     <div class="d-flex">
-        @for (childRow of node().children; track $index) {
-        <la-tree-node [node]="childRow" />
+        @for (childRow of displayNode.children; track $index) {
+        <la-tree-node class="w-100" [node]="childRow" [treeType]="treeType()" />
         }
     </div>
     }
-    <div class="node-content d-flex flex-column align-items-center p-2 gap-1">
-        @if (node().rule) {
-        <span class="badge rounded-pill text-bg-secondary mt-2">
-            {{ node().rule }}
-        </span>
-        }
-        @switch (node().type) {
+    <div
+        class="node-content d-flex flex-column align-items-center px-2 py-1 gap-1"
+    >
+        @switch (displayNode.type) {
             @case ('leaf') {
-                <div class="d-flex flex-column align-items-center gap-2">
-                    <div class="h5 mb-0">
-                        <strong>{{ node().leaf?.lem }}</strong>
+                <div class="d-flex flex-column align-items-center gap-1">
+                    <div class="fw-bold mb-0">
+                        <strong>{{ displayNode.leaf?.lem }}</strong>
                     </div>
                     <div class="text-secondary">
-                        <small>{{ node().leaf?.tok }}</small>
+                        <small>{{ displayNode.leaf?.tok }}</small>
                         <br />
-                        <small>{{ node().leaf?.pos }}</small>
+                        <small>{{ displayNode.leaf?.pos }}</small>
                         <br />
-                        <small>{{ node().leaf?.ner }}</small>
+                        <small>{{ displayNode.leaf?.ner }}</small>
                     </div>
-                    <div [innerHTML]="node().content | subscriptAngleBrackets"></div>
+                    @if (displayNode.content; as nodeContent) {
+                        <div [innerHTML]="nodeContent | subscript" class="text-nowrap"></div>
+                    }
                 </div>
             } @case ('var') {
                 <div class="d-flex flex-column gap-1">
                     <strong class="h5 fw-bold mb-0">
-                        {{ node().content }}
+                        {{ displayNode.content }}
+                        @if (nodeRule) {
+                        <span class="badge rounded-pill text-bg-secondary mt-2">
+                            {{ nodeRule }}
+                        </span>
+                        }
                     </strong>
                     <br />
-                    <span>{{ node().var?.typeInfo }}</span>
+                    <span>{{ displayNode.var?.typeInfo }}</span>
                 </div>
             } @case ('node') {
-                <p
-                    class="mb-0"
-                    [innerHTML]="node().content | subscriptAngleBrackets"
-                ></p>
+                <p class="my-0">
+                    @if (nodeRule) {
+                    <span class="badge rounded-pill text-bg-secondary me-2">
+                        {{ nodeRule }}
+                    </span>
+                    }
+                    @if (node().content; as nodeContent) {
+                    <span
+                        class="mb-0 text-nowrap"
+                        [innerHTML]="nodeContent | selectiveUpperCase: treeType() | subscript"
+                    ></span>
+                    }
+                </p>
             }
         }
     </div>

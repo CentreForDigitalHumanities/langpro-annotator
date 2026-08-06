@@ -1,9 +1,12 @@
 import { Component, input } from '@angular/core';
-import { SubscriptAngleBracketsPipe } from './subscript-angle-brackets.pipe';
+import { SubscriptPipe } from '@/pipes/subscript-pipe';
+import { SelectiveUpperCasePipe } from '@/pipes/selective-upper-case.pipe';
+import { TreeType } from '../annotation-parse-results.component';
+import { StripAtRulePipe } from '@/pipes/strip-at-rule-pipe';
 
 export interface TreeNodeDisplay {
     type: 'node' | 'leaf' | 'var';
-    content: string;
+    content?: string;
     rule?: string;
     children: TreeNodeDisplay[];
     // For leaf nodes
@@ -22,10 +25,11 @@ export interface TreeNodeDisplay {
 @Component({
     selector: 'la-tree-node',
     standalone: true,
-    imports: [SubscriptAngleBracketsPipe],
+    imports: [SubscriptPipe, SelectiveUpperCasePipe, StripAtRulePipe],
     templateUrl: './tree-node.component.html',
     styleUrl: './tree-node.component.scss'
 })
 export class TreeNodeComponent {
     public readonly node = input.required<TreeNodeDisplay>();
+    public readonly treeType = input.required<TreeType>();
 }

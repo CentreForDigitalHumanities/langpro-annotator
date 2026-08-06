@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { ParseTreeTableComponent } from './parse-tree-table.component';
+import { ParseTreeTableComponent, extractRule } from './parse-tree-table.component';
 import { TreeWithType } from '../annotation-parse-results.component';
 
 const mockTree: TreeWithType = {
@@ -33,5 +33,41 @@ describe('ParseTreeTableComponent', () => {
 
     it('should create', () => {
         expect(component).toBeTruthy();
+    });
+});
+
+describe('extractRule', () => {
+    describe('standard format', () => {
+        it('should extract rule and content from standard format', () => {
+            const result = extractRule('fa[s:ng-np]');
+            expect(result).toEqual({ rule: 'fa', content: 's:ng-np' });
+        });
+
+        it('should extract rule with complex content', () => {
+            const result = extractRule('fa[(s:dcl\\np)/np]');
+            expect(result).toEqual({ rule: 'fa', content: '(s:dcl\\np)/np' });
+        });
+    });
+
+    describe('handle extra brackets', () => {
+        it('should strip extra opening brackets from content', () => {
+            const result = extractRule('fa[s:[ng-np]');
+            expect(result).toEqual({ rule: 'fa', content: 's:ng-np' });
+        });
+
+        it('should strip extra closing brackets from content', () => {
+            const result = extractRule('fa[s:ng]-np]');
+            expect(result).toEqual({ rule: 'fa', content: 's:ng-np' });
+        });
+
+        it('should strip multiple extra brackets from content', () => {
+            const result = extractRule('fa[s:[ng]-[np]]');
+            expect(result).toEqual({ rule: 'fa', content: 's:ng-np' });
+        });
+
+        it('should strip all internal brackets', () => {
+            const result = extractRule('ba[[[s:dcl]]]');
+            expect(result).toEqual({ rule: 'ba', content: 's:dcl' });
+        });
     });
 });

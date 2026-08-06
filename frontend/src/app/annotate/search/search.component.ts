@@ -10,7 +10,7 @@ import {
 import { FontAwesomeModule } from "@fortawesome/angular-fontawesome";
 import { faSearch, faTimes } from "@fortawesome/free-solid-svg-icons";
 import { NgbDropdownModule } from "@ng-bootstrap/ng-bootstrap";
-import { BehaviorSubject, map } from "rxjs";
+import { map, merge } from "rxjs";
 import {
     FilterSelectComponent,
     SelectOption,
@@ -20,6 +20,7 @@ import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router } from "@angular/router";
 import { IconButtonComponent } from "@/shared/icon-button/icon-button.component";
 import { AuthService } from "@/services/auth.service";
+import { ProblemService } from "@/services/problem.service";
 
 interface SearchParams {
     dataset: Dataset | null;
@@ -52,6 +53,7 @@ export class SearchComponent {
     private router = inject(Router);
     private route = inject(ActivatedRoute);
     private authService = inject(AuthService);
+    private problemService = inject(ProblemService);
 
     public form = new FormGroup<SearchParamsForm>({
         dataset: new FormControl<Dataset | null>(null),
@@ -61,8 +63,10 @@ export class SearchComponent {
         hidden: new FormControl<boolean | null>(null),
     });
 
-    // TODO: Use actual loading state...
-    loading$ = new BehaviorSubject<boolean>(false);
+    public loading$ = merge(
+        this.problemService.allParams$.pipe(map(() => true)),
+        this.problemService.problemResponse$.pipe(map(() => false)),
+    );
 
     public canChangeVisibility$ = this.authService.currentUser$.pipe(
         map(user => user?.canChangeProblemVisibility ?? false)

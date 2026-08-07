@@ -7,7 +7,7 @@ from rest_framework.views import APIView
 from rest_framework.request import Request
 
 from langpro_annotator.logger import logger
-from problem.types import KnowledgeBase
+from problem.utils import prepare_kb_for_parser
 
 
 @dataclass
@@ -28,7 +28,7 @@ class ParserInput:
 
     prover_config: list[str] = field(default_factory=lambda: ["allInt", "aall"])
     premises: list[str] = field(default_factory=list)
-    knowledge_bases: list[KnowledgeBase] = field(default_factory=list)
+    kb: list[str] = field(default_factory=list)
     hypothesis: str = ""
     ral: int = 200
     senses: str = "all"
@@ -48,12 +48,14 @@ class ParseView(APIView):
                     status=400
                 )
 
+            kb_items = payload.get("kbItems", [])
+            if kb_items:
+                kb_items = prepare_kb_for_parser(kb_items)
+
             parser_input = ParserInput(
                 premises=payload.get("premises", []),
                 hypothesis=payload.get("hypothesis", ""),
-                knowledge_bases=[
-                    KnowledgeBase(**kb) for kb in payload.get("kbItems", [])
-                ],
+                kb=kb_items,
             )
 
             response = self.send_to_parser(parser_input)

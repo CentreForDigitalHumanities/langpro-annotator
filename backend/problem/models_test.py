@@ -9,7 +9,7 @@ def kb_annotation(db, annotator_session, non_user_problem):
     return KnowledgeBaseAnnotation.objects.create(
         problem=non_user_problem,
         entity1="dog",
-        entity2="canine",
+        entity2="pooch",
         relationship=KnowledgeBaseAnnotation.Relationship.EQUAL,
         session=annotator_session,
         created_by=annotator_session.user,
@@ -65,7 +65,7 @@ def test_status_bronze_when_all_annotations_removed(db, non_user_problem, annota
     kb = KnowledgeBaseAnnotation.objects.create(
         problem=non_user_problem,
         entity1="dog",
-        entity2="canine",
+        entity2="pooch",
         relationship=KnowledgeBaseAnnotation.Relationship.EQUAL,
         session=annotator_session,
         created_by=annotator_session.user,

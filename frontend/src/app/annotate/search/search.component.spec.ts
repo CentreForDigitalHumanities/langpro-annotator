@@ -18,7 +18,7 @@ describe("SearchComponent", () => {
                     provide: ActivatedRoute,
                     useValue: {
                         params: of({ problemId: "1" }),
-                        queryParamMap: of({ dataset: null, entailmentLabel: null, gold: null, text: "" }),
+                        queryParamMap: of({ dataset: null, entailmentLabel: null, status: null, text: "" }),
                     }
                 }]
         }).compileComponents();

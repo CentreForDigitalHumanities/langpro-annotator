@@ -1,7 +1,6 @@
 import pytest
 from typing import Any
 
-from django.utils import timezone
 from django.contrib.auth.models import Permission
 from rest_framework.test import APIRequestFactory
 
@@ -11,7 +10,6 @@ from annotation.serializers import (
     LabelAnnotationSerializer,
     SaveLabelsInputSerializer,
 )
-from problem.serializers import ProblemSerializer
 
 
 @pytest.mark.django_db

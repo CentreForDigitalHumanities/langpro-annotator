@@ -15,10 +15,16 @@ from django.shortcuts import get_object_or_404
 
 from problem.problem_details import (
     get_filters,
+    apply_status_filter,
     get_related_problem_ids,
 )
 from problem.models import Problem
-from problem.serializers import ProblemInputSerializer, ProblemSerializer
+from problem.serializers import (
+    GoldInputSerializer,
+    ProblemInputSerializer,
+    ProblemSerializer,
+    VisibilityInputSerializer,
+)
 
 from annotation.models import KnowledgeBaseAnnotation, LabelAnnotation
 from annotation.serializers import (
@@ -48,6 +54,11 @@ class ChangeProblemVisibilityPermission(IsAuthenticated):
         )
 
 
+class ChangeProblemStatusPermission(IsAuthenticated):
+    def has_permission(self, request, view):
+        return super().has_permission(request, view) and request.user.can_change_problem_status
+
+
 class ProblemView(ModelViewSet):
     queryset = Problem.objects.all()
     serializer_class = ProblemSerializer
@@ -59,6 +70,8 @@ class ProblemView(ModelViewSet):
             return [EditProblemPermission()]
         if self.action == "set_visibility":
             return [ChangeProblemVisibilityPermission()]
+        if self.action == "set_status":
+            return [ChangeProblemStatusPermission()]
         return [IsAuthenticatedOrReadOnly()]
 
     def list(self, request: Request) -> Response:
@@ -70,6 +83,21 @@ class ProblemView(ModelViewSet):
         except (ValueError, TypeError):
             pk = None
         return self._get_problem_response(request, pk=pk)
+
+    @action(detail=True, methods=["post"], url_path="set-status")
+    def set_status(self, request: Request, pk: int) -> Response:
+        """
+        Toggles the gold status of a Problem.
+        Expects a JSON body with a boolean 'gold' field.
+        """
+        problem = get_object_or_404(Problem, id=pk)
+        serializer = GoldInputSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        problem.gold = serializer.validated_data["gold"]  # type: ignore
+        problem.save(update_fields=["gold"])
+        return Response(
+            {"gold": problem.gold, "status": problem.status}, status=HTTP_200_OK
+        )
 
     @action(detail=False, methods=["get"], url_path="first")
     def first(self, request: Request) -> Response:
@@ -85,13 +113,9 @@ class ProblemView(ModelViewSet):
         Expects a JSON body with a boolean 'hidden' field.
         """
         problem = get_object_or_404(Problem, id=pk)
-        hidden = request.data.get("hidden")
-        if not isinstance(hidden, bool):
-            return Response(
-                {"detail": "'hidden' must be a boolean."},
-                status=HTTP_400_BAD_REQUEST,
-            )
-        problem.hidden = hidden
+        serializer = VisibilityInputSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        problem.hidden = serializer.validated_data["hidden"]  # type: ignore
         problem.save(update_fields=["hidden"])
         return Response({"hidden": problem.hidden}, status=HTTP_200_OK)
 
@@ -113,6 +137,8 @@ class ProblemView(ModelViewSet):
 
         if filters is not None:
             qs = qs.filter(filters).distinct()
+
+        qs = apply_status_filter(qs, request.query_params)
 
         problem = None
         if pk is not None:

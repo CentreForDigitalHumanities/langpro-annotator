@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 
+from django.db.models import Exists, OuterRef
 from django.http import QueryDict
 from django.db.models import QuerySet, Q
 
@@ -59,7 +60,6 @@ def get_filters(query_params: QueryDict, user: User | None = None) -> Q | None:
     """
     dataset = query_params.get("dataset")
     entailment_label = query_params.get("entailmentLabel")
-    gold = query_params.get("gold")
     text = query_params.get("text")
     hidden = query_params.get("hidden", None)
 
@@ -70,9 +70,6 @@ def get_filters(query_params: QueryDict, user: User | None = None) -> Q | None:
         filters &= Q(dataset=dataset)
     if entailment_label:
         filters &= Q(entailment_label=entailment_label)
-    if gold:
-        logger.warning(f"Filtering by gold is not implemented yet.")
-        pass
     if text:
         filters &= Q(
             Q(hypothesis__text__icontains=text) | Q(premises__text__icontains=text)
@@ -84,3 +81,38 @@ def get_filters(query_params: QueryDict, user: User | None = None) -> Q | None:
         filters &= Q(hidden=hidden.lower() == 'true')
 
     return filters
+
+
+def apply_status_filter(
+    qs: QuerySet[Problem], query_params: QueryDict
+) -> QuerySet[Problem]:
+    """
+    Applies a status filter to the queryset based on the 'status' query parameter.
+    Returns the queryset unchanged if no valid status is provided.
+    """
+    from annotation.models import KnowledgeBaseAnnotation, LabelAnnotation
+
+    status_param = query_params.get("status")
+    if not status_param:
+        return qs
+
+    has_active_kb = Exists(
+        KnowledgeBaseAnnotation.objects.filter(
+            problem=OuterRef("pk"), removed_at__isnull=True
+        )
+    )
+    has_active_label = Exists(
+        LabelAnnotation.objects.filter(
+            problem=OuterRef("pk"), removed_at__isnull=True
+        )
+    )
+
+    match status_param:
+        case Problem.Status.GOLD:
+            return qs.filter(gold=True)
+        case Problem.Status.SILVER:
+            return qs.filter(gold=False).filter(has_active_kb | has_active_label)
+        case Problem.Status.BRONZE:
+            return qs.filter(gold=False).exclude(has_active_kb | has_active_label)
+        case _:
+            return qs

@@ -64,6 +64,8 @@ interface ProblemBase {
     hypothesis: string | null;
     entailmentLabel: EntailmentLabel;
     hidden: boolean;
+    gold: boolean;
+    status: ProblemStatus;
     kbAnnotations: KnowledgeBaseAnnotation[];
     labelAnnotations: LabelAnnotation[];
 }
@@ -125,6 +127,12 @@ export enum EntailmentLabel {
     NEUTRAL = "neutral",
     CONFLICT = "conflict",
     UNKNOWN = "unknown",
+}
+
+export enum ProblemStatus {
+    GOLD = "gold",
+    SILVER = "silver",
+    BRONZE = "bronze",
 }
 
 
@@ -200,4 +208,8 @@ export interface ProofTree {
 
 export interface ToggleVisibilityInput {
     hidden: boolean;
+}
+
+export interface ToggleGoldInput {
+    gold: boolean;
 }

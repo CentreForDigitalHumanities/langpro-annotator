@@ -80,6 +80,13 @@ class User(django_auth_models.AbstractUser):
         return self.has_perm("problem.change_problem_visibility")
 
     @property
+    def can_change_problem_status(self) -> bool:
+        """
+        Determines whether the user can change problem status (gold/ungold).
+        """
+        return self.has_perm("problem.change_problem_status")
+
+    @property
     def can_edit_kb(self) -> bool:
         """
         Determines whether the user can edit knowledge base items.

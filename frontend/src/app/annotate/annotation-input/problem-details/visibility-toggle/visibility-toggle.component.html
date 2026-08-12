@@ -1,31 +1,21 @@
 @let hidden = problem().hidden;
-<div class="position-relative">
-    @if (hidden) {
-    <div class="alert alert-info py-2" role="alert">
-        <fa-icon [icon]="faEyeSlash" class="me-2" aria-hidden="true"></fa-icon>
-        <span i18n>
-            This problem is hidden. Only Master Annotators can see it and change
-            its visibility.
-        </span>
-    </div>
-    }
 
-    <button
-        class="btn btn-outline-secondary position-absolute end-0 px-2"
-        (click)="onToggleHidden()"
-        [attr.aria-label]="hidden ? 'Mark as visible' : 'Mark as hidden'"
-        i18n-aria-label
-    >
-        <fa-icon
-            [icon]="hidden ? faEye : faEyeSlash"
-            aria-hidden="true"
-        ></fa-icon>
-        <span class="ms-2">
-            @if (hidden) {
-            <ng-container i18n>Show</ng-container>
-            } @else {
-            <ng-container i18n>Hide</ng-container>
-            }
-        </span>
-    </button>
-</div>
+<button
+    class="btn btn-outline-secondary px-2 text-nowrap w-100"
+    (click)="onToggleHidden()"
+    [attr.aria-label]="hidden ? 'Mark as visible' : 'Mark as hidden'"
+    i18n-aria-label
+>
+    <fa-icon
+        [icon]="hidden ? faEye : faEyeSlash"
+        aria-hidden="true"
+    ></fa-icon>
+    <span class="ms-2">
+        @if (hidden) {
+        <ng-container i18n>Show</ng-container>
+        } @else {
+        <ng-container i18n>Hide</ng-container>
+        }
+    </span>
+</button>
+

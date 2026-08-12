@@ -216,3 +216,19 @@ class ProblemInputSerializer(serializers.Serializer):
         instance.premises.set(premise_sentences)
 
         return instance
+
+class GoldInputSerializer(serializers.Serializer):
+    """
+    Serializer for validating gold status toggle data.
+    """
+    gold = serializers.BooleanField(
+        required=True, help_text="Indicates if the problem is gold."
+    )
+
+class VisibilityInputSerializer(serializers.Serializer):
+    """
+    Serializer for validating visibility toggle data.
+    """
+    hidden = serializers.BooleanField(
+        required=True, help_text="Indicates if the problem is hidden."
+    )

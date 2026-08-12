@@ -19,7 +19,12 @@ from problem.problem_details import (
     get_related_problem_ids,
 )
 from problem.models import Problem
-from problem.serializers import ProblemInputSerializer, ProblemSerializer
+from problem.serializers import (
+    GoldInputSerializer,
+    ProblemInputSerializer,
+    ProblemSerializer,
+    VisibilityInputSerializer,
+)
 
 from annotation.models import KnowledgeBaseAnnotation, LabelAnnotation
 from annotation.serializers import (
@@ -86,15 +91,13 @@ class ProblemView(ModelViewSet):
         Expects a JSON body with a boolean 'gold' field.
         """
         problem = get_object_or_404(Problem, id=pk)
-        gold = request.data.get("gold")
-        if not isinstance(gold, bool):
-            return Response(
-                {"detail": "'gold' must be a boolean."},
-                status=HTTP_400_BAD_REQUEST,
-            )
-        problem.gold = gold
+        serializer = GoldInputSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        problem.gold = serializer.validated_data["gold"]  # type: ignore
         problem.save(update_fields=["gold"])
-        return Response({"gold": problem.gold, "status": problem.status}, status=HTTP_200_OK)
+        return Response(
+            {"gold": problem.gold, "status": problem.status}, status=HTTP_200_OK
+        )
 
     @action(detail=False, methods=["get"], url_path="first")
     def first(self, request: Request) -> Response:
@@ -110,13 +113,9 @@ class ProblemView(ModelViewSet):
         Expects a JSON body with a boolean 'hidden' field.
         """
         problem = get_object_or_404(Problem, id=pk)
-        hidden = request.data.get("hidden")
-        if not isinstance(hidden, bool):
-            return Response(
-                {"detail": "'hidden' must be a boolean."},
-                status=HTTP_400_BAD_REQUEST,
-            )
-        problem.hidden = hidden
+        serializer = VisibilityInputSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        problem.hidden = serializer.validated_data["hidden"]  # type: ignore
         problem.save(update_fields=["hidden"])
         return Response({"hidden": problem.hidden}, status=HTTP_200_OK)
 

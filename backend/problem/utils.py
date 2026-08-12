@@ -32,8 +32,8 @@ def prepare_kb_for_parser(kb_items: list[dict]) -> list[str]:
     [
         {
             "id": "1",
-            "entity1": "cat",
-            "entity2": "animal",
+            "entity1": "Hesperus",
+            "entity2": "Phosphorus",
             "relationship": "equal"
         },
         ...
@@ -42,7 +42,7 @@ def prepare_kb_for_parser(kb_items: list[dict]) -> list[str]:
     Expected output (cf. langpro-container/LangPro_demo/server.py::prepare_kb):
 
     [
-        "isa_wn(cat, animal)",
+        "isa_wn(Hesperus, Phosphorus)",
         ...
     ]
 

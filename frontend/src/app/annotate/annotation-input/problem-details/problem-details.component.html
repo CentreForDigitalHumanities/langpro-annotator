@@ -96,7 +96,8 @@
         </div>
         @if (currentUser?.canChangeProblemStatus) {
         <la-gold-toggle [problem]="problem()" />
-        } @if (currentUser?.canChangeProblemVisibility) {
+        }
+        @if (currentUser?.canChangeProblemVisibility) {
         <la-visibility-toggle [problem]="problem()" />
         }
     </div>

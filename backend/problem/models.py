@@ -7,6 +7,9 @@ from langpro_annotator.logger import logger
 class Sentence(models.Model):
     text = models.TextField()
 
+    def __str__(self):
+        return self.text
+
 
 class Problem(models.Model):
     class Dataset(models.TextChoices):
@@ -100,3 +103,6 @@ class Problem(models.Model):
             or self.labelannotations.filter(removed_at__isnull=True).exists()
         )
         return Problem.Status.SILVER if has_annotations else Problem.Status.BRONZE
+
+    def __str__(self):
+        return f"Problem {self.pk} [{self.status}] ({self.get_dataset_display()}): {self.get_entailment_label_display()}"  # type: ignore

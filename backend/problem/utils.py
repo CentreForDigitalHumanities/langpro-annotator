@@ -2,10 +2,8 @@ from langpro_annotator.logger import logger
 
 RELATIONSHIP_MAPPING = {
     "equal": "isa_wn",
-    "not_equal": "ant_wn",
-    # TODO: confirm these with Lasha
-    "subset": "subset",
-    "superset": "superset",
+    "subset": "isa_wn",
+    "disjoint": "disj",
 }
 
 

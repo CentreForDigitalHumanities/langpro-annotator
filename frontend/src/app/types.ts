@@ -36,9 +36,8 @@ interface BaseAnnotation {
 
 export enum KnowledgeBaseRelationship {
     EQUAL = "equal",
-    NOT_EQUAL = "not_equal",
     SUBSET = "subset",
-    SUPERSET = "superset",
+    DISJOINT = "disjoint",
 }
 
 export interface KnowledgeBaseAnnotation extends BaseAnnotation {

@@ -13,9 +13,8 @@ import { map } from "rxjs";
 
 const relationshipDisplayMapping: Record<KnowledgeBaseRelationship, string> = {
     equal: "is equal to",
-    not_equal: "is not equal to",
     subset: "is a subset of",
-    superset: "is a superset of",
+    disjoint: "is disjoint from",
 };
 
 @Component({

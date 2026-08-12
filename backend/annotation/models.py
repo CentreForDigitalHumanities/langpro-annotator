@@ -107,9 +107,8 @@ class BaseAnnotation(models.Model):
 class KnowledgeBaseAnnotation(BaseAnnotation):
     class Relationship(models.TextChoices):
         EQUAL = "equal", "Equal"
-        NOT_EQUAL = "not_equal", "Not Equal"
         SUBSET = "subset", "Subset"
-        SUPERSET = "superset", "Superset"
+        DISJOINT = "disjoint", "Disjoint"
 
     entity1 = models.CharField(max_length=255)
 
@@ -147,6 +146,7 @@ class LabelAnnotation(BaseAnnotation):
     is created. When removed, the record is marked as removed (not deleted),
     so the history of labelings is preserved.
     """
+
     label = models.ForeignKey(
         Label,
         on_delete=models.CASCADE,

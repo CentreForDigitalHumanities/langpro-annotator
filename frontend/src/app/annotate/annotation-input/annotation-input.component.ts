@@ -11,17 +11,18 @@ import {
 import { PremisesFormComponent } from "./premises-form/premises-form.component";
 import { KnowledgeBaseFormComponent } from "./knowledge-base-form/knowledge-base-form.component";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { Dataset, KnowledgeBaseAnnotation, KnowledgeBaseRelationship, Problem } from "../../types";
-import { faCheck, faCopy, faExclamationCircle, faFloppyDisk, faHourglass, faTrash, faTree, faWrench } from "@fortawesome/free-solid-svg-icons";
+import { EntailmentLabel, KnowledgeBaseAnnotation, KnowledgeBaseRelationship, Problem } from "../../types";
+import { faCheck, faExclamationCircle, faFloppyDisk, faHourglass, faTrash, faTree } from "@fortawesome/free-solid-svg-icons";
 import { ProblemDetailsComponent } from "./problem-details/problem-details.component";
 import { map, Subject } from "rxjs";
-import { ActivatedRoute, Router, RouterLinkWithHref } from "@angular/router";
+import { ActivatedRoute, Router } from "@angular/router";
 import { ProblemService } from "@/services/problem.service";
 import { ParseService } from "@/services/parse.service";
 import { FontAwesomeModule } from "@fortawesome/angular-fontawesome";
 import { ToastService } from "@/services/toast.service";
 import { AuthService } from "@/services/auth.service";
 import { IconButtonComponent } from "@/shared/icon-button/icon-button.component";
+import { LangProPredictionComponent } from "./langpro-prediction/langpro-prediction.component";
 
 export type ParseInputForm = FormGroup<{
     id: FormControl<number | null>;
@@ -52,8 +53,8 @@ export type ParseInput = ReturnType<ParseInputForm["getRawValue"]>;
         ReactiveFormsModule,
         ProblemDetailsComponent,
         FontAwesomeModule,
-        RouterLinkWithHref,
-        IconButtonComponent
+        IconButtonComponent,
+        LangProPredictionComponent
     ],
     templateUrl: "./annotation-input.component.html",
     styleUrl: "./annotation-input.component.scss",
@@ -75,26 +76,17 @@ export class AnnotationInputComponent implements OnInit {
 
     public inProgress$ = this.parseService.inProgress$;
 
-    public faCopy = faCopy;
     public faCheck = faCheck;
     public faTree = faTree;
     public faFloppyDisk = faFloppyDisk;
     public faExclamationCircle = faExclamationCircle;
     public faTrash = faTrash;
-    public faWrench = faWrench;
     public faHourglass = faHourglass;
 
     public appMode$ = this.problemService.appMode$;
-    public isUserProblem$ = this.problem$.pipe(
-        map(problem => problem?.dataset === Dataset.USER)
-    );
 
     public canEditProblem$ = this.authService.currentUser$.pipe(
         map(user => user?.canEditProblem ?? false)
-    );
-
-    public canCopyProblem$ = this.authService.currentUser$.pipe(
-        map(user => user?.canCopyProblem ?? false)
     );
 
     ngOnInit(): void {
@@ -187,6 +179,7 @@ export class AnnotationInputComponent implements OnInit {
             kbItems: new FormArray<KBItemForm>(kbItems),
         });
     }
+
     private buildKbForms(inputKbItems: KnowledgeBaseAnnotation[]): KBItemForm[] {
         return inputKbItems.map(item => new FormGroup({
             id: new FormControl<number | null>(item.id, {

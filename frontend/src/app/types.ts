@@ -180,6 +180,7 @@ export type ParseResponseData = {
         entailment: NLTKTree,
         contradiction: NLTKTree,
     };
+    langpro_prediction: EntailmentLabel;
 };
 
 export type ParseResponse = {

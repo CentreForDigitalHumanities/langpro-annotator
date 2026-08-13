@@ -1,0 +1,8 @@
+<div class="d-flex align-items-center gap-2">
+    <h2 class="h6 fw-bold p-0 m-0" i18n>LangPro prediction:</h2>
+    @if (langproPrediction$ | async; as prediction) {
+        <la-entailment-label-badge [entailmentLabel]="prediction" />
+    } @else {
+        <span i18n>No prediction available</span>
+    }
+</div>

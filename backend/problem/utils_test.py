@@ -3,38 +3,27 @@ from problem.utils import prepare_kb_for_parser
 
 def test_single_item_equal():
     result = prepare_kb_for_parser(
-        [{"entity1": "cat", "entity2": "feline", "relationship": "equal"}]
+        [{"entity1": "cat", "entity2": "kitty", "relationship": "equal"}]
     )
-    assert result == ["isa_wn(cat, feline)"]
-
-
-def test_single_item_not_equal():
-    result = prepare_kb_for_parser(
-        [{"entity1": "hot", "entity2": "cold", "relationship": "not_equal"}]
-    )
-    assert result == ["ant_wn(hot, cold)"]
+    assert result == ["isa_wn(cat, kitty)"]
 
 
 def test_single_item_subset():
     result = prepare_kb_for_parser(
-        [{"entity1": "cat", "entity2": "animal", "relationship": "subset"}]
+        [{"entity1": "dog", "entity2": "pooch", "relationship": "subset"}]
     )
-    assert result == ["subset(cat, animal)"]
-
-
-def test_single_item_superset():
-    result = prepare_kb_for_parser(
-        [{"entity1": "animal", "entity2": "cat", "relationship": "superset"}]
-    )
-    assert result == ["superset(animal, cat)"]
+    assert result == ["isa_wn(dog, pooch)"]
 
 
 def test_multiple_items():
     items = [
-        {"entity1": "cat", "entity2": "feline", "relationship": "equal"},
-        {"entity1": "hot", "entity2": "cold", "relationship": "not_equal"},
+        {"entity1": "cat", "entity2": "kitty", "relationship": "equal"},
+        {"entity1": "elephant", "entity2": "duck", "relationship": "disjoint"},
     ]
-    assert prepare_kb_for_parser(items) == ["isa_wn(cat, feline)", "ant_wn(hot, cold)"]
+    assert prepare_kb_for_parser(items) == [
+        "isa_wn(cat, kitty)",
+        "disj(elephant, duck)",
+    ]
 
 
 def test_empty_list():
@@ -43,11 +32,11 @@ def test_empty_list():
 
 def test_unknown_relationship_is_skipped():
     items = [
-        {"entity1": "cat", "entity2": "feline", "relationship": "unknown"},
-        {"entity1": "hot", "entity2": "cold", "relationship": "not_equal"},
+        {"entity1": "cat", "entity2": "kitty", "relationship": "unknown"},
+        {"entity1": "elephant", "entity2": "duck", "relationship": "disjoint"},
     ]
     result = prepare_kb_for_parser(items)
-    assert result == ["ant_wn(hot, cold)"]
+    assert result == ["disj(elephant, duck)"]
 
 
 def test_all_unknown_relationships_returns_empty():
@@ -60,9 +49,9 @@ def test_entity_with_spaces():
         [
             {
                 "entity1": "domestic cat",
-                "entity2": "wild animal",
-                "relationship": "subset",
+                "entity2": "house plant",
+                "relationship": "disjoint",
             }
         ]
     )
-    assert result == ["subset(domestic cat, wild animal)"]
+    assert result == ["disj(domestic cat, house plant)"]

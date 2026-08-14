@@ -12,6 +12,7 @@ def test_valid_create_data():
         "premises": ["A cat is running."],
         "hypothesis": "A cat is moving.",
         "kbItems": [],
+        "langproPrediction": "entailment",
     }
     serializer = ProblemInputSerializer(data=data)
     assert serializer.is_valid(raise_exception=True)
@@ -24,6 +25,7 @@ def test_valid_update_data(user_problem):
         "id": user_problem.pk,
         "premises": ["The cat is on the mat."],
         "hypothesis": "A cat is on a mat.",
+        "langproPrediction": "entailment",
     }
     serializer = ProblemInputSerializer(data=data)
     assert serializer.is_valid(raise_exception=True)
@@ -36,6 +38,7 @@ def test_valid_create_data_no_id():
         "premises": ["A dog barks."],
         "hypothesis": "A dog makes noise.",
         "kbItems": [],
+        "langproPrediction": "entailment",
     }
     serializer = ProblemInputSerializer(data=data)
     assert serializer.is_valid(raise_exception=True)
@@ -49,6 +52,7 @@ def test_invalid_id_non_existent():
         "premises": ["premise"],
         "hypothesis": "hypothesis",
         "kbItems": [],
+        "langproPrediction": "",
     }
     serializer = ProblemInputSerializer(data=data)
     with pytest.raises(ValidationError) as exc_info:
@@ -59,7 +63,12 @@ def test_invalid_id_non_existent():
 @pytest.mark.django_db
 def test_empty_premises_invalid():
     """Test that an empty list of premises is invalid."""
-    data = {"premises": [], "hypothesis": "hypothesis", "kbItems": []}
+    data = {
+        "premises": [],
+        "hypothesis": "hypothesis",
+        "kbItems": [],
+        "langproPrediction": "",
+    }
     serializer = ProblemInputSerializer(data=data)
     assert not serializer.is_valid()
     assert "premises" in serializer.errors

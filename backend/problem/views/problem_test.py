@@ -11,6 +11,7 @@ def problem_input_data():
         "premises": ["Test premise 1", "Test premise 2"],
         "hypothesis": "Test hypothesis",
         "entailmentLabel": "neutral",
+        "langproPrediction": "neutral",
         "kbItems": [
             {
                 "entity1": "dog",
@@ -63,14 +64,20 @@ class TestProblemViewPermissions:
         client.force_login(user=annotator)
         response = client.get(f"/api/problem/{hidden_problem.id}/")
         assert response.status_code == status.HTTP_200_OK
-        assert response.data['problem']['id'] == sample_problem.id, "Unauthenticated users requesting a hidden problem should receive the first non-hidden problem instead."
+        assert (
+            response.data["problem"]["id"] == sample_problem.id
+        ), "Unauthenticated users requesting a hidden problem should receive the first non-hidden problem instead."
 
-    def test_visitor_cannot_see_hidden_problem(self, client, visitor, hidden_problem, sample_problem):
+    def test_visitor_cannot_see_hidden_problem(
+        self, client, visitor, hidden_problem, sample_problem
+    ):
         """Visitors should not be able to see hidden problems."""
         client.force_login(user=visitor)
         response = client.get(f"/api/problem/{hidden_problem.id}/")
         assert response.status_code == status.HTTP_200_OK
-        assert response.data['problem']['id'] == sample_problem.id, "Visitors requesting a hidden problem should receive the first non-hidden problem instead."
+        assert (
+            response.data["problem"]["id"] == sample_problem.id
+        ), "Visitors requesting a hidden problem should receive the first non-hidden problem instead."
 
     def test_annotator_cannot_see_hidden_problem(
         self, client, annotator, hidden_problem, sample_problem
@@ -79,7 +86,9 @@ class TestProblemViewPermissions:
         client.force_login(user=annotator)
         response = client.get(f"/api/problem/{hidden_problem.id}/")
         assert response.status_code == status.HTTP_200_OK
-        assert response.data['problem']['id'] == sample_problem.id, "Annotators requesting a hidden problem should receive the first non-hidden problem instead."
+        assert (
+            response.data["problem"]["id"] == sample_problem.id
+        ), "Annotators requesting a hidden problem should receive the first non-hidden problem instead."
 
     def test_master_annotator_can_see_hidden_problem(
         self, client, master_annotator, hidden_problem
@@ -88,7 +97,9 @@ class TestProblemViewPermissions:
         client.force_login(user=master_annotator)
         response = client.get(f"/api/problem/{hidden_problem.id}/")
         assert response.status_code == status.HTTP_200_OK
-        assert response.data['problem']['id'] == hidden_problem.id, "Master annotators requesting a hidden problem should receive that hidden problem."
+        assert (
+            response.data["problem"]["id"] == hidden_problem.id
+        ), "Master annotators requesting a hidden problem should receive that hidden problem."
 
     # Create
 

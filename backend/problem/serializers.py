@@ -22,6 +22,7 @@ class ProblemSerializer(serializers.ModelSerializer):
     entailmentLabel = serializers.CharField(source="entailment_label")
     extraData = serializers.SerializerMethodField()
     status = serializers.CharField(read_only=True)
+    langproPrediction = serializers.CharField(source="langpro_prediction")
 
     class Meta:
         model = Problem
@@ -36,6 +37,7 @@ class ProblemSerializer(serializers.ModelSerializer):
             "hidden",
             "gold",
             "status",
+            "langproPrediction",
         ]
 
     def get_premises(self, problem: Problem):
@@ -81,6 +83,7 @@ class ProblemInputSerializer(serializers.Serializer):
     )
 
     base = serializers.IntegerField(required=False, allow_null=True)
+    langproPrediction = serializers.CharField(allow_null=True)
 
     def validate_id(self, value):
         """Validate that the Problem ID, if provided, exists."""
@@ -186,10 +189,12 @@ class ProblemInputSerializer(serializers.Serializer):
 
         return self._update_core_problem_fields(instance, validated_data)
 
-    def _update_core_problem_fields(self, instance: Problem, validated_data: dict) -> Problem:
+    def _update_core_problem_fields(
+        self, instance: Problem, validated_data: dict
+    ) -> Problem:
         """
-        Updates core Problem fields (premises, hypothesis, base) from validated
-        input data.
+        Updates core Problem fields (premises, hypothesis, base,
+        langproPrediction) from validated input data.
         """
         instance.hypothesis = Sentence.objects.get_or_create(
             text=validated_data["hypothesis"],
@@ -207,6 +212,9 @@ class ProblemInputSerializer(serializers.Serializer):
                 )
             instance.base = base_problem  # type: ignore
 
+        validated_langpro_prediction = validated_data.get("langproPrediction", None)
+        instance.langpro_prediction = validated_langpro_prediction
+
         instance.save()
 
         premise_sentences = [
@@ -217,18 +225,22 @@ class ProblemInputSerializer(serializers.Serializer):
 
         return instance
 
+
 class GoldInputSerializer(serializers.Serializer):
     """
     Serializer for validating gold status toggle data.
     """
+
     gold = serializers.BooleanField(
         required=True, help_text="Indicates if the problem is gold."
     )
+
 
 class VisibilityInputSerializer(serializers.Serializer):
     """
     Serializer for validating visibility toggle data.
     """
+
     hidden = serializers.BooleanField(
         required=True, help_text="Indicates if the problem is hidden."
     )

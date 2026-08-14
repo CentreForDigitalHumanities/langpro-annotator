@@ -63,6 +63,7 @@ describe("ProblemService", () => {
                     hidden: false,
                     gold: false,
                     status: ProblemStatus.BRONZE,
+                    langproPrediction: null
                 },
                 index: 1,
                 total: 1,
@@ -84,8 +85,7 @@ describe("ProblemService", () => {
                 done();
             });
 
-            // const req = httpMock.expectOne(`/api/problem/${mockProblemId}/?text=&dataset=&status=&entailmentLabel=&hidden=`);
-            const req = httpMock.expectOne(`/api/problem/?text=&dataset=&status=&entailmentLabel=&hidden=&current=${mockProblemId}`);
+            const req = httpMock.expectOne(`/api/problem/?text=&dataset=&status=&entailmentLabel=&hidden=&langproPrediction=&current=${mockProblemId}`);
             expect(req.request.method).toBe("GET");
             req.flush(mockResponse);
         });
@@ -143,6 +143,7 @@ describe("ProblemService", () => {
                 premises: ["a"],
                 hypothesis: "b",
                 kbItems: [],
+                langproPrediction: null
             };
             const mockResponse: SaveProblemResponse = { id: 1, error: null };
 
@@ -165,7 +166,8 @@ describe("ProblemService", () => {
                 base: null,
                 premises: ["c"],
                 hypothesis: "d",
-                kbItems: []
+                kbItems: [],
+                langproPrediction: null
             };
 
             service.saveProblem$.subscribe(response => {

@@ -1,6 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { LangProPredictionComponent } from './langpro-prediction.component';
+import { EntailmentLabel } from '@/types';
+import { FormGroup, FormControl } from '@angular/forms';
 
 describe('LangProPredictionComponent', () => {
     let component: LangProPredictionComponent;
@@ -14,6 +16,14 @@ describe('LangProPredictionComponent', () => {
 
         fixture = TestBed.createComponent(LangProPredictionComponent);
         component = fixture.componentInstance;
+        const componentRef = fixture.componentRef;
+        componentRef.setInput(
+            "form",
+            new FormGroup({
+                langproPrediction: new FormControl(EntailmentLabel.ENTAILMENT, { nonNullable: true }),
+            })
+        );
+
         fixture.detectChanges();
     });
 

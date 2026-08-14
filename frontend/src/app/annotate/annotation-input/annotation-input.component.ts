@@ -14,7 +14,7 @@ import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { EntailmentLabel, KnowledgeBaseAnnotation, KnowledgeBaseRelationship, Problem } from "../../types";
 import { faCheck, faExclamationCircle, faFloppyDisk, faHourglass, faTrash, faTree } from "@fortawesome/free-solid-svg-icons";
 import { ProblemDetailsComponent } from "./problem-details/problem-details.component";
-import { map, Subject } from "rxjs";
+import { map, merge, Subject, takeUntil } from "rxjs";
 import { ActivatedRoute, Router } from "@angular/router";
 import { ProblemService } from "@/services/problem.service";
 import { ParseService } from "@/services/parse.service";
@@ -30,6 +30,7 @@ export type ParseInputForm = FormGroup<{
     premises: FormArray<FormControl<string>>;
     hypothesis: FormControl<string>;
     kbItems: FormArray<KBItemForm>;
+    langproPrediction: FormControl<EntailmentLabel | null>;
 }>;
 
 
@@ -70,6 +71,8 @@ export class AnnotationInputComponent implements OnInit {
 
     public form: ParseInputForm | null = null;
 
+    private formDestroy$ = new Subject<void>();
+
     public problem$ = this.problemService.problem$;
 
     public submit$ = new Subject<void>();
@@ -97,7 +100,11 @@ export class AnnotationInputComponent implements OnInit {
                 this.navigateToNewProblem(problem);
 
                 // Otherwise, update local form.
+                this.formDestroy$.next();
                 this.form = problem ? this.buildForm(problem) : null;
+                if (this.form) {
+                    this.emptyLangProPredictionUponChange(this.form);
+                }
             });
 
         this.problemService.saveProblem$.pipe(
@@ -118,6 +125,18 @@ export class AnnotationInputComponent implements OnInit {
                 type: 'success'
             });
             this.router.navigate(["/", "annotate", response.id]);
+        });
+
+        // Update the form with LangPro's prediction after a new parse result.
+        this.parseService.parse$.pipe(
+            takeUntilDestroyed(this.destroyRef)
+        ).subscribe((parsedData) => {
+            const incoming = parsedData?.data?.langpro_prediction ?? null;
+            const current = this.form?.controls.langproPrediction.value ?? null;
+            if (incoming && incoming !== current) {
+                this.form?.controls.langproPrediction.setValue(incoming);
+                this.form?.markAsDirty();
+            }
         });
     }
 
@@ -177,6 +196,26 @@ export class AnnotationInputComponent implements OnInit {
                 nonNullable: true,
             }),
             kbItems: new FormArray<KBItemForm>(kbItems),
+            langproPrediction: new FormControl<EntailmentLabel | null>(problem.langproPrediction, {
+                nonNullable: true
+            }),
+        });
+    }
+
+    /**
+     * Side effect: if the user changes the premises, hypothesis or KB items
+     * of a problem, the langproPrediction field is emptied.
+     */
+    private emptyLangProPredictionUponChange(form: ParseInputForm): void {
+        merge(
+            form.controls.kbItems.valueChanges,
+            form.controls.hypothesis.valueChanges,
+            form.controls.premises.valueChanges,
+        ).pipe(
+            takeUntilDestroyed(this.destroyRef),
+            takeUntil(this.formDestroy$),
+        ).subscribe(() => {
+            form.controls.langproPrediction.setValue(null, { emitEvent: false });
         });
     }
 

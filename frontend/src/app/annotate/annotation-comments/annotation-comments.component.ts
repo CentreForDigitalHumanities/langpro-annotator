@@ -25,9 +25,8 @@ export interface AnnotationEvent {
 
 const relationshipSymbols: Record<KnowledgeBaseRelationship, string> = {
     [KnowledgeBaseRelationship.EQUAL]: "=",
-    [KnowledgeBaseRelationship.NOT_EQUAL]: "≠",
     [KnowledgeBaseRelationship.SUBSET]: "⊂",
-    [KnowledgeBaseRelationship.SUPERSET]: "⊃",
+    [KnowledgeBaseRelationship.DISJOINT]: "≠",
 };
 
 function annotationToEvent(annotation: LabelAnnotation | KnowledgeBaseAnnotation): AnnotationEvent[] {

@@ -187,20 +187,23 @@ export class AnnotationInputComponent implements OnInit {
             kbItems: new FormArray<KBItemForm>(kbItems),
         });
     }
+
     private buildKbForms(inputKbItems: KnowledgeBaseAnnotation[]): KBItemForm[] {
-        return inputKbItems.map(item => new FormGroup({
-            id: new FormControl<number | null>(item.id, {
-                nonNullable: true
-            }),
-            entity1: new FormControl<string>(item.entity1, {
-                nonNullable: true
-            }),
-            entity2: new FormControl<string>(item.entity2, {
-                nonNullable: true
-            }),
-            relationship: new FormControl<KnowledgeBaseRelationship>(item.relationship, {
-                nonNullable: true
-            })
-        }));
+        return inputKbItems
+            .filter(item => item.removedAt === null)
+            .map(item => new FormGroup({
+                id: new FormControl<number | null>(item.id, {
+                    nonNullable: true
+                }),
+                entity1: new FormControl<string>(item.entity1, {
+                    nonNullable: true
+                }),
+                entity2: new FormControl<string>(item.entity2, {
+                    nonNullable: true
+                }),
+                relationship: new FormControl<KnowledgeBaseRelationship>(item.relationship, {
+                    nonNullable: true
+                })
+            }));
     }
 }

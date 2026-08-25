@@ -3,39 +3,6 @@ from rest_framework.exceptions import ValidationError
 
 from annotation.models import KnowledgeBaseAnnotation
 from .serializers import ProblemInputSerializer
-from .models import Problem, Sentence
-
-
-@pytest.fixture
-def hypothesis_sentence(db):
-    return Sentence.objects.create(text="Hypothesis")
-
-
-@pytest.fixture
-def premise_sentence(db):
-    return Sentence.objects.create(text="Premise")
-
-
-@pytest.fixture
-def user_problem(db, hypothesis_sentence, premise_sentence):
-    problem = Problem.objects.create(
-        dataset=Problem.Dataset.USER,
-        hypothesis=hypothesis_sentence,
-        extra_data={},
-    )
-    problem.premises.add(premise_sentence)
-    return problem
-
-
-@pytest.fixture
-def non_user_problem(db, hypothesis_sentence, premise_sentence):
-    problem = Problem.objects.create(
-        dataset=Problem.Dataset.SICK,
-        hypothesis=hypothesis_sentence,
-        extra_data={},
-    )
-    problem.premises.add(premise_sentence)
-    return problem
 
 
 @pytest.mark.django_db
@@ -201,17 +168,17 @@ def test_create_and_update_multiple_kb_annotations(
             "id": kb_annotation.pk,
             "entity1": "updated_e1",
             "entity2": "updated_e2",
-            "relationship": "not_equal",
+            "relationship": "subset",
         },
         {
             "entity1": "new_e1",
             "entity2": "new_e2",
-            "relationship": "subset",
+            "relationship": "equal",
         },
         {
             "entity1": "another_e1",
             "entity2": "another_e2",
-            "relationship": "superset",
+            "relationship": "disjoint",
         },
     ]
 
@@ -229,7 +196,7 @@ def test_create_and_update_multiple_kb_annotations(
     kb_annotation.refresh_from_db()
     assert kb_annotation.entity1 == "updated_e1"
     assert kb_annotation.entity2 == "updated_e2"
-    assert kb_annotation.relationship == "not_equal"
+    assert kb_annotation.relationship == "subset"
 
     # Verify the new annotations
     new_annotations = kb_annotations.exclude(id=kb_annotation.pk)
@@ -276,7 +243,7 @@ def test_create_update_and_remove_kb_annotations(
         {
             "entity1": "new_e1",
             "entity2": "new_e2",
-            "relationship": "superset",
+            "relationship": "disjoint",
         },
     ]
 
@@ -305,4 +272,4 @@ def test_create_update_and_remove_kb_annotations(
     assert new_annotation is not None
     assert new_annotation.entity1 == "new_e1"
     assert new_annotation.entity2 == "new_e2"
-    assert new_annotation.relationship == "superset"
+    assert new_annotation.relationship == "disjoint"

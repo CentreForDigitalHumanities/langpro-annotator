@@ -5,20 +5,26 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework.status import (
     HTTP_201_CREATED,
     HTTP_200_OK,
+    HTTP_400_BAD_REQUEST,
     HTTP_401_UNAUTHORIZED,
     HTTP_403_FORBIDDEN,
 )
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 
-from django.http import Http404
 from django.shortcuts import get_object_or_404
 
 from problem.problem_details import (
     get_filters,
+    apply_status_filter,
     get_related_problem_ids,
 )
 from problem.models import Problem
-from problem.serializers import ProblemInputSerializer, ProblemSerializer
+from problem.serializers import (
+    GoldInputSerializer,
+    ProblemInputSerializer,
+    ProblemSerializer,
+    VisibilityInputSerializer,
+)
 
 from annotation.models import KnowledgeBaseAnnotation, LabelAnnotation
 from annotation.serializers import (
@@ -40,6 +46,19 @@ class EditProblemPermission(IsAuthenticated):
         )
 
 
+class ChangeProblemVisibilityPermission(IsAuthenticated):
+    def has_permission(self, request, view):
+        return (
+            super().has_permission(request, view)
+            and request.user.can_change_problem_visibility
+        )
+
+
+class ChangeProblemStatusPermission(IsAuthenticated):
+    def has_permission(self, request, view):
+        return super().has_permission(request, view) and request.user.can_change_problem_status
+
+
 class ProblemView(ModelViewSet):
     queryset = Problem.objects.all()
     serializer_class = ProblemSerializer
@@ -49,10 +68,36 @@ class ProblemView(ModelViewSet):
             return [CreateProblemPermission()]
         if self.action == "partial_update":
             return [EditProblemPermission()]
+        if self.action == "set_visibility":
+            return [ChangeProblemVisibilityPermission()]
+        if self.action == "set_status":
+            return [ChangeProblemStatusPermission()]
         return [IsAuthenticatedOrReadOnly()]
 
     def list(self, request: Request) -> Response:
-        raise Http404
+        current = request.query_params.get("current")
+        try:
+            pk = int(current) if current else None
+        # ValueError: a non-convertible string, e.g. 'hello';
+        # TypeError: a non-convertible type, such as None or a list
+        except (ValueError, TypeError):
+            pk = None
+        return self._get_problem_response(request, pk=pk)
+
+    @action(detail=True, methods=["post"], url_path="set-status")
+    def set_status(self, request: Request, pk: int) -> Response:
+        """
+        Toggles the gold status of a Problem.
+        Expects a JSON body with a boolean 'gold' field.
+        """
+        problem = get_object_or_404(Problem, id=pk)
+        serializer = GoldInputSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        problem.gold = serializer.validated_data["gold"]  # type: ignore
+        problem.save(update_fields=["gold"])
+        return Response(
+            {"gold": problem.gold, "status": problem.status}, status=HTTP_200_OK
+        )
 
     @action(detail=False, methods=["get"], url_path="first")
     def first(self, request: Request) -> Response:
@@ -60,6 +105,19 @@ class ProblemView(ModelViewSet):
         Retrieves the first problem from the queryset.
         """
         return self._get_problem_response(request, pk=None)
+
+    @action(detail=True, methods=["post"], url_path="set-visibility")
+    def set_visibility(self, request: Request, pk: int) -> Response:
+        """
+        Toggles the hidden status of a Problem.
+        Expects a JSON body with a boolean 'hidden' field.
+        """
+        problem = get_object_or_404(Problem, id=pk)
+        serializer = VisibilityInputSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        problem.hidden = serializer.validated_data["hidden"]  # type: ignore
+        problem.save(update_fields=["hidden"])
+        return Response({"hidden": problem.hidden}, status=HTTP_200_OK)
 
     def retrieve(self, request: Request, pk: int | None = None) -> Response:
         """
@@ -72,12 +130,15 @@ class ProblemView(ModelViewSet):
         Helper method to build the problem response.
         If pk is provided, retrieves that problem; otherwise returns the first problem.
         """
-        filters = get_filters(request.query_params)
+        user = request.user if request.user.is_authenticated else None
+        filters = get_filters(request.query_params, user)
 
         qs = self.get_queryset()
 
         if filters is not None:
             qs = qs.filter(filters).distinct()
+
+        qs = apply_status_filter(qs, request.query_params)
 
         problem = None
         if pk is not None:
@@ -92,28 +153,36 @@ class ProblemView(ModelViewSet):
             problem = qs.first()
 
         problem_index = problem.get_index(qs) if problem else None
-        related_problem_ids = get_related_problem_ids(qs, pk)
+        related_problem_ids = get_related_problem_ids(
+            qs, problem.pk if problem else None
+        )
 
-        serializer = self.get_serializer(problem)
+        if problem is None:
+            problem_data = None
+        else:
+            serializer = self.get_serializer(problem)
+            kb_annotations = KnowledgeBaseAnnotation.objects.filter(
+                problem=problem, removed_at__isnull=True
+            )
+            label_annotations = LabelAnnotation.objects.filter(
+                problem=problem, removed_at__isnull=True
+            )
+            # kbAnnotations and labelAnnotations are not included in the
+            # ProblemSerializer because they require additional context for
+            # determining removability, so we serialize them separately here.
+            problem_data = {
+                **serializer.data,
+                "kbAnnotations": KnowledgeBaseAnnotationSerializer(
+                    kb_annotations, context={"user": request.user}, many=True
+                ).data,
+                "labelAnnotations": LabelAnnotationSerializer(
+                    label_annotations, context={"user": request.user}, many=True
+                ).data,
+            }
 
-        kb_annotations = KnowledgeBaseAnnotation.objects.filter(problem=problem)
-        label_annotations = LabelAnnotation.objects.filter(problem=problem)
-
-        # kbAnnotations and labelAnnotations are not included in the
-        # ProblemSerializer because they require additional context for
-        # determining removability, so we serialize them separately here with
-        # the proper context.
         return Response(
             {
-                "problem": {
-                    **serializer.data,
-                    "kbAnnotations": KnowledgeBaseAnnotationSerializer(
-                        kb_annotations, context={"user": request.user}, many=True
-                    ).data,
-                    "labelAnnotations": LabelAnnotationSerializer(
-                        label_annotations, context={"user": request.user}, many=True
-                    ).data,
-                },
+                "problem": problem_data,
                 "index": problem_index,
                 "first": related_problem_ids.first,
                 "previous": related_problem_ids.previous,

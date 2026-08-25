@@ -1,4 +1,5 @@
 @let loading = loading$ | async;
+@let canChangeVisibility = canChangeVisibility$ | async;
 
 <div class="mb-3">
     <form role="search">
@@ -39,11 +40,31 @@
                 [options]="entailmentLabelOptions"
             />
 
-            <label for="annotator" class="form-label" i18n>Gold</label>
+            <div>
+                <label for="annotator" class="form-label me-2" i18n>
+                    Status
+                </label>
+                <fa-icon
+                    role="button"
+                    size="sm"
+                    [icon]="faCircleInfo"
+                    (click)="showStatusInfoModal()"
+                    title="Show status info"
+                    i18n-title
+                />
+            </div>
             <la-filter-select
-                [formControl]="form.controls.gold"
-                [options]="goldOptions"
+                [formControl]="form.controls.status"
+                [options]="statusOptions"
             />
+
+            @if (canChangeVisibility) {
+            <label for="hidden" class="form-label" i18n>Visibility</label>
+            <la-filter-select
+                [formControl]="form.controls.hidden"
+                [options]="hiddenOptions"
+            />
+            }
         </div>
 
         <div class="row col-12 mx-auto">

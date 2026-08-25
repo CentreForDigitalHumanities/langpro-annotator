@@ -17,6 +17,8 @@ def test_user_details(user_client, user_data):
         "canEditKb": False,
         "canCopyProblem": False,
         "canAddLabelAnnotations": False,
+        "canChangeProblemVisibility": False,
+        "canChangeProblemStatus": False,
     }
 
 

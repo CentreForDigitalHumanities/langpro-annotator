@@ -7,6 +7,9 @@ from langpro_annotator.logger import logger
 class Sentence(models.Model):
     text = models.TextField()
 
+    def __str__(self):
+        return self.text
+
 
 class Problem(models.Model):
     class Dataset(models.TextChoices):
@@ -19,7 +22,13 @@ class Problem(models.Model):
         NEUTRAL = "neutral", "Neutral"
         ENTAILMENT = "entailment", "Entailment"
         CONTRADICTION = "contradiction", "Contradiction"
+        CONFLICT = "conflict", "Conflict"
         UNKNOWN = "unknown", "Unknown"
+
+    class Status(models.TextChoices):
+        GOLD = "gold", "Gold"
+        SILVER = "silver", "Silver"
+        BRONZE = "bronze", "Bronze"
 
     dataset = models.CharField(
         max_length=255,
@@ -53,6 +62,10 @@ class Problem(models.Model):
         default=EntailmentLabel.UNKNOWN,
     )
 
+    hidden = models.BooleanField(default=False)
+
+    gold = models.BooleanField(default=False)
+
     extra_data = models.JSONField()
 
     class Meta:
@@ -74,3 +87,22 @@ class Problem(models.Model):
         except Exception as e:
             logger.exception(f"Error getting index for problem {self.pk}: {e}")
             return None
+
+    @property
+    def status(self) -> "Problem.Status":
+        """
+        Returns the computed status of this problem:
+        - GOLD if the problem is marked as gold.
+        - SILVER if not gold but has active annotations (KB items or labels).
+        - BRONZE otherwise (no annotations).
+        """
+        if self.gold:
+            return Problem.Status.GOLD
+        has_annotations = (
+            self.knowledgebaseannotations.filter(removed_at__isnull=True).exists()
+            or self.labelannotations.filter(removed_at__isnull=True).exists()
+        )
+        return Problem.Status.SILVER if has_annotations else Problem.Status.BRONZE
+
+    def __str__(self):
+        return f"Problem {self.pk} [{self.status}] ({self.get_dataset_display()}): {self.get_entailment_label_display()}"  # type: ignore

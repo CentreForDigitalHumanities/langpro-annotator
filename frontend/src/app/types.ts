@@ -36,9 +36,8 @@ interface BaseAnnotation {
 
 export enum KnowledgeBaseRelationship {
     EQUAL = "equal",
-    NOT_EQUAL = "not_equal",
     SUBSET = "subset",
-    SUPERSET = "superset",
+    DISJOINT = "disjoint",
 }
 
 export interface KnowledgeBaseAnnotation extends BaseAnnotation {
@@ -64,6 +63,9 @@ interface ProblemBase {
     premises: string[];
     hypothesis: string | null;
     entailmentLabel: EntailmentLabel;
+    hidden: boolean;
+    gold: boolean;
+    status: ProblemStatus;
     kbAnnotations: KnowledgeBaseAnnotation[];
     labelAnnotations: LabelAnnotation[];
 }
@@ -123,7 +125,14 @@ export enum EntailmentLabel {
     ENTAILMENT = "entailment",
     CONTRADICTION = "contradiction",
     NEUTRAL = "neutral",
+    CONFLICT = "conflict",
     UNKNOWN = "unknown",
+}
+
+export enum ProblemStatus {
+    GOLD = "gold",
+    SILVER = "silver",
+    BRONZE = "bronze",
 }
 
 
@@ -137,7 +146,7 @@ export interface Dimensions {
 //
 
 export type LeafNode = {
-    // Fixed order: rule, token, lemma, POS tag, NER tag, category.
+    // Fixed order: rule, lemma, token, POS tag, NER tag, category.
     node: [string, string, string, string, string, string];
 };
 
@@ -195,4 +204,12 @@ export type ProofNode = {
 export interface ProofTree {
     nodes: ProofNode[];
     subtrees?: ProofTree[];
+}
+
+export interface ToggleVisibilityInput {
+    hidden: boolean;
+}
+
+export interface ToggleGoldInput {
+    gold: boolean;
 }

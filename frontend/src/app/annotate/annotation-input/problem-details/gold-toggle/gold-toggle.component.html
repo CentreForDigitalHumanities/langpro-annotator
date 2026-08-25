@@ -1,0 +1,16 @@
+@let gold = problem().gold;
+<button
+    class="btn btn-outline-warning px-2 text-nowrap w-100"
+    (click)="onToggleGold()"
+    [attr.aria-label]="gold ? 'Remove gold status' : 'Mark as gold'"
+    i18n-aria-label
+>
+    <fa-icon [icon]="faMedal" aria-hidden="true"></fa-icon>
+    <span class="ms-2">
+        @if (gold) {
+        <ng-container i18n>Ungold</ng-container>
+        } @else {
+        <ng-container i18n>Gold</ng-container>
+        }
+    </span>
+</button>

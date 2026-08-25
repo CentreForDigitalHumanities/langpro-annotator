@@ -1,0 +1,77 @@
+<div class="modal-header">
+    <h5 class="modal-title" i18n>Problem statuses</h5>
+    <button
+        type="button"
+        class="btn-close"
+        aria-label="Close"
+        i18n-aria-label
+        (click)="activeModal.dismiss()"
+    ></button>
+</div>
+<div class="modal-body">
+    <p i18n>
+        Every problem has a status that determines its visibility and the
+        presence of annotations. The status of a problem is indicated by a
+        badge.
+    </p>
+    <dl>
+        <div class="d-flex gap-2 mb-2">
+            <dt>
+                <la-status-badge
+                    class="d-inline-block"
+                    [status]="ProblemStatus.GOLD"
+                />
+            </dt>
+            <dd>
+                This problem has been marked as gold by a master annotator.
+                Anyone can see it.
+            </dd>
+        </div>
+        <div class="d-flex gap-2 mb-2">
+            <dt>
+                <la-status-badge
+                    class="d-inline-block"
+                    [status]="ProblemStatus.SILVER"
+                />
+            </dt>
+            <dd>
+                This problem has not been marked as gold but has label or
+                knowledge base annotations attached to it. Only registered users
+                and (master) annotators can see it.
+            </dd>
+        </div>
+        <div class="d-flex gap-2 mb-2">
+            <dt>
+                <la-status-badge
+                    class="d-inline-block"
+                    [status]="ProblemStatus.BRONZE"
+                />
+            </dt>
+            <dd>
+                This problem has neither gold status nor label or knowledge base
+                annotations. Only registered users and (master) annotators can
+                see it.
+            </dd>
+        </div>
+    </dl>
+    <p i18n>
+        You can filter problems based on their status using the select menu on
+        the left.
+    </p>
+    @if (canChangeStatus$ | async) {
+    <p i18n>
+        You can toggle 'gold' status on a problem by clicking the
+        'Gold'/'Ungold' button below the problem status badge.
+    </p>
+    }
+</div>
+<div class="modal-footer">
+    <button
+        type="button"
+        class="btn btn-secondary"
+        (click)="activeModal.dismiss()"
+        i18n
+    >
+        Close
+    </button>
+</div>

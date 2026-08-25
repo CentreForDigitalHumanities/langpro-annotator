@@ -28,6 +28,8 @@ export class EntailmentLabelBadgeComponent {
                 return "badge text-bg-secondary";
             case EntailmentLabel.UNKNOWN:
                 return "badge text-bg-warning";
+            case EntailmentLabel.CONFLICT:
+                return "badge text-bg-dark";
         }
     });
 }

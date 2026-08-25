@@ -1,7 +1,7 @@
 import { TestBed } from "@angular/core/testing";
 import { HttpTestingController, provideHttpClientTesting } from "@angular/common/http/testing";
 import { ProblemService } from "./problem.service";
-import { Dataset, EntailmentLabel, Problem, ProblemResponse, SaveProblemResponse } from "@/types";
+import { Dataset, EntailmentLabel, Problem, ProblemResponse, ProblemStatus, SaveProblemResponse } from "@/types";
 import { convertToParamMap } from "@angular/router";
 import { provideHttpClient } from "@angular/common/http";
 import { ParseInput } from "@/annotate/annotation-input/annotation-input.component";
@@ -60,6 +60,9 @@ describe("ProblemService", () => {
                     },
                     kbAnnotations: [],
                     labelAnnotations: [],
+                    hidden: false,
+                    gold: false,
+                    status: ProblemStatus.BRONZE,
                 },
                 index: 1,
                 total: 1,
@@ -81,7 +84,8 @@ describe("ProblemService", () => {
                 done();
             });
 
-            const req = httpMock.expectOne(`/api/problem/${mockProblemId}/?text=&dataset=&gold=&entailmentLabel=`);
+            // const req = httpMock.expectOne(`/api/problem/${mockProblemId}/?text=&dataset=&status=&entailmentLabel=&hidden=`);
+            const req = httpMock.expectOne(`/api/problem/?text=&dataset=&status=&entailmentLabel=&hidden=&current=${mockProblemId}`);
             expect(req.request.method).toBe("GET");
             req.flush(mockResponse);
         });
@@ -100,12 +104,13 @@ describe("ProblemService", () => {
                 edit: false
             });
 
-            const req = httpMock.expectOne(r => r.url.startsWith(`/api/problem/${mockProblemId}`));
+            const req = httpMock.expectOne(r => r.url === '/api/problem/');
             expect(req.request.method).toBe("GET");
             expect(req.request.params.get("text")).toBe("");
             expect(req.request.params.get("dataset")).toBe("");
-            expect(req.request.params.get("gold")).toBe("");
+            expect(req.request.params.get("status")).toBe("");
             expect(req.request.params.get("entailmentLabel")).toBe("");
+            expect(req.request.params.get("current")).toBe(mockProblemId);
             req.flush("Not Found", { status: 404, statusText: "Not Found" });
         });
 
@@ -119,11 +124,12 @@ describe("ProblemService", () => {
 
             service.problemResponse$.subscribe(() => done());
 
-            const req = httpMock.expectOne(r => r.url.startsWith("/api/problem/abc"));
+            const req = httpMock.expectOne(r => r.url.startsWith("/api/problem/"));
             expect(req.request.params.get("text")).toBe("search");
             expect(req.request.params.get("dataset")).toBe("FRACAS");
-            expect(req.request.params.get("gold")).toBe("");
+            expect(req.request.params.get("status")).toBe("");
             expect(req.request.params.get("entailmentLabel")).toBe("");
+            expect(req.request.params.get("current")).toBe("abc");
             req.flush({});
         });
     });
@@ -184,7 +190,7 @@ describe("ProblemService", () => {
                 done();
             });
 
-            const req = httpMock.expectOne("/api/problem/first/");
+            const req = httpMock.expectOne("/api/problem/");
             expect(req.request.method).toBe("GET");
             req.flush(mockResponse);
         });
@@ -195,7 +201,7 @@ describe("ProblemService", () => {
                 done();
             });
 
-            const req = httpMock.expectOne("/api/problem/first/");
+            const req = httpMock.expectOne("/api/problem/");
             req.flush("Error", { status: 500, statusText: "Server Error" });
         });
     });

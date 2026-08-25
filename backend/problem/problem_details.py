@@ -1,10 +1,12 @@
 from dataclasses import dataclass
 
+from django.db.models import Exists, OuterRef
 from django.http import QueryDict
 from django.db.models import QuerySet, Q
 
 from langpro_annotator.logger import logger
 from problem.models import Problem
+from user.models import User
 
 
 @dataclass
@@ -51,30 +53,66 @@ def get_related_problem_ids(
     )
 
 
-def get_filters(query_params: QueryDict) -> Q | None:
+def get_filters(query_params: QueryDict, user: User | None = None) -> Q | None:
     """
     Constructs a Django Q object for filtering problems based on query parameters.
     Return None if no valid filters are found in the parameters.
     """
     dataset = query_params.get("dataset")
     entailment_label = query_params.get("entailmentLabel")
-    gold = query_params.get("gold")
     text = query_params.get("text")
+    hidden = query_params.get("hidden", None)
 
-    if not (dataset or entailment_label or gold or text):
-        return None
+    user_can_see_hidden = user.can_see_hidden_problems if user else False
 
     filters = Q()
     if dataset:
         filters &= Q(dataset=dataset)
     if entailment_label:
         filters &= Q(entailment_label=entailment_label)
-    if gold:
-        logger.warning(f"Filtering by gold is not implemented yet.")
-        pass
     if text:
         filters &= Q(
             Q(hypothesis__text__icontains=text) | Q(premises__text__icontains=text)
         )
 
+    if not user_can_see_hidden:
+        filters &= Q(hidden=False)
+    elif hidden and hidden.lower() in ('true', 'false'):
+        filters &= Q(hidden=hidden.lower() == 'true')
+
     return filters
+
+
+def apply_status_filter(
+    qs: QuerySet[Problem], query_params: QueryDict
+) -> QuerySet[Problem]:
+    """
+    Applies a status filter to the queryset based on the 'status' query parameter.
+    Returns the queryset unchanged if no valid status is provided.
+    """
+    from annotation.models import KnowledgeBaseAnnotation, LabelAnnotation
+
+    status_param = query_params.get("status")
+    if not status_param:
+        return qs
+
+    has_active_kb = Exists(
+        KnowledgeBaseAnnotation.objects.filter(
+            problem=OuterRef("pk"), removed_at__isnull=True
+        )
+    )
+    has_active_label = Exists(
+        LabelAnnotation.objects.filter(
+            problem=OuterRef("pk"), removed_at__isnull=True
+        )
+    )
+
+    match status_param:
+        case Problem.Status.GOLD:
+            return qs.filter(gold=True)
+        case Problem.Status.SILVER:
+            return qs.filter(gold=False).filter(has_active_kb | has_active_label)
+        case Problem.Status.BRONZE:
+            return qs.filter(gold=False).exclude(has_active_kb | has_active_label)
+        case _:
+            return qs

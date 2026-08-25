@@ -52,7 +52,7 @@ def test_invalid_id_non_existent():
         "premises": ["premise"],
         "hypothesis": "hypothesis",
         "kbItems": [],
-        "langproPrediction": "",
+        "langproPrediction": "entailment",
     }
     serializer = ProblemInputSerializer(data=data)
     with pytest.raises(ValidationError) as exc_info:
@@ -67,7 +67,7 @@ def test_empty_premises_invalid():
         "premises": [],
         "hypothesis": "hypothesis",
         "kbItems": [],
-        "langproPrediction": "",
+        "langproPrediction": "entailment",
     }
     serializer = ProblemInputSerializer(data=data)
     assert not serializer.is_valid()

@@ -10,5 +10,5 @@ import { ParseInputForm } from '../annotation-input.component';
     styleUrl: './langpro-prediction.component.scss'
 })
 export class LangProPredictionComponent {
-    public form = input.required<ParseInputForm>();;
+    public form = input.required<ParseInputForm>();
 }

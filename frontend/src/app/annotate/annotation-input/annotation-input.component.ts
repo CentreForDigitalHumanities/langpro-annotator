@@ -104,6 +104,7 @@ export class AnnotationInputComponent implements OnInit {
                 this.form = problem ? this.buildForm(problem) : null;
                 if (this.form) {
                     this.emptyLangProPredictionUponChange(this.form);
+                    this.markDirtyUponChange(this.form);
                 }
             });
 
@@ -135,7 +136,6 @@ export class AnnotationInputComponent implements OnInit {
             const current = this.form?.controls.langproPrediction.value ?? null;
             if (incoming && incoming !== current) {
                 this.form?.controls.langproPrediction.setValue(incoming);
-                this.form?.markAsDirty();
             }
         });
     }
@@ -217,6 +217,14 @@ export class AnnotationInputComponent implements OnInit {
         ).subscribe(() => {
             form.controls.langproPrediction.setValue(null, { emitEvent: false });
         });
+    }
+
+    private markDirtyUponChange(form: ParseInputForm): void {
+        form.controls.langproPrediction.valueChanges
+            .pipe(
+                takeUntilDestroyed(this.destroyRef),
+                takeUntil(this.formDestroy$),
+            ).subscribe(() => form.markAsDirty());
     }
 
     private buildKbForms(inputKbItems: KnowledgeBaseAnnotation[]): KBItemForm[] {

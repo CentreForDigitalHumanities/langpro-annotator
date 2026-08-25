@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { of } from "rxjs";
 
 import { ProblemService } from "@/services/problem.service";
-import { Dataset, EntailmentLabel, KnowledgeBaseAnnotation, KnowledgeBaseRelationship, LabelAnnotation, Problem } from "@/types";
+import { Dataset, EntailmentLabel, KnowledgeBaseAnnotation, KnowledgeBaseRelationship, LabelAnnotation, Problem, ProblemStatus } from "@/types";
 import { AnnotationCommentsComponent } from "./annotation-comments.component";
 
 const baseAnnotationFields = {
@@ -36,6 +36,9 @@ describe("AnnotationCommentsComponent", () => {
             hypothesis: null,
             entailmentLabel: EntailmentLabel.UNKNOWN,
             dataset: Dataset.USER,
+            gold: false,
+            hidden: false,
+            status: ProblemStatus.BRONZE,
             extraData: null,
             kbAnnotations,
             labelAnnotations,

@@ -104,7 +104,6 @@ export class AnnotationInputComponent implements OnInit {
                 this.form = problem ? this.buildForm(problem) : null;
                 if (this.form) {
                     this.emptyLangProPredictionUponChange(this.form);
-                    this.markDirtyUponChange(this.form);
                 }
             });
 
@@ -136,6 +135,7 @@ export class AnnotationInputComponent implements OnInit {
             const current = this.form?.controls.langproPrediction.value ?? null;
             if (incoming && incoming !== current) {
                 this.form?.controls.langproPrediction.setValue(incoming);
+                this.form?.markAsDirty();
             }
         });
     }
@@ -219,28 +219,22 @@ export class AnnotationInputComponent implements OnInit {
         });
     }
 
-    private markDirtyUponChange(form: ParseInputForm): void {
-        form.controls.langproPrediction.valueChanges
-            .pipe(
-                takeUntilDestroyed(this.destroyRef),
-                takeUntil(this.formDestroy$),
-            ).subscribe(() => form.markAsDirty());
-    }
-
     private buildKbForms(inputKbItems: KnowledgeBaseAnnotation[]): KBItemForm[] {
-        return inputKbItems.map(item => new FormGroup({
-            id: new FormControl<number | null>(item.id, {
-                nonNullable: true
-            }),
-            entity1: new FormControl<string>(item.entity1, {
-                nonNullable: true
-            }),
-            entity2: new FormControl<string>(item.entity2, {
-                nonNullable: true
-            }),
-            relationship: new FormControl<KnowledgeBaseRelationship>(item.relationship, {
-                nonNullable: true
-            })
-        }));
+        return inputKbItems
+            .filter(item => item.removedAt === null)
+            .map(item => new FormGroup({
+                id: new FormControl<number | null>(item.id, {
+                    nonNullable: true
+                }),
+                entity1: new FormControl<string>(item.entity1, {
+                    nonNullable: true
+                }),
+                entity2: new FormControl<string>(item.entity2, {
+                    nonNullable: true
+                }),
+                relationship: new FormControl<KnowledgeBaseRelationship>(item.relationship, {
+                    nonNullable: true
+                })
+            }));
     }
 }

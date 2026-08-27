@@ -20,5 +20,10 @@ COPY . .
 # Create a directory for Gunicorn logs (production).
 RUN mkdir -p /usr/src/app/logs
 
+COPY entrypoint.sh /usr/src/app/entrypoint.sh
+RUN chmod +x /usr/src/app/entrypoint.sh
+
 # Expose port.
 EXPOSE 8000
+
+ENTRYPOINT ["/usr/src/app/entrypoint.sh"]

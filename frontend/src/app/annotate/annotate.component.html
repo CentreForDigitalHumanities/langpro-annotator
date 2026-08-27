@@ -73,6 +73,36 @@
                 <span class="ms-3" i18n>Add new problem</span>
             </a>
             }
+            @if (appMode === 'browse' && (canCopyProblem$ | async)) {
+            <a
+                class="btn btn-secondary d-flex align-items-center justify-content-center"
+                [routerLink]="['/', 'annotate', 'new']"
+                [queryParams]="{base: currentProblemId$ | async }"
+
+            >
+                <fa-icon
+                    [icon]="faCopy"
+                    class="fa-md"
+                    aria-hidden="true"
+                    focusable="false"
+                />
+                <span class="ms-2" i18n>Copy problem</span>
+            </a>
+            }
+            @if ((isUserProblem$ | async) && (canEditProblem$ | async)) {
+            <a
+                class="btn btn-secondary d-flex align-items-center justify-content-center"
+                [routerLink]="['./edit']"
+                queryParamsHandling="preserve"
+            >
+                <fa-icon
+                    [icon]="faWrench"
+                    aria-hidden="true"
+                    focusable="false"
+                ></fa-icon>
+                <span class="ms-3" i18n>Edit problem</span>
+            </a>
+            }
         </div>
     </div>
     <la-annotation-input class="col-8" />

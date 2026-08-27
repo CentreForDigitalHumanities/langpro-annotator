@@ -4,7 +4,7 @@ import { NavigatorComponent } from "./navigator/navigator.component";
 import { AnnotationInputComponent } from "./annotation-input/annotation-input.component";
 import { SearchComponent } from "./search/search.component";
 import { FontAwesomeModule } from "@fortawesome/angular-fontawesome";
-import { faBinoculars, faPlus } from "@fortawesome/free-solid-svg-icons";
+import { faBinoculars, faCopy, faPlus, faWrench } from "@fortawesome/free-solid-svg-icons";
 import { ActivatedRoute, RouterLinkWithHref } from "@angular/router";
 import { ProblemService } from "@/services/problem.service";
 import { combineLatest, distinctUntilChanged, map } from "rxjs";
@@ -37,6 +37,8 @@ export class AnnotateComponent implements OnInit {
 
     public faPlus = faPlus;
     public faBinoculars = faBinoculars;
+    public faCopy = faCopy;
+    public faWrench = faWrench;
 
     public appMode$ = this.problemService.appMode$;
     public firstProblemId$ = this.problemService.firstProblemId$;
@@ -45,8 +47,20 @@ export class AnnotateComponent implements OnInit {
         map(problem => problem?.dataset === Dataset.USER)
     );
 
+    public currentProblemId$ = this.problemService.problem$.pipe(
+        map(problem => problem?.id ?? null)
+    );
+
     public canCreateProblem$ = this.authService.currentUser$.pipe(
         map(user => user?.canCreateProblem ?? false)
+    );
+
+    public canCopyProblem$ = this.authService.currentUser$.pipe(
+        map(user => user?.canCopyProblem ?? false)
+    );
+
+    public canEditProblem$ = this.authService.currentUser$.pipe(
+        map(user => user?.canEditProblem ?? false)
     );
 
     ngOnInit(): void {

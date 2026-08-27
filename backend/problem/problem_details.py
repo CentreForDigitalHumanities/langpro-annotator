@@ -62,6 +62,7 @@ def get_filters(query_params: QueryDict, user: User | None = None) -> Q | None:
     entailment_label = query_params.get("entailmentLabel")
     text = query_params.get("text")
     hidden = query_params.get("hidden", None)
+    langpro_prediction = query_params.get("langproPrediction", None)
 
     user_can_see_hidden = user.can_see_hidden_problems if user else False
 
@@ -74,6 +75,8 @@ def get_filters(query_params: QueryDict, user: User | None = None) -> Q | None:
         filters &= Q(
             Q(hypothesis__text__icontains=text) | Q(premises__text__icontains=text)
         )
+    if langpro_prediction:
+        filters &= Q(langpro_prediction=langpro_prediction)
 
     if not user_can_see_hidden:
         filters &= Q(hidden=False)

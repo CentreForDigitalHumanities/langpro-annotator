@@ -1,0 +1,10 @@
+@let langproPrediction = form().controls.langproPrediction.value;
+
+<div class="d-flex align-items-center gap-2">
+    <h2 class="h6 fw-bold p-0 m-0" i18n>LangPro prediction:</h2>
+    @if (langproPrediction) {
+        <la-entailment-label-badge [entailmentLabel]="langproPrediction" />
+    } @else {
+        <span i18n>No prediction available</span>
+    }
+</div>

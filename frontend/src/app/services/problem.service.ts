@@ -172,6 +172,7 @@ export class ProblemService {
                 gold: false,
                 status: ProblemStatus.BRONZE,
                 extraData: null,
+                langproPrediction: existingProblem?.langproPrediction ?? null,
                 kbAnnotations: existingProblem?.kbAnnotations.map(annotation => ({
                     ...annotation, id: null,
                 })) ?? [],
@@ -213,6 +214,7 @@ export class ProblemService {
         const status = routeParams.get("status");
         const entailmentLabel = routeParams.get("entailmentLabel");
         const hidden = routeParams.get("hidden");
+        const langproPrediction = routeParams.get("langproPrediction");
 
         const paramRecord: Record<string, string> = {
             text: text ?? '',
@@ -220,6 +222,7 @@ export class ProblemService {
             status: status ?? '',
             entailmentLabel: entailmentLabel ?? '',
             hidden: hidden ?? '',
+            langproPrediction: langproPrediction ?? '',
         };
 
         return new HttpParams({ fromObject: paramRecord });

@@ -66,6 +66,14 @@ class Problem(models.Model):
 
     gold = models.BooleanField(default=False)
 
+    langpro_prediction = models.CharField(
+        max_length=255,
+        choices=EntailmentLabel.choices,
+        null=True,
+        blank=True,
+        default=None,
+    )
+
     extra_data = models.JSONField()
 
     class Meta:

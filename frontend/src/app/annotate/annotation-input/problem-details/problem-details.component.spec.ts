@@ -23,7 +23,8 @@ const createMockProblem = (
     kbAnnotations: [],
     labelAnnotations: [],
     gold: false,
-    status: ProblemStatus.BRONZE
+    status: ProblemStatus.BRONZE,
+    langproPrediction: null,
 });
 
 describe("ProblemDetailsComponent", () => {

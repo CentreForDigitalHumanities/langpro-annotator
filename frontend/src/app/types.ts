@@ -68,6 +68,7 @@ interface ProblemBase {
     status: ProblemStatus;
     kbAnnotations: KnowledgeBaseAnnotation[];
     labelAnnotations: LabelAnnotation[];
+    langproPrediction: EntailmentLabel | null;
 }
 
 interface SickProblem extends ProblemBase {
@@ -180,6 +181,7 @@ export type ParseResponseData = {
         entailment: NLTKTree,
         contradiction: NLTKTree,
     };
+    langpro_prediction: EntailmentLabel;
 };
 
 export type ParseResponse = {

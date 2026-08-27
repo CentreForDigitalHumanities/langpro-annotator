@@ -8,6 +8,51 @@ import { ActivatedRoute, Router } from "@angular/router";
 import { of } from "rxjs";
 import { Dataset, KnowledgeBaseRelationship, Problem, EntailmentLabel, ProblemStatus } from "../../types";
 
+function createMockProblem(): Problem {
+    return {
+        id: 123,
+        base: null,
+        hidden: false,
+        premises: ["First premise", "Second premise"],
+        hypothesis: "Test hypothesis",
+        entailmentLabel: EntailmentLabel.ENTAILMENT,
+        langproPrediction: null,
+        kbAnnotations: [
+            {
+                id: 456,
+                entity1: "cat",
+                entity2: "animal",
+                relationship: KnowledgeBaseRelationship.SUBSET,
+                createdAt: "",
+                createdBy: "",
+                removedAt: null,
+                removedBy: null,
+                notes: "",
+                session: null,
+                removable: true
+            },
+            {
+                id: 789,
+                entity1: "dog",
+                entity2: "pet",
+                relationship: KnowledgeBaseRelationship.EQUAL,
+                createdAt: "",
+                createdBy: "",
+                removedAt: null,
+                removedBy: null,
+                notes: "",
+                session: null,
+                removable: true
+            }
+        ],
+        labelAnnotations: [],
+        dataset: Dataset.USER,
+        extraData: null,
+        gold: false,
+        status: ProblemStatus.BRONZE
+    };
+}
+
 describe("AnnotationInputComponent", () => {
     let component: AnnotationInputComponent;
     let fixture: ComponentFixture<AnnotationInputComponent>;
@@ -47,47 +92,7 @@ describe("AnnotationInputComponent", () => {
 
     describe('buildForm', () => {
         it('should build form with correct structure and values from problem data', () => {
-            const mockProblem: Problem = {
-                id: 123,
-                base: null,
-                hidden: false,
-                premises: ["First premise", "Second premise"],
-                hypothesis: "Test hypothesis",
-                entailmentLabel: EntailmentLabel.ENTAILMENT,
-                kbAnnotations: [
-                    {
-                        id: 456,
-                        entity1: "cat",
-                        entity2: "animal",
-                        relationship: KnowledgeBaseRelationship.SUBSET,
-                        createdAt: "",
-                        createdBy: "",
-                        removedAt: null,
-                        removedBy: null,
-                        notes: "",
-                        session: null,
-                        removable: true
-                    },
-                    {
-                        id: 789,
-                        entity1: "dog",
-                        entity2: "pet",
-                        relationship: KnowledgeBaseRelationship.EQUAL,
-                        createdAt: "",
-                        createdBy: "",
-                        removedAt: null,
-                        removedBy: null,
-                        notes: "",
-                        session: null,
-                        removable: true
-                    }
-                ],
-                labelAnnotations: [],
-                dataset: Dataset.USER,
-                extraData: null,
-                gold: false,
-                status: ProblemStatus.BRONZE
-            };
+            const mockProblem = createMockProblem();
 
             // Access private method.
             const form = component['buildForm'](mockProblem);
@@ -121,46 +126,24 @@ describe("AnnotationInputComponent", () => {
         });
 
         it('should handle empty premises and kbItems arrays', () => {
-            const mockProblem: Problem = {
-                id: 123,
-                base: null,
-                hidden: false,
-                premises: [],
-                hypothesis: "Empty test hypothesis",
-                entailmentLabel: EntailmentLabel.NEUTRAL,
-                kbAnnotations: [],
-                labelAnnotations: [],
-                dataset: Dataset.USER,
-                extraData: null,
-                gold: false,
-                status: ProblemStatus.BRONZE
-            };
+            const mockProblem = createMockProblem();
+            mockProblem.premises = [];
+            mockProblem.kbAnnotations = [];
 
             const form = component['buildForm'](mockProblem);
 
             expect(form.get('id')?.value).toBe(123);
-            expect(form.get('hypothesis')?.value).toBe('Empty test hypothesis');
+            expect(form.get('hypothesis')?.value).toBe('Test hypothesis');
 
             const premisesArray = form.get('premises') as FormArray;
             expect(premisesArray.length).toBe(0);
+
+            const kbItemsArray = form.get('kbItems') as FormArray;
+            expect(kbItemsArray.length).toBe(0); // Still has the two kbAnnotations from createMockProblem
         });
 
         it('should create form controls with required validators', () => {
-            const mockProblem: Problem = {
-                id: 1,
-                base: null,
-                hidden: false,
-                premises: ["Test premise"],
-                hypothesis: "Test hypothesis",
-                entailmentLabel: EntailmentLabel.CONTRADICTION,
-                dataset: Dataset.USER,
-                extraData: null,
-                kbAnnotations: [],
-                labelAnnotations: [],
-                gold: false,
-                status: ProblemStatus.BRONZE
-            };
-
+            const mockProblem = createMockProblem();
             const form = component['buildForm'](mockProblem);
 
             const hypothesisControl = form.get('hypothesis');
@@ -172,45 +155,18 @@ describe("AnnotationInputComponent", () => {
 
     describe('navigateToNewProblem', () => {
         it('should navigate when problem ID is different from current route', () => {
-            const mockProblem: Problem = {
-                id: 12,
-                base: null,
-                hidden: false,
-                premises: [],
-                hypothesis: "",
-                entailmentLabel: EntailmentLabel.UNKNOWN,
-                dataset: Dataset.USER,
-                extraData: null,
-                kbAnnotations: [],
-                labelAnnotations: [],
-                gold: false,
-                status: ProblemStatus.BRONZE
-            };
-
+            const mockProblem = createMockProblem();
             component['navigateToNewProblem'](mockProblem);
 
             expect(mockRouter.navigate).toHaveBeenCalledWith(
-                ['/annotate', 12],
+                ['/annotate', 123],
                 { queryParamsHandling: 'preserve' }
             );
         });
 
         it('should not navigate when problem ID matches current route', () => {
-            const mockProblem: Problem = {
-                id: 17,
-                base: null,
-                hidden: false,
-                premises: [],
-                hypothesis: "",
-                entailmentLabel: EntailmentLabel.UNKNOWN,
-                dataset: Dataset.USER,
-                extraData: null,
-                kbAnnotations: [],
-                labelAnnotations: [],
-                gold: false,
-                status: ProblemStatus.BRONZE
-            };
-
+            const mockProblem = createMockProblem();
+            mockProblem.id = 17; // Match the current route param
             component['navigateToNewProblem'](mockProblem);
 
             expect(mockRouter.navigate).not.toHaveBeenCalled();

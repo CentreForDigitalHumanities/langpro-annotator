@@ -29,11 +29,17 @@ interface SearchParams {
     status: ProblemStatus | null;
     text: string | null;
     hidden: boolean | null;
+    langproPrediction: EntailmentLabel | null;
 }
 
 type SearchParamsForm = {
     [key in keyof SearchParams]: FormControl<SearchParams[key]>;
 };
+
+const ENTAILMENT_LABEL_OPTIONS: SelectOption<EntailmentLabel>[] = Object.values(EntailmentLabel).map((label) => ({
+    value: label,
+    label: entailmentLabels[label],
+}));
 
 @Component({
     selector: "la-search",
@@ -63,6 +69,7 @@ export class SearchComponent {
         status: new FormControl<ProblemStatus | null>(null),
         text: new FormControl<string | null>(""),
         hidden: new FormControl<boolean | null>(null),
+        langproPrediction: new FormControl<EntailmentLabel | null>(null),
     });
 
     public loading$ = merge(
@@ -85,12 +92,8 @@ export class SearchComponent {
         })
     );
 
-    public entailmentLabelOptions: SelectOption<EntailmentLabel>[] = Object.values(EntailmentLabel).map(
-        (label) => ({
-            value: label,
-            label: entailmentLabels[label],
-        })
-    );
+    public entailmentLabelOptions = ENTAILMENT_LABEL_OPTIONS;
+    public langproPredictionOptions = ENTAILMENT_LABEL_OPTIONS;
 
     public statusOptions: SelectOption<ProblemStatus>[] = Object.values(ProblemStatus).map(
         (status) => ({
@@ -121,6 +124,7 @@ export class SearchComponent {
         ).subscribe(queryParams => {
             const dataset = queryParams.get('dataset');
             const entailmentLabel = queryParams.get('entailmentLabel');
+            const langproPrediction = queryParams.get('langproPrediction');
             const status = queryParams.get('status');
 
             this.form.patchValue({
@@ -129,6 +133,7 @@ export class SearchComponent {
                 status: this.isProblemStatus(status) ? status : null,
                 text: queryParams.get('text') as string | null,
                 hidden: queryParams.get('hidden') === null ? null : queryParams.get('hidden') === 'true',
+                langproPrediction: this.isEntailmentLabel(langproPrediction) ? langproPrediction : null,
             });
         });
     }

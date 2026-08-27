@@ -49,7 +49,6 @@ services:
             - ./logs/django:/usr/src/app/logs
             - ./seed/:/usr/src/app/backend/problem/data
 
-
     backend-dev:
         <<: *backend-prod
         image: la-backend-dev

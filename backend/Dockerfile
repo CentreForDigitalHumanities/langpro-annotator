@@ -22,3 +22,5 @@ RUN mkdir -p /usr/src/app/logs
 
 # Expose port.
 EXPOSE 8000
+
+ENTRYPOINT ["/usr/src/app/entrypoint.sh"]

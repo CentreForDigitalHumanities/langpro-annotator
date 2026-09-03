@@ -48,14 +48,6 @@ services:
         volumes:
             - ./logs/django:/usr/src/app/logs
             - ./seed/:/usr/src/app/backend/problem/data
-        command: >
-            gunicorn langpro_annotator.wsgi:application
-            -w 4
-            -b 0.0.0.0:8000
-            --timeout 600
-            --access-logfile /usr/src/app/logs/access_log
-            --error-logfile /usr/src/app/logs/error_log
-            --capture-output
 
     backend-dev:
         <<: *backend-prod

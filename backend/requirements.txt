@@ -4,13 +4,13 @@
 #
 #    pip-compile
 #
-asgiref==3.11.1
+asgiref==3.12.1
     # via
     #   django
     #   django-allauth
-certifi==2026.4.22
+certifi==2026.7.22
     # via requests
-charset-normalizer==3.4.7
+charset-normalizer==3.5.1
     # via requests
 colorama==0.4.6
     # via
@@ -18,7 +18,7 @@ colorama==0.4.6
     #   tqdm
 dj-rest-auth==7.2.0
     # via -r requirements.in
-django==4.2.30
+django==5.2.17
     # via
     #   -r requirements.in
     #   dj-rest-auth
@@ -26,54 +26,54 @@ django==4.2.30
     #   django-livereload-server
     #   django-revproxy
     #   djangorestframework
-django-allauth==65.16.1
+django-allauth==65.19.1
     # via -r requirements.in
 django-livereload-server==0.5.1
     # via -r requirements.in
 django-revproxy==0.13.0
     # via -r requirements.in
-djangorestframework==3.17.1
+djangorestframework==3.17.2
     # via
     #   -r requirements.in
     #   dj-rest-auth
 execnet==2.1.2
     # via pytest-xdist
-idna==3.13
+idna==3.19
     # via requests
 iniconfig==2.3.0
     # via pytest
 oauthlib==3.3.1
     # via requests-oauthlib
-packaging==26.2
+packaging==26.3
     # via pytest
 pluggy==1.6.0
     # via pytest
 psycopg2-binary==2.9.12
     # via -r requirements.in
-pygments==2.20.0
+pygments==2.21.0
     # via pytest
-pytest==9.0.3
+pytest==9.1.1
     # via
     #   -r requirements.in
     #   pytest-django
     #   pytest-xdist
-pytest-django==4.12.0
+pytest-django==4.14.0
     # via -r requirements.in
 pytest-xdist==3.8.0
     # via -r requirements.in
-requests==2.33.1
+requests==2.34.2
     # via requests-oauthlib
 requests-oauthlib==2.0.0
     # via -r requirements.in
-sqlparse==0.5.5
+sqlparse==0.6.0
     # via django
-tornado==6.5.5
+tornado==6.5.8
     # via django-livereload-server
-tqdm==4.67.3
+tqdm==4.70.0
     # via -r requirements.in
-tzdata==2026.2
+tzdata==2026.3
     # via django
-urllib3==2.6.3
+urllib3==2.7.0
     # via
     #   django-revproxy
     #   requests

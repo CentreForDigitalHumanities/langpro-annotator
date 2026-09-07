@@ -7,18 +7,26 @@ RELATIONSHIP_MAPPING = {
 }
 
 
-def _prepare_kb_item_for_parser(kb_item: dict) -> str:
+def _prepare_kb_item_for_parser(kb_item: dict) -> list[str]:
     entity1 = kb_item.get("entity1", None)
     entity2 = kb_item.get("entity2", None)
-    rel = RELATIONSHIP_MAPPING.get(kb_item["relationship"], None)
-
-    if not rel:
-        raise ValueError(f"Unknown relationship: {kb_item['relationship']}")
+    relationship = kb_item.get("relationship", None)
 
     if not entity1 or not entity2:
         raise ValueError(f"Missing entity in KB item: {kb_item}")
 
-    return f"{rel}({kb_item['entity1']}, {kb_item['entity2']})"
+    rel_symbol = RELATIONSHIP_MAPPING.get(kb_item["relationship"], None)
+    if not rel_symbol:
+        raise ValueError(f"Unknown relationship: {kb_item['relationship']}")
+
+    forward_relationship = f"{rel_symbol}({entity1}, {entity2})"
+    if relationship == "equal":
+        return [
+            forward_relationship,
+            f"{rel_symbol}({kb_item['entity2']}, {kb_item['entity1']})"
+        ]
+
+    return [forward_relationship]
 
 
 def prepare_kb_for_parser(kb_items: list[dict]) -> list[str]:
@@ -41,6 +49,7 @@ def prepare_kb_for_parser(kb_items: list[dict]) -> list[str]:
 
     [
         "isa_wn(Hesperus, Phosphorus)",
+        "isa_wn(Phosphorus, Hesperus)",
         ...
     ]
 
@@ -49,12 +58,12 @@ def prepare_kb_for_parser(kb_items: list[dict]) -> list[str]:
 
     for kb_item in kb_items:
         try:
-            kb_item_string = _prepare_kb_item_for_parser(kb_item)
+            kb_item_strings = _prepare_kb_item_for_parser(kb_item)
         except ValueError as e:
             logger.error(
                 f"Error preparing KB item {kb_item}: {e}. KB item will not be included in parser input."
             )
             continue
-        prepared_kb.append(kb_item_string)
+        prepared_kb.extend(kb_item_strings)
 
     return prepared_kb

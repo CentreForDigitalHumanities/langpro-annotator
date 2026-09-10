@@ -39,5 +39,8 @@
         "start-front-func-test": "cd frontend && ng serve --port 4200 & while ! nc -z localhost 4200; do sleep 1; done",
         "start-p": "yarn start-back-p & sleep 5 && yarn static-p && yarn watch-front-p",
         "stop-back": "lsof -t -i tcp:8000 | xargs kill -9 || echo \"not running\""
+    },
+    "devDependencies": {
+        "cross-env": "^10.0.0"
     }
 }

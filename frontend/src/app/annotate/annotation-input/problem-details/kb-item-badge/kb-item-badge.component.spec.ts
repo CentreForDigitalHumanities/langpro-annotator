@@ -14,6 +14,15 @@ describe('KbItemBadgeComponent', () => {
 
         fixture = TestBed.createComponent(KbItemBadgeComponent);
         component = fixture.componentInstance;
+        const componentRef = fixture.componentRef;
+        componentRef.setInput(
+            'usedKbItem',
+            {
+                "entity1": "Frodo",
+                "relationship": "subset",
+                "entity2": "Hobbit"
+            }
+        );
         fixture.detectChanges();
     });
 

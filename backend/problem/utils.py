@@ -1,9 +1,10 @@
+from annotation.models import KnowledgeBaseAnnotation
 from langpro_annotator.logger import logger
 
 RELATIONSHIP_MAPPING = {
-    "equal": "isa_wn",
-    "subset": "isa_wn",
-    "disjoint": "disj",
+    KnowledgeBaseAnnotation.Relationship.EQUAL: "isa_wn",
+    KnowledgeBaseAnnotation.Relationship.SUBSET: "isa_wn",
+    KnowledgeBaseAnnotation.Relationship.DISJOINT: "disj",
 }
 
 

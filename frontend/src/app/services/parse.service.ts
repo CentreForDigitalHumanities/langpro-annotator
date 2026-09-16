@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { Subject, switchMap, catchError, of, merge, map, share, startWith } from 'rxjs';
+import { Subject, switchMap, catchError, of, merge, map, share, startWith, shareReplay } from 'rxjs';
 import { ParseInput } from '@/annotate/annotation-input/annotation-input.component';
 import { ProblemService } from './problem.service';
 import {
@@ -53,7 +53,7 @@ export class ParseService {
     public parse$ = merge(
         this.parseResults$,
         this.clearOnNewProblem$
-    );
+    ).pipe(shareReplay(1));
 
     // Proofs from the response in a format that is easier to handle than the
     // stringly NLTK.Tree serialization.

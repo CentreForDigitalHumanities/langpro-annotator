@@ -23,7 +23,7 @@ def _prepare_kb_item_for_parser(kb_item: dict) -> list[str]:
     if relationship == "equal":
         return [
             forward_relationship,
-            f"{rel_symbol}({kb_item['entity2']}, {kb_item['entity1']})"
+            f"{rel_symbol}({entity2}, {entity1})"
         ]
 
     return [forward_relationship]

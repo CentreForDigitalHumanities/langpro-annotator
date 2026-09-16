@@ -5,7 +5,7 @@ def test_single_item_equal():
     result = prepare_kb_for_parser(
         [{"entity1": "cat", "entity2": "kitty", "relationship": "equal"}]
     )
-    assert result == ["isa_wn(cat, kitty)"]
+    assert result == ["isa_wn(cat, kitty)", "isa_wn(kitty, cat)"]
 
 
 def test_single_item_subset():
@@ -22,6 +22,7 @@ def test_multiple_items():
     ]
     assert prepare_kb_for_parser(items) == [
         "isa_wn(cat, kitty)",
+        "isa_wn(kitty, cat)",
         "disj(elephant, duck)",
     ]
 

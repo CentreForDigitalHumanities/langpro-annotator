@@ -25,6 +25,7 @@ const createMockProblem = (
     gold: false,
     status: ProblemStatus.BRONZE,
     langproPrediction: null,
+    usedKbItems: [],
 });
 
 describe("ProblemDetailsComponent", () => {
@@ -55,6 +56,8 @@ describe("ProblemDetailsComponent", () => {
             Dataset.SICK,
             EntailmentLabel.ENTAILMENT
         ));
+        componentRef.setInput("langproPrediction", null);
+        componentRef.setInput("usedKBItems", []);
         fixture.detectChanges();
     });
 

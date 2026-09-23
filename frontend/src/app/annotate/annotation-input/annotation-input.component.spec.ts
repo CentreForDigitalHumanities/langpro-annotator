@@ -17,6 +17,7 @@ function createMockProblem(): Problem {
         hypothesis: "Test hypothesis",
         entailmentLabel: EntailmentLabel.ENTAILMENT,
         langproPrediction: null,
+        usedKbItems: [],
         kbAnnotations: [
             {
                 id: 456,

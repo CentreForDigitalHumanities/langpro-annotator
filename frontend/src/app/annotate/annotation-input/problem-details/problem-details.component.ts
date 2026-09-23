@@ -1,4 +1,4 @@
-import { Dataset, EntailmentLabel, LabelAnnotation, Problem } from "../../../types";
+import { Dataset, EntailmentLabel, KnowledgeBaseItem, LabelAnnotation, Problem } from "../../../types";
 import { Component, computed, inject, input } from "@angular/core";
 import { EntailmentLabelBadgeComponent } from "./entailment-label-badge/entailment-label-badge.component";
 import { faArrowUpRightFromSquare, faCircleInfo, faEyeSlash, faQuestionCircle } from "@fortawesome/free-solid-svg-icons";
@@ -14,6 +14,7 @@ import { VisibilityToggleComponent } from "./visibility-toggle/visibility-toggle
 import { GoldToggleComponent } from "./gold-toggle/gold-toggle.component";
 import { StatusBadgeComponent } from "./status-badge/status-badge.component";
 import { StatusInfoModalComponent } from "@/annotate/search/status-info-modal/status-info-modal.component";
+import { KbItemBadgeComponent } from "./kb-item-badge/kb-item-badge.component";
 
 export interface ProblemDetails {
     problemId: string;
@@ -39,12 +40,15 @@ export interface ProblemDetails {
         VisibilityToggleComponent,
         GoldToggleComponent,
         StatusBadgeComponent,
+        KbItemBadgeComponent,
     ],
     templateUrl: "./problem-details.component.html",
     styleUrl: "./problem-details.component.scss",
 })
 export class ProblemDetailsComponent {
     public readonly problem = input.required<Problem>();
+    public readonly langproPrediction = input<EntailmentLabel | null>(null);
+    public readonly usedKBItems = input<KnowledgeBaseItem[]>([]);
     private problemService = inject(ProblemService);
     private authService = inject(AuthService);
     private modalService = inject(NgbModal);
@@ -54,9 +58,6 @@ export class ProblemDetailsComponent {
 
     public problemDetails = computed(() => {
         const problem = this.problem();
-        if (!problem) {
-            return null;
-        }
         return this.extractDetails(problem);
     });
 

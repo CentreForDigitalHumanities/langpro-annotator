@@ -5,101 +5,145 @@
 
 @if (problemDetails(); as details) {
     @if (hidden) {
-    <div class="alert alert-info py-2" role="alert">
-        <fa-icon [icon]="faEyeSlash" class="me-2" aria-hidden="true"></fa-icon>
-        <span i18n>
-            This problem is hidden. Only Master Annotators can see it and change its
-            visibility.
-        </span>
-    </div>
+        <div class="alert alert-info py-2" role="alert">
+            <fa-icon
+                [icon]="faEyeSlash"
+                class="me-2"
+                aria-hidden="true"
+            ></fa-icon>
+            <span i18n>
+                This problem is hidden. Only Master Annotators can see it and
+                change its visibility.
+            </span>
+        </div>
     }
 
-<div class="d-flex justify-content-between align-items-start mb-3">
-    <table class="table table-sm table-borderless">
-        <tbody>
-            <tr>
-                <td i18n>ID:</td>
-                <td>{{ details.problemId }}</td>
-            </tr>
-            <tr>
-                <td i18n>Dataset:</td>
-                <td>{{ datasetLabels[details.dataset] }}</td>
-            </tr>
-            <tr>
-                <td i18n>Entailment label:</td>
-                <td>
-                    <la-entailment-label-badge
-                        [entailmentLabel]="details.entailmentLabel"
-                    ></la-entailment-label-badge>
-                </td>
-            </tr>
-            <tr>
-                <td class="text-muted" i18n>Based on:</td>
-                @if (appMode === 'browse' && details.baseProblemId !== null) {
-                <td>
-                    <a [routerLink]="['/annotate', details.baseProblemId]">
-                        <span>{{ details.baseProblemId }}</span>
-                        <fa-icon [icon]="faArrowUpRight" class="ms-2" />
-                    </a>
-                </td>
-                } @else if (details.baseProblemId === null) {
-                <td i18n>None</td>
-                } @else {
-                <td>{{ details.baseProblemId }}</td>
+    <div class="d-flex justify-content-between align-items-start mb-3">
+        <table class="table table-sm table-borderless">
+            <tbody>
+                <tr>
+                    <td i18n>ID:</td>
+                    <td>{{ details.problemId }}</td>
+                </tr>
+                <tr>
+                    <td i18n>Dataset:</td>
+                    <td>{{ datasetLabels[details.dataset] }}</td>
+                </tr>
+                <tr>
+                    <td i18n>Entailment label:</td>
+                    <td>
+                        <la-entailment-label-badge
+                            [entailmentLabel]="details.entailmentLabel"
+                        ></la-entailment-label-badge>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="text-muted" i18n>Based on:</td>
+                    @if (
+                        appMode === "browse" && details.baseProblemId !== null
+                    ) {
+                        <td>
+                            <a
+                                [routerLink]="[
+                                    '/annotate',
+                                    details.baseProblemId,
+                                ]"
+                            >
+                                <span>{{ details.baseProblemId }}</span>
+                                <fa-icon [icon]="faArrowUpRight" class="ms-2" />
+                            </a>
+                        </td>
+                    } @else if (details.baseProblemId === null) {
+                        <td i18n>None</td>
+                    } @else {
+                        <td>{{ details.baseProblemId }}</td>
+                    }
+                </tr>
+                @if (sectionString()) {
+                    <tr>
+                        <td i18n>Section:</td>
+                        <td>{{ sectionString() }}</td>
+                    </tr>
                 }
-            </tr>
-            @if (sectionString()) {
-            <tr>
-                <td i18n>Section:</td>
-                <td>{{ sectionString() }}</td>
-            </tr>
-            } @if (details.comment) {
-            <tr>
-                <td>
-                    <span i18n>Comment:</span>
-                    <fa-icon
-                        class="ms-1"
-                        [icon]="faQuestionCircle"
-                        aria-hidden="true"
-                        ngbTooltip="Comments provided by Bill McCartney."
-                        i18n-ngbTooltip
-                    />
-                </td>
-                <td>
-                    <i>{{ details.comment }}</i>
-                </td>
-            </tr>
+                @if (details.comment) {
+                    <tr>
+                        <td>
+                            <span i18n>Comment:</span>
+                            <fa-icon
+                                class="ms-1"
+                                [icon]="faQuestionCircle"
+                                aria-hidden="true"
+                                ngbTooltip="Comments provided by Bill McCartney."
+                                i18n-ngbTooltip
+                            />
+                        </td>
+                        <td>
+                            <i>{{ details.comment }}</i>
+                        </td>
+                    </tr>
+                }
+                <tr>
+                    <td i18n>Labels:</td>
+                    <td>
+                        <la-problem-labels
+                            [problemId]="details.problemId"
+                            [labelAnnotations]="details.labelAnnotations"
+                        ></la-problem-labels>
+                    </td>
+                </tr>
+                <tr>
+                    <td i18n>LangPro prediction:</td>
+                    <td>
+                        @if (langproPrediction(); as prediction) {
+                            <la-entailment-label-badge
+                                [entailmentLabel]="prediction"
+                            />
+                        } @else {
+                            <i class="text-muted" i18n>No prediction available</i>
+                        }
+                        <div>
+                            <small class="text-muted" i18n
+                                >This will be cleared if the problem or its KB
+                                items are changed.</small
+                            >
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td i18n>Used KB items:</td>
+                    <td>
+                        <ul class="list-inline ps-0 m-0">
+                            @for (item of usedKBItems(); track $index) {
+                                <li class="list-inline-item">
+                                    <la-kb-item-badge [usedKbItem]="item" />
+                                </li>
+                            } @empty {
+                                <i class="text-muted" i18n>No used KB items</i>
+                            }
+                        </ul>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <div class="d-flex flex-column align-items-stretch gap-2">
+            <div class="position-relative">
+                <fa-icon
+                    role="button"
+                    class="position-absolute end-100 top-50 translate-middle"
+                    size="sm"
+                    [icon]="faCircleInfo"
+                    (click)="showStatusInfoModal()"
+                    title="Show status info"
+                    i18n-title
+                />
+                <la-status-badge [status]="status" />
+            </div>
+            @if (currentUser?.canChangeProblemStatus) {
+                <la-gold-toggle [problem]="problem()" />
             }
-            <tr>
-                <td i18n>Labels:</td>
-                <td>
-                    <la-problem-labels
-                        [problemId]="details.problemId"
-                        [labelAnnotations]="details.labelAnnotations"
-                    ></la-problem-labels>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <div class="d-flex flex-column align-items-stretch gap-2">
-        <div class="position-relative">
-            <fa-icon
-                role="button"
-                class="position-absolute end-100 top-50 translate-middle"
-                size="sm"
-                [icon]="faCircleInfo"
-                (click)="showStatusInfoModal()"
-                title="Show status info"
-                i18n-title
-            />
-            <la-status-badge [status]="status" />
+            @if (currentUser?.canChangeProblemVisibility) {
+                <la-visibility-toggle [problem]="problem()" />
+            }
         </div>
-        @if (currentUser?.canChangeProblemStatus) {
-        <la-gold-toggle [problem]="problem()" />
-        }
-        @if (currentUser?.canChangeProblemVisibility) {
-        <la-visibility-toggle [problem]="problem()" />
-        }
     </div>
-</div>
 }

@@ -11,7 +11,7 @@ import {
 import { PremisesFormComponent } from "./premises-form/premises-form.component";
 import { KnowledgeBaseFormComponent } from "./knowledge-base-form/knowledge-base-form.component";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { EntailmentLabel, KnowledgeBaseAnnotation, KnowledgeBaseRelationship, Problem } from "../../types";
+import { EntailmentLabel, KnowledgeBaseAnnotation, KnowledgeBaseRelationship, Problem, KnowledgeBaseItem } from "../../types";
 import { faCheck, faExclamationCircle, faFloppyDisk, faHourglass, faTrash, faTree } from "@fortawesome/free-solid-svg-icons";
 import { ProblemDetailsComponent } from "./problem-details/problem-details.component";
 import { map, merge, Subject, takeUntil } from "rxjs";
@@ -23,6 +23,7 @@ import { ToastService } from "@/services/toast.service";
 import { AuthService } from "@/services/auth.service";
 import { IconButtonComponent } from "@/shared/icon-button/icon-button.component";
 import { LangProPredictionComponent } from "./langpro-prediction/langpro-prediction.component";
+import { KbItemBadgeComponent } from "./problem-details/kb-item-badge/kb-item-badge.component";
 
 export type ParseInputForm = FormGroup<{
     id: FormControl<number | null>;
@@ -55,7 +56,8 @@ export type ParseInput = ReturnType<ParseInputForm["getRawValue"]>;
         ProblemDetailsComponent,
         FontAwesomeModule,
         IconButtonComponent,
-        LangProPredictionComponent
+        LangProPredictionComponent,
+        KbItemBadgeComponent,
     ],
     templateUrl: "./annotation-input.component.html",
     styleUrl: "./annotation-input.component.scss",
@@ -70,6 +72,7 @@ export class AnnotationInputComponent implements OnInit {
     private authService = inject(AuthService);
 
     public form: ParseInputForm | null = null;
+    public usedKBItems: KnowledgeBaseItem[] = [];
 
     private formDestroy$ = new Subject<void>();
 
@@ -127,16 +130,23 @@ export class AnnotationInputComponent implements OnInit {
             this.router.navigate(["/", "annotate", response.id]);
         });
 
-        // Update the form with LangPro's prediction after a new parse result.
+        // Update the form with LangPro's prediction after a new parse result and set the used KB items.
         this.parseService.parse$.pipe(
             takeUntilDestroyed(this.destroyRef)
         ).subscribe((parsedData) => {
-            const incoming = parsedData?.data?.langpro_prediction ?? null;
+            const {
+                langpro_prediction: langProPrediction,
+                used_kb_items: usedKBItems
+            } = parsedData?.data ?? {};
+
+            const incoming = langProPrediction ?? null;
             const current = this.form?.controls.langproPrediction.value ?? null;
             if (incoming && incoming !== current) {
                 this.form?.controls.langproPrediction.setValue(incoming);
                 this.form?.markAsDirty();
             }
+
+            this.usedKBItems = usedKBItems ?? [];
         });
     }
 

@@ -39,6 +39,33 @@
                                     >This will be cleared if the problem or its
                                     KB items are changed.</small
                                 >
+                                <p class="h6 fw-bold p-0 m-0 mt-2 mb-1" i18n>
+                                    Used KB items:
+                                </p>
+                                @if (inProgress) {
+                                    <div
+                                        class="spinner-border spinner-border-sm text-secondary"
+                                        role="status"
+                                    >
+                                        <span class="visually-hidden" i18n
+                                            >Loading used knowledge base
+                                            items...</span
+                                        >
+                                    </div>
+                                } @else {
+                                    <ul class="list-inline ps-0">
+                                        @for (
+                                            item of usedKBItems;
+                                            track $index
+                                        ) {
+                                            <li class="list-inline-item">
+                                                <la-kb-item-badge
+                                                    [usedKbItem]="item"
+                                                />
+                                            </li>
+                                        }
+                                    </ul>
+                                }
                             </div>
                         </div>
                     </div>

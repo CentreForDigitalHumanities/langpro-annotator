@@ -114,3 +114,35 @@ class Problem(models.Model):
 
     def __str__(self):
         return f"Problem {self.pk} [{self.status}] ({self.get_dataset_display()}): {self.get_entailment_label_display()}"  # type: ignore
+
+
+class KnowledgeBaseItem(models.Model):
+    class Relationship(models.TextChoices):
+        EQUAL = "equal", "Equal"
+        SUBSET = "subset", "Subset"
+        DISJOINT = "disjoint", "Disjoint"
+
+    entity1 = models.CharField(max_length=255)
+
+    entity2 = models.CharField(max_length=255)
+
+    relationship = models.CharField(
+        max_length=255,
+        choices=Relationship.choices,
+        default=Relationship.EQUAL,
+    )
+
+    class Meta:
+        abstract = True
+
+
+class UsedKnowledgeBaseItem(KnowledgeBaseItem):
+    """
+    Represents a knowledge base item that was used in the proof of a problem.
+    """
+
+    problem = models.ForeignKey(
+        Problem,
+        on_delete=models.CASCADE,
+        related_name="used_kb_items",
+    )

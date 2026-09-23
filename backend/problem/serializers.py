@@ -7,8 +7,18 @@ from annotation.models import (
     KnowledgeBaseAnnotation,
 )
 from problem.services import FracasData, SNLIData, SickData
-from problem.models import Problem, Sentence
+from problem.models import Problem, Sentence, UsedKnowledgeBaseItem
 from user.models import User
+
+
+class UsedKnowledgeBaseItemSerializer(serializers.ModelSerializer):
+    """
+    Serializer for used knowledge base items in a problem.
+    """
+
+    class Meta:
+        model = UsedKnowledgeBaseItem
+        fields = ["id", "entity1", "entity2", "relationship"]
 
 
 class ProblemSerializer(serializers.ModelSerializer):
@@ -23,6 +33,9 @@ class ProblemSerializer(serializers.ModelSerializer):
     extraData = serializers.SerializerMethodField()
     status = serializers.CharField(read_only=True)
     langproPrediction = serializers.CharField(source="langpro_prediction")
+    usedKbItems = UsedKnowledgeBaseItemSerializer(
+        many=True, source="used_kb_items", read_only=True
+    )
 
     class Meta:
         model = Problem
@@ -38,6 +51,7 @@ class ProblemSerializer(serializers.ModelSerializer):
             "gold",
             "status",
             "langproPrediction",
+            "usedKbItems",
         ]
 
     def get_premises(self, problem: Problem):
@@ -84,6 +98,7 @@ class ProblemInputSerializer(serializers.Serializer):
 
     base = serializers.IntegerField(required=False, allow_null=True)
     langproPrediction = serializers.CharField(allow_null=True)
+    usedKbItems = UsedKnowledgeBaseItemSerializer(many=True, required=False)
 
     def validate_id(self, value):
         """Validate that the Problem ID, if provided, exists."""
@@ -194,7 +209,7 @@ class ProblemInputSerializer(serializers.Serializer):
     ) -> Problem:
         """
         Updates core Problem fields (premises, hypothesis, base,
-        langproPrediction) from validated input data.
+        langproPrediction, usedKbItems) from validated input data.
         """
         instance.hypothesis = Sentence.objects.get_or_create(
             text=validated_data["hypothesis"],
@@ -222,6 +237,12 @@ class ProblemInputSerializer(serializers.Serializer):
             for premise in validated_data["premises"]
         ]
         instance.premises.set(premise_sentences)
+
+        used_kb_items = validated_data.get("usedKbItems", [])
+        instance.used_kb_items.all().delete()  # type: ignore
+        UsedKnowledgeBaseItem.objects.bulk_create(
+            UsedKnowledgeBaseItem(problem=instance, **item) for item in used_kb_items
+        )
 
         return instance
 

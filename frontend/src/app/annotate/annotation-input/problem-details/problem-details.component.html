@@ -92,21 +92,27 @@
                     </td>
                 </tr>
                 <tr>
-                    <td i18n>LangPro prediction:</td>
+                    <td>
+                        <span i18n>LangPro prediction:</span>
+                        <fa-icon
+
+                            class="ms-1"
+                            [icon]="faCircleInfo"
+                            aria-hidden="true"
+                            ngbTooltip="LangPro's prediction of the entailment label for this problem. This will be cleared if the problem or any of its knowledge base items are changed."
+                            i18n-ngbTooltip
+                        />
+                    </td>
                     <td>
                         @if (langproPrediction(); as prediction) {
                             <la-entailment-label-badge
                                 [entailmentLabel]="prediction"
                             />
                         } @else {
-                            <i class="text-muted" i18n>No prediction available</i>
-                        }
-                        <div>
-                            <small class="text-muted" i18n
-                                >This will be cleared if the problem or its KB
-                                items are changed.</small
+                            <i class="text-muted" i18n
+                                >No prediction available</i
                             >
-                        </div>
+                        }
                     </td>
                 </tr>
                 <tr>

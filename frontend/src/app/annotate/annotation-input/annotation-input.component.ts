@@ -11,7 +11,7 @@ import {
 import { PremisesFormComponent } from "./premises-form/premises-form.component";
 import { KnowledgeBaseFormComponent } from "./knowledge-base-form/knowledge-base-form.component";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { EntailmentLabel, KnowledgeBaseAnnotation, KnowledgeBaseRelationship, Problem, KnowledgeBaseItem } from "../../types";
+import { EntailmentLabel, KnowledgeBaseAnnotation, KnowledgeBaseRelationship, Problem, KnowledgeBaseItem, ParseResponseData } from "../../types";
 import { faCheck, faExclamationCircle, faFloppyDisk, faHourglass, faTrash, faTree } from "@fortawesome/free-solid-svg-icons";
 import { ProblemDetailsComponent } from "./problem-details/problem-details.component";
 import { filter, map, merge, Subject, takeUntil } from "rxjs";
@@ -126,37 +126,11 @@ export class AnnotationInputComponent implements OnInit {
             this.router.navigate(["/", "annotate", response.id]);
         });
 
-        // Update the form with LangPro's prediction after a new parse result and set the used KB items.
         this.parseService.parse$.pipe(
             map(result => result?.data),
             filter(parsedData => !!parsedData),
             takeUntilDestroyed(this.destroyRef)
-        ).subscribe((parsedData) => {
-            const {
-                langpro_prediction: langProPrediction,
-                used_kb_items: usedKBItems
-            } = parsedData;
-
-            let dataChanged = false;
-
-            const incomingPrediction = langProPrediction ?? null;
-            const currentPrediction = this.form?.controls.langproPrediction.value ?? null;
-            if (incomingPrediction && incomingPrediction !== currentPrediction) {
-                this.form?.controls.langproPrediction.setValue(incomingPrediction);
-                dataChanged = true;
-            }
-
-            const incomingUsedKbItems = usedKBItems ?? [];
-            const currentUsedKbItems = this.form?.controls.usedKbItems.value ?? [];
-            if (JSON.stringify(incomingUsedKbItems) !== JSON.stringify(currentUsedKbItems)) {
-                this.form?.controls.usedKbItems.setValue(incomingUsedKbItems);
-                dataChanged = true;
-            }
-
-            if (dataChanged) {
-                this.form?.markAsDirty();
-            }
-        });
+        ).subscribe((parsedData) => this.handleNewParseResult(parsedData));
     }
 
     public startParse(): void {
@@ -175,6 +149,37 @@ export class AnnotationInputComponent implements OnInit {
         const input = this.form.getRawValue();
         this.problemService.submit$.next(input);
         this.form.markAsPristine();
+    }
+
+
+    /**
+     * Update the form with LangPro's prediction after a new parse result and set the used KB items.
+     */
+    private handleNewParseResult(parseResponseData: ParseResponseData): void {
+        const {
+            langpro_prediction: langProPrediction,
+            used_kb_items: usedKBItems
+        } = parseResponseData;
+
+        let dataChanged = false;
+
+        const incomingPrediction = langProPrediction ?? null;
+        const currentPrediction = this.form?.controls.langproPrediction.value ?? null;
+        if (incomingPrediction && incomingPrediction !== currentPrediction) {
+            this.form?.controls.langproPrediction.setValue(incomingPrediction);
+            dataChanged = true;
+        }
+
+        const incomingUsedKbItems = usedKBItems ?? [];
+        const currentUsedKbItems = this.form?.controls.usedKbItems.value ?? [];
+        if (JSON.stringify(incomingUsedKbItems) !== JSON.stringify(currentUsedKbItems)) {
+            this.form?.controls.usedKbItems.setValue(incomingUsedKbItems);
+            dataChanged = true;
+        }
+
+        if (dataChanged) {
+            this.form?.markAsDirty();
+        }
     }
 
     private navigateToNewProblem(problem: Problem | null): void {

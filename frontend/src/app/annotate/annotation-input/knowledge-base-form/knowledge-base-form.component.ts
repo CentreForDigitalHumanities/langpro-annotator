@@ -12,9 +12,9 @@ import { map } from "rxjs";
 
 
 const relationshipDisplayMapping: Record<KnowledgeBaseRelationship, string> = {
-    equal: "is equal to",
-    subset: "is a subset of",
-    disjoint: "is disjoint from",
+    equal: "(≡) is equal to",
+    subset: "(⊑) is a subset of",
+    disjoint: "(∥) is disjoint from",
 };
 
 @Component({

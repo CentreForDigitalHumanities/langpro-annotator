@@ -40,11 +40,13 @@ export enum KnowledgeBaseRelationship {
     DISJOINT = "disjoint",
 }
 
-export interface KnowledgeBaseAnnotation extends BaseAnnotation {
+export interface KnowledgeBaseItem {
     entity1: string;
     relationship: KnowledgeBaseRelationship;
     entity2: string;
 }
+
+export interface KnowledgeBaseAnnotation extends BaseAnnotation, KnowledgeBaseItem { }
 
 export interface Label {
     id: number;
@@ -182,6 +184,7 @@ export type ParseResponseData = {
         contradiction: NLTKTree,
     };
     langpro_prediction: EntailmentLabel;
+    used_kb_items: KnowledgeBaseItem[];
 };
 
 export type ParseResponse = {

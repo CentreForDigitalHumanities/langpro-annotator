@@ -173,6 +173,7 @@ export class ProblemService {
                 status: ProblemStatus.BRONZE,
                 extraData: null,
                 langproPrediction: existingProblem?.langproPrediction ?? null,
+                usedKbItems: existingProblem?.usedKbItems ?? [],
                 kbAnnotations: existingProblem?.kbAnnotations.map(annotation => ({
                     ...annotation, id: null,
                 })) ?? [],

@@ -63,7 +63,8 @@ describe("ProblemService", () => {
                     hidden: false,
                     gold: false,
                     status: ProblemStatus.BRONZE,
-                    langproPrediction: null
+                    langproPrediction: null,
+                    usedKbItems: []
                 },
                 index: 1,
                 total: 1,
@@ -143,7 +144,8 @@ describe("ProblemService", () => {
                 premises: ["a"],
                 hypothesis: "b",
                 kbItems: [],
-                langproPrediction: null
+                langproPrediction: null,
+                usedKbItems: []
             };
             const mockResponse: SaveProblemResponse = { id: 1, error: null };
 
@@ -167,7 +169,8 @@ describe("ProblemService", () => {
                 premises: ["c"],
                 hypothesis: "d",
                 kbItems: [],
-                langproPrediction: null
+                langproPrediction: null,
+                usedKbItems: []
             };
 
             service.saveProblem$.subscribe(response => {

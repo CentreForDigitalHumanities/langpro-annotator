@@ -43,6 +43,7 @@ describe("AnnotationCommentsComponent", () => {
             kbAnnotations,
             labelAnnotations,
             langproPrediction: null,
+            usedKbItems: [],
         };
 
         TestBed.overrideProvider(ProblemService, { useValue: { problem$: of(mockProblem) } });

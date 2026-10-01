@@ -238,13 +238,19 @@ class ProblemInputSerializer(serializers.Serializer):
         ]
         instance.premises.set(premise_sentences)
 
+        self._update_used_kb_items(instance, validated_data)
+
+        return instance
+
+    def _update_used_kb_items(self, instance: Problem, validated_data: dict) -> None:
+        """
+        Updates the used knowledge base items for a problem instance.
+        """
         used_kb_items = validated_data.get("usedKbItems", [])
         instance.used_kb_items.all().delete()  # type: ignore
         UsedKnowledgeBaseItem.objects.bulk_create(
             UsedKnowledgeBaseItem(problem=instance, **item) for item in used_kb_items
         )
-
-        return instance
 
 
 class GoldInputSerializer(serializers.Serializer):

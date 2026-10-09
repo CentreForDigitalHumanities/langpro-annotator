@@ -85,3 +85,49 @@ def test_status_serialized(db, non_user_problem):
     serializer = ProblemSerializer(non_user_problem)
     assert serializer.data["status"] == Problem.Status.BRONZE
     assert serializer.data["gold"] is False
+
+
+@pytest.mark.django_db
+def test_problem_sentence_usages_serialized(
+    db, user_problem, non_user_problem, premise_sentence
+):
+    """Sentence usages include the problem dataset and their role."""
+    from problem.serializers import ProblemSerializer
+
+    hypothesis_problem = Problem.objects.create(
+        dataset=Problem.Dataset.FRACAS,
+        hypothesis=premise_sentence,
+        extra_data={},
+    )
+
+    data = ProblemSerializer(non_user_problem).data
+
+    assert data["premiseProblems"][0] == [
+        {
+            "id": user_problem.pk,
+            "dataset": Problem.Dataset.USER,
+            "isHypothesis": False,
+        },
+        {
+            "id": non_user_problem.pk,
+            "dataset": Problem.Dataset.SICK,
+            "isHypothesis": False,
+        },
+        {
+            "id": hypothesis_problem.pk,
+            "dataset": Problem.Dataset.FRACAS,
+            "isHypothesis": True,
+        },
+    ]
+    assert data["hypothesisProblems"] == [
+        {
+            "id": user_problem.pk,
+            "dataset": Problem.Dataset.USER,
+            "isHypothesis": True,
+        },
+        {
+            "id": non_user_problem.pk,
+            "dataset": Problem.Dataset.SICK,
+            "isHypothesis": True,
+        },
+    ]

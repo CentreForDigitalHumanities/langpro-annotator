@@ -63,9 +63,9 @@ interface ProblemBase {
     id: number | null;
     base: number | null;
     premises: string[];
-    premiseProblemIds?: number[][];
+    premiseProblems?: ProblemUsage[][];
     hypothesis: string | null;
-    hypothesisProblemIds?: number[];
+    hypothesisProblems?: ProblemUsage[];
     entailmentLabel: EntailmentLabel;
     hidden: boolean;
     gold: boolean;
@@ -74,6 +74,12 @@ interface ProblemBase {
     labelAnnotations: LabelAnnotation[];
     langproPrediction: EntailmentLabel | null;
     usedKbItems: KnowledgeBaseItem[];
+}
+
+export interface ProblemUsage {
+    id: number;
+    dataset: Dataset;
+    isHypothesis: boolean;
 }
 
 interface SickProblem extends ProblemBase {

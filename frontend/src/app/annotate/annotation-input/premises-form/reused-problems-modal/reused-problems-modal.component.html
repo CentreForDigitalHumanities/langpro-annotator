@@ -15,17 +15,37 @@
             >" is used in the following problems:
         </p>
     }
-    <ul class="list-group">
-        @for (problemId of problemIds; track problemId) {
-            <li class="list-group-item">
-                <a
-                    [routerLink]="['/annotate', problemId]"
-                    (click)="activeModal.dismiss()"
-                >
-                    <ng-container i18n>Problem ID</ng-container>:
-                    {{ problemId }}
-                </a>
-            </li>
-        }
-    </ul>
+    <div class="table-responsive">
+        <table class="table table-striped align-middle mb-0">
+            <thead>
+                <tr>
+                    <th scope="col" i18n>Problem ID</th>
+                    <th scope="col" i18n>Dataset</th>
+                    <th scope="col" i18n>Used as</th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (problem of problems; track problem.id) {
+                    <tr>
+                        <td>
+                            <a
+                                [routerLink]="['/annotate', problem.id]"
+                                (click)="activeModal.dismiss()"
+                            >
+                                {{ problem.id }}
+                            </a>
+                        </td>
+                        <td>{{ problem.dataset }}</td>
+                        <td>
+                            @if (problem.isHypothesis) {
+                                <span i18n>Hypothesis</span>
+                            } @else {
+                                <span i18n>Premise</span>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
 </div>

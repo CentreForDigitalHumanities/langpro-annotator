@@ -6,7 +6,7 @@ import { faPlus, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { ParseInputForm } from "../annotation-input.component";
 import { ProblemService } from "@/services/problem.service";
 import { IconButtonComponent } from "@/shared/icon-button/icon-button.component";
-import { Problem } from "@/types";
+import { Problem, ProblemUsage } from "@/types";
 import { NgbModal, NgbModalRef } from "@ng-bootstrap/ng-bootstrap";
 import { ReusedProblemsModalComponent } from "./reused-problems-modal/reused-problems-modal.component";
 
@@ -36,7 +36,7 @@ export class PremisesFormComponent implements OnDestroy {
 
     private modalRef: NgbModalRef | null = null;
 
-    public showReusedProblems(problemIds: number[], sentence: string): void {
+    public showReusedProblems(problems: ProblemUsage[], sentence: string): void {
         this.modalRef = this.modalService.open(ReusedProblemsModalComponent, {
             centered: true,
             size: "md",
@@ -44,7 +44,7 @@ export class PremisesFormComponent implements OnDestroy {
             fullscreen: "sm-down",
         });
 
-        this.modalRef.componentInstance.problemIds = problemIds;
+        this.modalRef.componentInstance.problems = problems;
         this.modalRef.componentInstance.sentence = sentence;
 
         this.modalRef.result.finally(() => {

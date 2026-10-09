@@ -2,7 +2,7 @@
 @let appMode = appMode$ | async;
 @let editingOrAdding = appMode === "add" || appMode === "edit";
 @let currentProblem = problem();
-@let hypothesisProblemIds = currentProblem?.hypothesisProblemIds ?? [];
+@let hypothesisProblems = currentProblem?.hypothesisProblems ?? [];
 
 <form [formGroup]="form()">
     <fieldset>
@@ -54,19 +54,19 @@
                         }
                     </div>
                     @if (appMode === "browse") {
-                        @let problemIds =
-                            currentProblem?.premiseProblemIds?.[i] ?? [];
-                        @if (problemIds.length > 1) {
+                        @let problems =
+                            currentProblem?.premiseProblems?.[i] ?? [];
+                        @if (problems.length > 1) {
                             <button
                                 type="button"
                                 class="btn btn-outline-secondary btn-sm rounded-circle px-2 py-0"
                                 [attr.aria-label]="
-                                    'Used by ' + problemIds.length + ' problems'
+                                    'Used by ' + problems.length + ' problems'
                                 "
                                 i18n-aria-label
-                                (click)="showReusedProblems(problemIds, control.value)"
+                                (click)="showReusedProblems(problems, control.value)"
                             >
-                                {{ problemIds.length }}
+                                {{ problems.length }}
                             </button>
                         }
                     }
@@ -109,18 +109,18 @@
             @if (
                 appMode === "browse" &&
                 currentProblem &&
-                hypothesisProblemIds.length > 1
+                hypothesisProblems.length > 1
             ) {
                 <button
                     type="button"
                     class="btn btn-outline-secondary btn-sm rounded-circle px-2 py-0"
                     [attr.aria-label]="
-                        'Used by ' + hypothesisProblemIds.length + ' problems'
+                        'Used by ' + hypothesisProblems.length + ' problems'
                     "
                     i18n-aria-label
-                    (click)="showReusedProblems(hypothesisProblemIds, hypothesisControl.value)"
+                    (click)="showReusedProblems(hypothesisProblems, hypothesisControl.value)"
                 >
-                    {{ hypothesisProblemIds.length }}
+                    {{ hypothesisProblems.length }}
                 </button>
             }
         </div>

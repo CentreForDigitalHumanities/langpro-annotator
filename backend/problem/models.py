@@ -1,11 +1,22 @@
 from django.db import models
-from django.db.models import QuerySet
+from django.db.models import QuerySet, Q
 
 from langpro_annotator.logger import logger
 
 
 class Sentence(models.Model):
     text = models.TextField()
+
+    def get_problem_ids(self) -> list[int]:
+        """
+        Get the IDs of all problems that use this sentence as a premise or hypothesis.
+        """
+        return list(
+            Problem.objects.filter(Q(premises=self) | Q(hypothesis=self))
+            .order_by("pk")
+            .values_list("id", flat=True)
+            .distinct()
+        )
 
     def __str__(self):
         return self.text

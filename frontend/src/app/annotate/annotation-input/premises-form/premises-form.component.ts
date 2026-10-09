@@ -46,6 +46,7 @@ export class PremisesFormComponent implements OnDestroy {
 
         this.modalRef.componentInstance.problems = problems;
         this.modalRef.componentInstance.sentence = sentence;
+        this.modalRef.componentInstance.currentlySelectedProblemId = this.problem()?.id ?? null;
 
         this.modalRef.result.finally(() => {
             this.modalRef = null;

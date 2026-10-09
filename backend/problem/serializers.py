@@ -29,9 +29,9 @@ class ProblemSerializer(serializers.ModelSerializer):
 
     id = serializers.IntegerField(read_only=True)
     premises = serializers.SerializerMethodField()
-    premiseProblemIds = serializers.SerializerMethodField()
+    premiseProblems = serializers.SerializerMethodField()
     hypothesis = serializers.SerializerMethodField()
-    hypothesisProblemIds = serializers.SerializerMethodField()
+    hypothesisProblems = serializers.SerializerMethodField()
     entailmentLabel = serializers.CharField(source="entailment_label")
     extraData = serializers.SerializerMethodField()
     status = serializers.CharField(read_only=True)
@@ -46,9 +46,9 @@ class ProblemSerializer(serializers.ModelSerializer):
             "id",
             "dataset",
             "premises",
-            "premiseProblemIds",
+            "premiseProblems",
             "hypothesis",
-            "hypothesisProblemIds",
+            "hypothesisProblems",
             "entailmentLabel",
             "extraData",
             "base",
@@ -67,13 +67,14 @@ class ProblemSerializer(serializers.ModelSerializer):
         """Get hypothesis text."""
         return problem.hypothesis.text
 
-    def get_premiseProblemIds(self, problem: Problem):
+    def get_premiseProblems(self, problem: Problem):
         return [
-            premise.get_problem_ids() for premise in problem.premises.all()
+            premise.get_problem_usages()
+            for premise in problem.premises.all()
         ]
 
-    def get_hypothesisProblemIds(self, problem: Problem):
-        return problem.hypothesis.get_problem_ids()
+    def get_hypothesisProblems(self, problem: Problem):
+        return problem.hypothesis.get_problem_usages()
 
     def get_extraData(self, problem: Problem):
         """Get dataset-specific extra data."""

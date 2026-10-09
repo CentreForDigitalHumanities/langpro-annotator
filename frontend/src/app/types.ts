@@ -108,6 +108,7 @@ export interface ProblemResponse extends BaseResponse {
     next: number | null;
     last: number | null;
     total: number;
+    random: number | null;
 }
 
 export interface SaveProblemResponse extends BaseResponse {

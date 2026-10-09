@@ -5,7 +5,9 @@
         <div class="responsive-button-grid">
             <a
                 class="btn btn-outline-primary btn-sm"
-                [class.disabled]="problemResponse?.problem?.id === problemResponse?.first"
+                [class.disabled]="
+                    problemResponse?.problem?.id === problemResponse?.first
+                "
                 [routerLink]="['/', 'annotate', problemResponse?.first]"
                 queryParamsHandling="preserve"
                 aria-labelledby="label-first"
@@ -43,15 +45,33 @@
 
         <div class="px-2 text-center flex-grow-1">
             @if (problemResponse) {
-            <span class="small" i18n>
-                {{ problemResponse?.index ?? "-" }}
-            </span>
-            <hr class="my-1">
-            <span class="small" i18n>{{ problemResponse.total }}</span>
+                <span class="small" i18n>
+                    {{ problemResponse?.index ?? "-" }}
+                </span>
+                <hr class="my-1" />
+                <span class="small" i18n>{{ problemResponse.total }}</span>
             }
         </div>
 
         <div class="responsive-button-grid">
+            <a
+                class="btn btn-outline-primary btn-sm"
+                [class.disabled]="problemResponse?.random === null"
+                [routerLink]="['/', 'annotate', problemResponse?.random]"
+                queryParamsHandling="preserve"
+                aria-labelledby="label-random"
+                title="Random problem"
+                title-i18n
+            >
+                <span id="label-random" class="visually-hidden" i18n
+                    >Random problem</span
+                >
+                <fa-icon
+                    [icon]="faQuestion"
+                    aria-hidden="true"
+                    focusable="false"
+                />
+            </a>
             <a
                 class="btn btn-outline-primary btn-sm"
                 [class.disabled]="problemResponse?.next === null"
@@ -70,7 +90,9 @@
             </a>
             <a
                 class="btn btn-outline-primary btn-sm"
-                [class.disabled]="problemResponse?.problem?.id === problemResponse?.last"
+                [class.disabled]="
+                    problemResponse?.problem?.id === problemResponse?.last
+                "
                 [routerLink]="['/', 'annotate', problemResponse?.last]"
                 queryParamsHandling="preserve"
                 aria-labelledby="label-last"
@@ -86,4 +108,34 @@
             </a>
         </div>
     </div>
+    <form class="mt-2 mb-3" (submit)="jumpToId($event)">
+        <label for="jump-to-id" class="form-label" i18n> Jump to ID </label>
+        <div class="input-group input-group-sm">
+            <input
+                id="jump-to-id"
+                type="number"
+                class="form-control"
+                [formControl]="id"
+                min="1"
+                step="1"
+                required
+                placeholder="Problem ID"
+                aria-label="Problem ID"
+                i18n-placeholder
+                i18n-aria-label
+            />
+            <button
+                type="submit"
+                class="btn btn-outline-primary"
+                i18n
+            >
+                Go
+            </button>
+        </div>
+        @if (id.invalid && id.dirty) {
+            <p class="text-danger small mt-1" i18n>
+                Please enter a valid problem ID.
+            </p>
+        }
+    </form>
 </div>

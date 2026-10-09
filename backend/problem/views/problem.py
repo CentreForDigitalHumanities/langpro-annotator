@@ -5,7 +5,6 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework.status import (
     HTTP_201_CREATED,
     HTTP_200_OK,
-    HTTP_400_BAD_REQUEST,
     HTTP_401_UNAUTHORIZED,
     HTTP_403_FORBIDDEN,
 )
@@ -152,6 +151,7 @@ class ProblemView(ModelViewSet):
         if problem is None:
             problem = qs.first()
 
+        random_problem = qs.order_by("?").first()
         problem_index = problem.get_index(qs) if problem else None
         related_problem_ids = get_related_problem_ids(
             qs, problem.pk if problem else None
@@ -189,6 +189,7 @@ class ProblemView(ModelViewSet):
                 "next": related_problem_ids.next,
                 "last": related_problem_ids.last,
                 "total": related_problem_ids.total,
+                "random": random_problem.pk if random_problem else None,
             },
             status=HTTP_200_OK,
         )

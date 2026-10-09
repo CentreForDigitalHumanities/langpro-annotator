@@ -108,7 +108,7 @@
             </a>
         </div>
     </div>
-    <form class="mt-2 mb-3">
+    <form class="mt-2 mb-3" (submit)="jumpToId($event)">
         <label for="jump-to-id" class="form-label" i18n> Jump to ID </label>
         <div class="input-group input-group-sm">
             <input
@@ -125,13 +125,17 @@
                 i18n-aria-label
             />
             <button
-                type="button"
+                type="submit"
                 class="btn btn-outline-primary"
-                (click)="jumpToId()"
                 i18n
             >
                 Go
             </button>
         </div>
+        @if (id.invalid && id.dirty) {
+            <p class="text-danger small mt-1" i18n>
+                Please enter a valid problem ID.
+            </p>
+        }
     </form>
 </div>

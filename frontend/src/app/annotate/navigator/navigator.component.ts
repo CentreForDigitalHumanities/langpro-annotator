@@ -1,6 +1,6 @@
 import { Component, inject } from "@angular/core";
 import { FontAwesomeModule } from "@fortawesome/angular-fontawesome";
-import { FormControl, ReactiveFormsModule } from "@angular/forms";
+import { FormControl, ReactiveFormsModule, Validators } from "@angular/forms";
 import {
     faAngleLeft,
     faAngleRight,
@@ -25,7 +25,10 @@ export class NavigatorComponent {
 
     public problemResponse$ = this.problemService.problemResponse$;
 
-    public id = new FormControl<number | null>(null, { nonNullable: true });
+    public id = new FormControl<number | null>(null, {
+        nonNullable: true, validators: [
+            Validators.min(1),
+    ] });
 
     public faAnglesLeft = faAnglesLeft;
     public faAnglesRight = faAnglesRight;
@@ -33,12 +36,13 @@ export class NavigatorComponent {
     public faAngleRight = faAngleRight;
     public faQuestion = faQuestion;
 
-    public jumpToId(): void {
-        const problemId = this.id.value;
-        if (!problemId || !Number.isSafeInteger(problemId) || problemId < 1) {
+    public jumpToId(event: Event): void {
+        event.preventDefault();
+        this.id.updateValueAndValidity();
+        if (this.id.invalid) {
             return;
         }
-
+        const problemId = this.id.value;
         void this.router.navigate(["/", "annotate", problemId]);
     }
 }

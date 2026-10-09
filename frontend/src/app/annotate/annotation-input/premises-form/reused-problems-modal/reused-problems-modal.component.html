@@ -14,9 +14,10 @@
             The sentence "<strong>{{ sentence }}</strong
             >" is used in the following problems:
         </p>
+        <p>Click on one of the problem IDs below to view the problem.</p>
     }
     <div class="table-responsive">
-        <table class="table table-striped align-middle mb-0">
+        <table class="table align-middle mb-0">
             <thead>
                 <tr>
                     <th scope="col" i18n>Problem ID</th>
@@ -26,16 +27,20 @@
             </thead>
             <tbody>
                 @for (problem of problems; track problem.id) {
-                    <tr>
+                    @let current = problem.id === currentlySelectedProblemId;
+                    <tr [class.table-active]="current">
                         <td>
                             <a
                                 [routerLink]="['/annotate', problem.id]"
                                 (click)="activeModal.dismiss()"
                             >
-                                {{ problem.id }}
+                                ID: {{ problem.id }}
+                                @if (current) {
+                                    <span i18n>(Current)</span>
+                                }
                             </a>
                         </td>
-                        <td>{{ problem.dataset }}</td>
+                        <td>{{ datasetLabels[problem.dataset] }}</td>
                         <td>
                             @if (problem.isHypothesis) {
                                 <span i18n>Hypothesis</span>

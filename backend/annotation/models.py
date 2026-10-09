@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.db import models
 
-from problem.models import Problem, Sentence
+from problem.models import KnowledgeBaseItem, Problem, Sentence
 
 
 class AnnotationSession(models.Model):
@@ -104,21 +104,8 @@ class BaseAnnotation(models.Model):
         return self.removed_at is None
 
 
-class KnowledgeBaseAnnotation(BaseAnnotation):
-    class Relationship(models.TextChoices):
-        EQUAL = "equal", "Equal"
-        SUBSET = "subset", "Subset"
-        DISJOINT = "disjoint", "Disjoint"
-
-    entity1 = models.CharField(max_length=255)
-
-    entity2 = models.CharField(max_length=255)
-
-    relationship = models.CharField(
-        max_length=255,
-        choices=Relationship.choices,
-        default=Relationship.EQUAL,
-    )
+class KnowledgeBaseAnnotation(KnowledgeBaseItem, BaseAnnotation):
+    pass
 
     def __str__(self):
         status = "active" if self.is_active() else f"removed at {self.removed_at}"

@@ -11,10 +11,10 @@ import {
 import { PremisesFormComponent } from "./premises-form/premises-form.component";
 import { KnowledgeBaseFormComponent } from "./knowledge-base-form/knowledge-base-form.component";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { EntailmentLabel, KnowledgeBaseAnnotation, KnowledgeBaseRelationship, Problem, KnowledgeBaseItem } from "../../types";
+import { EntailmentLabel, KnowledgeBaseAnnotation, KnowledgeBaseRelationship, Problem, KnowledgeBaseItem, ParseResponseData } from "../../types";
 import { faCheck, faExclamationCircle, faFloppyDisk, faHourglass, faTrash, faTree } from "@fortawesome/free-solid-svg-icons";
 import { ProblemDetailsComponent } from "./problem-details/problem-details.component";
-import { map, merge, Subject, takeUntil } from "rxjs";
+import { filter, map, merge, Subject, takeUntil } from "rxjs";
 import { ActivatedRoute, Router } from "@angular/router";
 import { ProblemService } from "@/services/problem.service";
 import { ParseService } from "@/services/parse.service";
@@ -22,8 +22,6 @@ import { FontAwesomeModule } from "@fortawesome/angular-fontawesome";
 import { ToastService } from "@/services/toast.service";
 import { AuthService } from "@/services/auth.service";
 import { IconButtonComponent } from "@/shared/icon-button/icon-button.component";
-import { LangProPredictionComponent } from "./langpro-prediction/langpro-prediction.component";
-import { KbItemBadgeComponent } from "./problem-details/kb-item-badge/kb-item-badge.component";
 
 export type ParseInputForm = FormGroup<{
     id: FormControl<number | null>;
@@ -32,6 +30,7 @@ export type ParseInputForm = FormGroup<{
     hypothesis: FormControl<string>;
     kbItems: FormArray<KBItemForm>;
     langproPrediction: FormControl<EntailmentLabel | null>;
+    usedKbItems: FormControl<KnowledgeBaseItem[]>;
 }>;
 
 
@@ -56,8 +55,6 @@ export type ParseInput = ReturnType<ParseInputForm["getRawValue"]>;
         ProblemDetailsComponent,
         FontAwesomeModule,
         IconButtonComponent,
-        LangProPredictionComponent,
-        KbItemBadgeComponent,
     ],
     templateUrl: "./annotation-input.component.html",
     styleUrl: "./annotation-input.component.scss",
@@ -72,7 +69,6 @@ export class AnnotationInputComponent implements OnInit {
     private authService = inject(AuthService);
 
     public form: ParseInputForm | null = null;
-    public usedKBItems: KnowledgeBaseItem[] = [];
 
     private formDestroy$ = new Subject<void>();
 
@@ -130,24 +126,11 @@ export class AnnotationInputComponent implements OnInit {
             this.router.navigate(["/", "annotate", response.id]);
         });
 
-        // Update the form with LangPro's prediction after a new parse result and set the used KB items.
         this.parseService.parse$.pipe(
+            map(result => result?.data),
+            filter(parsedData => !!parsedData),
             takeUntilDestroyed(this.destroyRef)
-        ).subscribe((parsedData) => {
-            const {
-                langpro_prediction: langProPrediction,
-                used_kb_items: usedKBItems
-            } = parsedData?.data ?? {};
-
-            const incoming = langProPrediction ?? null;
-            const current = this.form?.controls.langproPrediction.value ?? null;
-            if (incoming && incoming !== current) {
-                this.form?.controls.langproPrediction.setValue(incoming);
-                this.form?.markAsDirty();
-            }
-
-            this.usedKBItems = usedKBItems ?? [];
-        });
+        ).subscribe((parsedData) => this.handleNewParseResult(parsedData));
     }
 
     public startParse(): void {
@@ -166,6 +149,37 @@ export class AnnotationInputComponent implements OnInit {
         const input = this.form.getRawValue();
         this.problemService.submit$.next(input);
         this.form.markAsPristine();
+    }
+
+
+    /**
+     * Update the form with LangPro's prediction after a new parse result and set the used KB items.
+     */
+    private handleNewParseResult(parseResponseData: ParseResponseData): void {
+        const {
+            langpro_prediction: langProPrediction,
+            used_kb_items: usedKBItems
+        } = parseResponseData;
+
+        let dataChanged = false;
+
+        const incomingPrediction = langProPrediction ?? null;
+        const currentPrediction = this.form?.controls.langproPrediction.value ?? null;
+        if (incomingPrediction && incomingPrediction !== currentPrediction) {
+            this.form?.controls.langproPrediction.setValue(incomingPrediction);
+            dataChanged = true;
+        }
+
+        const incomingUsedKbItems = usedKBItems ?? [];
+        const currentUsedKbItems = this.form?.controls.usedKbItems.value ?? [];
+        if (JSON.stringify(incomingUsedKbItems) !== JSON.stringify(currentUsedKbItems)) {
+            this.form?.controls.usedKbItems.setValue(incomingUsedKbItems);
+            dataChanged = true;
+        }
+
+        if (dataChanged) {
+            this.form?.markAsDirty();
+        }
     }
 
     private navigateToNewProblem(problem: Problem | null): void {
@@ -209,12 +223,15 @@ export class AnnotationInputComponent implements OnInit {
             langproPrediction: new FormControl<EntailmentLabel | null>(problem.langproPrediction, {
                 nonNullable: true
             }),
+            usedKbItems: new FormControl<KnowledgeBaseItem[]>(problem.usedKbItems ?? [], {
+                nonNullable: true
+            }),
         });
     }
 
     /**
      * Side effect: if the user changes the premises, hypothesis or KB items
-     * of a problem, the langproPrediction field is emptied.
+     * of a problem, the langproPrediction and usedKbItems fields are emptied.
      */
     private emptyLangProPredictionUponChange(form: ParseInputForm): void {
         merge(
@@ -225,7 +242,8 @@ export class AnnotationInputComponent implements OnInit {
             takeUntilDestroyed(this.destroyRef),
             takeUntil(this.formDestroy$),
         ).subscribe(() => {
-            form.controls.langproPrediction.setValue(null, { emitEvent: false });
+            form.controls.langproPrediction.setValue(null);
+            form.controls.usedKbItems.setValue([]);
         });
     }
 

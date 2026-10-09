@@ -71,6 +71,7 @@ interface ProblemBase {
     kbAnnotations: KnowledgeBaseAnnotation[];
     labelAnnotations: LabelAnnotation[];
     langproPrediction: EntailmentLabel | null;
+    usedKbItems: KnowledgeBaseItem[];
 }
 
 interface SickProblem extends ProblemBase {

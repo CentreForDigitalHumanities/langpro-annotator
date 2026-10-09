@@ -105,8 +105,7 @@ class BaseAnnotation(models.Model):
 
 
 class KnowledgeBaseAnnotation(KnowledgeBaseItem, BaseAnnotation):
-    class Meta(BaseAnnotation.Meta, KnowledgeBaseItem.Meta):
-        pass
+    pass
 
     def __str__(self):
         status = "active" if self.is_active() else f"removed at {self.removed_at}"

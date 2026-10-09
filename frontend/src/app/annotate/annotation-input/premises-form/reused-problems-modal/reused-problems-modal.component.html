@@ -1,0 +1,31 @@
+<div class="modal-header">
+    <h5 class="modal-title" i18n>Problems using this sentence</h5>
+    <button
+        type="button"
+        class="btn-close"
+        aria-label="Close"
+        i18n-aria-label
+        (click)="activeModal.dismiss()"
+    ></button>
+</div>
+<div class="modal-body">
+    @if (sentence) {
+        <p>
+            The sentence "<strong>{{ sentence }}</strong
+            >" is used in the following problems:
+        </p>
+    }
+    <ul class="list-group">
+        @for (problemId of problemIds; track problemId) {
+            <li class="list-group-item">
+                <a
+                    [routerLink]="['/annotate', problemId]"
+                    (click)="activeModal.dismiss()"
+                >
+                    <ng-container i18n>Problem ID</ng-container>:
+                    {{ problemId }}
+                </a>
+            </li>
+        }
+    </ul>
+</div>

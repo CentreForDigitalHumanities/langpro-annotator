@@ -1,6 +1,8 @@
 @let premiseControls = form().controls.premises.controls;
 @let appMode = appMode$ | async;
-@let editingOrAdding = appMode === 'add' || appMode === 'edit';
+@let editingOrAdding = appMode === "add" || appMode === "edit";
+@let currentProblem = problem();
+@let hypothesisProblemIds = currentProblem?.hypothesisProblemIds ?? [];
 
 <form [formGroup]="form()">
     <fieldset>
@@ -9,49 +11,70 @@
         >
             <span i18n>Premises</span>
             @if (editingOrAdding) {
-            <la-icon-button
-                [icon]="faPlus"
-                iconPosition="right"
-                size="sm"
-                label="Add premise"
-                (click)="addPremise()"
-                i18n-label
-                outline
-            />
+                <la-icon-button
+                    [icon]="faPlus"
+                    iconPosition="right"
+                    size="sm"
+                    label="Add premise"
+                    (click)="addPremise()"
+                    i18n-label
+                    outline
+                />
             }
         </legend>
 
         <ul class="ps-0 list-unstyled" formArrayName="premises">
-            @for (control of premiseControls; let i = $index; track
-            `${i}-${control.value}`) {
-            <li class="mb-3">
-                <div class="input-group">
-                    <input
-                        [id]="'premise-' + i"
-                        type="text"
-                        [class]="
-                            editingOrAdding
-                                ? 'form-control'
-                                : 'form-control-plaintext'
-                        "
-                        [formControlName]="i"
-                    />
-                    @if (editingOrAdding) {
-                    <la-icon-button
-                        buttonStyle="danger"
-                        [icon]="faTrash"
-                        label="Remove"
-                        (click)="removePremise(i)"
-                        visuallyHiddenLabel
-                        i18n-label
-                    />
+            @for (
+                control of premiseControls;
+                let i = $index;
+                track `${i}-${control.value}`
+            ) {
+                <li class="mb-3 d-flex gap-2 align-items-center">
+                    <div class="input-group">
+                        <input
+                            [id]="'premise-' + i"
+                            type="text"
+                            [class]="
+                                editingOrAdding
+                                    ? 'form-control'
+                                    : 'form-control-plaintext'
+                            "
+                            [formControlName]="i"
+                        />
+
+                        @if (editingOrAdding) {
+                            <la-icon-button
+                                buttonStyle="danger"
+                                [icon]="faTrash"
+                                label="Remove"
+                                (click)="removePremise(i)"
+                                visuallyHiddenLabel
+                                i18n-label
+                            />
+                        }
+                    </div>
+                    @if (appMode === "browse") {
+                        @let problemIds =
+                            currentProblem?.premiseProblemIds?.[i] ?? [];
+                        @if (problemIds.length > 1) {
+                            <button
+                                type="button"
+                                class="btn btn-outline-secondary btn-sm rounded-circle px-2 py-0"
+                                [attr.aria-label]="
+                                    'Used by ' + problemIds.length + ' problems'
+                                "
+                                i18n-aria-label
+                                (click)="showReusedProblems(problemIds, control.value)"
+                            >
+                                {{ problemIds.length }}
+                            </button>
+                        }
                     }
-                </div>
-            </li>
+                </li>
             } @empty {
-            <li class="text-muted" i18n>
-                No premises defined for this problem.
-            </li>
+                <li class="text-muted" i18n>
+                    No premises defined for this problem.
+                </li>
             }
         </ul>
     </fieldset>
@@ -60,20 +83,46 @@
         <label for="hypothesis" class="form-label fw-bold" i18n>
             Hypothesis
         </label>
-        <input
-            id="hypothesis"
-            type="text"
-            [class]="
-                editingOrAdding ? 'form-control' : 'form-control-plaintext'
-            "
-            [class.is-invalid]="
-                form().controls.hypothesis.touched &&
-                form().controls.hypothesis.invalid
-            "
-            [formControl]="form().controls.hypothesis"
-        />
-        <p class="invalid-feedback" i18n>
-            Each problem must have a hypothesis.
-        </p>
+        <div class="d-flex align-items-center justify-content-between gap-2">
+            @let hypothesisControl = form().controls.hypothesis;
+            <div class="flex-grow-1">
+                <div class="input-group">
+                    <input
+                        id="hypothesis"
+                        type="text"
+                        [class]="
+                            editingOrAdding
+                                ? 'form-control'
+                                : 'form-control-plaintext'
+                        "
+                        [class.is-invalid]="
+                            hypothesisControl.touched &&
+                            hypothesisControl.invalid
+                        "
+                        [formControl]="hypothesisControl"
+                    />
+                </div>
+                <p class="invalid-feedback" i18n>
+                    Each problem must have a hypothesis.
+                </p>
+            </div>
+            @if (
+                appMode === "browse" &&
+                currentProblem &&
+                hypothesisProblemIds.length > 1
+            ) {
+                <button
+                    type="button"
+                    class="btn btn-outline-secondary btn-sm rounded-circle px-2 py-0"
+                    [attr.aria-label]="
+                        'Used by ' + hypothesisProblemIds.length + ' problems'
+                    "
+                    i18n-aria-label
+                    (click)="showReusedProblems(hypothesisProblemIds, hypothesisControl.value)"
+                >
+                    {{ hypothesisProblemIds.length }}
+                </button>
+            }
+        </div>
     </div>
 </form>

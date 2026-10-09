@@ -63,7 +63,9 @@ interface ProblemBase {
     id: number | null;
     base: number | null;
     premises: string[];
+    premiseProblemIds?: number[][];
     hypothesis: string | null;
+    hypothesisProblemIds?: number[];
     entailmentLabel: EntailmentLabel;
     hidden: boolean;
     gold: boolean;

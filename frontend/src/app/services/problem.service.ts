@@ -156,6 +156,7 @@ export class ProblemService {
             next: null,
             previous: null,
             total: 0,
+            random: null,
             error: null,
         };
 

@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from django.utils import timezone
+from django.db.models import Q
 
 from annotation.serializers import KnowledgeBaseAnnotationSerializer
 from annotation.models import (
@@ -28,7 +29,9 @@ class ProblemSerializer(serializers.ModelSerializer):
 
     id = serializers.IntegerField(read_only=True)
     premises = serializers.SerializerMethodField()
+    premiseProblems = serializers.SerializerMethodField()
     hypothesis = serializers.SerializerMethodField()
+    hypothesisProblems = serializers.SerializerMethodField()
     entailmentLabel = serializers.CharField(source="entailment_label")
     extraData = serializers.SerializerMethodField()
     status = serializers.CharField(read_only=True)
@@ -43,7 +46,9 @@ class ProblemSerializer(serializers.ModelSerializer):
             "id",
             "dataset",
             "premises",
+            "premiseProblems",
             "hypothesis",
+            "hypothesisProblems",
             "entailmentLabel",
             "extraData",
             "base",
@@ -61,6 +66,15 @@ class ProblemSerializer(serializers.ModelSerializer):
     def get_hypothesis(self, problem: Problem):
         """Get hypothesis text."""
         return problem.hypothesis.text
+
+    def get_premiseProblems(self, problem: Problem):
+        return [
+            premise.get_problem_usages()
+            for premise in problem.premises.all()
+        ]
+
+    def get_hypothesisProblems(self, problem: Problem):
+        return problem.hypothesis.get_problem_usages()
 
     def get_extraData(self, problem: Problem):
         """Get dataset-specific extra data."""

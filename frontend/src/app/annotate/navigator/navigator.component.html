@@ -5,9 +5,7 @@
         <div class="responsive-button-grid">
             <a
                 class="btn btn-outline-primary btn-sm"
-                [class.disabled]="
-                    problemResponse?.problem?.id === problemResponse?.first
-                "
+                [class.disabled]="problemResponse?.problem?.id === problemResponse?.first"
                 [routerLink]="['/', 'annotate', problemResponse?.first]"
                 queryParamsHandling="preserve"
                 aria-labelledby="label-first"

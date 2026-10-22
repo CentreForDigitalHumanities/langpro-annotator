@@ -1,4 +1,4 @@
-import { Component, inject } from "@angular/core";
+import { Component, DestroyRef, inject, OnInit } from "@angular/core";
 import { FontAwesomeModule } from "@fortawesome/angular-fontawesome";
 import { FormControl, ReactiveFormsModule, Validators } from "@angular/forms";
 import {
@@ -11,6 +11,7 @@ import {
 import { CommonModule } from "@angular/common";
 import { Router, RouterLinkWithHref } from "@angular/router";
 import { ProblemService } from "@/services/problem.service";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 
 @Component({
     selector: "la-navigator",
@@ -19,22 +20,34 @@ import { ProblemService } from "@/services/problem.service";
     templateUrl: "./navigator.component.html",
     styleUrl: "./navigator.component.scss",
 })
-export class NavigatorComponent {
+export class NavigatorComponent implements OnInit {
     private problemService = inject(ProblemService);
     private router = inject(Router);
+    private destroyRef = inject(DestroyRef);
 
     public problemResponse$ = this.problemService.problemResponse$;
 
     public id = new FormControl<number | null>(null, {
         nonNullable: true, validators: [
             Validators.min(1),
-    ] });
+        ]
+    });
 
     public faAnglesLeft = faAnglesLeft;
     public faAnglesRight = faAnglesRight;
     public faAngleLeft = faAngleLeft;
     public faAngleRight = faAngleRight;
     public faQuestion = faQuestion;
+
+    public ngOnInit(): void {
+        this.problemResponse$
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe((problemResponse) => {
+                if (problemResponse?.problem) {
+                    this.id.reset();
+                }
+            });
+    }
 
     public jumpToId(event: Event): void {
         event.preventDefault();

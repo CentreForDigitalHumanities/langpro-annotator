@@ -63,7 +63,7 @@ class TestProblemViewPermissions:
         """Unauthenticated users should not be able to see hidden problems."""
         client.force_login(user=annotator)
         response = client.get(f"/api/problem/{hidden_problem.id}/")
-        assert response.status_code == status.HTTP_200_OK
+        assert response.status_code == status.HTTP_404_NOT_FOUND
         assert (
             response.data["problem"]["id"] == sample_problem.id
         ), "Unauthenticated users requesting a hidden problem should receive the first non-hidden problem instead."
@@ -74,7 +74,7 @@ class TestProblemViewPermissions:
         """Visitors should not be able to see hidden problems."""
         client.force_login(user=visitor)
         response = client.get(f"/api/problem/{hidden_problem.id}/")
-        assert response.status_code == status.HTTP_200_OK
+        assert response.status_code == status.HTTP_404_NOT_FOUND
         assert (
             response.data["problem"]["id"] == sample_problem.id
         ), "Visitors requesting a hidden problem should receive the first non-hidden problem instead."
@@ -85,7 +85,7 @@ class TestProblemViewPermissions:
         """Annotators should not be able to see hidden problems."""
         client.force_login(user=annotator)
         response = client.get(f"/api/problem/{hidden_problem.id}/")
-        assert response.status_code == status.HTTP_200_OK
+        assert response.status_code == status.HTTP_404_NOT_FOUND
         assert (
             response.data["problem"]["id"] == sample_problem.id
         ), "Annotators requesting a hidden problem should receive the first non-hidden problem instead."

@@ -1,7 +1,7 @@
 import { ParseInput } from "@/annotate/annotation-input/annotation-input.component";
 import extractBaseParam from "@/shared/extractBaseParam";
 import { ProblemResponse, SaveProblemResponse, Dataset, EntailmentLabel, Problem, Label, ToggleVisibilityInput, ToggleGoldInput, ProblemStatus } from "@/types";
-import { HttpClient, HttpParams } from "@angular/common/http";
+import { HttpClient, HttpErrorResponse, HttpParams } from "@angular/common/http";
 import { Injectable, inject } from "@angular/core";
 import { ParamMap } from "@angular/router";
 import { Subject, Observable, switchMap, of, shareReplay, exhaustMap, catchError, map, BehaviorSubject, filter, merge } from "rxjs";
@@ -193,14 +193,11 @@ export class ProblemService {
         }
 
         return this.http.get<ProblemResponse>(`/api/problem/`, { params: httpParams }).pipe(
-            catchError((error) => {
-                const message = `Error fetching ${problemId ? `problem ${problemId}` : "first problem"}`;
-                this.toastService.show({
-                    header: message,
-                    body: error.message || 'The problem could not be fetched from the server.',
-                    type: 'danger',
-                });
-                return of(null);
+            catchError((error: HttpErrorResponse) => {
+                const response: ProblemResponse | null = error.error?.problem ? error.error : null;
+                const errorMessage = response?.error || error.message || $localize`The problem could not be fetched from the server.`;
+                this.showProblemError(errorMessage);
+                return of(response);
             })
         );
     };
@@ -209,6 +206,17 @@ export class ProblemService {
         map(response => response?.problem?.id ?? null),
         shareReplay(1),
     );
+
+    private showProblemError(error: string | null): void {
+        if (!error) {
+            return;
+        }
+        this.toastService.show({
+            header: $localize`Error fetching problem`,
+            body: error,
+            type: 'danger',
+        });
+    }
 
     private extractSearchParams(routeParams: ParamMap): HttpParams {
         const text = routeParams.get("text");

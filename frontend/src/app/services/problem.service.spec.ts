@@ -72,7 +72,8 @@ describe("ProblemService", () => {
                 last: 789,
                 next: null,
                 previous: null,
-                error: null
+                error: null,
+                random: mockProblemId,
             };
 
             service.allParams$.next({

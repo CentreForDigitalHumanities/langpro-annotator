@@ -539,3 +539,23 @@ class TestFirstEndpointPermissions:
         client.force_login(user=master_annotator)
         response = client.get("/api/problem/first/")
         assert response.status_code == status.HTTP_200_OK
+
+
+class TestRandomProblemId:
+    """Tests for the random problem ID included in problem responses."""
+
+    def test_random_id_matches_the_filtered_queryset(self, client, sample_problem):
+        response = client.get(
+            f"/api/problem/{sample_problem.id}/?dataset=user&text=hypothesis"
+        )
+
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data["random"] == sample_problem.id
+        assert response.data["total"] == 1
+
+    def test_random_id_is_none_when_filters_match_nothing(self, client, sample_problem):
+        response = client.get("/api/problem/first/?dataset=invalid")
+
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data["random"] is None
+        assert response.data["total"] == 0

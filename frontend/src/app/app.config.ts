@@ -2,7 +2,6 @@ import { ApplicationConfig, provideZoneChangeDetection } from "@angular/core";
 import { APP_BASE_HREF } from "@angular/common";
 import { provideHttpClient, withFetch, withInterceptors, withXsrfConfiguration } from "@angular/common/http";
 import { provideClientHydration } from "@angular/platform-browser";
-import { provideAnimations } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
 
 import { routes } from "./app.routes";
@@ -10,7 +9,6 @@ import { platformInterceptor } from "./interceptors/platformInterceptor";
 
 export const appConfig: ApplicationConfig = {
     providers: [
-        provideAnimations(),
         provideZoneChangeDetection({ eventCoalescing: true }),
         provideRouter(routes),
         provideClientHydration(),

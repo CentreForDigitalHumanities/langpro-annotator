@@ -59,13 +59,16 @@ export interface LabelAnnotation extends BaseAnnotation {
     attachedByCurrentUser: boolean;
 }
 
+export interface Sentence {
+    text: string;
+    relatedProblems: ProblemUsage[];
+}
+
 interface ProblemBase {
     id: number | null;
     base: number | null;
-    premises: string[];
-    premiseProblems?: ProblemUsage[][];
-    hypothesis: string | null;
-    hypothesisProblems?: ProblemUsage[];
+    premises: Sentence[];
+    hypothesis: Sentence | null;
     entailmentLabel: EntailmentLabel;
     hidden: boolean;
     gold: boolean;

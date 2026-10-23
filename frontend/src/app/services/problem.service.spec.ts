@@ -52,8 +52,8 @@ describe("ProblemService", () => {
                     id: mockProblemId,
                     base: null,
                     dataset: Dataset.SICK,
-                    premises: ["a"],
-                    hypothesis: "b",
+                    premises: [{ text: "a", relatedProblems: [] }],
+                    hypothesis: { text: "b", relatedProblems: [] },
                     entailmentLabel: EntailmentLabel.ENTAILMENT,
                     extraData: {
                         pairId: 1,

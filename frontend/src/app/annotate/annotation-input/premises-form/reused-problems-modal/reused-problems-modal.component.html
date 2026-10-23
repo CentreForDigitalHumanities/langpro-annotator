@@ -11,7 +11,7 @@
 <div class="modal-body">
     @if (sentence) {
         <p>
-            The sentence "<strong>{{ sentence }}</strong
+            The sentence "<strong>{{ sentence.text }}</strong
             >" is used in the following problems:
         </p>
         <p>Click on one of the problem IDs below to view the problem.</p>
@@ -26,7 +26,7 @@
                 </tr>
             </thead>
             <tbody>
-                @for (problem of problems; track problem.id) {
+                @for (problem of sentence?.relatedProblems; track problem.id) {
                     @let current = problem.id === currentlySelectedProblemId;
                     <tr [class.table-active]="current">
                         <td>

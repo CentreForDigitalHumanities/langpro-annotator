@@ -2,7 +2,6 @@
 @let appMode = appMode$ | async;
 @let editingOrAdding = appMode === "add" || appMode === "edit";
 @let currentProblem = problem();
-@let hypothesisProblems = currentProblem?.hypothesisProblems ?? [];
 
 <form [formGroup]="form()">
     <fieldset>
@@ -54,20 +53,13 @@
                         }
                     </div>
                     @if (appMode === "browse") {
-                        @let problems =
-                            currentProblem?.premiseProblems?.[i] ?? [];
-                        @if (problems.length > 1) {
-                            <button
-                                type="button"
-                                class="btn btn-outline-secondary btn-sm rounded-circle px-2 py-0"
-                                [attr.aria-label]="
-                                    'Used by ' + problems.length + ' problems'
-                                "
-                                i18n-aria-label
-                                (click)="showReusedProblems(problems, control.value)"
-                            >
-                                {{ problems.length }}
-                            </button>
+                        @let relatedProblems =
+                            currentProblem?.premises[i]?.relatedProblems ?? [];
+                        @if (currentProblem && relatedProblems.length > 1) {
+                            <la-related-problems
+                                [currentProblem]="currentProblem"
+                                [sentence]="currentProblem.premises[i]"
+                            />
                         }
                     }
                 </li>
@@ -108,20 +100,13 @@
             </div>
             @if (
                 appMode === "browse" &&
-                currentProblem &&
-                hypothesisProblems.length > 1
+                currentProblem?.hypothesis &&
+                currentProblem.hypothesis.relatedProblems.length > 1
             ) {
-                <button
-                    type="button"
-                    class="btn btn-outline-secondary btn-sm rounded-circle px-2 py-0"
-                    [attr.aria-label]="
-                        'Used by ' + hypothesisProblems.length + ' problems'
-                    "
-                    i18n-aria-label
-                    (click)="showReusedProblems(hypothesisProblems, hypothesisControl.value)"
-                >
-                    {{ hypothesisProblems.length }}
-                </button>
+                <la-related-problems
+                    [currentProblem]="currentProblem"
+                    [sentence]="currentProblem.hypothesis"
+                />
             }
         </div>
     </div>

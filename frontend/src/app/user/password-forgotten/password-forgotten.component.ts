@@ -1,4 +1,4 @@
-import { Component, DestroyRef, OnInit } from "@angular/core";
+import { Component, DestroyRef, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import {
     FormControl,
     FormGroup,
@@ -21,6 +21,7 @@ type PasswordForgottenForm = {
     templateUrl: "./password-forgotten.component.html",
     styleUrls: ["./password-forgotten.component.scss"],
     standalone: true,
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [CommonModule, ReactiveFormsModule],
 })
 export class PasswordForgottenComponent implements OnInit {

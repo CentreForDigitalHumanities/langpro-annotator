@@ -1,4 +1,4 @@
-import { Component, DestroyRef, OnInit } from "@angular/core";
+import { Component, DestroyRef, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import {
     FormControl,
     FormGroup,
@@ -28,6 +28,7 @@ type LoginForm = {
     templateUrl: "./login.component.html",
     styleUrls: ["./login.component.scss"],
     standalone: true,
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [CommonModule, RouterModule, ReactiveFormsModule],
 })
 export class LoginComponent implements OnInit {

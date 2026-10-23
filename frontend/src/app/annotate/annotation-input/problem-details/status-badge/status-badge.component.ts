@@ -1,6 +1,6 @@
 import { statusLabels } from '@/shared/displayTextMappings';
 import { ProblemStatus } from '@/types';
-import { Component, input } from '@angular/core';
+import { Component, input, ChangeDetectionStrategy } from '@angular/core';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faMedal } from '@fortawesome/free-solid-svg-icons';
 import { NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
@@ -9,6 +9,7 @@ import { NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
     selector: 'la-status-badge',
     imports: [FontAwesomeModule, NgbTooltipModule],
     templateUrl: './status-badge.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     styleUrl: './status-badge.component.scss'
 })
 export class StatusBadgeComponent {

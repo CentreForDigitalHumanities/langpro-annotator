@@ -1,4 +1,4 @@
-import { Component, DestroyRef, OnInit } from "@angular/core";
+import { Component, DestroyRef, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { filter, map } from "rxjs";
 import { AuthService } from "../../services/auth.service";
 import { Router, RouterModule } from "@angular/router";
@@ -14,6 +14,7 @@ import user2icon from "@/shared/user2icon";
     templateUrl: "./user-menu.component.html",
     styleUrls: ["./user-menu.component.scss"],
     imports: [RouterModule, CommonModule, FontAwesomeModule, NgbDropdownModule],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: true,
 })
 export class UserMenuComponent implements OnInit {

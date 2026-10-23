@@ -1,4 +1,4 @@
-import { Component, inject, input } from "@angular/core";
+import { Component, inject, input, ChangeDetectionStrategy } from "@angular/core";
 import { ReactiveFormsModule, FormControl, Validators } from "@angular/forms";
 import { CommonModule } from "@angular/common";
 import { FontAwesomeModule } from "@fortawesome/angular-fontawesome";
@@ -17,6 +17,7 @@ export interface Premises {
     standalone: true,
     imports: [ReactiveFormsModule, CommonModule, FontAwesomeModule, IconButtonComponent],
     templateUrl: "./premises-form.component.html",
+    changeDetection: ChangeDetectionStrategy.Eager,
     styleUrl: "./premises-form.component.scss",
 })
 export class PremisesFormComponent {

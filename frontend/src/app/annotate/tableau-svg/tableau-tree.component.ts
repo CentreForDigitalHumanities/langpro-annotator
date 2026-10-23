@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter, ChangeDetectionStrategy } from '@angular/core';
 import { TableauNode } from './tableau-node.component';
 import { Dimensions, ProofTree, ProofNode } from '@/types';
 import { sum } from "@/util";
@@ -8,6 +8,7 @@ import { sum } from "@/util";
     standalone: true,
     imports: [TableauNode],
     templateUrl: "./tableau-tree.component.svg",
+    changeDetection: ChangeDetectionStrategy.Eager,
     styleUrl: "./tableau-tree.component.scss",
 })
 export class TableauTree {

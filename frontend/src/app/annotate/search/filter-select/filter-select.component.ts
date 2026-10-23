@@ -1,4 +1,4 @@
-import { Component, forwardRef, Input } from "@angular/core";
+import { Component, forwardRef, Input, ChangeDetectionStrategy } from "@angular/core";
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from "@angular/forms";
 import { NgbDropdownModule } from "@ng-bootstrap/ng-bootstrap";
 
@@ -12,6 +12,7 @@ export interface SelectOption<T> {
     imports: [NgbDropdownModule],
     templateUrl: "./filter-select.component.html",
     styleUrl: "./filter-select.component.scss",
+    changeDetection: ChangeDetectionStrategy.Eager,
     providers: [
         {
             provide: NG_VALUE_ACCESSOR,

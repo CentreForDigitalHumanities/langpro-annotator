@@ -10,7 +10,7 @@ RUN npm install --global yarn@1.22.22
 COPY package.json yarn.lock ./
 
 # Install dependencies.
-RUN yarn global add @angular/cli@21
+RUN yarn global add @angular/cli@22
 RUN yarn install --frozen-lockfile
 
 # Expose the port for the development server.

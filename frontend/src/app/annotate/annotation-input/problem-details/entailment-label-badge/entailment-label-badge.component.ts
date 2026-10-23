@@ -1,4 +1,4 @@
-import { Component, computed, input } from "@angular/core";
+import { Component, computed, input, ChangeDetectionStrategy } from "@angular/core";
 import { EntailmentLabel } from "../../../../types";
 import { entailmentLabels } from "@/shared/displayTextMappings";
 
@@ -7,6 +7,7 @@ import { entailmentLabels } from "@/shared/displayTextMappings";
     standalone: true,
     imports: [],
     templateUrl: "./entailment-label-badge.component.html",
+    changeDetection: ChangeDetectionStrategy.Eager,
     styleUrl: "./entailment-label-badge.component.scss",
 })
 export class EntailmentLabelBadgeComponent {

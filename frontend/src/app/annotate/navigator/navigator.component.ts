@@ -1,4 +1,4 @@
-import { Component, inject } from "@angular/core";
+import { Component, inject, ChangeDetectionStrategy } from "@angular/core";
 import { FontAwesomeModule } from "@fortawesome/angular-fontawesome";
 import {
     faAngleLeft,
@@ -16,6 +16,7 @@ import { ProblemService } from "@/services/problem.service";
     standalone: true,
     imports: [FontAwesomeModule, CommonModule, RouterLinkWithHref],
     templateUrl: "./navigator.component.html",
+    changeDetection: ChangeDetectionStrategy.Eager,
     styleUrl: "./navigator.component.scss",
 })
 export class NavigatorComponent {

@@ -1,10 +1,11 @@
-import { booleanAttribute, Component, computed, input } from '@angular/core';
+import { booleanAttribute, Component, computed, input, ChangeDetectionStrategy } from '@angular/core';
 import { FontAwesomeModule, IconDefinition } from '@fortawesome/angular-fontawesome';
 
 @Component({
     selector: 'la-icon-button',
     imports: [FontAwesomeModule],
     templateUrl: './icon-button.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     styleUrl: './icon-button.component.scss'
 })
 export class IconButtonComponent {

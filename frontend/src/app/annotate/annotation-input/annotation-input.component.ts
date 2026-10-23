@@ -1,4 +1,4 @@
-import { Component, DestroyRef, inject, OnInit } from "@angular/core";
+import { Component, DestroyRef, inject, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import {
     FormArray,
@@ -57,6 +57,7 @@ export type ParseInput = ReturnType<ParseInputForm["getRawValue"]>;
         IconButtonComponent,
     ],
     templateUrl: "./annotation-input.component.html",
+    changeDetection: ChangeDetectionStrategy.Eager,
     styleUrl: "./annotation-input.component.scss",
 })
 export class AnnotationInputComponent implements OnInit {

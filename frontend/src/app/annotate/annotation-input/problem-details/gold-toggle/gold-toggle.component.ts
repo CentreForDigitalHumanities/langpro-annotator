@@ -1,6 +1,6 @@
 import { ProblemService } from '@/services/problem.service';
 import { Problem } from '@/types';
-import { Component, inject, input } from '@angular/core';
+import { Component, inject, input, ChangeDetectionStrategy } from '@angular/core';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faMedal } from '@fortawesome/free-solid-svg-icons';
 
@@ -8,6 +8,7 @@ import { faMedal } from '@fortawesome/free-solid-svg-icons';
     selector: 'la-gold-toggle',
     imports: [FontAwesomeModule],
     templateUrl: './gold-toggle.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     styleUrl: './gold-toggle.component.scss'
 })
 export class GoldToggleComponent {

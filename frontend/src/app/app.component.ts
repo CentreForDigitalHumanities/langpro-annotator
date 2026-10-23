@@ -1,4 +1,4 @@
-import { Component, DestroyRef, Inject, afterEveryRender, inject, DOCUMENT } from "@angular/core";
+import { Component, DestroyRef, Inject, afterEveryRender, inject, DOCUMENT, ChangeDetectionStrategy } from "@angular/core";
 import { RouterOutlet } from "@angular/router";
 import { MenuComponent } from "./menu/menu.component";
 import { FooterComponent } from "./footer/footer.component";
@@ -17,6 +17,7 @@ import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
         ToastContainerComponent,
     ],
     templateUrl: "./app.component.html",
+    changeDetection: ChangeDetectionStrategy.Eager,
     styleUrl: "./app.component.scss",
 })
 export class AppComponent {

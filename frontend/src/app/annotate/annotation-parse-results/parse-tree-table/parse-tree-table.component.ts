@@ -1,4 +1,4 @@
-import { Component, computed, input } from '@angular/core';
+import { Component, computed, input, ChangeDetectionStrategy } from '@angular/core';
 import { TreeNodeComponent } from './tree-node.component';
 import { CCGNode, LeafNode, BinaryNode, UnaryNode } from "@/types";
 import { TreeNodeDisplay } from "./tree-node.component";
@@ -103,6 +103,7 @@ export function extractRule(nodeString: string): { rule: string, content: string
     selector: 'la-parse-tree-table',
     imports: [TreeNodeComponent],
     templateUrl: './parse-tree-table.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     styleUrl: './parse-tree-table.component.scss'
 })
 export class ParseTreeTableComponent {

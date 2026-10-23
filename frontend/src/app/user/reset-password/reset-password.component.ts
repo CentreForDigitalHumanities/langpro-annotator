@@ -1,4 +1,4 @@
-import { Component, DestroyRef, OnInit } from "@angular/core";
+import { Component, DestroyRef, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { ResetPassword } from "../models/user";
 import {
@@ -29,6 +29,7 @@ type ResetPasswordForm = {
     templateUrl: "./reset-password.component.html",
     styleUrls: ["./reset-password.component.scss"],
     standalone: true,
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [CommonModule, ReactiveFormsModule],
 })
 export class ResetPasswordComponent implements OnInit {

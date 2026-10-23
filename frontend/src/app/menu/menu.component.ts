@@ -1,10 +1,11 @@
 import {
-    Component,
-    DestroyRef,
-    LOCALE_ID,
-    Inject,
-    OnInit,
-    inject,
+  Component,
+  DestroyRef,
+  LOCALE_ID,
+  Inject,
+  OnInit,
+  inject,
+  ChangeDetectionStrategy
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { CommonModule } from "@angular/common";
@@ -26,6 +27,7 @@ import { ProblemService } from "@/services/problem.service";
     templateUrl: "./menu.component.html",
     styleUrls: ["./menu.component.scss"],
     standalone: true,
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         CommonModule,
         RouterLink,

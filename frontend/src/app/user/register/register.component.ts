@@ -1,4 +1,4 @@
-import { Component, DestroyRef, OnInit } from "@angular/core";
+import { Component, DestroyRef, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { UserRegistration } from "../models/user";
 import {
     FormControl,
@@ -32,6 +32,7 @@ type RegisterForm = {
     templateUrl: "./register.component.html",
     styleUrls: ["./register.component.scss"],
     standalone: true,
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [CommonModule, ReactiveFormsModule],
 })
 export class RegisterComponent implements OnInit {

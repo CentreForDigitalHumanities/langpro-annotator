@@ -5,7 +5,9 @@
         <div class="responsive-button-grid">
             <a
                 class="btn btn-outline-primary btn-sm"
-                [class.disabled]="problemResponse?.problem?.id === problemResponse?.first"
+                [class.disabled]="
+                    problemResponse?.problem?.id === problemResponse?.first
+                "
                 [routerLink]="['/', 'annotate', problemResponse?.first]"
                 queryParamsHandling="preserve"
                 aria-labelledby="label-first"
@@ -23,7 +25,10 @@
             </a>
             <a
                 class="btn btn-outline-primary btn-sm"
-                [class.disabled]="problemResponse?.previous === null"
+                [class.disabled]="
+                    problemResponse?.previous === null ||
+                    problemResponse?.previous === undefined
+                "
                 [routerLink]="['/', 'annotate', problemResponse?.previous]"
                 queryParamsHandling="preserve"
                 aria-labelledby="label-previous"
@@ -43,18 +48,21 @@
 
         <div class="px-2 text-center flex-grow-1">
             @if (problemResponse) {
-            <span class="small" i18n>
-                {{ problemResponse?.index ?? "-" }}
-            </span>
-            <hr class="my-1">
-            <span class="small" i18n>{{ problemResponse.total }}</span>
+                <span class="small" i18n>
+                    {{ problemResponse?.index ?? "-" }}
+                </span>
+                <hr class="my-1" />
+                <span class="small" i18n>{{ problemResponse.total }}</span>
             }
         </div>
 
         <div class="responsive-button-grid">
             <a
                 class="btn btn-outline-primary btn-sm"
-                [class.disabled]="problemResponse?.next === null"
+                [class.disabled]="
+                    problemResponse?.next === null ||
+                    problemResponse?.next === undefined
+                "
                 [routerLink]="['/', 'annotate', problemResponse?.next]"
                 queryParamsHandling="preserve"
                 aria-labelledby="label-next"
@@ -70,7 +78,9 @@
             </a>
             <a
                 class="btn btn-outline-primary btn-sm"
-                [class.disabled]="problemResponse?.problem?.id === problemResponse?.last"
+                [class.disabled]="
+                    problemResponse?.problem?.id === problemResponse?.last
+                "
                 [routerLink]="['/', 'annotate', problemResponse?.last]"
                 queryParamsHandling="preserve"
                 aria-labelledby="label-last"

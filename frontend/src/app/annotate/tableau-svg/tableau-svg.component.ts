@@ -1,4 +1,4 @@
-import { Component, ChangeDetectorRef, ElementRef, input } from '@angular/core';
+import { Component, ChangeDetectorRef, ElementRef, input, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from "@angular/common";
 import { Subject } from "rxjs";
 import { Dimensions, ProofTree } from '@/types';
@@ -9,6 +9,7 @@ import { TableauTree } from './tableau-tree.component';
     standalone: true,
     imports: [CommonModule, TableauTree],
     templateUrl: "./tableau-svg.component.svg",
+    changeDetection: ChangeDetectionStrategy.Eager,
     styleUrl: "./tableau-svg.component.scss",
 })
 export class TableauSVG {

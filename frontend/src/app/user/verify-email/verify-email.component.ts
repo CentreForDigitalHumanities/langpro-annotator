@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, DestroyRef, OnInit } from "@angular/core";
+import { AfterViewInit, Component, DestroyRef, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router } from "@angular/router";
 import { map, share } from "rxjs";
@@ -12,6 +12,7 @@ import { ToastService } from "../../services/toast.service";
     templateUrl: "./verify-email.component.html",
     styleUrls: ["./verify-email.component.scss"],
     standalone: true,
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [CommonModule],
 })
 export class VerifyEmailComponent implements OnInit, AfterViewInit {

@@ -64,7 +64,7 @@ class ProblemSerializer(serializers.ModelSerializer):
 
     def get_premises(self, problem: Problem):
         return [
-            {"text": premise.text, "relatedProblems": premise.get_problem_usages()}
+            {"text": premise.text, "relatedProblems": premise.get_related_problems()}
             for premise in problem.premises.all()
         ]
 

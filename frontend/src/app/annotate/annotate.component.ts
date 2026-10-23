@@ -1,4 +1,4 @@
-import { Component, DestroyRef, inject, OnInit } from "@angular/core";
+import { Component, DestroyRef, inject, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { AnnotationMenuComponent } from "./annotation-menu/annotation-menu.component";
 import { NavigatorComponent } from "./navigator/navigator.component";
 import { AnnotationInputComponent } from "./annotation-input/annotation-input.component";
@@ -27,6 +27,7 @@ import areParamsEqual from "@/shared/areParamsEqual";
         RouterLinkWithHref,
     ],
     templateUrl: "./annotate.component.html",
+    changeDetection: ChangeDetectionStrategy.Eager,
     styleUrl: "./annotate.component.scss",
 })
 export class AnnotateComponent implements OnInit {

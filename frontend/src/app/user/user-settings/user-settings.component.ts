@@ -1,4 +1,4 @@
-import { Component, DestroyRef, OnInit } from "@angular/core";
+import { Component, DestroyRef, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import {
     FormControl,
     FormGroup,
@@ -29,6 +29,7 @@ type UserSettingsForm = {
     templateUrl: "./user-settings.component.html",
     styleUrls: ["./user-settings.component.scss"],
     standalone: true,
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [CommonModule, ReactiveFormsModule],
 })
 export class UserSettingsComponent implements OnInit {

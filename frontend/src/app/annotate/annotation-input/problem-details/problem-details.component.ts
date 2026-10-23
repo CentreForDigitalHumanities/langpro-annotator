@@ -1,5 +1,5 @@
 import { Dataset, EntailmentLabel, KnowledgeBaseItem, LabelAnnotation, Problem } from "../../../types";
-import { Component, computed, inject, input } from "@angular/core";
+import { Component, computed, inject, input, ChangeDetectionStrategy } from "@angular/core";
 import { EntailmentLabelBadgeComponent } from "./entailment-label-badge/entailment-label-badge.component";
 import { faArrowUpRightFromSquare, faCircleInfo, faEyeSlash, faQuestionCircle } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeModule } from "@fortawesome/angular-fontawesome";
@@ -43,6 +43,7 @@ export interface ProblemDetails {
         KbItemBadgeComponent,
     ],
     templateUrl: "./problem-details.component.html",
+    changeDetection: ChangeDetectionStrategy.Eager,
     styleUrl: "./problem-details.component.scss",
 })
 export class ProblemDetailsComponent {

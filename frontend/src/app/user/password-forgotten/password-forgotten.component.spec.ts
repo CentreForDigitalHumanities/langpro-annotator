@@ -1,16 +1,10 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 
 import { PasswordForgottenComponent } from "./password-forgotten.component";
-import {
-    HttpTestingController,
-    provideHttpClientTesting,
-} from "@angular/common/http/testing";
+import { HttpTestingController, provideHttpClientTesting } from "@angular/common/http/testing";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { ToastService } from "../../services/toast.service";
-import {
-    provideHttpClient,
-    withInterceptorsFromDi,
-} from "@angular/common/http";
+import { provideHttpClient, withInterceptorsFromDi } from "@angular/common/http";
 
 describe("PasswordForgottenComponent", () => {
     let component: PasswordForgottenComponent;
@@ -41,7 +35,7 @@ describe("PasswordForgottenComponent", () => {
 
         httpTestingController.expectNone("/users/password/reset/");
 
-        expect(component.form.controls.email.invalid).toBeTrue();
+        expect(component.form.controls.email.invalid).toBe(true);
         expect(component.form.controls.email.errors).toEqual({
             required: true,
         });
@@ -53,7 +47,7 @@ describe("PasswordForgottenComponent", () => {
 
         httpTestingController.expectNone("/users/password/reset/");
 
-        expect(component.form.invalid).toBeTrue();
+        expect(component.form.invalid).toBe(true);
         expect(component.form.controls.email.errors).toEqual({ email: true });
     });
 
@@ -65,12 +59,12 @@ describe("PasswordForgottenComponent", () => {
         );
 
         component.submit();
-        expect(loading()).toBeTrue();
+        expect(loading()).toBe(true);
 
         const req = httpTestingController.expectOne("/users/password/reset/");
         req.flush({ detail: "Password reset e-mail has been sent." });
 
-        expect(loading()).toBeFalse();
+        expect(loading()).toBe(false);
         expect(toastService.toasts.length).toBe(1);
     });
 });

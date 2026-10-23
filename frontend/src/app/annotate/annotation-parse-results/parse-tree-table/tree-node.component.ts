@@ -1,4 +1,4 @@
-import { Component, input } from '@angular/core';
+import { Component, input, ChangeDetectionStrategy } from '@angular/core';
 import { SubscriptPipe } from '@/pipes/subscript-pipe';
 import { SelectiveUpperCasePipe } from '@/pipes/selective-upper-case.pipe';
 import { TreeType } from '../annotation-parse-results.component';
@@ -27,6 +27,7 @@ export interface TreeNodeDisplay {
     standalone: true,
     imports: [SubscriptPipe, SelectiveUpperCasePipe, StripAtRulePipe],
     templateUrl: './tree-node.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     styleUrl: './tree-node.component.scss'
 })
 export class TreeNodeComponent {

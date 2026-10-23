@@ -1,4 +1,4 @@
-import { Component, inject } from "@angular/core";
+import { Component, inject, ChangeDetectionStrategy } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { FontAwesomeModule } from "@fortawesome/angular-fontawesome";
 import { NgbNavModule } from "@ng-bootstrap/ng-bootstrap";
@@ -26,6 +26,7 @@ import { NoDataComponent } from "@/shared/no-data/no-data.component";
         NoDataComponent,
     ],
     templateUrl: "./annotation-menu.component.html",
+    changeDetection: ChangeDetectionStrategy.Eager,
     styleUrl: "./annotation-menu.component.scss",
 })
 export class AnnotationMenuComponent {

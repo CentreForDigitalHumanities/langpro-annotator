@@ -1,6 +1,6 @@
 import { Dataset, EntailmentLabel, ProblemStatus } from "@/types";
 import { CommonModule } from "@angular/common";
-import { Component, DestroyRef, inject } from "@angular/core";
+import { Component, DestroyRef, inject, ChangeDetectionStrategy } from "@angular/core";
 import {
     FormControl,
     FormGroup,
@@ -53,6 +53,7 @@ const ENTAILMENT_LABEL_OPTIONS: SelectOption<EntailmentLabel>[] = Object.values(
         IconButtonComponent
     ],
     templateUrl: "./search.component.html",
+    changeDetection: ChangeDetectionStrategy.Eager,
     styleUrl: "./search.component.scss",
 })
 export class SearchComponent {

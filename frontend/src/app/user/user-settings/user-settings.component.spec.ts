@@ -3,18 +3,12 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { UserSettingsComponent } from "./user-settings.component";
 import { ToastService } from "../../services/toast.service";
 import { AuthService } from "../../services/auth.service";
-import {
-    HttpTestingController,
-    provideHttpClientTesting,
-} from "@angular/common/http/testing";
+import { HttpTestingController, provideHttpClientTesting } from "@angular/common/http/testing";
 import { User, UserRole } from "../models/user";
 import { Observable, of } from "rxjs";
 import { Injectable } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
-import {
-    provideHttpClient,
-    withInterceptorsFromDi,
-} from "@angular/common/http";
+import { provideHttpClient, withInterceptorsFromDi } from "@angular/common/http";
 
 const fakeUser: User = {
     id: 1,
@@ -86,7 +80,7 @@ describe("UserSettingsComponent", () => {
 
         httpTestingController.expectNone("/users/user/");
 
-        expect(component.form.controls.username?.invalid).toBeTrue();
+        expect(component.form.controls.username?.invalid).toBe(true);
         expect(component.form.controls.username?.errors).toEqual({
             required: true,
         });
@@ -98,7 +92,7 @@ describe("UserSettingsComponent", () => {
 
         httpTestingController.expectNone("/users/user/");
 
-        expect(component.form.controls.username?.invalid).toBeTrue();
+        expect(component.form.controls.username?.invalid).toBe(true);
         expect(component.form.controls.username?.errors).toEqual({
             minlength: { requiredLength: 3, actualLength: 2 },
         });
@@ -119,7 +113,7 @@ describe("UserSettingsComponent", () => {
             }
         );
 
-        expect(component.form.invalid).toBeTrue();
+        expect(component.form.invalid).toBe(true);
         expect(component.form.controls.username?.errors).toEqual({
             invalid: "A user with that username already exists.",
         });
@@ -131,14 +125,14 @@ describe("UserSettingsComponent", () => {
         );
 
         component.requestPasswordReset();
-        expect(loading()).toBeTrue();
+        expect(loading()).toBe(true);
 
         const req = httpTestingController.expectOne("/users/password/reset/");
         req.flush({
             detail: "Password reset e-mail has been sent.",
         });
 
-        expect(loading()).toBeFalse();
+        expect(loading()).toBe(false);
         expect(toastService.toasts.length).toBe(1);
     });
 
@@ -150,7 +144,7 @@ describe("UserSettingsComponent", () => {
         component.form.controls.firstName.setValue("Bilbo");
 
         component.submit();
-        expect(loading()).toBeTrue();
+        expect(loading()).toBe(true);
 
         const req = httpTestingController.expectOne("/users/user/");
         req.flush({
@@ -162,7 +156,7 @@ describe("UserSettingsComponent", () => {
             is_staff: false,
         });
 
-        expect(loading()).toBeFalse();
+        expect(loading()).toBe(false);
         expect(toastService.toasts.length).toBe(1);
         expect(component.form.controls.firstName.value).toBe("Bilbo");
     });
@@ -175,7 +169,7 @@ describe("UserSettingsComponent", () => {
         component.form.controls.username?.setValue("Samwise");
 
         component.submit();
-        expect(loading()).toBeTrue();
+        expect(loading()).toBe(true);
 
         const req = httpTestingController.expectOne("/users/user/");
         req.flush({
@@ -187,7 +181,7 @@ describe("UserSettingsComponent", () => {
             is_staff: false,
         });
 
-        expect(loading()).toBeFalse();
+        expect(loading()).toBe(false);
         expect(toastService.toasts.length).toBe(1);
         expect(component.form.controls.username?.value).toBe("Samwise");
     });
@@ -198,7 +192,7 @@ describe("UserSettingsComponent", () => {
         );
 
         component.submit();
-        expect(loading()).toBeTrue();
+        expect(loading()).toBe(true);
 
         const req = httpTestingController.expectOne("/users/user/").request;
         expect(req.method).toBe("PATCH");

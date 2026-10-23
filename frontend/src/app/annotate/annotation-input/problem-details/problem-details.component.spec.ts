@@ -1,3 +1,4 @@
+import { vi, type MockedObject } from "vitest";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 
 import { ProblemDetailsComponent } from "./problem-details.component";
@@ -31,13 +32,13 @@ const createMockProblem = (
 describe("ProblemDetailsComponent", () => {
     let component: ProblemDetailsComponent;
     let fixture: ComponentFixture<ProblemDetailsComponent>;
-    let mockActiveModal: jasmine.SpyObj<NgbActiveModal>;
+    let mockActiveModal: MockedObject<NgbActiveModal>;
 
     beforeEach(async () => {
-        mockActiveModal = jasmine.createSpyObj("NgbActiveModal", [
-            "close",
-            "dismiss",
-        ]);
+        mockActiveModal = {
+            close: vi.fn().mockName("NgbActiveModal.close"),
+            dismiss: vi.fn().mockName("NgbActiveModal.dismiss")
+        } as MockedObject<NgbActiveModal>;
 
 
         await TestBed.configureTestingModule({

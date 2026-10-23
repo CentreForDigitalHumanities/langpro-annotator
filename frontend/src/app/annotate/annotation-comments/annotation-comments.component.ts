@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from "@angular/core";
+import { Component, computed, inject, signal, ChangeDetectionStrategy } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { FontAwesomeModule } from "@fortawesome/angular-fontawesome";
 import { faPlus, faMinus, faBook, faTag } from "@fortawesome/free-solid-svg-icons";
@@ -57,6 +57,7 @@ function annotationToEvent(annotation: LabelAnnotation | KnowledgeBaseAnnotation
     standalone: true,
     imports: [CommonModule, FontAwesomeModule],
     templateUrl: "./annotation-comments.component.html",
+    changeDetection: ChangeDetectionStrategy.Eager,
     styleUrl: "./annotation-comments.component.scss",
 })
 export class AnnotationCommentsComponent {

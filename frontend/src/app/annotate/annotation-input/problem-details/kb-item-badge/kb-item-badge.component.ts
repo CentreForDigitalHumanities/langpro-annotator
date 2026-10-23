@@ -1,5 +1,5 @@
 import { KnowledgeBaseRelationship, KnowledgeBaseItem } from '@/types';
-import { Component, computed, input } from '@angular/core';
+import { Component, computed, input, ChangeDetectionStrategy } from '@angular/core';
 
 const RELATION_SYMBOL_MAP: Record<KnowledgeBaseRelationship, string> = {
     [KnowledgeBaseRelationship.EQUAL]: '≡',
@@ -16,6 +16,7 @@ const RELATION_COLOR_MAP: Record<KnowledgeBaseRelationship, string> = {
 @Component({
     selector: 'la-kb-item-badge',
     templateUrl: './kb-item-badge.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     styleUrl: './kb-item-badge.component.scss'
 })
 export class KbItemBadgeComponent {

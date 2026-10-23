@@ -1,7 +1,6 @@
-import { Component, forwardRef, Input } from "@angular/core";
+import { Component, forwardRef, Input, ChangeDetectionStrategy } from "@angular/core";
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from "@angular/forms";
 import { NgbDropdownModule } from "@ng-bootstrap/ng-bootstrap";
-import { CommonModule } from "@angular/common";
 
 export interface SelectOption<T> {
     value: T | null;
@@ -10,9 +9,10 @@ export interface SelectOption<T> {
 
 @Component({
     selector: "la-filter-select",
-    imports: [NgbDropdownModule, CommonModule],
+    imports: [NgbDropdownModule],
     templateUrl: "./filter-select.component.html",
     styleUrl: "./filter-select.component.scss",
+    changeDetection: ChangeDetectionStrategy.Eager,
     providers: [
         {
             provide: NG_VALUE_ACCESSOR,

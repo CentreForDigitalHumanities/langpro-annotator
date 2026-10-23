@@ -2,16 +2,10 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { UserMenuComponent } from "./user-menu.component";
 import { AuthService } from "../../services/auth.service";
-import {
-    HttpTestingController,
-    provideHttpClientTesting,
-} from "@angular/common/http/testing";
+import { HttpTestingController, provideHttpClientTesting } from "@angular/common/http/testing";
 import { UserResponse, UserRole } from "../../user/models/user";
 import { provideRouter } from "@angular/router";
-import {
-    provideHttpClient,
-    withInterceptorsFromDi,
-} from "@angular/common/http";
+import { provideHttpClient, withInterceptorsFromDi } from "@angular/common/http";
 
 const fakeUserResponse: UserResponse = {
     id: 1,

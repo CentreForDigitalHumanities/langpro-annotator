@@ -5,7 +5,9 @@
         <div class="responsive-button-grid">
             <a
                 class="btn btn-outline-primary btn-sm"
-                [class.disabled]="problemResponse?.problem?.id === problemResponse?.first"
+                [class.disabled]="
+                    problemResponse?.problem?.id === problemResponse?.first
+                "
                 [routerLink]="['/', 'annotate', problemResponse?.first]"
                 queryParamsHandling="preserve"
                 aria-labelledby="label-first"
@@ -23,7 +25,10 @@
             </a>
             <a
                 class="btn btn-outline-primary btn-sm"
-                [class.disabled]="problemResponse?.previous === null"
+                [class.disabled]="
+                    problemResponse?.previous === null ||
+                    problemResponse?.previous === undefined
+                "
                 [routerLink]="['/', 'annotate', problemResponse?.previous]"
                 queryParamsHandling="preserve"
                 aria-labelledby="label-previous"
@@ -54,7 +59,10 @@
         <div class="responsive-button-grid">
             <a
                 class="btn btn-outline-primary btn-sm"
-                [class.disabled]="problemResponse?.random === null"
+                [class.disabled]="
+                    problemResponse?.random === null ||
+                    problemResponse?.random === undefined
+                "
                 [routerLink]="['/', 'annotate', problemResponse?.random]"
                 queryParamsHandling="preserve"
                 aria-labelledby="label-random"
@@ -72,7 +80,10 @@
             </a>
             <a
                 class="btn btn-outline-primary btn-sm"
-                [class.disabled]="problemResponse?.next === null"
+                [class.disabled]="
+                    problemResponse?.next === null ||
+                    problemResponse?.next === undefined
+                "
                 [routerLink]="['/', 'annotate', problemResponse?.next]"
                 queryParamsHandling="preserve"
                 aria-labelledby="label-next"
@@ -122,11 +133,7 @@
                 i18n-placeholder
                 i18n-aria-label
             />
-            <button
-                type="submit"
-                class="btn btn-outline-primary"
-                i18n
-            >
+            <button type="submit" class="btn btn-outline-primary" i18n>
                 Go
             </button>
         </div>

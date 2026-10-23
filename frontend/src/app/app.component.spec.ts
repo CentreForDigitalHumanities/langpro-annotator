@@ -1,5 +1,4 @@
-import { TestBed, waitForAsync } from "@angular/core/testing";
-import { NoopAnimationsModule } from "@angular/platform-browser/animations";
+import { TestBed } from "@angular/core/testing";
 import { provideHttpClientTesting } from "@angular/common/http/testing";
 
 import { AppComponent } from "./app.component";
@@ -11,9 +10,9 @@ import { ActivatedRoute } from "@angular/router";
 import { of } from "rxjs";
 
 describe("AppComponent", () => {
-    beforeEach(waitForAsync(() => {
-        TestBed.configureTestingModule({
-            imports: [AppComponent, NoopAnimationsModule],
+    beforeEach(async () => {
+        await TestBed.configureTestingModule({
+            imports: [AppComponent],
             providers: [
                 provideHttpClient(withInterceptorsFromDi()),
                 provideHttpClientTesting(),
@@ -25,7 +24,7 @@ describe("AppComponent", () => {
                 },
             ],
         }).compileComponents();
-    }));
+    });
 
     it("should create the app", () => {
         const fixture = TestBed.createComponent(AppComponent);

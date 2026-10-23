@@ -2,7 +2,7 @@ import { StatusBadgeComponent } from '@/annotate/annotation-input/problem-detail
 import { AuthService } from '@/services/auth.service';
 import { ProblemStatus } from '@/types';
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { map } from 'rxjs';
 
@@ -10,6 +10,7 @@ import { map } from 'rxjs';
     selector: 'la-status-info-modal',
     imports: [StatusBadgeComponent, CommonModule],
     templateUrl: './status-info-modal.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     styleUrl: './status-info-modal.component.scss'
 })
 export class StatusInfoModalComponent {

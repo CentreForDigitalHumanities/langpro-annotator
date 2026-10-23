@@ -1,4 +1,4 @@
-import { Component, computed, DestroyRef, inject, input, OnInit } from '@angular/core';
+import { Component, computed, DestroyRef, inject, input, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { faSearch } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { NgbTooltipModule, NgbModal } from '@ng-bootstrap/ng-bootstrap';
@@ -17,6 +17,7 @@ import { CommonModule } from '@angular/common';
     selector: 'la-problem-labels',
     imports: [FontAwesomeModule, NgbTooltipModule, CommonModule],
     templateUrl: './problem-labels.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     styleUrl: './problem-labels.component.scss'
 })
 export class ProblemLabelsComponent implements OnInit {

@@ -1,5 +1,4 @@
-import { Component, DestroyRef, Inject, afterRender, inject } from "@angular/core";
-import { DOCUMENT } from "@angular/common";
+import { Component, DestroyRef, Inject, afterEveryRender, inject, DOCUMENT, ChangeDetectionStrategy } from "@angular/core";
 import { RouterOutlet } from "@angular/router";
 import { MenuComponent } from "./menu/menu.component";
 import { FooterComponent } from "./footer/footer.component";
@@ -18,6 +17,7 @@ import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
         ToastContainerComponent,
     ],
     templateUrl: "./app.component.html",
+    changeDetection: ChangeDetectionStrategy.Eager,
     styleUrl: "./app.component.scss",
 })
 export class AppComponent {
@@ -30,7 +30,7 @@ export class AppComponent {
         private darkModeService: DarkModeService
     ) {
         // Using the DOM API to only render on the browser instead of on the server
-        afterRender(() => {
+        afterEveryRender(() => {
             const style = this.document.createElement("link");
             style.rel = "stylesheet";
             this.document.head.append(style);

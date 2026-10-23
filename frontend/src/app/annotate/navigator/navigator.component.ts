@@ -1,4 +1,4 @@
-import { Component, DestroyRef, inject, OnInit } from "@angular/core";
+import { Component, inject, ChangeDetectionStrategy, DestroyRef, OnInit } from "@angular/core";
 import { FontAwesomeModule } from "@fortawesome/angular-fontawesome";
 import { FormControl, ReactiveFormsModule, Validators } from "@angular/forms";
 import {
@@ -18,6 +18,7 @@ import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
     standalone: true,
     imports: [FontAwesomeModule, CommonModule, RouterLinkWithHref, ReactiveFormsModule],
     templateUrl: "./navigator.component.html",
+    changeDetection: ChangeDetectionStrategy.Eager,
     styleUrl: "./navigator.component.scss",
 })
 export class NavigatorComponent implements OnInit {

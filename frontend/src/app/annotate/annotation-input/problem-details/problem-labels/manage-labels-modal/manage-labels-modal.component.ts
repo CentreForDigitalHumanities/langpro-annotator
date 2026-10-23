@@ -1,4 +1,4 @@
-import { Component, DestroyRef, inject, OnInit } from '@angular/core';
+import { Component, DestroyRef, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
@@ -21,6 +21,7 @@ export type ManageLabelsModalResult = ReturnType<SelectedLabelsForm['getRawValue
     selector: 'la-manage-labels-modal',
     imports: [ReactiveFormsModule, AsyncPipe],
     templateUrl: './manage-labels-modal.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     styleUrl: './manage-labels-modal.component.scss'
 })
 export class ManageLabelsModalComponent implements OnInit {

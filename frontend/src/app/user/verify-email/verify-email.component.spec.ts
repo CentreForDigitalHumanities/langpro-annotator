@@ -3,17 +3,11 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { VerifyEmailComponent } from "./verify-email.component";
 import { AuthService } from "../../services/auth.service";
 import { ToastService } from "../../services/toast.service";
-import {
-    HttpTestingController,
-    provideHttpClientTesting,
-} from "@angular/common/http/testing";
+import { HttpTestingController, provideHttpClientTesting } from "@angular/common/http/testing";
 import { By } from "@angular/platform-browser";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { provideRouter } from "@angular/router";
-import {
-    provideHttpClient,
-    withInterceptorsFromDi,
-} from "@angular/common/http";
+import { provideHttpClient, withInterceptorsFromDi } from "@angular/common/http";
 
 describe("VerifyEmailComponent", () => {
     let component: VerifyEmailComponent;
@@ -64,7 +58,7 @@ describe("VerifyEmailComponent", () => {
         );
 
         component.confirm();
-        expect(loading()).toBeTrue();
+        expect(loading()).toBe(true);
 
         const req = httpTestingController.expectOne(
             "/users/registration/verify-email/"
@@ -73,7 +67,7 @@ describe("VerifyEmailComponent", () => {
 
         expect(toastService.toasts.length).toBe(1);
         expect(toastService.toasts[0].header).toBe("Email verified");
-        expect(loading()).toBeFalse();
+        expect(loading()).toBe(false);
     });
 
     it("should handle a failed email verification", () => {
@@ -82,7 +76,7 @@ describe("VerifyEmailComponent", () => {
         );
 
         component.confirm();
-        expect(loading()).toBeTrue();
+        expect(loading()).toBe(true);
 
         const req = httpTestingController.expectOne(
             "/users/registration/verify-email/"
@@ -96,6 +90,6 @@ describe("VerifyEmailComponent", () => {
 
         expect(toastService.toasts.length).toBe(1);
         expect(toastService.toasts[0].header).toBe("Email verification failed");
-        expect(loading()).toBeFalse();
+        expect(loading()).toBe(false);
     });
 });

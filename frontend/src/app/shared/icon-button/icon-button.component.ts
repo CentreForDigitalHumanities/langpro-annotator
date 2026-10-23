@@ -1,15 +1,15 @@
-import { booleanAttribute, Component, computed, input } from '@angular/core';
-import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { IconProp } from '@fortawesome/angular-fontawesome/types';
+import { booleanAttribute, Component, computed, input, ChangeDetectionStrategy } from '@angular/core';
+import { FontAwesomeModule, IconDefinition } from '@fortawesome/angular-fontawesome';
 
 @Component({
     selector: 'la-icon-button',
     imports: [FontAwesomeModule],
     templateUrl: './icon-button.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     styleUrl: './icon-button.component.scss'
 })
 export class IconButtonComponent {
-    public icon = input<IconProp | null>(null);
+    public icon = input<IconDefinition | null>(null);
     public label = input<string | null>(null);
     public buttonTitle = input<string | null>(null);
     public iconPosition = input<'left' | 'right'>('left');

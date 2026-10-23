@@ -1,4 +1,4 @@
-import { Component } from "@angular/core";
+import { Component, ChangeDetectionStrategy } from "@angular/core";
 import { ToastService } from "../services/toast.service";
 import { NgbToastModule } from "@ng-bootstrap/ng-bootstrap";
 
@@ -7,6 +7,7 @@ import { NgbToastModule } from "@ng-bootstrap/ng-bootstrap";
     templateUrl: "./toast-container.component.html",
     styleUrls: ["./toast-container.component.scss"],
     standalone: true,
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [NgbToastModule]
 })
 export class ToastContainerComponent {

@@ -1,4 +1,4 @@
-import { Component, inject, input } from "@angular/core";
+import { Component, inject, input, ChangeDetectionStrategy } from "@angular/core";
 import { FormGroup, Validators, FormControl } from "@angular/forms";
 import { CommonModule } from "@angular/common";
 import { ReactiveFormsModule } from "@angular/forms";
@@ -22,6 +22,7 @@ const relationshipDisplayMapping: Record<KnowledgeBaseRelationship, string> = {
     standalone: true,
     imports: [CommonModule, ReactiveFormsModule, FontAwesomeModule, IconButtonComponent],
     templateUrl: "./knowledge-base-form.component.html",
+    changeDetection: ChangeDetectionStrategy.Eager,
     styleUrls: ["./knowledge-base-form.component.scss"],
 })
 export class KnowledgeBaseFormComponent {

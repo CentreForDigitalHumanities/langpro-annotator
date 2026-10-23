@@ -1,4 +1,4 @@
-import { Component } from "@angular/core";
+import { Component, ChangeDetectionStrategy } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { FontAwesomeModule } from "@fortawesome/angular-fontawesome";
 import { faSun, faMoon } from "@fortawesome/free-solid-svg-icons";
@@ -9,6 +9,7 @@ import { DarkModeService } from "../services/dark-mode.service";
     standalone: true,
     imports: [FontAwesomeModule, CommonModule],
     templateUrl: "./dark-mode-toggle.component.html",
+    changeDetection: ChangeDetectionStrategy.Eager,
     styleUrl: "./dark-mode-toggle.component.scss",
 })
 export class DarkModeToggleComponent {

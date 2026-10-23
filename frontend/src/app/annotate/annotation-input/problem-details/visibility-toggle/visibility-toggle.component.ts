@@ -1,6 +1,6 @@
 import { ProblemService } from '@/services/problem.service';
 import { Problem } from '@/types';
-import { Component, inject, input } from '@angular/core';
+import { Component, inject, input, ChangeDetectionStrategy } from '@angular/core';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faEye, faEyeSlash, faQuestionCircle } from '@fortawesome/free-solid-svg-icons';
 import { NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
@@ -9,6 +9,7 @@ import { NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
     selector: 'la-visibility-toggle',
     imports: [FontAwesomeModule, NgbTooltipModule],
     templateUrl: './visibility-toggle.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     styleUrl: './visibility-toggle.component.scss'
 })
 export class VisibilityToggleComponent {

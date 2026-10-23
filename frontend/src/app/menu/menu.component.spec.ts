@@ -1,28 +1,24 @@
-import { waitForAsync, ComponentFixture, TestBed } from "@angular/core/testing";
-import { NoopAnimationsModule } from "@angular/platform-browser/animations";
+import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { provideHttpClientTesting } from "@angular/common/http/testing";
 
 import { MenuComponent } from "./menu.component";
 import { provideRouter } from "@angular/router";
-import {
-    provideHttpClient,
-    withInterceptorsFromDi,
-} from "@angular/common/http";
+import { provideHttpClient, withInterceptorsFromDi } from "@angular/common/http";
 
 describe("MenuComponent", () => {
     let component: MenuComponent;
     let fixture: ComponentFixture<MenuComponent>;
 
-    beforeEach(waitForAsync(() => {
+    beforeEach(async () => {
         TestBed.configureTestingModule({
-            imports: [MenuComponent, NoopAnimationsModule],
+            imports: [MenuComponent],
             providers: [
                 provideRouter([]),
                 provideHttpClient(withInterceptorsFromDi()),
                 provideHttpClientTesting(),
             ],
         }).compileComponents();
-    }));
+    });
 
     beforeEach(() => {
         fixture = TestBed.createComponent(MenuComponent);

@@ -1,4 +1,4 @@
-import { Component, Inject, LOCALE_ID, OnDestroy } from '@angular/core';
+import { Component, Inject, LOCALE_ID, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { formatDate } from '@angular/common';
 import { Subscription } from 'rxjs';
 import { environment } from '../../environments/environment';
@@ -8,6 +8,7 @@ import { DarkModeService } from '../services/dark-mode.service';
     selector: 'la-footer',
     templateUrl: './footer.component.html',
     styleUrls: ['./footer.component.scss'],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: true
 })
 export class FooterComponent implements OnDestroy {

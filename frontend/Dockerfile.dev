@@ -1,17 +1,20 @@
-FROM node:24.14-slim
+FROM node:26.12-slim
 
 # Set the working directory.
 WORKDIR /usr/src/app
+
+# Install yarn
+RUN npm install --global yarn@1.22.22
 
 # Copy package.json and yarn.lock.
 COPY package.json yarn.lock ./
 
 # Install dependencies.
-RUN yarn global add @angular/cli@19
+RUN yarn global add @angular/cli@22
 RUN yarn install --frozen-lockfile
 
 # Expose the port for the development server.
 EXPOSE 4200
 
 # Start the development server. The poll flag allows for live reloading.
-CMD ["ng", "serve", "--host", "0.0.0.0", "--disable-host-check", "--poll", "200"]
+CMD ["ng", "serve", "--host", "0.0.0.0", "--poll", "200", "--allowed-hosts"]

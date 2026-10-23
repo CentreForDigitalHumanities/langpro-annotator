@@ -1,4 +1,4 @@
-import { Component, DestroyRef, inject } from "@angular/core";
+import { Component, DestroyRef, inject, ChangeDetectionStrategy } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ParseService } from "@/services/parse.service";
 import { ParseTreeTableComponent } from "./parse-tree-table/parse-tree-table.component";
@@ -44,6 +44,7 @@ function unfoldParseResult(parse: CCGParse): UnfoldedParseResult {
         NoDataComponent,
     ],
     templateUrl: "./annotation-parse-results.component.html",
+    changeDetection: ChangeDetectionStrategy.Eager,
     styleUrl: "./annotation-parse-results.component.scss",
 })
 export class AnnotationParseResultsComponent {

@@ -1,4 +1,4 @@
-import { Component, ElementRef, Input, Output, ViewChild, EventEmitter } from '@angular/core';
+import { Component, ElementRef, Input, Output, ViewChild, EventEmitter, ChangeDetectionStrategy } from '@angular/core';
 import { Dimensions } from '@/types';
 
 @Component({
@@ -6,6 +6,7 @@ import { Dimensions } from '@/types';
     standalone: true,
     imports: [],
     templateUrl: "./tableau-node.component.svg",
+    changeDetection: ChangeDetectionStrategy.Eager,
     styleUrl: "./tableau-node.component.scss",
 })
 export class TableauNode {

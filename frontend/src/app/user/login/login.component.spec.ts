@@ -3,16 +3,11 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { LoginComponent } from "./login.component";
 import { AuthService } from "../../services/auth.service";
 import { provideRouter, Router } from "@angular/router";
-import {
-    HttpTestingController,
-    provideHttpClientTesting,
-} from "@angular/common/http/testing";
+import { HttpTestingController, provideHttpClientTesting, } from "@angular/common/http/testing";
 import { ToastService } from "../../services/toast.service";
 import { toSignal } from "@angular/core/rxjs-interop";
-import {
-    provideHttpClient,
-    withInterceptorsFromDi,
-} from "@angular/common/http";
+import { provideHttpClient, withInterceptorsFromDi } from "@angular/common/http";
+import { vi } from "vitest";
 
 describe("LoginComponent", () => {
     let component: LoginComponent;
@@ -45,11 +40,11 @@ describe("LoginComponent", () => {
 
     it("should check missing input", () => {
         component.submit();
-        expect(component.form.controls.username.invalid).toBeTrue();
+        expect(component.form.controls.username.invalid).toBe(true);
         expect(component.form.controls.username.errors).toEqual({
             required: true,
         });
-        expect(component.form.controls.password.invalid).toBeTrue();
+        expect(component.form.controls.password.invalid).toBe(true);
         expect(component.form.controls.password.errors).toEqual({
             required: true,
         });
@@ -70,7 +65,7 @@ describe("LoginComponent", () => {
             { status: 400, statusText: "Bad request" }
         );
 
-        expect(component.form.invalid).toBeTrue();
+        expect(component.form.invalid).toBe(true);
         expect(component.form.errors).toEqual({
             invalid: "Unable to log in with provided credentials.",
         });
@@ -80,7 +75,7 @@ describe("LoginComponent", () => {
         component.form.controls.username.setValue("user");
         component.form.controls.password.setValue("secretpassword");
 
-        const routerSpy = spyOn(router, "navigate");
+        const routerSpy = vi.spyOn(router, "navigate");
 
         // toSignal lets us inspect the latest value of an Observable.
         // It basically turns it into a BehaviorSubject.
@@ -89,13 +84,13 @@ describe("LoginComponent", () => {
         );
 
         component.submit();
-        expect(loading()).toBeTrue();
-        expect(component.form.valid).toBeTrue();
+        expect(loading()).toBe(true);
+        expect(component.form.valid).toBe(true);
 
         const req = httpTestingController.expectOne("/users/login/");
         req.flush({ key: "abcdefghijklmnopqrstuvwxyz" });
 
-        expect(loading()).toBeFalse();
+        expect(loading()).toBe(false);
         expect(toastService.toasts.length).toBe(1);
         expect(routerSpy).toHaveBeenCalledWith(["/"]);
     });

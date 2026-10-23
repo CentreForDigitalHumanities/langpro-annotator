@@ -1,3 +1,4 @@
+import { vi, type MockedObject } from "vitest";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { FormArray, FormGroup } from "@angular/forms";
 
@@ -57,16 +58,18 @@ function createMockProblem(): Problem {
 describe("AnnotationInputComponent", () => {
     let component: AnnotationInputComponent;
     let fixture: ComponentFixture<AnnotationInputComponent>;
-    let mockRouter: jasmine.SpyObj<Router>;
+    let mockRouter: MockedObject<Router>;
     let mockActivatedRoute: any;
 
     beforeEach(async () => {
-        const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
+        const routerSpy = {
+            navigate: vi.fn().mockName("Router.navigate")
+        };
         mockActivatedRoute = {
             params: of({ problemId: "1" }),
             snapshot: {
                 paramMap: {
-                    get: jasmine.createSpy('get').and.returnValue("17")
+                    get: vi.fn().mockReturnValue("17")
                 }
             }
         };
@@ -81,7 +84,7 @@ describe("AnnotationInputComponent", () => {
             ],
         }).compileComponents();
 
-        mockRouter = TestBed.inject(Router) as jasmine.SpyObj<Router>;
+        mockRouter = TestBed.inject(Router) as MockedObject<Router>;
         fixture = TestBed.createComponent(AnnotationInputComponent);
         component = fixture.componentInstance;
         fixture.detectChanges();

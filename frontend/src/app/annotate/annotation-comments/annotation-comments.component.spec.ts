@@ -75,43 +75,32 @@ describe("AnnotationCommentsComponent", () => {
 
         const events = component.filteredEvents()!;
         expect(events.length).toBe(1);
-        expect(events[0]).toEqual(
-            jasmine.objectContaining({
-                eventKind: "added",
-                annotationKind: "label",
-                actor: "Alice",
-                description: "negation",
-            })
-        );
+        expect(events[0].eventKind).toBe("added");
+        expect(events[0].annotationKind).toBe("label");
+        expect(events[0].actor).toBe("Alice");
+        expect(events[0].description).toBe("negation");
     });
 
     it("emits a 'removed' event when removedAt is set", () => {
-        recreateComponent(
-            [
-                {
-                    ...baseAnnotationFields,
-                    createdAt: "2024-01-01T10:00:00Z",
-                    createdBy: "Bob",
-                    removedAt: "2024-01-02T10:00:00Z",
-                    removedBy: "3",
-                    entity1: "cat",
-                    relationship: KnowledgeBaseRelationship.EQUAL,
-                    entity2: "feline",
-                },
-            ],
-            []
-        );
+        recreateComponent([
+            {
+                ...baseAnnotationFields,
+                createdAt: "2024-01-01T10:00:00Z",
+                createdBy: "Bob",
+                removedAt: "2024-01-02T10:00:00Z",
+                removedBy: "3",
+                entity1: "cat",
+                relationship: KnowledgeBaseRelationship.EQUAL,
+                entity2: "feline",
+            },
+        ], []);
 
         const events = component.filteredEvents()!;
         expect(events.length).toBe(2);
         const removed = events.find((e) => e.eventKind === "removed");
-        expect(removed).toEqual(
-            jasmine.objectContaining({
-                eventKind: "removed",
-                annotationKind: "knowledgeBase",
-                description: "cat = feline",
-            })
-        );
+        expect(removed!.eventKind).toBe("removed");
+        expect(removed!.annotationKind).toBe("knowledgeBase");
+        expect(removed!.description).toBe("cat = feline");
     });
 
     it("sorts events by timestamp descending", () => {

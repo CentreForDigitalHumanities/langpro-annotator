@@ -1,17 +1,18 @@
-import { ComponentFixture, TestBed, fakeAsync, tick } from "@angular/core/testing";
+import { vi, type MockedObject } from "vitest";
+import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { ManageLabelsModalComponent } from "./manage-labels-modal.component";
 import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
 import { Label, LabelAnnotation } from "@/types";
 import { ProblemService } from "@/services/problem.service";
 import { AuthService } from "@/services/auth.service";
-import { BehaviorSubject, Observable } from "rxjs";
+import { BehaviorSubject, firstValueFrom, Observable, skip } from "rxjs";
 
 describe("ManageLabelsModalComponent", () => {
     let component: ManageLabelsModalComponent;
     let fixture: ComponentFixture<ManageLabelsModalComponent>;
-    let mockActiveModal: jasmine.SpyObj<NgbActiveModal>;
-    let mockProblemService: jasmine.SpyObj<ProblemService>;
-    let mockAuthService: jasmine.SpyObj<AuthService>;
+    let mockActiveModal: MockedObject<NgbActiveModal>;
+    let mockProblemService: MockedObject<ProblemService>;
+    let mockAuthService: MockedObject<AuthService>;
     let allLabels$: BehaviorSubject<Label[]>;
     let currentUser$: BehaviorSubject<{ username: string; } | null>;
 
@@ -51,18 +52,18 @@ describe("ManageLabelsModalComponent", () => {
         allLabels$ = new BehaviorSubject<Label[]>([testLabel1, testLabel2, testLabel3]);
         currentUser$ = new BehaviorSubject<{ username: string; } | null>({ username: "Current User" });
 
-        mockActiveModal = jasmine.createSpyObj("NgbActiveModal", [
-            "close",
-            "dismiss",
-        ]);
+        mockActiveModal = {
+            close: vi.fn().mockName("NgbActiveModal.close"),
+            dismiss: vi.fn().mockName("NgbActiveModal.dismiss")
+        } as MockedObject<NgbActiveModal>;
 
-        mockProblemService = jasmine.createSpyObj("ProblemService", [], {
+        mockProblemService = {
             allLabels$: allLabels$.asObservable()
-        });
+        } as MockedObject<ProblemService>;
 
-        mockAuthService = jasmine.createSpyObj("AuthService", [], {
+        mockAuthService = {
             currentUser$: currentUser$.asObservable()
-        });
+        } as MockedObject<AuthService>;
 
         await TestBed.configureTestingModule({
             imports: [ManageLabelsModalComponent],
@@ -89,41 +90,48 @@ describe("ManageLabelsModalComponent", () => {
         });
     });
 
-    it("should populate availableLabels$ with all labels initially", fakeAsync(() => {
-        const availableLabels = getSubscriptionValue(component.availableLabels$);
+    it("should populate availableLabels$ with all labels initially", async () => {
+        const availableLabels = await firstValueFrom(component.availableLabels$);
 
         expect(availableLabels?.length).toBe(3);
         expect(availableLabels).toContain(testLabel1);
         expect(availableLabels).toContain(testLabel2);
         expect(availableLabels).toContain(testLabel3);
-    }));
+    });
 
-    it("should filter out selected labels from availableLabels$", fakeAsync(() => {
+    it("should filter out selected labels from availableLabels$", async () => {
         component.form.controls.selectedLabelIds.setValue([1, 2]);
-        tick();
 
-        const availableLabels = getSubscriptionValue(component.availableLabels$);
+        const availableLabels = await firstValueFrom(component.availableLabels$);
 
         expect(availableLabels?.length).toBe(1);
         expect(availableLabels).toContain(testLabel3);
         expect(availableLabels).not.toContain(testLabel1);
         expect(availableLabels).not.toContain(testLabel2);
-    }));
+    });
 
-    it("should add label when addLabelAnnotation is called", fakeAsync(() => {
+    it("should add label when addLabelAnnotation is called", async () => {
+        const selectedLabelIdsPromise = firstValueFrom(
+            component.form.controls.selectedLabelIds.valueChanges,
+        );
         component.addLabelAnnotation(testLabel1.id);
-        tick();
 
-        expect(component.form.controls.selectedLabelIds.value).toContain(testLabel1.id);
-    }));
+        const selectedLabelIds = await selectedLabelIdsPromise;
 
-    it("should not add duplicate labels", fakeAsync(() => {
+        expect(selectedLabelIds).toContain(testLabel1.id);
+    });
+
+    it("should not add duplicate labels", async () => {
+        const selectedLabelIdsPromise = firstValueFrom(
+            component.form.controls.selectedLabelIds.valueChanges,
+        );
         component.form.controls.selectedLabelIds.setValue([testLabel1.id]);
         component.addLabelAnnotation(testLabel1.id);
-        tick();
 
-        expect(component.form.controls.selectedLabelIds.value).toEqual([testLabel1.id]);
-    }));
+        const selectedLabelIds = await selectedLabelIdsPromise;
+
+        expect(selectedLabelIds).toEqual([testLabel1.id]);
+    });
 
     it("should remove label when removeLabel is called", () => {
         component.form.controls.selectedLabelIds.setValue([1, 2, 3]);
@@ -132,32 +140,30 @@ describe("ManageLabelsModalComponent", () => {
         expect(component.form.controls.selectedLabelIds.value).toEqual([1, 3]);
     });
 
-    it("should create new LabelAnnotation objects for newly selected labels", fakeAsync(() => {
+    it("should create new LabelAnnotation objects for newly selected labels", async () => {
         component.currentAnnotations = [];
         component.form.controls.selectedLabelIds.setValue([testLabel1.id]);
-        tick();
 
-        const shownLabels = getSubscriptionValue(component.shownLabels$);
+        const shownLabels = await firstValueFrom(component.shownLabels$);
 
         expect(shownLabels?.length).toBe(1);
         expect(shownLabels?.[0].label).toEqual(testLabel1);
         expect(shownLabels?.[0].id).toBeNull();
         expect(shownLabels?.[0].attachedByCurrentUser).toBe(true);
         expect(shownLabels?.[0].createdBy).toBe("Current User");
-    }));
+    });
 
-    it("should preserve existing LabelAnnotation objects in shownLabels$", fakeAsync(() => {
+    it("should preserve existing LabelAnnotation objects in shownLabels$", async () => {
         component.currentAnnotations = [testAttachedLabel];
         component.form.controls.selectedLabelIds.setValue([testLabel1.id]);
-        tick();
 
-        const shownLabels = getSubscriptionValue(component.shownLabels$);
+        const shownLabels = await firstValueFrom(component.shownLabels$);
 
         expect(shownLabels?.length).toBe(1);
         expect(shownLabels?.[0]).toBe(testAttachedLabel);
         expect(shownLabels?.[0].id).toBe(999);
         expect(shownLabels?.[0].createdBy).toBe("Other User");
-    }));
+    });
 
     it("should close modal with transformed data", () => {
         component.form.controls.problemId.setValue(42);
@@ -189,28 +195,25 @@ describe("ManageLabelsModalComponent", () => {
         expect(text).toContain('15 March 2024');
     });
 
-    it("should handle unknown user when creating new annotations", fakeAsync(() => {
+    it("should handle unknown user when creating new annotations", async () => {
         currentUser$.next(null);
         component.currentAnnotations = [];
         component.form.controls.selectedLabelIds.setValue([testLabel1.id]);
-        tick();
 
-        const shownLabels = getSubscriptionValue(component.shownLabels$);
+        const shownLabels = await firstValueFrom(component.shownLabels$);
 
         expect(shownLabels?.[0].createdBy).toBe("Unknown user");
-    }));
+    });
 
-    it("should set loadingLabels$ to false after labels are available", fakeAsync(() => {
-        const loading = getSubscriptionValue(component.loadingLabels$);
+    it("should set loadingLabels$ to false after labels are available", async () => {
+        const loading = await firstValueFrom(component.loadingLabels$.pipe(skip(1)));
 
         expect(loading).toBe(false);
-    }));
+    });
 
-    it("should handle multiple labels being added and removed", fakeAsync(() => {
+    it("should handle multiple labels being added and removed", (() => {
         component.addLabelAnnotation(testLabel1.id);
-        tick();
         component.addLabelAnnotation(testLabel2.id);
-        tick();
 
         expect(component.form.controls.selectedLabelIds.value).toEqual([testLabel1.id, testLabel2.id]);
 
@@ -219,26 +222,12 @@ describe("ManageLabelsModalComponent", () => {
         expect(component.form.controls.selectedLabelIds.value).toEqual([testLabel2.id]);
     }));
 
-    it("should filter out null values from shownLabels$ when label not found", fakeAsync(() => {
+    it("should filter out null values from shownLabels$ when label not found", async () => {
         component.currentAnnotations = [];
         component.form.controls.selectedLabelIds.setValue([999]); // Non-existent label ID
-        tick();
 
-        const shownLabels = getSubscriptionValue(component.shownLabels$);
+        const shownLabels = await firstValueFrom(component.shownLabels$);
 
         expect(shownLabels?.length).toBe(0);
-    }));
-});
-
-/**
- * Subscribe to an observable and update the provided value variable with
- * emitted values.
- */
-function getSubscriptionValue<T>(observ: Observable<T>): T | undefined {
-    let value: T | undefined;
-    observ.subscribe(val => {
-        value = val;
     });
-    tick();
-    return value;
-}
+});

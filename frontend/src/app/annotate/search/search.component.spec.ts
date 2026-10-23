@@ -20,7 +20,8 @@ describe("SearchComponent", () => {
                         params: of({ problemId: "1" }),
                         queryParamMap: of({ dataset: null, entailmentLabel: null, status: null, text: "" }),
                     }
-                }]
+                }
+            ]
         }).compileComponents();
 
         fixture = TestBed.createComponent(SearchComponent);

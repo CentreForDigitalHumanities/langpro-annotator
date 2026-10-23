@@ -2,16 +2,10 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 
 import { ResetPasswordComponent } from "./reset-password.component";
 import { ToastService } from "../../services/toast.service";
-import {
-    HttpTestingController,
-    provideHttpClientTesting,
-} from "@angular/common/http/testing";
+import { HttpTestingController, provideHttpClientTesting } from "@angular/common/http/testing";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { provideRouter } from "@angular/router";
-import {
-    provideHttpClient,
-    withInterceptorsFromDi,
-} from "@angular/common/http";
+import { provideHttpClient, withInterceptorsFromDi } from "@angular/common/http";
 
 describe("ResetPasswordComponent", () => {
     let component: ResetPasswordComponent;
@@ -40,11 +34,11 @@ describe("ResetPasswordComponent", () => {
 
     it("should check missing input", () => {
         component.submit();
-        expect(component.form.controls.new_password1.invalid).toBeTrue();
+        expect(component.form.controls.new_password1.invalid).toBe(true);
         expect(component.form.controls.new_password1.errors).toEqual({
             required: true,
         });
-        expect(component.form.controls.new_password2.invalid).toBeTrue();
+        expect(component.form.controls.new_password2.invalid).toBe(true);
         expect(component.form.controls.new_password2.errors).toEqual({
             required: true,
         });
@@ -72,7 +66,7 @@ describe("ResetPasswordComponent", () => {
             }
         );
 
-        expect(component.form.invalid).toBeTrue();
+        expect(component.form.invalid).toBe(true);
         expect(component.form.controls.uid.errors).toEqual({
             invalid: "Invalid value",
         });
@@ -100,7 +94,7 @@ describe("ResetPasswordComponent", () => {
             }
         );
 
-        expect(component.form.invalid).toBeTrue();
+        expect(component.form.invalid).toBe(true);
         expect(component.form.controls.token.errors).toEqual({
             invalid: "Invalid value",
         });
@@ -117,7 +111,7 @@ describe("ResetPasswordComponent", () => {
 
         httpTestingController.expectNone("/users/password/reset/confirm/");
 
-        expect(component.form.invalid).toBeTrue();
+        expect(component.form.invalid).toBe(true);
         expect(component.form.errors).toEqual({
             passwords: true,
         });
@@ -136,8 +130,8 @@ describe("ResetPasswordComponent", () => {
         );
 
         component.submit();
-        expect(loading()).toBeTrue();
-        expect(component.form.valid).toBeTrue();
+        expect(loading()).toBe(true);
+        expect(component.form.valid).toBe(true);
 
         const req = httpTestingController.expectOne(
             "/users/password/reset/confirm/"
@@ -146,7 +140,7 @@ describe("ResetPasswordComponent", () => {
             detail: "Password has been reset with the new password.",
         });
 
-        expect(loading()).toBeFalse();
+        expect(loading()).toBe(false);
         expect(toastService.toasts.length).toBe(1);
     });
 });

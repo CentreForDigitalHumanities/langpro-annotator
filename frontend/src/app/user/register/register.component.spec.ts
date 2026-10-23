@@ -1,16 +1,11 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { RegisterComponent } from "./register.component";
-import {
-    HttpTestingController,
-    provideHttpClientTesting,
-} from "@angular/common/http/testing";
+import { HttpTestingController, provideHttpClientTesting } from "@angular/common/http/testing";
 import { Router } from "@angular/router";
 import { ToastService } from "../../services/toast.service";
 import { toSignal } from "@angular/core/rxjs-interop";
-import {
-    provideHttpClient,
-    withInterceptorsFromDi,
-} from "@angular/common/http";
+import { provideHttpClient, withInterceptorsFromDi } from "@angular/common/http";
+import { vi } from "vitest";
 
 describe("RegisterComponent", () => {
     let component: RegisterComponent;
@@ -43,22 +38,22 @@ describe("RegisterComponent", () => {
 
         httpTestingController.expectNone("/users/registration/");
 
-        expect(component.form.controls.username.invalid).toBeTrue();
+        expect(component.form.controls.username.invalid).toBe(true);
         expect(component.form.controls.username.errors).toEqual({
             required: true,
         });
 
-        expect(component.form.controls.email.invalid).toBeTrue();
+        expect(component.form.controls.email.invalid).toBe(true);
         expect(component.form.controls.email.errors).toEqual({
             required: true,
         });
 
-        expect(component.form.controls.password1.invalid).toBeTrue();
+        expect(component.form.controls.password1.invalid).toBe(true);
         expect(component.form.controls.password1.errors).toEqual({
             required: true,
         });
 
-        expect(component.form.controls.password2.invalid).toBeTrue();
+        expect(component.form.controls.password2.invalid).toBe(true);
         expect(component.form.controls.password2.errors).toEqual({
             required: true,
         });
@@ -102,7 +97,7 @@ describe("RegisterComponent", () => {
         component.form.controls.password2.setValue("password1");
         component.submit();
 
-        expect(component.form.invalid).toBeTrue();
+        expect(component.form.invalid).toBe(true);
         expect(component.form.errors).toEqual({
             passwords: true,
         });
@@ -114,20 +109,20 @@ describe("RegisterComponent", () => {
         component.form.controls.password1.setValue("theonering");
         component.form.controls.password2.setValue("theonering");
 
-        const routerSpy = spyOn(router, "navigate");
+        const routerSpy = vi.spyOn(router, "navigate");
 
         const loading = TestBed.runInInjectionContext(() =>
             toSignal(component.loading$)
         );
 
         component.submit();
-        expect(loading()).toBeTrue();
-        expect(component.form.valid).toBeTrue();
+        expect(loading()).toBe(true);
+        expect(component.form.valid).toBe(true);
 
         const req = httpTestingController.expectOne("/users/registration/");
         req.flush(null);
 
-        expect(loading()).toBeFalse();
+        expect(loading()).toBe(false);
         expect(toastService.toasts.length).toBe(1);
         expect(routerSpy).toHaveBeenCalledWith(["/"]);
     });
@@ -138,15 +133,13 @@ describe("RegisterComponent", () => {
         component.form.controls.password1.setValue("theonering");
         component.form.controls.password2.setValue("theonering");
 
-        const routerSpy = spyOn(router, "navigate");
+        const routerSpy = vi.spyOn(router, "navigate");
 
-        const loading = TestBed.runInInjectionContext(() =>
-            toSignal(component.loading$)
-        );
+        const loading = TestBed.runInInjectionContext(() => toSignal(component.loading$));
 
         component.submit();
-        expect(loading()).toBeTrue();
-        expect(component.form.valid).toBeTrue();
+        expect(loading()).toBe(true);
+        expect(component.form.valid).toBe(true);
 
         const req = httpTestingController.expectOne("/users/registration/");
         req.flush(
@@ -154,7 +147,7 @@ describe("RegisterComponent", () => {
             { status: 400, statusText: "Bad request" }
         );
 
-        expect(loading()).toBeFalse();
+        expect(loading()).toBe(false);
         expect(toastService.toasts.length).toBe(0);
         expect(routerSpy).not.toHaveBeenCalled();
         expect(component.form.controls.username.errors).toEqual({

@@ -1,10 +1,11 @@
 import { TestBed } from "@angular/core/testing";
 import { HttpTestingController, provideHttpClientTesting } from "@angular/common/http/testing";
 import { ProblemService } from "./problem.service";
-import { Dataset, EntailmentLabel, Problem, ProblemResponse, ProblemStatus, SaveProblemResponse } from "@/types";
+import { Dataset, EntailmentLabel, ProblemResponse, ProblemStatus, SaveProblemResponse } from "@/types";
 import { convertToParamMap } from "@angular/router";
 import { provideHttpClient } from "@angular/common/http";
 import { ParseInput } from "@/annotate/annotation-input/annotation-input.component";
+import { firstValueFrom, take } from "rxjs";
 
 describe("ProblemService", () => {
     let service: ProblemService;
@@ -31,20 +32,20 @@ describe("ProblemService", () => {
     });
 
     describe("problemResponse$", () => {
-        it("should handle 'None' problem ID", (done) => {
+        it("should handle 'None' problem ID", async () => {
+            const responsePromise = firstValueFrom(service.problemResponse$.pipe(take(1)));
+
             service.allParams$.next({
                 params: convertToParamMap({ problemId: null }),
                 queryParams: convertToParamMap({}),
                 edit: false
             });
 
-            service.problemResponse$.subscribe(response => {
-                expect(response).toEqual(null);
-                done();
-            });
+            const response = await responsePromise;
+            expect(response).toBeNull();
         });
 
-        it("should fetch an existing problem", (done) => {
+        it("should fetch an existing problem", async () => {
             const mockProblemId = 123;
             const mockResponse: ProblemResponse = {
                 problem: {
@@ -75,29 +76,26 @@ describe("ProblemService", () => {
                 error: null
             };
 
+            const responsePromise = firstValueFrom(service.problemResponse$.pipe(take(1)));
+
             service.allParams$.next({
                 params: convertToParamMap({ problemId: mockProblemId }),
                 queryParams: convertToParamMap({}),
                 edit: false
             });
 
-            service.problemResponse$.subscribe(response => {
-                expect(response).toEqual(mockResponse);
-                done();
-            });
-
             const req = httpMock.expectOne(`/api/problem/?text=&dataset=&status=&entailmentLabel=&hidden=&langproPrediction=&current=${mockProblemId}`);
             expect(req.request.method).toBe("GET");
             req.flush(mockResponse);
+
+            const response = await responsePromise;
+            expect(response).toEqual(mockResponse);
         });
 
-        it("should handle HTTP errors when fetching a problem", (done) => {
+        it("should handle HTTP errors when fetching a problem", async () => {
             const mockProblemId = "404";
 
-            service.problemResponse$.subscribe(response => {
-                expect(response).toBeNull();
-                done();
-            });
+            const responsePromise = firstValueFrom(service.problemResponse$.pipe(take(1)));
 
             service.allParams$.next({
                 params: convertToParamMap({ problemId: mockProblemId }),
@@ -113,17 +111,20 @@ describe("ProblemService", () => {
             expect(req.request.params.get("entailmentLabel")).toBe("");
             expect(req.request.params.get("current")).toBe(mockProblemId);
             req.flush("Not Found", { status: 404, statusText: "Not Found" });
+
+            const response = await responsePromise;
+            expect(response).toBeNull();
         });
 
-        it("should include query parameters in the request", (done) => {
+        it("should include query parameters in the request", async () => {
             const queryParams = { text: "search", dataset: "FRACAS" };
+            const responsePromise = firstValueFrom(service.problemResponse$.pipe(take(1)));
+
             service.allParams$.next({
                 params: convertToParamMap({ problemId: "abc" }),
                 queryParams: convertToParamMap(queryParams),
                 edit: false
             });
-
-            service.problemResponse$.subscribe(() => done());
 
             const req = httpMock.expectOne(r => r.url.startsWith("/api/problem/"));
             expect(req.request.params.get("text")).toBe("search");
@@ -132,12 +133,14 @@ describe("ProblemService", () => {
             expect(req.request.params.get("entailmentLabel")).toBe("");
             expect(req.request.params.get("current")).toBe("abc");
             req.flush({});
+
+            await responsePromise;
         });
     });
 
 
     describe("saveProblem$", () => {
-        it("should PATCH the problem and return the response", (done) => {
+        it("should PATCH the problem and return the response", async () => {
             const problemToSave: ParseInput = {
                 id: 1,
                 base: null,
@@ -148,11 +151,7 @@ describe("ProblemService", () => {
                 usedKbItems: []
             };
             const mockResponse: SaveProblemResponse = { id: 1, error: null };
-
-            service.saveProblem$.subscribe(response => {
-                expect(response).toEqual(mockResponse);
-                done();
-            });
+            const responsePromise = firstValueFrom(service.saveProblem$.pipe(take(1)));
 
             service.submit$.next(problemToSave);
 
@@ -160,9 +159,12 @@ describe("ProblemService", () => {
             expect(req.request.method).toBe("PATCH");
             expect(req.request.body).toEqual(problemToSave);
             req.flush(mockResponse);
+
+            const response = await responsePromise;
+            expect(response).toEqual(mockResponse);
         });
 
-        it("should handle errors during save", (done) => {
+        it("should handle errors during save", async () => {
             const problemToSave: ParseInput = {
                 id: 2,
                 base: null,
@@ -173,41 +175,42 @@ describe("ProblemService", () => {
                 usedKbItems: []
             };
 
-            service.saveProblem$.subscribe(response => {
-                expect(response.id).toBeNull();
-                expect(response.error).toBe("Failed to save problem");
-                done();
-            });
+            const responsePromise = firstValueFrom(service.saveProblem$.pipe(take(1)));
 
             service.submit$.next(problemToSave);
 
             const req = httpMock.expectOne("/api/problem/2/");
             req.flush("Error", { status: 500, statusText: "Server Error" });
+
+            const response = await responsePromise;
+            expect(response).toEqual({
+                id: null,
+                error: "Failed to save problem"
+            });
         });
     });
 
     describe("firstProblemId$", () => {
-        it("should fetch the first problem and return its ID", (done) => {
+        it("should fetch the first problem and return its ID", async () => {
             const mockResponse = { problem: { id: 555 } };
-
-            service.firstProblemId$.subscribe(id => {
-                expect(id).toBe(555);
-                done();
-            });
+            const responsePromise = firstValueFrom(service.firstProblemId$.pipe(take(1)));
 
             const req = httpMock.expectOne("/api/problem/");
             expect(req.request.method).toBe("GET");
             req.flush(mockResponse);
+
+            const response = await responsePromise;
+            expect(response).toBe(555);
         });
 
-        it("should return null if fetching the first problem fails", (done) => {
-            service.firstProblemId$.subscribe(id => {
-                expect(id).toBeNull();
-                done();
-            });
+        it("should return null if fetching the first problem fails", async () => {
+            const responsePromise = firstValueFrom(service.firstProblemId$.pipe(take(1)));
 
             const req = httpMock.expectOne("/api/problem/");
             req.flush("Error", { status: 500, statusText: "Server Error" });
+
+            const response = await responsePromise;
+            expect(response).toBeNull();
         });
     });
 });

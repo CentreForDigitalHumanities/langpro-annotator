@@ -8,7 +8,7 @@ const mockTree: TreeWithType = {
     tree: {
         node: ["NP", "The", "the", "DT", "O", "NP"],
     }
-}
+};
 
 describe('ParseTreeTableComponent', () => {
     let component: ParseTreeTableComponent;

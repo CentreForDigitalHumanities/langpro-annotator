@@ -15,6 +15,7 @@ def kb_annotation(db, annotator_session, non_user_problem):
         created_by=annotator_session.user,
     )
 
+
 @pytest.mark.django_db
 def test_status_bronze_no_annotations(db, non_user_problem):
     """
@@ -32,6 +33,7 @@ def test_status_gold_without_annotation(db, non_user_problem):
     non_user_problem.save()
     assert non_user_problem.status == Problem.Status.GOLD
 
+
 @pytest.mark.django_db
 def test_status_gold_with_annotation(db, non_user_problem, kb_annotation):
     """A problem with gold=True is gold even with annotations."""
@@ -45,8 +47,11 @@ def test_status_silver_with_kb_annotation(db, non_user_problem, kb_annotation):
     """A problem with an active KB annotation and gold=False is silver."""
     assert non_user_problem.status == Problem.Status.SILVER
 
+
 @pytest.mark.django_db
-def test_status_silver_with_label_annotation(db, non_user_problem, annotator_session, sample_label):
+def test_status_silver_with_label_annotation(
+    db, non_user_problem, annotator_session, sample_label
+):
     """A problem with an active label annotation and gold=False is silver."""
     LabelAnnotation.objects.create(
         problem=non_user_problem,
@@ -58,7 +63,9 @@ def test_status_silver_with_label_annotation(db, non_user_problem, annotator_ses
 
 
 @pytest.mark.django_db
-def test_status_bronze_when_all_annotations_removed(db, non_user_problem, annotator_session):
+def test_status_bronze_when_all_annotations_removed(
+    db, non_user_problem, annotator_session
+):
     """A problem whose only annotation is removed reverts to bronze."""
     from django.utils import timezone
 
@@ -85,3 +92,49 @@ def test_status_serialized(db, non_user_problem):
     serializer = ProblemSerializer(non_user_problem)
     assert serializer.data["status"] == Problem.Status.BRONZE
     assert serializer.data["gold"] is False
+
+
+@pytest.mark.django_db
+def test_problem_sentence_usages_serialized(
+    db, user_problem, non_user_problem, premise_sentence
+):
+    """Sentence usages include the problem dataset and their role."""
+    from problem.serializers import ProblemSerializer
+
+    hypothesis_problem = Problem.objects.create(
+        dataset=Problem.Dataset.FRACAS,
+        hypothesis=premise_sentence,
+        extra_data={},
+    )
+
+    data = ProblemSerializer(non_user_problem).data
+
+    assert data["premises"][0]["relatedProblems"] == [
+        {
+            "id": user_problem.pk,
+            "dataset": Problem.Dataset.USER,
+            "isHypothesis": False,
+        },
+        {
+            "id": non_user_problem.pk,
+            "dataset": Problem.Dataset.SICK,
+            "isHypothesis": False,
+        },
+        {
+            "id": hypothesis_problem.pk,
+            "dataset": Problem.Dataset.FRACAS,
+            "isHypothesis": True,
+        },
+    ]
+    assert data["hypothesis"]["relatedProblems"] == [
+        {
+            "id": user_problem.pk,
+            "dataset": Problem.Dataset.USER,
+            "isHypothesis": True,
+        },
+        {
+            "id": non_user_problem.pk,
+            "dataset": Problem.Dataset.SICK,
+            "isHypothesis": True,
+        },
+    ]

@@ -209,14 +209,14 @@ export class AnnotationInputComponent implements OnInit {
             }),
             premises: new FormArray(
                 problem.premises.map(
-                    (premise) =>
-                        new FormControl<string>(premise, {
+                    ({ text }) =>
+                        new FormControl<string>(text, {
                             validators: [Validators.required],
                             nonNullable: true,
                         })
                 )
             ),
-            hypothesis: new FormControl<string>(problem.hypothesis ?? "", {
+            hypothesis: new FormControl<string>(problem.hypothesis?.text ?? "", {
                 validators: [Validators.required],
                 nonNullable: true,
             }),

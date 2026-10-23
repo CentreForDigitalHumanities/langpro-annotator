@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from django.utils import timezone
+from django.db.models import Q
 
 from annotation.serializers import KnowledgeBaseAnnotationSerializer
 from annotation.models import (
@@ -54,13 +55,18 @@ class ProblemSerializer(serializers.ModelSerializer):
             "usedKbItems",
         ]
 
-    def get_premises(self, problem: Problem):
-        """Get list of premise texts."""
-        return [premise.text for premise in problem.premises.all()]
-
     def get_hypothesis(self, problem: Problem):
         """Get hypothesis text."""
-        return problem.hypothesis.text
+        return {
+            "text": problem.hypothesis.text,
+            "relatedProblems": problem.hypothesis.get_related_problems(),
+        }
+
+    def get_premises(self, problem: Problem):
+        return [
+            {"text": premise.text, "relatedProblems": premise.get_related_problems()}
+            for premise in problem.premises.all()
+        ]
 
     def get_extraData(self, problem: Problem):
         """Get dataset-specific extra data."""

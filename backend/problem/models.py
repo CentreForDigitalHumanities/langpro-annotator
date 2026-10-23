@@ -1,11 +1,28 @@
 from django.db import models
-from django.db.models import QuerySet
+from django.db.models import QuerySet, Q
 
 from langpro_annotator.logger import logger
 
 
 class Sentence(models.Model):
     text = models.TextField()
+
+    def get_related_problems(self) -> list[dict]:
+        """Get all problems that use this sentence as a premise or hypothesis."""
+        related_problems = (
+            Problem.objects.filter(Q(premises=self) | Q(hypothesis=self))
+            .order_by("pk")
+            .values("id", "dataset", "hypothesis_id")
+            .distinct()
+        )
+        return [
+            {
+                "id": problem["id"],
+                "dataset": problem["dataset"],
+                "isHypothesis": problem["hypothesis_id"] == self.pk,
+            }
+            for problem in related_problems
+        ]
 
     def __str__(self):
         return self.text

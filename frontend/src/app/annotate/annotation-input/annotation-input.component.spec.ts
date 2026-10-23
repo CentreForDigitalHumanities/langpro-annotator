@@ -14,8 +14,11 @@ function createMockProblem(): Problem {
         id: 123,
         base: null,
         hidden: false,
-        premises: ["First premise", "Second premise"],
-        hypothesis: "Test hypothesis",
+        premises: [
+            { text: "First premise", relatedProblems: [] },
+            { text: "Second premise", relatedProblems: [] }
+        ],
+        hypothesis: { text: "Test hypothesis", relatedProblems: [] },
         entailmentLabel: EntailmentLabel.ENTAILMENT,
         langproPrediction: null,
         usedKbItems: [],

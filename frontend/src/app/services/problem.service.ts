@@ -165,7 +165,10 @@ export class ProblemService {
             problem: {
                 id: null,
                 base: baseParam ?? null,
-                hypothesis: existingProblem?.hypothesis ?? "",
+                hypothesis: existingProblem?.hypothesis ?? {
+                    text: "",
+                    relatedProblems: [],
+                },
                 dataset: Dataset.USER,
                 premises: existingProblem?.premises ?? [],
                 entailmentLabel: EntailmentLabel.UNKNOWN,

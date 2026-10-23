@@ -7,9 +7,9 @@ from langpro_annotator.logger import logger
 class Sentence(models.Model):
     text = models.TextField()
 
-    def get_problem_usages(self) -> list[dict]:
+    def get_related_problems(self) -> list[dict]:
         """Get all problems that use this sentence as a premise or hypothesis."""
-        usages = (
+        related_problems = (
             Problem.objects.filter(Q(premises=self) | Q(hypothesis=self))
             .order_by("pk")
             .values("id", "dataset", "hypothesis_id")
@@ -17,11 +17,11 @@ class Sentence(models.Model):
         )
         return [
             {
-                "id": usage["id"],
-                "dataset": usage["dataset"],
-                "isHypothesis": usage["hypothesis_id"] == self.pk,
+                "id": problem["id"],
+                "dataset": problem["dataset"],
+                "isHypothesis": problem["hypothesis_id"] == self.pk,
             }
-            for usage in usages
+            for problem in related_problems
         ]
 
     def __str__(self):

@@ -202,20 +202,20 @@ class ProblemInputSerializer(serializers.Serializer):
 
     def update(self, instance: Problem, validated_data: dict) -> Problem:
         """
-        Updates Problem core fields from validated input data.
+        Updates a Problem from validated input data. Core fields (such as
+        premises and hypothesis) are only updatable for user-created problems.
         """
-        # Only USER-problems can be updated.
-        if instance.dataset != Problem.Dataset.USER:
-            return instance
+        if instance.dataset == Problem.Dataset.USER:
+            instance = self._update_core_problem_fields(instance, validated_data)
+        instance = self._update_parse_fields(instance, validated_data)
 
-        return self._update_core_problem_fields(instance, validated_data)
+        return instance
 
     def _update_core_problem_fields(
         self, instance: Problem, validated_data: dict
     ) -> Problem:
         """
-        Updates core Problem fields (premises, hypothesis, base,
-        langproPrediction, usedKbItems) from validated input data.
+        Updates core Problem fields (premises, hypothesis, base) from validated input data.
         """
         instance.hypothesis = Sentence.objects.get_or_create(
             text=validated_data["hypothesis"],
@@ -233,9 +233,6 @@ class ProblemInputSerializer(serializers.Serializer):
                 )
             instance.base = base_problem  # type: ignore
 
-        validated_langpro_prediction = validated_data.get("langproPrediction", None)
-        instance.langpro_prediction = validated_langpro_prediction
-
         instance.save()
 
         premise_sentences = [
@@ -243,6 +240,18 @@ class ProblemInputSerializer(serializers.Serializer):
             for premise in validated_data["premises"]
         ]
         instance.premises.set(premise_sentences)
+
+        return instance
+
+    def _update_parse_fields(self, instance: Problem, validated_data: dict) -> Problem:
+        """
+        Updates Problem fields that are generated during parsing
+        (langproPrediction, usedKbItems).
+        """
+        validated_langpro_prediction = validated_data.get("langproPrediction", None)
+        instance.langpro_prediction = validated_langpro_prediction
+
+        instance.save()
 
         self._update_used_kb_items(instance, validated_data)
 

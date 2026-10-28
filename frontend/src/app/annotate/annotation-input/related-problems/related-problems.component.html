@@ -1,0 +1,10 @@
+@let relatedProblems = sentence().relatedProblems;
+<button
+    type="button"
+    class="btn btn-outline-secondary btn-sm rounded-circle px-2 py-0"
+    [attr.aria-label]="'Used by ' + relatedProblems.length + ' problems'"
+    i18n-aria-label
+    (click)="showReusedProblems()"
+>
+    {{ relatedProblems.length }}
+</button>

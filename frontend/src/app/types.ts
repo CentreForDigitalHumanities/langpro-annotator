@@ -59,11 +59,16 @@ export interface LabelAnnotation extends BaseAnnotation {
     attachedByCurrentUser: boolean;
 }
 
+export interface Sentence {
+    text: string;
+    relatedProblems: ProblemUsage[];
+}
+
 interface ProblemBase {
     id: number | null;
     base: number | null;
-    premises: string[];
-    hypothesis: string | null;
+    premises: Sentence[];
+    hypothesis: Sentence | null;
     entailmentLabel: EntailmentLabel;
     hidden: boolean;
     gold: boolean;
@@ -72,6 +77,12 @@ interface ProblemBase {
     labelAnnotations: LabelAnnotation[];
     langproPrediction: EntailmentLabel | null;
     usedKbItems: KnowledgeBaseItem[];
+}
+
+export interface ProblemUsage {
+    id: number;
+    dataset: Dataset;
+    isHypothesis: boolean;
 }
 
 interface SickProblem extends ProblemBase {

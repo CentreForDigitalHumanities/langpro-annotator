@@ -6,6 +6,8 @@ import { faPlus, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { ParseInputForm } from "../annotation-input.component";
 import { ProblemService } from "@/services/problem.service";
 import { IconButtonComponent } from "@/shared/icon-button/icon-button.component";
+import { Problem } from "@/types";
+import { RelatedProblemsComponent } from "../related-problems/related-problems.component";
 
 export interface Premises {
     premises: string[];
@@ -15,7 +17,13 @@ export interface Premises {
 @Component({
     selector: "la-premises-form",
     standalone: true,
-    imports: [ReactiveFormsModule, CommonModule, FontAwesomeModule, IconButtonComponent],
+    imports: [
+        ReactiveFormsModule,
+        CommonModule,
+        FontAwesomeModule,
+        IconButtonComponent,
+        RelatedProblemsComponent
+    ],
     templateUrl: "./premises-form.component.html",
     changeDetection: ChangeDetectionStrategy.Eager,
     styleUrl: "./premises-form.component.scss",
@@ -24,6 +32,7 @@ export class PremisesFormComponent {
     private problemService = inject(ProblemService);
 
     public form = input.required<ParseInputForm>();
+    public problem = input<Problem | null>(null);
 
     public faPlus = faPlus;
     public faTrash = faTrash;

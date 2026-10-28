@@ -282,3 +282,29 @@ def test_create_update_and_remove_kb_annotations(
     assert new_annotation.entity1 == "new_e1"
     assert new_annotation.entity2 == "new_e2"
     assert new_annotation.relationship == "disjoint"
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize("problem_fixture", ["user_problem", "non_user_problem"])
+def test_update_langpro_prediction_for_user_and_non_user_problems(
+    request: pytest.FixtureRequest, problem_fixture: str
+):
+    """
+    Non-core fields (such as langproPrediction) can be updatd for both user
+    and non-user problems.
+    """
+    problem = request.getfixturevalue(problem_fixture)
+    data = {
+        "id": problem.pk,
+        "langproPrediction": "entailment",
+        # These two fields are required but irrelevant for this test.
+        "premises": list(problem.premises.values_list("text", flat=True)),
+        "hypothesis": problem.hypothesis.text,
+    }
+
+    serializer = ProblemInputSerializer(data=data)
+    serializer.is_valid(raise_exception=True)
+    updated_problem = serializer.update(problem, serializer.validated_data)  # type: ignore
+    updated_problem.refresh_from_db()
+
+    assert updated_problem.langpro_prediction == "entailment"

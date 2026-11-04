@@ -3,7 +3,7 @@ import { of } from "rxjs";
 
 import { ProblemService } from "@/services/problem.service";
 import { Dataset, EntailmentLabel, KnowledgeBaseAnnotation, KnowledgeBaseRelationship, LabelAnnotation, Problem, ProblemStatus } from "@/types";
-import { AnnotationCommentsComponent } from "./annotation-comments.component";
+import { AnnotationListComponent } from "./annotation-list.component";
 
 const baseAnnotationFields = {
     id: 1,
@@ -14,13 +14,13 @@ const baseAnnotationFields = {
     removedBy: null,
 };
 
-describe("AnnotationCommentsComponent", () => {
-    let component: AnnotationCommentsComponent;
-    let fixture: ComponentFixture<AnnotationCommentsComponent>;
+describe("AnnotationListComponent", () => {
+    let component: AnnotationListComponent;
+    let fixture: ComponentFixture<AnnotationListComponent>;
 
     beforeEach(async () => {
         await TestBed.configureTestingModule({
-            imports: [AnnotationCommentsComponent],
+            imports: [AnnotationListComponent],
             providers: [
                 { provide: ProblemService, useValue: {} },
             ],
@@ -47,7 +47,7 @@ describe("AnnotationCommentsComponent", () => {
         };
 
         TestBed.overrideProvider(ProblemService, { useValue: { problem$: of(mockProblem) } });
-        fixture = TestBed.createComponent(AnnotationCommentsComponent);
+        fixture = TestBed.createComponent(AnnotationListComponent);
         component = fixture.componentInstance;
         fixture.detectChanges();
     }

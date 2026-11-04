@@ -1,19 +1,16 @@
-import { Component, computed, inject, signal, ChangeDetectionStrategy } from "@angular/core";
+import { Component, computed, signal, ChangeDetectionStrategy, input } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { FontAwesomeModule } from "@fortawesome/angular-fontawesome";
 import { faPlus, faMinus, faBook, faTag } from "@fortawesome/free-solid-svg-icons";
-import { map } from "rxjs";
-import { toSignal } from "@angular/core/rxjs-interop";
 
-import { ProblemService } from "@/services/problem.service";
 import {
-    KnowledgeBaseAnnotation,
+    AnnotationKind,
+    CombinedAnnotation,
     KnowledgeBaseRelationship,
-    LabelAnnotation,
 } from "@/types";
+import { RouterModule } from "@angular/router";
 
 type AnnotationEventKind = "added" | "removed";
-type AnnotationKind = "label" | "knowledgeBase";
 
 export interface AnnotationEvent {
     eventKind: AnnotationEventKind;
@@ -21,6 +18,7 @@ export interface AnnotationEvent {
     timestamp: string;
     actor: string;
     description: string;
+    problemId: number;
 }
 
 const relationshipSymbols: Record<KnowledgeBaseRelationship, string> = {
@@ -29,23 +27,24 @@ const relationshipSymbols: Record<KnowledgeBaseRelationship, string> = {
     [KnowledgeBaseRelationship.DISJOINT]: "≠",
 };
 
-function annotationToEvent(annotation: LabelAnnotation | KnowledgeBaseAnnotation): AnnotationEvent[] {
-    const isLabelAnnotation = "label" in annotation;
+function annotationToEvent(annotation: CombinedAnnotation): AnnotationEvent[] {
+    const isLabelAnnotation = annotation.annotationKind === "label";
     const description = isLabelAnnotation ? annotation.label.text : `${annotation.entity1} ${relationshipSymbols[annotation.relationship]} ${annotation.entity2}`;
-    const annotationKind: AnnotationKind = isLabelAnnotation ? "label" : "knowledgeBase";
     const events: AnnotationEvent[] = [{
         eventKind: "added",
-        annotationKind,
+        annotationKind: annotation.annotationKind,
         timestamp: annotation.createdAt,
         actor: annotation.createdBy,
+        problemId: annotation.problem,
         description,
     }];
-    if (annotation.removedAt && annotation.removedBy) {
+    if (annotation.removedAt) {
         events.push({
             eventKind: "removed",
-            annotationKind,
+            annotationKind: annotation.annotationKind,
             timestamp: annotation.removedAt,
-            actor: annotation.removedBy,
+            actor: annotation.removedBy ?? $localize`An unnamed user`,
+            problemId: annotation.problem,
             description,
         });
     }
@@ -53,38 +52,29 @@ function annotationToEvent(annotation: LabelAnnotation | KnowledgeBaseAnnotation
 }
 
 @Component({
-    selector: "la-annotation-comments",
+    selector: "la-annotation-list",
     standalone: true,
-    imports: [CommonModule, FontAwesomeModule],
-    templateUrl: "./annotation-comments.component.html",
+    imports: [CommonModule, FontAwesomeModule, RouterModule],
+    templateUrl: "./annotation-list.component.html",
     changeDetection: ChangeDetectionStrategy.Eager,
-    styleUrl: "./annotation-comments.component.scss",
+    styleUrl: "./annotation-list.component.scss",
 })
-export class AnnotationCommentsComponent {
-    private problemService = inject(ProblemService);
-
-    private allEvents = toSignal(
-        this.problemService.problem$.pipe(
-            map((problem) => {
-                if (!problem) {
-                    return [];
-                }
-                return [
-                    ...problem.kbAnnotations.flatMap(annotationToEvent),
-                    ...problem.labelAnnotations.flatMap(annotationToEvent),
-                ].sort((a, b) => b.timestamp.localeCompare(a.timestamp));
-            })
-        ),
-        { initialValue: null }
-    );
+export class AnnotationListComponent {
+    public showProblemLinks = input.required<boolean>();
+    public annotations = input.required<CombinedAnnotation[]>();
 
     public showAdded = signal(true);
     public showRemoved = signal(true);
     public showLabels = signal(true);
     public showKB = signal(true);
 
+    private sortedEvents = computed(() => this.annotations()
+        .flatMap(annotationToEvent)
+        .sort((a, b) => b.timestamp.localeCompare(a.timestamp))
+    );
+
     public filteredEvents = computed(() => {
-        const events = this.allEvents();
+        const events = this.sortedEvents();
         if (events === null) {
             return null;
         }
@@ -95,7 +85,7 @@ export class AnnotationCommentsComponent {
         );
     });
 
-    public totalCount = computed(() => this.allEvents()?.length ?? 0);
+    public totalCount = computed(() => this.sortedEvents()?.length ?? 0);
 
     public faPlus = faPlus;
     public faMinus = faMinus;

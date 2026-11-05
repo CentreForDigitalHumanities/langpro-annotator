@@ -1,6 +1,6 @@
 {
   "name": "langpro-annotator",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "scripts": {
     "start": "yarn serve",
     "build": "ng build",

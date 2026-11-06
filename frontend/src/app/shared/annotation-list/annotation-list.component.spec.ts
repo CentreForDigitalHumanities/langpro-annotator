@@ -46,28 +46,6 @@ describe("AnnotationListComponent", () => {
         await fixture.whenStable();
     });
 
-    // Needed to override the problem$ observable in the providers.
-    // function recreateComponent(kbAnnotations: KnowledgeBaseAnnotation[] = [], labelAnnotations: LabelAnnotation[] = []) {
-    // const mockProblem: Problem = {
-    //     id: 1,
-    //     base: null,
-    //     premises: [],
-    //     hypothesis: null,
-    //     entailmentLabel: EntailmentLabel.UNKNOWN,
-    //     dataset: Dataset.USER,
-    //     gold: false,
-    //     hidden: false,
-    //     status: ProblemStatus.BRONZE,
-    //     extraData: null,
-    //     kbAnnotations,
-    //     labelAnnotations,
-    //     langproPrediction: null,
-    //     usedKbItems: [],
-    // };
-    // TestBed.overrideProvider(ProblemService, { useValue: { problem$: of(mockProblem) } });
-    // }
-
-
 
     it("should create", () => {
         expect(component).toBeTruthy();

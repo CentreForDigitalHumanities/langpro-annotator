@@ -85,7 +85,7 @@ export class AnnotationListComponent {
         );
     });
 
-    public totalCount = computed(() => this.sortedEvents()?.length ?? 0);
+    public totalCount = computed(() => this.annotations()?.length ?? 0);
 
     public faPlus = faPlus;
     public faMinus = faMinus;

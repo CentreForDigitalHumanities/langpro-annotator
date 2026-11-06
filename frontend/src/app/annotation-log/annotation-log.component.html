@@ -1,0 +1,11 @@
+<h1 i18n>Annotation log</h1>
+
+<p i18n>
+    This page shows a log of all annotations in the dataset. Use the filters to
+    narrow down the results.
+</p>
+
+<la-annotation-list
+    [showProblemLinks]="true"
+    [annotations]="annotations.hasValue() ? annotations.value() : []"
+/>

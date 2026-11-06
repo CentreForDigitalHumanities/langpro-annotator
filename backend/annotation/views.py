@@ -3,6 +3,7 @@ from django.utils import timezone
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
+from rest_framework.generics import ListAPIView
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.permissions import (
     IsAuthenticated,
@@ -10,8 +11,14 @@ from rest_framework.permissions import (
     SAFE_METHODS,
 )
 
-from annotation.models import AnnotationSession, Label, LabelAnnotation
+from annotation.models import (
+    AnnotationSession,
+    KnowledgeBaseAnnotation,
+    Label,
+    LabelAnnotation,
+)
 from annotation.serializers import (
+    KnowledgeBaseAnnotationSerializer,
     LabelAnnotationSerializer,
     LabelSerializer,
     SaveLabelsInputSerializer,
@@ -20,6 +27,48 @@ from django.contrib.auth.models import AnonymousUser
 from problem.models import Problem
 from user.models import User
 from langpro_annotator.logger import logger
+
+
+class AnnotationsView(ListAPIView):
+
+    def list(self, request, *args, **kwargs):
+        knowledge_base_annotations = KnowledgeBaseAnnotation.objects.select_related(
+            "created_by", "removed_by", "problem", "session"
+        )
+        label_annotations = LabelAnnotation.objects.select_related(
+            "created_by", "removed_by", "label", "problem", "session"
+        )
+
+        # Load the found annotations into memory.
+        knowledge_base_annotations = list(knowledge_base_annotations)
+        label_annotations = list(label_annotations)
+
+        serializer_context = {"user": self.request.user}
+
+        serialized_kb_annotations = KnowledgeBaseAnnotationSerializer(
+            knowledge_base_annotations,
+            many=True,
+            context=serializer_context,
+        ).data
+
+        serialized_label_annotations = LabelAnnotationSerializer(
+            label_annotations,
+            many=True,
+            context=serializer_context,
+        ).data
+
+        annotations = [
+            {"annotationKind": "knowledgeBase", **data}
+            for data in serialized_kb_annotations
+        ]
+        annotations.extend(
+            [
+                {"annotationKind": "label", **data}
+                for data in serialized_label_annotations
+            ]
+        )
+
+        return Response(annotations)
 
 
 class SaveLabelAnnotationPermission(IsAuthenticated):

@@ -37,6 +37,8 @@ describe("ManageLabelsModalComponent", () => {
 
     const testAttachedLabel: LabelAnnotation = {
         id: 999,
+        annotationKind: "label",
+        problem: 1,
         label: testLabel1,
         createdAt: "2023-01-01T12:00:00Z",
         createdBy: "Other User",

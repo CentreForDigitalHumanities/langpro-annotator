@@ -10,8 +10,11 @@ import {
 import { ParseService } from "@/services/parse.service";
 import { AnnotationParseResultsComponent } from "../annotation-parse-results/annotation-parse-results.component";
 import { TableauSVG } from '../tableau-svg/tableau-svg.component';
-import { AnnotationCommentsComponent } from "../annotation-comments/annotation-comments.component";
+import { AnnotationListComponent } from "../../shared/annotation-list/annotation-list.component";
 import { NoDataComponent } from "@/shared/no-data/no-data.component";
+import { ProblemService } from "@/services/problem.service";
+import { map, Observable } from "rxjs";
+import { CombinedAnnotation } from "@/types";
 
 @Component({
     selector: "la-annotation-menu",
@@ -22,7 +25,7 @@ import { NoDataComponent } from "@/shared/no-data/no-data.component";
         FontAwesomeModule,
         AnnotationParseResultsComponent,
         TableauSVG,
-        AnnotationCommentsComponent,
+        AnnotationListComponent,
         NoDataComponent,
     ],
     templateUrl: "./annotation-menu.component.html",
@@ -30,8 +33,22 @@ import { NoDataComponent } from "@/shared/no-data/no-data.component";
     styleUrl: "./annotation-menu.component.scss",
 })
 export class AnnotationMenuComponent {
+    private problemService = inject(ProblemService);
     private parseService = inject(ParseService);
     public readonly proofs$ = this.parseService.proofs$;
+
+    public problemAnnotations$: Observable<CombinedAnnotation[]> = this.problemService.problem$
+        .pipe(
+            map((problem) => {
+                if (!problem) {
+                    return [];
+                }
+                return [
+                    ...problem.kbAnnotations,
+                    ...problem.labelAnnotations,
+                ];
+            })
+        );
 
     public active = 1;
 

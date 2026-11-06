@@ -4,9 +4,7 @@ import { httpResource } from '@angular/common/http';
 import { Component } from '@angular/core';
 
 @Component({
-    imports: [
-        AnnotationListComponent
-    ],
+    imports: [AnnotationListComponent],
     selector: 'la-annotation-log',
     styleUrl: './annotation-log.component.scss',
     templateUrl: './annotation-log.component.html',

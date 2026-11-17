@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { Subject, switchMap, catchError, of, merge, map, share, startWith, shareReplay } from 'rxjs';
+import { Subject, switchMap, catchError, of, merge, map, share, startWith, shareReplay, distinctUntilChanged } from 'rxjs';
 import { ParseInput } from '@/annotate/annotation-input/annotation-input.component';
 import { ProblemService } from './problem.service';
 import {
@@ -23,8 +23,11 @@ export class ParseService {
     // Sink for triggering parse-and-prove requests to the backend.
     public submit$ = new Subject<ParseInput>();
 
-    // Clear parse results when a new problem is loaded.
-    private clearOnNewProblem$ = this.problemService.problemResponse$.pipe(map(() => null));
+    // Clear parse results if/when a new problem is loaded.
+    private clearOnNewProblem$ = this.problemService.problemResponse$.pipe(
+        distinctUntilChanged((a, b) => a?.problem?.id === b?.problem?.id),
+        map(() => null)
+    );
 
     // Raw responses from the backend.
     private parseResults$ = this.submit$.pipe(

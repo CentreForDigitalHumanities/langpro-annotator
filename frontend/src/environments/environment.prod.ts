@@ -8,4 +8,5 @@ export const environment = {
     buildTime,
     version,
     sourceUrl,
+    pixeltagUrl: undefined,
 };

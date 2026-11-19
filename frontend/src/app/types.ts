@@ -23,15 +23,19 @@ interface SNLIData {
     label5: string;
 }
 
+export type AnnotationKind = "label" | "knowledgeBase";
+
 interface BaseAnnotation {
     id: number | null;
     session: number | null;
+    problem: number;
     createdAt: string;
     createdBy: string;
     removedAt: string | null;
     removedBy: string | null;
     notes: string;
     removable: boolean;
+    annotationKind: AnnotationKind;
 }
 
 export enum KnowledgeBaseRelationship {
@@ -46,7 +50,9 @@ export interface KnowledgeBaseItem {
     entity2: string;
 }
 
-export interface KnowledgeBaseAnnotation extends BaseAnnotation, KnowledgeBaseItem { }
+export interface KnowledgeBaseAnnotation extends BaseAnnotation, KnowledgeBaseItem {
+    annotationKind: "knowledgeBase";
+}
 
 export interface Label {
     id: number;
@@ -55,9 +61,12 @@ export interface Label {
 }
 
 export interface LabelAnnotation extends BaseAnnotation {
+    annotationKind: "label";
     label: Label;
     attachedByCurrentUser: boolean;
 }
+
+export type CombinedAnnotation = LabelAnnotation | KnowledgeBaseAnnotation;
 
 export interface Sentence {
     text: string;

@@ -22,9 +22,9 @@
         <ng-template ngbNavContent>
             <section class="overflow-x-scroll">
                 @if (proofs) {
-                <la-tableau-svg [tree]="proofs.entailment"></la-tableau-svg>
+                    <la-tableau-svg [tree]="proofs.entailment"></la-tableau-svg>
                 } @else {
-                <la-no-data dataType="proof" />
+                    <la-no-data dataType="proof" />
                 }
             </section>
         </ng-template>
@@ -37,9 +37,11 @@
         <ng-template ngbNavContent>
             <section class="overflow-x-scroll">
                 @if (proofs) {
-                <la-tableau-svg [tree]="proofs.contradiction"></la-tableau-svg>
+                    <la-tableau-svg
+                        [tree]="proofs.contradiction"
+                    ></la-tableau-svg>
                 } @else {
-                <la-no-data dataType="proof" />
+                    <la-no-data dataType="proof" />
                 }
             </section>
         </ng-template>
@@ -50,7 +52,12 @@
             <span i18n>Annotation log</span>
         </button>
         <ng-template ngbNavContent>
-            <la-annotation-comments />
+            @if (problemAnnotations$ | async; as annotations) {
+                <la-annotation-list
+                    [showProblemLinks]="false"
+                    [annotations]="annotations"
+                />
+            }
         </ng-template>
     </li>
 </ul>

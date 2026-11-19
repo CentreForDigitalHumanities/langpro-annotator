@@ -46,6 +46,7 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("api/", include(api_router.urls)),
     path("api/problem/", include("problem.urls")),
+    path("api/annotations/", include("annotation.urls")),
     path(
         "api-auth/",
         include(

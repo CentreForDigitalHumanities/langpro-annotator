@@ -1,7 +1,11 @@
 import pytest
+from django.utils import timezone
 from rest_framework import status
 
-from annotation.models import AnnotationSession, Label, LabelAnnotation
+from annotation.models import (
+    Label,
+    LabelAnnotation,
+)
 
 
 @pytest.fixture
@@ -86,6 +90,41 @@ class TestLabelViewGetPermissions:
         api_client.force_authenticate(user=visitor)
         response = api_client.get(f"/api/label/{sample_label.id}/")
         assert response.status_code == status.HTTP_200_OK
+
+
+class TestAnnotationsView:
+    def test_lists_combined_annotations(
+        self, api_client, kb_annotation, label_annotation
+    ):
+        kb_annotation.created_at = timezone.now()
+        kb_annotation.save()
+
+        # Make sure there is a difference in created_at timestamps to test sorting.
+        label_annotation.created_at = timezone.now() - timezone.timedelta(days=1)
+        label_annotation.save()
+
+        response = api_client.get("/api/annotations/")
+
+        assert response.status_code == status.HTTP_200_OK
+        assert len(response.data) == 2
+        assert {annotation["annotationKind"] for annotation in response.data} == {
+            "knowledgeBase",
+            "label",
+        }
+        # Make sure sorting works.
+        assert response.data[0]["createdAt"] >= response.data[1]["createdAt"]
+
+    def test_search_filters_combined_annotations_by_problem_id(
+        self, api_client, sample_problem, kb_annotation, label_annotation
+    ):
+        response = api_client.get(f"/api/annotations/?search={sample_problem.pk}")
+
+        assert response.status_code == status.HTTP_200_OK
+        assert len(response.data) == 2
+        assert {event["annotationKind"] for event in response.data} == {
+            "knowledgeBase",
+            "label",
+        }
 
 
 class TestSavelabel_annotationsPermissions:

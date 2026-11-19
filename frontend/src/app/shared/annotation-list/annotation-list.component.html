@@ -110,6 +110,19 @@
                                 >
                                     {{ event.description }}
                                 </span>
+                                @if (showProblemLinks()) {
+                                    <span>
+                                        on
+                                        <a
+                                            [routerLink]="[
+                                                '/annotate',
+                                                event.problemId,
+                                            ]"
+                                        >
+                                            Problem {{ event.problemId }}
+                                        </a>
+                                    </span>
+                                }
                             </span>
                             <span
                                 class="text-muted small text-end flex-shrink-0"

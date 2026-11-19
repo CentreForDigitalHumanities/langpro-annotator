@@ -70,7 +70,7 @@ export class AnnotationListComponent {
 
     private sortedEvents = computed(() => this.annotations()
         .flatMap(annotationToEvent)
-        .sort((a, b) => b.timestamp.localeCompare(a.timestamp))
+        .sort((a, b) => a.timestamp < b.timestamp ? 1 : -1)
     );
 
     public filteredEvents = computed(() => {

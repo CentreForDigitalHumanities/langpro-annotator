@@ -54,8 +54,6 @@ export interface KnowledgeBaseAnnotation extends BaseAnnotation, KnowledgeBaseIt
     annotationKind: "knowledgeBase";
 }
 
-export type CombinedAnnotation = LabelAnnotation | KnowledgeBaseAnnotation;
-
 export interface Label {
     id: number;
     text: string;
@@ -67,6 +65,8 @@ export interface LabelAnnotation extends BaseAnnotation {
     label: Label;
     attachedByCurrentUser: boolean;
 }
+
+export type CombinedAnnotation = LabelAnnotation | KnowledgeBaseAnnotation;
 
 export interface Sentence {
     text: string;

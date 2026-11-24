@@ -100,7 +100,7 @@ export class ProblemDetailsComponent {
             baseProblemId: problem.base?.toString() ?? null,
             dataset: problem.dataset,
             entailmentLabel: problem.entailmentLabel,
-            labelAnnotations: problem.labelAnnotations.filter(a => a.removedAt === null) ?? [],
+            labelAnnotations: problem.labelAnnotations ?? [],
         };
 
         switch (problem.dataset) {

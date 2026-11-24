@@ -14,7 +14,7 @@ import { AnnotationListComponent } from "../../shared/annotation-list/annotation
 import { NoDataComponent } from "@/shared/no-data/no-data.component";
 import { ProblemService } from "@/services/problem.service";
 import { map, Observable } from "rxjs";
-import { CombinedAnnotation } from "@/types";
+import { AnnotationEvent } from "@/types";
 
 @Component({
     selector: "la-annotation-menu",
@@ -37,18 +37,8 @@ export class AnnotationMenuComponent {
     private parseService = inject(ParseService);
     public readonly proofs$ = this.parseService.proofs$;
 
-    public problemAnnotations$: Observable<CombinedAnnotation[]> = this.problemService.problem$
-        .pipe(
-            map((problem) => {
-                if (!problem) {
-                    return [];
-                }
-                return [
-                    ...problem.kbAnnotations,
-                    ...problem.labelAnnotations,
-                ];
-            })
-        );
+    public problemAnnotations$: Observable<AnnotationEvent[]> = this.problemService.problem$
+        .pipe(map((problem) => problem?.annotationEvents ?? []));
 
     public active = 1;
 

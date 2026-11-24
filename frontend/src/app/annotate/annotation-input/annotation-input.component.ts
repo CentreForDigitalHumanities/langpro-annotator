@@ -250,7 +250,6 @@ export class AnnotationInputComponent implements OnInit {
 
     private buildKbForms(inputKbItems: KnowledgeBaseAnnotation[]): KBItemForm[] {
         return inputKbItems
-            .filter(item => item.removedAt === null)
             .map(item => new FormGroup({
                 id: new FormControl<number | null>(item.id, {
                     nonNullable: true

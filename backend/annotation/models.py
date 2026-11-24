@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.db import models
+from django.utils import timezone
 
 from problem.models import KnowledgeBaseItem, Problem, Sentence
 
@@ -58,37 +59,12 @@ class ProblemAnnotation(models.Model):
 
 
 class BaseAnnotation(models.Model):
-    session = models.ForeignKey(
-        AnnotationSession,
-        on_delete=models.CASCADE,
-        related_name="%(class)ss",
-    )
+    """Abstract base class for KnowledgeBaseAnnotation and LabelAnnotation."""
 
     problem = models.ForeignKey(
         Problem,
         on_delete=models.CASCADE,
         related_name="%(class)ss",
-    )
-
-    created_at = models.DateTimeField(auto_now_add=True)
-    created_by = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE,
-        related_name="%(class)ss_created",
-    )
-
-    removed_at = models.DateTimeField(
-        null=True,
-        blank=True,
-        help_text="When this annotation was removed from the problem.",
-    )
-    removed_by = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE,
-        related_name="%(class)ss_removed",
-        null=True,
-        blank=True,
-        help_text="User who removed this annotation.",
     )
 
     notes = models.TextField(
@@ -99,17 +75,34 @@ class BaseAnnotation(models.Model):
     class Meta:
         abstract = True
 
-    def is_active(self) -> bool:
-        """Check if this annotation is currently active (not removed)."""
-        return self.removed_at is None
+    def is_created_by_user(self, user) -> bool:
+        """Check if this annotation was created by the given user."""
+        if isinstance(self, KnowledgeBaseAnnotation):
+            event_type = AnnotationEvent.EventType.KNOWLEDGE_BASE
+        elif isinstance(self, LabelAnnotation):
+            event_type = AnnotationEvent.EventType.LABEL
+        else:
+            return False
+
+        created_event = (
+            AnnotationEvent.objects.filter(event_type=event_type, annotation_id=self.pk)
+            .order_by("-occurred_at")
+            .first()
+        )
+        return (
+            created_event is not None
+            and created_event.action == AnnotationEvent.Action.CREATED
+            and created_event.actor == user
+        )
 
 
 class KnowledgeBaseAnnotation(KnowledgeBaseItem, BaseAnnotation):
+    """Marks the current attachment of a knowledge base item to a problem."""
+
     pass
 
     def __str__(self):
-        status = "active" if self.is_active() else f"removed at {self.removed_at}"
-        return f"KB Annotation ({self.entity1} {self.relationship} {self.entity2}) on Problem {self.problem.pk} ({status})"
+        return f"KB Annotation ({self.entity1} {self.relationship} {self.entity2}) on Problem {self.problem.pk}"
 
 
 class Label(models.Model):
@@ -126,13 +119,7 @@ class Label(models.Model):
 
 
 class LabelAnnotation(BaseAnnotation):
-    """
-    The attachment of a label to a problem.
-
-    Each time a label is attached to a problem, a new LabelAnnotation record
-    is created. When removed, the record is marked as removed (not deleted),
-    so the history of labelings is preserved.
-    """
+    """Marks the current attachment of a label to a problem."""
 
     label = models.ForeignKey(
         Label,
@@ -141,10 +128,9 @@ class LabelAnnotation(BaseAnnotation):
     )
 
     class Meta(BaseAnnotation.Meta):
-        ordering = ["-created_at"]
         indexes = [
-            models.Index(fields=["problem", "removed_at"]),
-            models.Index(fields=["label", "removed_at"]),
+            models.Index(fields=["problem"]),
+            models.Index(fields=["label"]),
         ]
         permissions = [
             (
@@ -158,9 +144,54 @@ class LabelAnnotation(BaseAnnotation):
         ]
 
     def __str__(self):
-        status = "active" if self.is_active() else f"removed at {self.removed_at}"
-        return f"Label '{self.label.text}' on Problem {self.problem.pk} ({status})"
+        return f"Label '{self.label.text}' on Problem {self.problem.pk}"
 
-    def is_attached_by_user(self, user) -> bool:
-        """Check if this label annotation was created by the given user."""
-        return self.created_by == user
+
+class AnnotationEvent(models.Model):
+    class EventType(models.TextChoices):
+        KNOWLEDGE_BASE = "knowledgeBase", "Knowledge base"
+        LABEL = "label", "Label"
+
+    class Action(models.TextChoices):
+        CREATED = "created", "Created"
+        UPDATED = "updated", "Updated"
+        REMOVED = "removed", "Removed"
+
+    session = models.ForeignKey(
+        AnnotationSession,
+        on_delete=models.CASCADE,
+        related_name="annotation_events",
+        help_text="Groups annotations that were performed in the same operation.",
+    )
+    problem = models.ForeignKey(
+        Problem,
+        on_delete=models.CASCADE,
+        related_name="annotation_events",
+    )
+    actor = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="annotation_events",
+    )
+    event_type = models.CharField(
+        max_length=16,
+        choices=EventType.choices,
+    )
+    # This cannot be a ForeignKey, because the annotation may be deleted, and
+    # it may refer to either a KnowledgeBaseAnnotation or a LabelAnnotation.
+    annotation_id = models.PositiveBigIntegerField(
+        blank=True,
+        null=True,
+        help_text="ID of the annotation (KnowledgeBaseAnnotation or LabelAnnotation) associated with this event, if applicable.",
+    )
+    action = models.CharField(max_length=16, choices=Action.choices)
+    occurred_at = models.DateTimeField(default=timezone.now)
+    before_state = models.JSONField(null=True, blank=True)
+    after_state = models.JSONField(null=True, blank=True)
+
+    class Meta:
+        ordering = ["-occurred_at"]
+        indexes = [
+            models.Index(fields=["problem", "occurred_at"]),
+            models.Index(fields=["event_type", "annotation_id"]),
+        ]

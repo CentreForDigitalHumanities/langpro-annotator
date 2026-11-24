@@ -111,6 +111,6 @@ class User(django_auth_models.AbstractUser):
             return True
 
         if self.has_perm("annotation.delete_own_labelannotation"):
-            return label_annotation.created_by.pk == self.pk
+            return label_annotation.is_created_by_user(self)
 
         return False

@@ -16,16 +16,6 @@ class AnnotationBaseSerializer(serializers.ModelSerializer):
     Base serializer for AnnotationBase model.
     """
 
-    createdAt = serializers.DateTimeField(source="created_at", read_only=True)
-    createdBy = serializers.SerializerMethodField(
-        method_name="get_created_by", read_only=True
-    )
-    removedAt = serializers.DateTimeField(
-        source="removed_at", allow_null=True, read_only=True
-    )
-    removedBy = serializers.SerializerMethodField(
-        method_name="get_removed_by", allow_null=True, read_only=True
-    )
     removable = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
@@ -34,10 +24,6 @@ class AnnotationBaseSerializer(serializers.ModelSerializer):
             "id",
             "session",
             "problem",
-            "createdAt",
-            "createdBy",
-            "removedAt",
-            "removedBy",
             "notes",
             "removable",
         ]
@@ -47,16 +33,6 @@ class AnnotationBaseSerializer(serializers.ModelSerializer):
         """This should be overridden in subclasses."""
         raise NotImplementedError("Subclasses must implement get_removable method.")
 
-    def get_created_by(self, annotation) -> str | None:
-        """Returns the full name of the user who created the annotation."""
-        return annotation.created_by.get_full_name()
-
-    def get_removed_by(self, annotation) -> str | None:
-        """Returns the full name of the user who removed the annotation, or None if not removed."""
-        if annotation.removed_by:
-            return annotation.removed_by.get_full_name()
-        return None
-
 
 class KnowledgeBaseAnnotationSerializer(AnnotationBaseSerializer):
     """
@@ -65,6 +41,8 @@ class KnowledgeBaseAnnotationSerializer(AnnotationBaseSerializer):
     Requires context to be set with the current user for determining
     removability, e.g. KnowledgeBaseAnnotationSerializer(annotation, context={"user": request.user})
     """
+
+    annotationKind = serializers.SerializerMethodField(read_only=True)
 
     id = serializers.IntegerField(required=False, allow_null=True)
     # Mark relationship as required. DRF thinks it is optional because it has a
@@ -80,10 +58,14 @@ class KnowledgeBaseAnnotationSerializer(AnnotationBaseSerializer):
         model = KnowledgeBaseAnnotation
         fields = [
             "id",
+            "annotationKind",
             "entity1",
             "entity2",
             "relationship",
         ] + AnnotationBaseSerializer.Meta.fields
+
+    def get_annotationKind(self, annotation: KnowledgeBaseAnnotation) -> str:
+        return "knowledgeBase"
 
     def get_removable(self, annotation: KnowledgeBaseAnnotation) -> bool:
         """Determine if the KB annotation is removable by the current user."""
@@ -121,6 +103,8 @@ class LabelAnnotationSerializer(AnnotationBaseSerializer):
     removability, e.g. LabelAnnotationSerializer(annotation, context={"user": request.user})
     """
 
+    annotationKind = serializers.SerializerMethodField(read_only=True)
+
     label = LabelSerializer(read_only=True)
     label_id = serializers.PrimaryKeyRelatedField(
         queryset=Label.objects.all(),
@@ -135,18 +119,22 @@ class LabelAnnotationSerializer(AnnotationBaseSerializer):
         model = LabelAnnotation
         fields = [
             "id",
+            "annotationKind",
             "label",
             "label_id",
             "attachedByCurrentUser",
             "removable",
         ] + AnnotationBaseSerializer.Meta.fields
 
+    def get_annotationKind(self, annotation: LabelAnnotation) -> str:
+        return "label"
+
     def get_attachedByCurrentUser(self, annotation: LabelAnnotation) -> bool:
         """Determine if the label was attached by the current user."""
         user: User | AnonymousUser | None = self.context.get("user", None)
 
         if user and user.is_anonymous is False:
-            return annotation.is_attached_by_user(user)
+            return annotation.is_created_by_user(user)
         return False
 
     def get_removable(self, annotation: LabelAnnotation) -> bool:
@@ -160,7 +148,7 @@ class LabelAnnotationSerializer(AnnotationBaseSerializer):
             return True
 
         if user.has_perm("annotation.delete_own_labelannotation"):
-            return annotation.is_attached_by_user(user)
+            return annotation.is_created_by_user(user)
 
         return False
 

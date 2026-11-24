@@ -1,5 +1,4 @@
 from django.db import transaction
-from django.utils import timezone
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
@@ -13,12 +12,11 @@ from rest_framework.permissions import (
 
 from annotation.models import (
     AnnotationSession,
-    KnowledgeBaseAnnotation,
+    AnnotationEvent,
     Label,
     LabelAnnotation,
 )
 from annotation.serializers import (
-    KnowledgeBaseAnnotationSerializer,
     LabelAnnotationSerializer,
     LabelSerializer,
     SaveLabelsInputSerializer,
@@ -29,46 +27,39 @@ from user.models import User
 from langpro_annotator.logger import logger
 
 
-class AnnotationsView(ListAPIView):
+class AnnotationEventsView(ListAPIView):
 
     def list(self, request, *args, **kwargs):
-        knowledge_base_annotations = KnowledgeBaseAnnotation.objects.select_related(
-            "created_by", "removed_by", "problem", "session"
-        )
-        label_annotations = LabelAnnotation.objects.select_related(
-            "created_by", "removed_by", "label", "problem", "session"
-        )
+        search = request.query_params.get("search")
+        problem_id = None
+        if search:
+            try:
+                problem_id = int(search)
+            except (TypeError, ValueError):
+                problem_id = None
 
-        # Load the found annotations into memory.
-        knowledge_base_annotations = list(knowledge_base_annotations)
-        label_annotations = list(label_annotations)
+        queryset = AnnotationEvent.objects.select_related("actor", "problem")
+        if problem_id is not None:
+            queryset = queryset.filter(problem_id=problem_id)
 
-        serializer_context = {"user": self.request.user}
-
-        serialized_kb_annotations = KnowledgeBaseAnnotationSerializer(
-            knowledge_base_annotations,
-            many=True,
-            context=serializer_context,
-        ).data
-
-        serialized_label_annotations = LabelAnnotationSerializer(
-            label_annotations,
-            many=True,
-            context=serializer_context,
-        ).data
-
-        annotations = [
-            {"annotationKind": "knowledgeBase", **data}
-            for data in serialized_kb_annotations
+        events = [
+            {
+                "id": event.pk,
+                "session": event.session_id,
+                "problemId": event.problem_id,
+                "eventKind": event.action,
+                "annotationKind": event.event_type,
+                "timestamp": event.occurred_at.isoformat(),
+                "actor": event.actor.get_full_name() or event.actor.username,
+                "annotationId": event.annotation_id,
+                "beforeState": event.before_state,
+                "afterState": event.after_state,
+            }
+            for event in queryset
         ]
-        annotations.extend(
-            [
-                {"annotationKind": "label", **data}
-                for data in serialized_label_annotations
-            ]
-        )
 
-        return Response(annotations)
+        events.sort(key=lambda event: event["timestamp"], reverse=True)
+        return Response(events)
 
 
 class SaveLabelAnnotationPermission(IsAuthenticated):
@@ -142,8 +133,8 @@ class LabelAnnotationView(ModelViewSet):
             session = AnnotationSession.objects.create(user=user)
 
             active_annotations = LabelAnnotation.objects.filter(
-                problem=problem, removed_at__isnull=True
-            ).select_related("label", "created_by")
+                problem=problem
+            ).select_related("label")
 
             current_label_ids = {
                 annotation.label.pk for annotation in active_annotations
@@ -153,9 +144,10 @@ class LabelAnnotationView(ModelViewSet):
 
             for annotation in active_annotations:
                 if annotation.label.pk in labels_to_remove:
-                    self._mark_as_removed(
+                    self.remove_label_annotation(
                         label_annotation=annotation,
                         user=user,
+                        session=session,
                     )
 
             for label_id in labels_to_add:
@@ -168,17 +160,69 @@ class LabelAnnotationView(ModelViewSet):
                     },
                 )
                 serializer.is_valid(raise_exception=True)
-                serializer.save(created_by=user)
+                annotation = serializer.save(session=session, problem=problem)
+                self.create_label_annotation_event(
+                    action=AnnotationEvent.Action.CREATED,
+                    label_annotation=annotation,
+                    user=user,
+                    session=session,
+                )
 
-    def _mark_as_removed(self, label_annotation: LabelAnnotation, user: User) -> None:
+    def remove_label_annotation(
+        self, label_annotation: LabelAnnotation, user: User, session: AnnotationSession
+    ) -> None:
         """Mark a label annotation as removed."""
 
         if not user.can_remove_label_annotation(label_annotation):
             logger.warning(
                 f"User {user.username} attempted to remove label {label_annotation.label.pk} "
-                f"attached by {label_annotation.created_by.username}"
             )
             raise PermissionDenied("You can only remove labels you attached yourself.")
-        label_annotation.removed_at = timezone.now()
-        label_annotation.removed_by = user
-        label_annotation.save()
+
+        self.create_label_annotation_event(
+            action=AnnotationEvent.Action.REMOVED,
+            label_annotation=label_annotation,
+            user=user,
+            session=session,
+        )
+
+        label_annotation.delete()
+
+    def create_label_annotation_event(
+        self,
+        action: AnnotationEvent.Action,
+        label_annotation: LabelAnnotation,
+        user: User,
+        session: AnnotationSession,
+    ) -> None:
+        """Create an AnnotationEvent for a label annotation action."""
+        before_state = (
+            {
+                "label_id": label_annotation.label.pk,
+                "label": label_annotation.label.text,
+                "notes": label_annotation.notes,
+            }
+            if action == AnnotationEvent.Action.REMOVED
+            else None
+        )
+
+        after_state = (
+            {
+                "label_id": label_annotation.label.pk,
+                "label": label_annotation.label.text,
+                "notes": label_annotation.notes,
+            }
+            if action == AnnotationEvent.Action.CREATED
+            else None
+        )
+
+        AnnotationEvent.objects.create(
+            session=session,
+            problem=label_annotation.problem,
+            actor=user,
+            action=action,
+            event_type=AnnotationEvent.EventType.LABEL,
+            annotation_id=label_annotation.pk,
+            before_state=before_state,
+            after_state=after_state,
+        )

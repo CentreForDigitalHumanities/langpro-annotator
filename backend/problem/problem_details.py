@@ -101,12 +101,12 @@ def apply_status_filter(
 
     has_active_kb = Exists(
         KnowledgeBaseAnnotation.objects.filter(
-            problem=OuterRef("pk"), removed_at__isnull=True
+            problem=OuterRef("pk")
         )
     )
     has_active_label = Exists(
         LabelAnnotation.objects.filter(
-            problem=OuterRef("pk"), removed_at__isnull=True
+            problem=OuterRef("pk")
         )
     )
 

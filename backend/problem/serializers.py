@@ -1,11 +1,11 @@
 from rest_framework import serializers
-from django.utils import timezone
-from django.db.models import Q
+from django.db import transaction
 
 from annotation.serializers import KnowledgeBaseAnnotationSerializer
 from annotation.models import (
     AnnotationSession,
     KnowledgeBaseAnnotation,
+    AnnotationEvent,
 )
 from problem.services import FracasData, SNLIData, SickData
 from problem.models import Problem, Sentence, UsedKnowledgeBaseItem
@@ -133,7 +133,7 @@ class ProblemInputSerializer(serializers.Serializer):
         return self._update_core_problem_fields(new_user_problem, validated_data)
 
     def _create_update_kb_annotation(
-        self, kb_item: dict, problem: Problem, session: AnnotationSession
+        self, kb_item: dict, problem: Problem, user: User, session: AnnotationSession
     ) -> None:
         kb_id = kb_item.get("id", None)
 
@@ -144,47 +144,106 @@ class ProblemInputSerializer(serializers.Serializer):
         }
 
         if kb_id is None:
-            # Create new KnowledgeBaseAnnotation
-            serializer = KnowledgeBaseAnnotationSerializer(data=update_data)
+            self._create_kb_annotation(update_data, problem, user, session)
         else:
-            # Update existing KnowledgeBaseAnnotation
-            try:
-                kb_instance = KnowledgeBaseAnnotation.objects.get(
-                    id=kb_id, problem_id=problem.pk
-                )
-                serializer = KnowledgeBaseAnnotationSerializer(
-                    kb_instance, data=update_data
-                )
-            except KnowledgeBaseAnnotation.DoesNotExist:
-                raise serializers.ValidationError(
-                    f"KnowledgeBaseAnnotation with ID {kb_id} does not exist "
-                    f"for this problem and session."
-                )
+            self._update_kb_annotation(kb_id, update_data, problem, user, session)
+
+    def _create_kb_annotation(
+        self,
+        update_data: dict,
+        problem: Problem,
+        user: User,
+        session: AnnotationSession,
+    ):
+        serializer = KnowledgeBaseAnnotationSerializer(data=update_data)
+        serializer.is_valid(raise_exception=True)
+        annotation = serializer.save(problem=problem, session=session)
+        self.create_kb_annotation_event(
+            action=AnnotationEvent.Action.CREATED,
+            kb_annotation=annotation,
+            user=user,
+            session=session,
+        )
+
+    def _update_kb_annotation(
+        self,
+        kb_id: int,
+        update_data: dict,
+        problem: Problem,
+        user: User,
+        session: AnnotationSession,
+    ):
+        try:
+            kb_instance = KnowledgeBaseAnnotation.objects.get(
+                id=kb_id, problem_id=problem.pk
+            )
+            serializer = KnowledgeBaseAnnotationSerializer(
+                kb_instance, data=update_data
+            )
+        except KnowledgeBaseAnnotation.DoesNotExist:
+            raise serializers.ValidationError(
+                f"KnowledgeBaseAnnotation with ID {kb_id} does not exist "
+                f"for this problem and session."
+            )
 
         serializer.is_valid(raise_exception=True)
-        serializer.save(problem=problem, session=session, created_by=session.user)
+        validated_data: dict = serializer.validated_data  # type: ignore
+
+        changed = any(
+            getattr(kb_instance, field) != value
+            for field, value in validated_data.items()
+            if field in ("entity1", "entity2", "relationship", "notes")
+        )
+
+        if not changed:
+            serializer.save(problem=problem, session=session)
+            return
+
+        before_state = {
+            "entity1": kb_instance.entity1,
+            "entity2": kb_instance.entity2,
+            "relationship": kb_instance.relationship,
+            "notes": kb_instance.notes,
+        }
+        annotation = serializer.save(
+            problem=problem,
+            session=session,
+        )
+        self.create_kb_annotation_event(
+            action=AnnotationEvent.Action.UPDATED,
+            kb_annotation=annotation,
+            user=user,
+            session=session,
+            pre_update_state=before_state,
+        )
 
     def _mark_kb_not_in_input_as_removed(
-        self, problem: Problem, kb_items: list[dict], session: AnnotationSession
+        self,
+        problem: Problem,
+        kb_items: list[dict],
+        user: User,
+        session: AnnotationSession,
     ) -> None:
         """
-        Marks KnowledgeBase annotations for a problem that are not included in
-        the provided list of kb_items as removed.
+        Deletes KnowledgeBase annotations for a problem that are not included
+        in the provided list of kb_items.
         """
         kb_item_ids = {
             kb_item.get("id") for kb_item in kb_items if kb_item.get("id") is not None
         }
 
         annotations_to_delete = KnowledgeBaseAnnotation.objects.filter(
-            problem=problem, removed_at__isnull=True
+            problem=problem
         ).exclude(id__in=kb_item_ids)
 
-        current_time = timezone.now()
-
         for annotation in annotations_to_delete:
-            annotation.removed_at = current_time
-            annotation.removed_by = session.user
-            annotation.save()
+            self.create_kb_annotation_event(
+                action=AnnotationEvent.Action.REMOVED,
+                kb_annotation=annotation,
+                user=user,
+                session=session,
+            )
+            annotation.delete()
 
     def handle_kb_annotations(
         self, problem: Problem, kb_items: list[dict], user: User
@@ -193,12 +252,11 @@ class ProblemInputSerializer(serializers.Serializer):
         Creates, updates and deletes KnowledgeBase annotations for a problem.
         Creates an annotation session if it does not exist.
         """
-        session = AnnotationSession.objects.create(user=user)
-
-        self._mark_kb_not_in_input_as_removed(problem, kb_items, session)
-
-        for kb_item in kb_items:
-            self._create_update_kb_annotation(kb_item, problem, session)
+        with transaction.atomic():
+            session = AnnotationSession.objects.create(user=user)
+            self._mark_kb_not_in_input_as_removed(problem, kb_items, user, session)
+            for kb_item in kb_items:
+                self._create_update_kb_annotation(kb_item, problem, user, session)
 
     def update(self, instance: Problem, validated_data: dict) -> Problem:
         """
@@ -265,6 +323,65 @@ class ProblemInputSerializer(serializers.Serializer):
         instance.used_kb_items.all().delete()  # type: ignore
         UsedKnowledgeBaseItem.objects.bulk_create(
             UsedKnowledgeBaseItem(problem=instance, **item) for item in used_kb_items
+        )
+
+    def create_kb_annotation_event(
+        self,
+        action: AnnotationEvent.Action,
+        kb_annotation: KnowledgeBaseAnnotation,
+        user: User,
+        session: AnnotationSession,
+        pre_update_state: dict | None = None,
+    ) -> None:
+        """
+        Creates an annotation event for adding a knowledge base item annotation.
+
+        The `update_before_state` parameter is used to provide the state of the annotation before an update action.
+        """
+        match action:
+            case AnnotationEvent.Action.CREATED:
+                before_state = None
+                after_state = {
+                    "entity1": kb_annotation.entity1,
+                    "entity2": kb_annotation.entity2,
+                    "relationship": kb_annotation.relationship,
+                    "notes": kb_annotation.notes,
+                }
+            case AnnotationEvent.Action.UPDATED:
+                before_state = (
+                    {
+                        "entity1": pre_update_state["entity1"],
+                        "entity2": pre_update_state["entity2"],
+                        "relationship": pre_update_state["relationship"],
+                        "notes": pre_update_state["notes"],
+                    }
+                    if pre_update_state is not None
+                    else {}
+                )
+                after_state = {
+                    "entity1": kb_annotation.entity1,
+                    "entity2": kb_annotation.entity2,
+                    "relationship": kb_annotation.relationship,
+                    "notes": kb_annotation.notes,
+                }
+            case AnnotationEvent.Action.REMOVED:
+                before_state = {
+                    "entity1": kb_annotation.entity1,
+                    "entity2": kb_annotation.entity2,
+                    "relationship": kb_annotation.relationship,
+                    "notes": kb_annotation.notes,
+                }
+                after_state = None
+
+        AnnotationEvent.objects.create(
+            session=session,
+            problem=kb_annotation.problem,
+            actor=user,
+            action=action,
+            event_type=AnnotationEvent.EventType.KNOWLEDGE_BASE,
+            annotation_id=kb_annotation.pk,
+            before_state=before_state,
+            after_state=after_state,
         )
 
 

@@ -3,6 +3,7 @@ from rest_framework import serializers
 from django.contrib.auth.models import AnonymousUser
 
 from annotation.models import (
+    AnnotationEvent,
     KnowledgeBaseAnnotation,
     Label,
     LabelAnnotation,
@@ -22,7 +23,6 @@ class AnnotationBaseSerializer(serializers.ModelSerializer):
         model = None  # To be set in subclasses
         fields = [
             "id",
-            "session",
             "problem",
             "notes",
             "removable",
@@ -51,7 +51,6 @@ class KnowledgeBaseAnnotationSerializer(AnnotationBaseSerializer):
         choices=KnowledgeBaseAnnotation.Relationship.choices,
         required=True,
     )
-    session = serializers.PrimaryKeyRelatedField(read_only=True)
     problem = serializers.PrimaryKeyRelatedField(read_only=True)
 
     class Meta(AnnotationBaseSerializer.Meta):
@@ -112,6 +111,7 @@ class LabelAnnotationSerializer(AnnotationBaseSerializer):
         write_only=True,
         required=False,
     )
+    attachedBy = serializers.SerializerMethodField(read_only=True)
     attachedByCurrentUser = serializers.SerializerMethodField(read_only=True)
     removable = serializers.SerializerMethodField(read_only=True)
 
@@ -122,12 +122,28 @@ class LabelAnnotationSerializer(AnnotationBaseSerializer):
             "annotationKind",
             "label",
             "label_id",
+            "attachedBy",
             "attachedByCurrentUser",
             "removable",
         ] + AnnotationBaseSerializer.Meta.fields
 
     def get_annotationKind(self, annotation: LabelAnnotation) -> str:
         return "label"
+
+    def get_attachedBy(self, annotation: LabelAnnotation) -> str:
+        """Get the name of the user who attached the label."""
+        created_event = (
+            AnnotationEvent.objects.filter(
+                event_type=AnnotationEvent.EventType.LABEL,
+                action=AnnotationEvent.Action.CREATED,
+                annotation_id=annotation.pk,
+            )
+            .order_by("-occurred_at")
+            .first()
+        )
+        if created_event and created_event.actor:
+            return created_event.actor.get_full_name() or created_event.actor.username
+        return "Unknown"
 
     def get_attachedByCurrentUser(self, annotation: LabelAnnotation) -> bool:
         """Determine if the label was attached by the current user."""
@@ -181,3 +197,33 @@ class SaveLabelsInputSerializer(serializers.Serializer):
                 f"Problem with ID {value} does not exist."
             )
         return value
+
+
+class AnnotationEventSerializer(serializers.Serializer):
+    """
+    Serializer for AnnotationEvent model.
+    """
+
+    id = serializers.IntegerField()
+    session = serializers.IntegerField(source="session.pk")
+    problemId = serializers.IntegerField(source="problem.pk")
+    eventKind = serializers.CharField(source="action")
+    annotationKind = serializers.CharField(source="event_type")
+    timestamp = serializers.DateTimeField(source="occurred_at")
+    actor = serializers.CharField(source="actor.get_full_name", default="Unknown")
+    beforeState = serializers.JSONField(allow_null=True, source="before_state")
+    afterState = serializers.JSONField(allow_null=True, source="after_state")
+
+    class Meta:
+        model = AnnotationEvent
+        fields = [
+            "id",
+            "session",
+            "problemId",
+            "eventKind",
+            "annotationKind",
+            "timestamp",
+            "actor",
+            "beforeState",
+            "afterState",
+        ]

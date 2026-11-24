@@ -45,8 +45,8 @@ class AnnotationEventsView(ListAPIView):
         events = [
             {
                 "id": event.pk,
-                "session": event.session_id,
-                "problemId": event.problem_id,
+                "session": event.session.pk,
+                "problemId": event.problem.pk,
                 "eventKind": event.action,
                 "annotationKind": event.event_type,
                 "timestamp": event.occurred_at.isoformat(),
@@ -156,11 +156,10 @@ class LabelAnnotationView(ModelViewSet):
                     data={
                         "problem": problem.pk,
                         "label_id": label_id,
-                        "session": session.pk,
                     },
                 )
                 serializer.is_valid(raise_exception=True)
-                annotation = serializer.save(session=session, problem=problem)
+                annotation = serializer.save(problem=problem)
                 self.create_label_annotation_event(
                     action=AnnotationEvent.Action.CREATED,
                     label_annotation=annotation,

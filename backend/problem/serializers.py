@@ -157,7 +157,7 @@ class ProblemInputSerializer(serializers.Serializer):
     ):
         serializer = KnowledgeBaseAnnotationSerializer(data=update_data)
         serializer.is_valid(raise_exception=True)
-        annotation = serializer.save(problem=problem, session=session)
+        annotation = serializer.save(problem=problem)
         self.create_kb_annotation_event(
             action=AnnotationEvent.Action.CREATED,
             kb_annotation=annotation,
@@ -196,7 +196,7 @@ class ProblemInputSerializer(serializers.Serializer):
         )
 
         if not changed:
-            serializer.save(problem=problem, session=session)
+            serializer.save(problem=problem)
             return
 
         before_state = {
@@ -205,10 +205,7 @@ class ProblemInputSerializer(serializers.Serializer):
             "relationship": kb_instance.relationship,
             "notes": kb_instance.notes,
         }
-        annotation = serializer.save(
-            problem=problem,
-            session=session,
-        )
+        annotation = serializer.save(problem=problem)
         self.create_kb_annotation_event(
             action=AnnotationEvent.Action.UPDATED,
             kb_annotation=annotation,

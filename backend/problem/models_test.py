@@ -4,16 +4,6 @@ from annotation.models import KnowledgeBaseAnnotation, LabelAnnotation
 from problem.models import Problem
 
 
-@pytest.fixture
-def kb_annotation(db, annotator_session, non_user_problem):
-    return KnowledgeBaseAnnotation.objects.create(
-        problem=non_user_problem,
-        entity1="dog",
-        entity2="pooch",
-        relationship=KnowledgeBaseAnnotation.Relationship.EQUAL,
-    )
-
-
 @pytest.mark.django_db
 def test_status_bronze_no_annotations(db, non_user_problem):
     """
@@ -35,6 +25,8 @@ def test_status_gold_without_annotation(db, non_user_problem):
 @pytest.mark.django_db
 def test_status_gold_with_annotation(db, non_user_problem, kb_annotation_by_annotator):
     """A problem with gold=True is gold even with annotations."""
+    kb_annotation_by_annotator.problem = non_user_problem
+    kb_annotation_by_annotator.save()
     non_user_problem.gold = True
     non_user_problem.save()
     assert non_user_problem.status == Problem.Status.GOLD
@@ -43,6 +35,8 @@ def test_status_gold_with_annotation(db, non_user_problem, kb_annotation_by_anno
 @pytest.mark.django_db
 def test_status_silver_with_kb_annotation(db, non_user_problem, kb_annotation_by_annotator):
     """A problem with an active KB annotation and gold=False is silver."""
+    kb_annotation_by_annotator.problem = non_user_problem
+    kb_annotation_by_annotator.save()
     assert non_user_problem.status == Problem.Status.SILVER
 
 

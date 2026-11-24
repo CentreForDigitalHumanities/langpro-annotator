@@ -11,8 +11,6 @@ def kb_annotation(db, annotator_session, non_user_problem):
         entity1="dog",
         entity2="pooch",
         relationship=KnowledgeBaseAnnotation.Relationship.EQUAL,
-        session=annotator_session,
-        created_by=annotator_session.user,
     )
 
 
@@ -35,7 +33,7 @@ def test_status_gold_without_annotation(db, non_user_problem):
 
 
 @pytest.mark.django_db
-def test_status_gold_with_annotation(db, non_user_problem, kb_annotation):
+def test_status_gold_with_annotation(db, non_user_problem, kb_annotation_by_annotator):
     """A problem with gold=True is gold even with annotations."""
     non_user_problem.gold = True
     non_user_problem.save()
@@ -43,7 +41,7 @@ def test_status_gold_with_annotation(db, non_user_problem, kb_annotation):
 
 
 @pytest.mark.django_db
-def test_status_silver_with_kb_annotation(db, non_user_problem, kb_annotation):
+def test_status_silver_with_kb_annotation(db, non_user_problem, kb_annotation_by_annotator):
     """A problem with an active KB annotation and gold=False is silver."""
     assert non_user_problem.status == Problem.Status.SILVER
 
@@ -56,8 +54,6 @@ def test_status_silver_with_label_annotation(
     LabelAnnotation.objects.create(
         problem=non_user_problem,
         label=sample_label,
-        session=annotator_session,
-        created_by=annotator_session.user,
     )
     assert non_user_problem.status == Problem.Status.SILVER
 
@@ -67,19 +63,13 @@ def test_status_bronze_when_all_annotations_removed(
     db, non_user_problem, annotator_session
 ):
     """A problem whose only annotation is removed reverts to bronze."""
-    from django.utils import timezone
-
     kb = KnowledgeBaseAnnotation.objects.create(
         problem=non_user_problem,
         entity1="dog",
         entity2="pooch",
         relationship=KnowledgeBaseAnnotation.Relationship.EQUAL,
-        session=annotator_session,
-        created_by=annotator_session.user,
     )
-    kb.removed_at = timezone.now()
-    kb.removed_by = annotator_session.user
-    kb.save()
+    kb.delete()
 
     assert non_user_problem.status == Problem.Status.BRONZE
 

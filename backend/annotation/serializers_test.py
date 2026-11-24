@@ -4,6 +4,7 @@ from typing import Any
 from django.contrib.auth.models import Permission
 from rest_framework.test import APIRequestFactory
 
+from annotation.models import AnnotationEvent
 from annotation.serializers import (
     KnowledgeBaseAnnotationSerializer,
     LabelSerializer,
@@ -13,14 +14,13 @@ from annotation.serializers import (
 
 
 @pytest.mark.django_db
-def test_invalid_kb_item_id(annotator_session, sample_problem):
+def test_invalid_kb_item_id(sample_problem):
     """Test that a non-existent kbItem ID is invalid."""
     data = {
         "id": 9999,
         "relationship": "equal",
         "entity1": "e1",
         "entity2": "e2",
-        "session": annotator_session.pk,
         "problem": sample_problem.pk,
     }
     serializer = KnowledgeBaseAnnotationSerializer(data=data)
@@ -29,13 +29,12 @@ def test_invalid_kb_item_id(annotator_session, sample_problem):
 
 
 @pytest.mark.django_db
-def test_valid_kb_annotation_data(annotator_session, sample_problem):
+def test_valid_kb_annotation_data(sample_problem):
     """Test that valid KB annotation data is accepted."""
     data = {
         "relationship": "equal",
         "entity1": "cat",
         "entity2": "feline",
-        "session": annotator_session.pk,
         "problem": sample_problem.pk,
     }
     serializer = KnowledgeBaseAnnotationSerializer(data=data)
@@ -107,8 +106,13 @@ def test_label_serialization(sample_label):
 @pytest.mark.django_db
 def test_label_annotation_serialization(label_annotation):
     """Test serializing a label annotation."""
+    creator_event = AnnotationEvent.objects.get(
+        event_type=AnnotationEvent.EventType.LABEL,
+        annotation_id=label_annotation.pk,
+        action=AnnotationEvent.Action.CREATED,
+    )
     serializer = LabelAnnotationSerializer(
-        label_annotation, context={"user": label_annotation.created_by}
+        label_annotation, context={"user": creator_event.actor}
     )
     data: dict[str, Any] = serializer.data  # type: ignore
 
@@ -141,15 +145,22 @@ def test_label_annotation_removable_by_creator(label_annotation, annotator):
 
 @pytest.mark.django_db
 def test_label_annotation_not_removable_by_non_creator(
-    label_annotation, annotator, master_annotator
+    label_annotation, annotator, master_annotator, master_annotator_session
 ):
     """Test that a regular Annotator user cannot remove annotation they did not create."""
     perm = Permission.objects.get(codename="delete_own_labelannotation")
     annotator.user_permissions.add(perm)
 
-    # Change the creator to a different user
-    label_annotation.created_by = master_annotator
-    label_annotation.save()
+    # Change the creator of the label annotation to the master annotator by modifying the AnnotationEvent.
+    creation_event = AnnotationEvent.objects.get(
+        event_type=AnnotationEvent.EventType.LABEL,
+        annotation_id=label_annotation.pk,
+        action=AnnotationEvent.Action.CREATED,
+    )
+
+    creation_event.actor = master_annotator
+    creation_event.session = master_annotator_session
+    creation_event.save()
 
     serializer = LabelAnnotationSerializer(
         label_annotation, context={"user": annotator}

@@ -6,6 +6,7 @@ from django.contrib.auth.models import Group, Permission
 from rest_framework.test import APIClient as DRFAPIClient
 
 from annotation.models import (
+    AnnotationEvent,
     AnnotationSession,
     KnowledgeBaseAnnotation,
     Label,
@@ -125,6 +126,7 @@ def sample_problem(db):
     problem.premises.add(premise)
     return problem
 
+
 @pytest.fixture
 def hidden_problem(db):
     """Creates a hidden problem for testing."""
@@ -139,6 +141,7 @@ def hidden_problem(db):
     )
     problem.premises.add(premise)
     return problem
+
 
 @pytest.fixture
 def annotator_session(db, annotator):
@@ -161,16 +164,45 @@ def master_annotator_session(db, master_annotator):
 
 
 @pytest.fixture
-def kb_annotation(db, sample_problem, annotator_session):
-    return KnowledgeBaseAnnotation.objects.create(
+def kb_annotation_by_annotator(db, sample_problem, annotator, annotator_session):
+    """Creates a knowledge base annotation attached by an annotator and a creation annotation event. Returns the knowledge base annotation."""
+    annotation = KnowledgeBaseAnnotation.objects.create(
         problem=sample_problem,
         entity1="e1",
         entity2="e2",
         relationship=KnowledgeBaseAnnotation.Relationship.EQUAL,
-        session=annotator_session,
-        created_at="2024-01-01T00:00:00Z",
-        created_by=annotator_session.user,
     )
+    AnnotationEvent.objects.create(
+        session=annotator_session,
+        problem=sample_problem,
+        actor=annotator,
+        event_type=AnnotationEvent.EventType.KNOWLEDGE_BASE,
+        annotation_id=annotation.pk,
+        action=AnnotationEvent.Action.CREATED,
+    )
+    return annotation
+
+
+@pytest.fixture
+def kb_annotation_by_master(
+    db, sample_problem, master_annotator, master_annotator_session
+):
+    """Creates a knowledge base annotation attached by a master annotator and a creation annotation event. Returns the knowledge base annotation."""
+    annotation = KnowledgeBaseAnnotation.objects.create(
+        problem=sample_problem,
+        entity1="e1",
+        entity2="e2",
+        relationship=KnowledgeBaseAnnotation.Relationship.EQUAL,
+    )
+    AnnotationEvent.objects.create(
+        session=master_annotator_session,
+        problem=sample_problem,
+        actor=master_annotator,
+        event_type=AnnotationEvent.EventType.KNOWLEDGE_BASE,
+        annotation_id=annotation.pk,
+        action=AnnotationEvent.Action.CREATED,
+    )
+    return annotation
 
 
 @pytest.fixture
@@ -182,11 +214,50 @@ def sample_label(db):
 
 
 @pytest.fixture
-def label_annotation(db, sample_problem, annotator_session, sample_label):
-    """Create a label annotation for testing."""
-    return LabelAnnotation.objects.create(
+def label_annotation_by_annotator(
+    db, sample_problem, sample_label, annotator, annotator_session
+):
+    """Creates a label_annotation attached by an annotator and a creation annotation event. Returns the label annotation."""
+    annotation = LabelAnnotation.objects.create(
         problem=sample_problem,
         label=sample_label,
-        session=annotator_session,
-        created_by=annotator_session.user,
     )
+    AnnotationEvent.objects.create(
+        session=annotator_session,
+        problem=sample_problem,
+        actor=annotator,
+        event_type=AnnotationEvent.EventType.LABEL,
+        annotation_id=annotation.pk,
+        action=AnnotationEvent.Action.CREATED,
+        after_state={
+            "label_id": sample_label.pk,
+            "label": sample_label.text,
+            "notes": "",
+        },
+    )
+    return annotation
+
+
+@pytest.fixture
+def label_annotation_by_master(
+    db, sample_problem, another_label, master_annotator, master_annotator_session
+):
+    """Creates a label_annotation attached by a master annotator and a creation annotation event. Returns the label annotation."""
+    annotation = LabelAnnotation.objects.create(
+        problem=sample_problem,
+        label=another_label,
+    )
+    AnnotationEvent.objects.create(
+        session=master_annotator_session,
+        problem=sample_problem,
+        actor=master_annotator,
+        event_type=AnnotationEvent.EventType.LABEL,
+        annotation_id=annotation.pk,
+        action=AnnotationEvent.Action.CREATED,
+        after_state={
+            "label_id": another_label.pk,
+            "label": another_label.text,
+            "notes": "",
+        },
+    )
+    return annotation

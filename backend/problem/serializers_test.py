@@ -1,7 +1,7 @@
 import pytest
 from rest_framework.exceptions import ValidationError
 
-from annotation.models import KnowledgeBaseAnnotation
+from annotation.models import AnnotationEvent, KnowledgeBaseAnnotation
 from .serializers import ProblemInputSerializer
 
 
@@ -116,18 +116,31 @@ def test_create_single_kb_annotation(user_problem, annotator):
     assert kb.entity2 == "canine"
     assert kb.relationship == "equal"
     assert kb.notes == "Test note"
-    assert kb.created_by == annotator
+    event = AnnotationEvent.objects.get(
+        event_type=AnnotationEvent.EventType.KNOWLEDGE_BASE,
+        annotation_id=kb.pk,
+        action=AnnotationEvent.Action.CREATED,
+    )
+    assert event.actor == annotator
+    assert event.problem == user_problem
+    assert event.before_state is None
+    assert event.after_state == {
+        "entity1": "dog",
+        "entity2": "canine",
+        "relationship": "equal",
+        "notes": "Test note",
+    }
 
 
 @pytest.mark.django_db
-def test_update_single_kb_annotation(user_problem, kb_annotation, annotator):
+def test_update_single_kb_annotation(user_problem, kb_annotation_by_annotator, annotator):
     """Test updating a single KB annotation for a problem."""
-    kb_annotation.problem = user_problem
-    kb_annotation.save()
+    kb_annotation_by_annotator.problem = user_problem
+    kb_annotation_by_annotator.save()
 
     kb_input = [
         {
-            "id": kb_annotation.pk,
+            "id": kb_annotation_by_annotator.pk,
             "entity1": "updated_entity1",
             "entity2": "updated_entity2",
             "relationship": "subset",
@@ -139,42 +152,69 @@ def test_update_single_kb_annotation(user_problem, kb_annotation, annotator):
     serializer.handle_kb_annotations(user_problem, kb_input, annotator)  # type: ignore
 
     # Verify KB annotation was updated
-    kb_annotation.refresh_from_db()
-    assert kb_annotation.entity1 == "updated_entity1"
-    assert kb_annotation.entity2 == "updated_entity2"
-    assert kb_annotation.relationship == "subset"
-    assert kb_annotation.notes == "Updated note"
-    assert kb_annotation.removed_at is None
+    kb_annotation_by_annotator.refresh_from_db()
+    assert kb_annotation_by_annotator.entity1 == "updated_entity1"
+    assert kb_annotation_by_annotator.entity2 == "updated_entity2"
+    assert kb_annotation_by_annotator.relationship == "subset"
+    assert kb_annotation_by_annotator.notes == "Updated note"
+    event = AnnotationEvent.objects.get(
+        event_type=AnnotationEvent.EventType.KNOWLEDGE_BASE,
+        annotation_id=kb_annotation_by_annotator.pk,
+        action=AnnotationEvent.Action.UPDATED,
+    )
+    assert event.actor == annotator
+    assert event.before_state == {
+        "entity1": "e1",
+        "entity2": "e2",
+        "relationship": "equal",
+        "notes": "",
+    }
+    assert event.after_state == {
+        "entity1": "updated_entity1",
+        "entity2": "updated_entity2",
+        "relationship": "subset",
+        "notes": "Updated note",
+    }
 
 
 @pytest.mark.django_db
-def test_mark_kb_annotation_as_removed(user_problem, kb_annotation, annotator):
+def test_mark_kb_annotation_as_removed(user_problem, kb_annotation_by_annotator, annotator):
     """Test marking a KB annotation as removed for a problem."""
-    kb_annotation.problem = user_problem
-    kb_annotation.save()
+    kb_annotation_by_annotator.problem = user_problem
+    kb_annotation_by_annotator.save()
 
     kb_input = []  # Empty list should mark existing as removed
 
     serializer = ProblemInputSerializer()
     serializer.handle_kb_annotations(user_problem, kb_input, annotator)  # type: ignore
 
-    # Verify KB annotation was marked as removed
-    kb_annotation.refresh_from_db()
-    assert kb_annotation.removed_at is not None
-    assert kb_annotation.removed_by == annotator
+    assert not KnowledgeBaseAnnotation.objects.filter(pk=kb_annotation_by_annotator.pk).exists()
+    event = AnnotationEvent.objects.get(
+        event_type=AnnotationEvent.EventType.KNOWLEDGE_BASE,
+        annotation_id=kb_annotation_by_annotator.pk,
+        action=AnnotationEvent.Action.REMOVED,
+    )
+    assert event.actor == annotator
+    assert event.before_state == {
+        "entity1": "e1",
+        "entity2": "e2",
+        "relationship": "equal",
+        "notes": "",
+    }
+    assert event.after_state is None
 
 
 @pytest.mark.django_db
 def test_create_and_update_multiple_kb_annotations(
-    user_problem, kb_annotation, annotator
+    user_problem, kb_annotation_by_annotator, annotator
 ):
     """Test creating and updating multiple KB annotations for a problem."""
-    kb_annotation.problem = user_problem
-    kb_annotation.save()
+    kb_annotation_by_annotator.problem = user_problem
+    kb_annotation_by_annotator.save()
 
     kb_input = [
         {
-            "id": kb_annotation.pk,
+            "id": kb_annotation_by_annotator.pk,
             "entity1": "updated_e1",
             "entity2": "updated_e2",
             "relationship": "subset",
@@ -195,20 +235,20 @@ def test_create_and_update_multiple_kb_annotations(
     serializer.handle_kb_annotations(user_problem, kb_input, annotator)  # type: ignore
 
     kb_annotations = KnowledgeBaseAnnotation.objects.filter(
-        problem=user_problem, removed_at__isnull=True
+        problem=user_problem
     )
     assert (
         kb_annotations.count() == 3
     ), "There should be three new active KB annotations after update."
 
     # Verify the updated annotation
-    kb_annotation.refresh_from_db()
-    assert kb_annotation.entity1 == "updated_e1"
-    assert kb_annotation.entity2 == "updated_e2"
-    assert kb_annotation.relationship == "subset"
+    kb_annotation_by_annotator.refresh_from_db()
+    assert kb_annotation_by_annotator.entity1 == "updated_e1"
+    assert kb_annotation_by_annotator.entity2 == "updated_e2"
+    assert kb_annotation_by_annotator.relationship == "subset"
 
     # Verify the new annotations
-    new_annotations = kb_annotations.exclude(id=kb_annotation.pk)
+    new_annotations = kb_annotations.exclude(id=kb_annotation_by_annotator.pk)
     assert (
         new_annotations.count() == 2
     ), "There should be two new KB annotations after update."
@@ -220,7 +260,7 @@ def test_create_and_update_multiple_kb_annotations(
 
 @pytest.mark.django_db
 def test_create_update_and_remove_kb_annotations(
-    user_problem, annotator, annotator_session
+    user_problem, kb_annotation_by_annotator, annotator
 ):
     """Test creating, updating and removing multiple KB annotations for a problem."""
     # Create initial KB annotations
@@ -229,8 +269,6 @@ def test_create_update_and_remove_kb_annotations(
         entity1="keep_e1",
         entity2="keep_e2",
         relationship="equal",
-        session=annotator_session,
-        created_by=annotator,
     )
 
     kb2 = KnowledgeBaseAnnotation.objects.create(
@@ -238,8 +276,6 @@ def test_create_update_and_remove_kb_annotations(
         entity1="remove_e1",
         entity2="remove_e2",
         relationship="equal",
-        session=annotator_session,
-        created_by=annotator,
     )
 
     kb_input = [
@@ -264,16 +300,21 @@ def test_create_update_and_remove_kb_annotations(
     assert kb1.entity1 == "updated_keep_e1"
     assert kb1.entity2 == "updated_keep_e2"
     assert kb1.relationship == "subset"
-    assert kb1.removed_at is None
 
-    # Verify kb2 was marked as removed.
-    kb2.refresh_from_db()
-    assert kb2.removed_at is not None
-    assert kb2.removed_by == annotator
+    # Verify kb2 was deleted.
+    assert not KnowledgeBaseAnnotation.objects.filter(pk=kb2.pk).exists()
+    removed_event = AnnotationEvent.objects.get(
+        event_type=AnnotationEvent.EventType.KNOWLEDGE_BASE,
+        annotation_id=kb2.pk,
+        action=AnnotationEvent.Action.REMOVED,
+    )
+    assert removed_event.actor == annotator
+    assert removed_event.before_state["entity1"] == "remove_e1"
+    assert removed_event.after_state is None
 
     # Verify new annotation was created.
     active_annotations = KnowledgeBaseAnnotation.objects.filter(
-        problem=user_problem, removed_at__isnull=True
+        problem=user_problem
     )
     assert active_annotations.count() == 2
 

@@ -1,6 +1,7 @@
 import pytest
 from rest_framework import status
 
+from annotation.models import AnnotationEvent, KnowledgeBaseAnnotation
 from problem.models import Problem
 
 
@@ -360,13 +361,13 @@ class TestProblemViewPermissions:
         ), "KB annotation entity1 should match input data."
 
     def test_annotator_can_update_kb_annotations(
-        self, client, annotator, sample_problem, problem_input_data, kb_annotation
+        self, client, annotator, sample_problem, problem_input_data, kb_annotation_by_annotator
     ):
         assert sample_problem.knowledgebaseannotations.count() == 1
         first_kb = sample_problem.knowledgebaseannotations.first()
         assert first_kb.entity1 != problem_input_data["kbItems"][0]["entity1"]
 
-        problem_input_data["kbItems"][0]["id"] = kb_annotation.id
+        problem_input_data["kbItems"][0]["id"] = kb_annotation_by_annotator.id
 
         client.force_login(user=annotator)
         response = client.patch(
@@ -377,19 +378,19 @@ class TestProblemViewPermissions:
         assert response.status_code == status.HTTP_200_OK
 
         sample_problem.refresh_from_db()
-        kb_annotation.refresh_from_db()
+        kb_annotation_by_annotator.refresh_from_db()
 
         assert (
             sample_problem.knowledgebaseannotations.count() == 1
         ), "Updating a KB annotation as an annotator should not create a new one."
         assert (
-            kb_annotation.entity1 == problem_input_data["kbItems"][0]["entity1"]
+            kb_annotation_by_annotator.entity1 == problem_input_data["kbItems"][0]["entity1"]
         ), "Annotator should be able to update a KB annotation."
 
     def test_annotator_can_remove_kb_annotations(
         self, client, annotator, sample_problem, problem_input_data, kb_annotation
     ):
-        assert kb_annotation.removed_at is None
+        assert KnowledgeBaseAnnotation.objects.filter(pk=kb_annotation.pk).exists()
         problem_input_data["kbItems"] = []
 
         client.force_login(user=annotator)
@@ -400,10 +401,13 @@ class TestProblemViewPermissions:
         )
         assert response.status_code == status.HTTP_200_OK
 
-        kb_annotation.refresh_from_db()
-        assert (
-            kb_annotation.removed_at is not None
-        ), "Annotator should be able to mark a KB annotation as removed."
+        assert not KnowledgeBaseAnnotation.objects.filter(pk=kb_annotation.pk).exists()
+        assert AnnotationEvent.objects.filter(
+            event_type=AnnotationEvent.EventType.KNOWLEDGE_BASE,
+            annotation_id=kb_annotation.pk,
+            action=AnnotationEvent.Action.REMOVED,
+            actor=annotator,
+        ).exists()
 
     def test_master_annotator_can_create_kb_annotations(
         self, client, master_annotator, sample_problem, problem_input_data
@@ -467,7 +471,7 @@ class TestProblemViewPermissions:
         problem_input_data,
         kb_annotation,
     ):
-        assert kb_annotation.removed_at is None
+        assert KnowledgeBaseAnnotation.objects.filter(pk=kb_annotation.pk).exists()
         problem_input_data["kbItems"] = []
 
         client.force_login(user=master_annotator)
@@ -478,10 +482,13 @@ class TestProblemViewPermissions:
         )
         assert response.status_code == status.HTTP_200_OK
 
-        kb_annotation.refresh_from_db()
-        assert (
-            kb_annotation.removed_at is not None
-        ), "Master annotator should be able to mark a KB annotation as removed."
+        assert not KnowledgeBaseAnnotation.objects.filter(pk=kb_annotation.pk).exists()
+        assert AnnotationEvent.objects.filter(
+            event_type=AnnotationEvent.EventType.KNOWLEDGE_BASE,
+            annotation_id=kb_annotation.pk,
+            action=AnnotationEvent.Action.REMOVED,
+            actor=master_annotator,
+        ).exists()
 
 
 class TestUserRoleProperties:

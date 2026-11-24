@@ -27,7 +27,6 @@ export type AnnotationKind = "label" | "knowledgeBase";
 
 interface BaseAnnotation {
     id: number | null;
-    session: number | null;
     problem: number;
     notes: string;
     removable: boolean;

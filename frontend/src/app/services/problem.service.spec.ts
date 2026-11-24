@@ -61,6 +61,7 @@ describe("ProblemService", () => {
                     },
                     kbAnnotations: [],
                     labelAnnotations: [],
+                    annotationEvents: [],
                     hidden: false,
                     gold: false,
                     status: ProblemStatus.BRONZE,

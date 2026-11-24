@@ -23,6 +23,7 @@ const createMockProblem = (
     extraData,
     kbAnnotations: [],
     labelAnnotations: [],
+    annotationEvents: [],
     gold: false,
     status: ProblemStatus.BRONZE,
     langproPrediction: null,

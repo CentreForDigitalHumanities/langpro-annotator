@@ -30,12 +30,7 @@ function createMockProblem(): Problem {
                 relationship: KnowledgeBaseRelationship.SUBSET,
                 annotationKind: "knowledgeBase",
                 problem: 123,
-                createdAt: "",
-                createdBy: "",
-                removedAt: null,
-                removedBy: null,
                 notes: "",
-                session: null,
                 removable: true
             },
             {
@@ -45,16 +40,12 @@ function createMockProblem(): Problem {
                 relationship: KnowledgeBaseRelationship.EQUAL,
                 annotationKind: "knowledgeBase",
                 problem: 123,
-                createdAt: "",
-                createdBy: "",
-                removedAt: null,
-                removedBy: null,
                 notes: "",
-                session: null,
                 removable: true
             }
         ],
         labelAnnotations: [],
+        annotationEvents: [],
         dataset: Dataset.USER,
         extraData: null,
         gold: false,

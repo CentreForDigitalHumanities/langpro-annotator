@@ -1,28 +1,20 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { of } from "rxjs";
 
-import { ProblemService } from "@/services/problem.service";
-import { CombinedAnnotation, Dataset, EntailmentLabel, KnowledgeBaseAnnotation, KnowledgeBaseRelationship, LabelAnnotation, Problem, ProblemStatus } from "@/types";
+import { AnnotationEvent, KnowledgeBaseRelationship } from "@/types";
 import { AnnotationListComponent } from "./annotation-list.component";
 import { ComponentRef } from "@angular/core";
 
-const baseAnnotationFields: Omit<LabelAnnotation, "label" | "attachedByCurrentUser" | "createdBy" | "createdAt" | "annotationKind"> = {
+const mockAnnotations: AnnotationEvent[] = [{
     id: 1,
     session: 1,
-    notes: "",
-    removable: false,
-    removedAt: null,
-    removedBy: null,
-    problem: 1,
-};
-
-const mockAnnotations: CombinedAnnotation[] = [{
-    ...baseAnnotationFields,
+    problemId: 1,
+    eventKind: "created",
     annotationKind: "label",
-    createdAt: "2024-01-01T10:00:00Z",
-    createdBy: "Alice",
-    label: { id: 1, text: "negation", description: "" },
-    attachedByCurrentUser: false,
+    timestamp: "2024-01-01T10:00:00Z",
+    actor: "Alice",
+    annotationId: 1,
+    beforeState: null,
+    afterState: { label: "negation" },
 }];
 
 describe("AnnotationListComponent", () => {
@@ -54,18 +46,22 @@ describe("AnnotationListComponent", () => {
     it("emits an 'added' event for each annotation", () => {
         componentRef.setInput("annotations", [
             {
-                ...baseAnnotationFields,
+                id: 1,
+                session: 1,
+                problemId: 1,
+                eventKind: "created",
                 annotationKind: "label",
-                createdAt: "2024-01-01T10:00:00Z",
-                createdBy: "Alice",
-                label: { id: 1, text: "negation", description: "" },
-                attachedByCurrentUser: false,
+                timestamp: "2024-01-01T10:00:00Z",
+                actor: "Alice",
+                annotationId: 1,
+                beforeState: null,
+                afterState: { label: "negation" },
             },
         ]);
 
         const events = component.filteredEvents()!;
         expect(events.length).toBe(1);
-        expect(events[0].eventKind).toBe("added");
+        expect(events[0].eventKind).toBe("created");
         expect(events[0].annotationKind).toBe("label");
         expect(events[0].actor).toBe("Alice");
         expect(events[0].description).toBe("negation");
@@ -74,15 +70,36 @@ describe("AnnotationListComponent", () => {
     it("emits a 'removed' event when removedAt is set", () => {
         componentRef.setInput("annotations", [
             {
-                ...baseAnnotationFields,
+                id: 1,
+                session: 1,
+                problemId: 1,
+                eventKind: "created",
                 annotationKind: "knowledgeBase",
-                createdAt: "2024-01-01T10:00:00Z",
-                createdBy: "Bob",
-                removedAt: "2024-01-02T10:00:00Z",
-                removedBy: "3",
-                entity1: "cat",
-                relationship: KnowledgeBaseRelationship.EQUAL,
-                entity2: "feline",
+                timestamp: "2024-01-01T10:00:00Z",
+                actor: "Bob",
+                annotationId: 1,
+                beforeState: null,
+                afterState: {
+                    entity1: "cat",
+                    relationship: KnowledgeBaseRelationship.EQUAL,
+                    entity2: "feline",
+                },
+            },
+            {
+                id: 2,
+                session: 1,
+                problemId: 1,
+                eventKind: "removed",
+                annotationKind: "knowledgeBase",
+                timestamp: "2024-01-02T10:00:00Z",
+                actor: "3",
+                annotationId: 1,
+                beforeState: {
+                    entity1: "cat",
+                    relationship: KnowledgeBaseRelationship.EQUAL,
+                    entity2: "feline",
+                },
+                afterState: null,
             },
         ]);
 
@@ -91,29 +108,35 @@ describe("AnnotationListComponent", () => {
         const removed = events.find((e) => e.eventKind === "removed");
         expect(removed!.eventKind).toBe("removed");
         expect(removed!.annotationKind).toBe("knowledgeBase");
-        expect(removed!.description).toBe("cat = feline");
+        expect(removed!.description).toBe("cat ≡ feline");
     });
 
     it("sorts events by timestamp descending", () => {
         componentRef.setInput("annotations",
             [
                 {
-                    ...baseAnnotationFields,
                     id: 1,
+                    session: 1,
+                    problemId: 1,
+                    eventKind: "created",
                     annotationKind: "label",
-                    createdAt: "2024-01-01T10:00:00Z",
-                    createdBy: "Alice",
-                    label: { id: 1, text: "first", description: "" },
-                    attachedByCurrentUser: false,
+                    timestamp: "2024-01-01T10:00:00Z",
+                    actor: "Alice",
+                    annotationId: 1,
+                    beforeState: null,
+                    afterState: { label: "first" },
                 },
                 {
-                    ...baseAnnotationFields,
-                    annotationKind: "label",
                     id: 2,
-                    createdAt: "2024-01-03T10:00:00Z",
-                    createdBy: "Bob",
-                    label: { id: 2, text: "latest", description: "" },
-                    attachedByCurrentUser: false,
+                    session: 1,
+                    problemId: 1,
+                    eventKind: "created",
+                    annotationKind: "label",
+                    timestamp: "2024-01-03T10:00:00Z",
+                    actor: "Bob",
+                    annotationId: 2,
+                    beforeState: null,
+                    afterState: { label: "latest" },
                 },
             ]
         );

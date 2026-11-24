@@ -129,7 +129,6 @@ export class ManageLabelsModalComponent implements OnInit {
             id: null,
             label,
             attachedByCurrentUser: true,
-            session: null,
             notes: '',
             removable: true,
         } as LabelAnnotation;

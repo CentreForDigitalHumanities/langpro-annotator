@@ -166,6 +166,34 @@ describe("ProblemService", () => {
             expect(response).toEqual(mockResponse);
         });
 
+        it("should refetch the problem after a successful save", () => {
+            service.allParams$.next({
+                params: convertToParamMap({ problemId: 1 }),
+                queryParams: convertToParamMap({}),
+                edit: true
+            });
+
+            const problemSubscription = service.problemResponse$.subscribe();
+            httpMock.expectOne(`/api/problem/?text=&dataset=&status=&entailmentLabel=&hidden=&langproPrediction=&current=1`)
+                .flush({ problem: { id: 1 }, error: null });
+
+            service.submit$.next({
+                id: 1,
+                base: null,
+                premises: ["a"],
+                hypothesis: "b",
+                kbItems: [],
+                langproPrediction: null,
+                usedKbItems: []
+            });
+
+            httpMock.expectOne("/api/problem/1/").flush({ id: 1, error: null });
+            httpMock.expectOne(`/api/problem/?text=&dataset=&status=&entailmentLabel=&hidden=&langproPrediction=&current=1`)
+                .flush({ problem: { id: 1 }, error: null });
+
+            problemSubscription.unsubscribe();
+        });
+
         it("should handle errors during save", async () => {
             const problemToSave: ParseInput = {
                 id: 2,

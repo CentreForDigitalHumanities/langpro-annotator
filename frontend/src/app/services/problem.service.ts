@@ -68,11 +68,35 @@ export class ProblemService {
         map(() => this.allParams$.value),
     );
 
+    public saveProblem$ = this.submit$.pipe(
+        exhaustMap((problem) => {
+            const action = problem.id ? this.http.patch<SaveProblemResponse>(`/api/problem/${problem.id}/`, problem) :
+                this.http.post<SaveProblemResponse>(`/api/problem/`, problem);
+            return action.pipe(
+                catchError((error) => {
+                    this.toastService.show({
+                        header: $localize`Error saving problem`,
+                        body: error,
+                        type: 'danger',
+                    });
+                    return of({ id: null, error: 'Failed to save problem' });
+                })
+            );
+        }),
+        shareReplay(1)
+    );
+
+    public saveProblemSuccess$ = this.saveProblem$.pipe(
+        filter(response => response.id !== null),
+        map(() => this.allParams$.value),
+    );
+
     public problemResponse$: Observable<ProblemResponse | null> = merge(
         this.allParams$,
         this.refetchProblem$.pipe(map(() => this.allParams$.value)),
         this.visibilityToggleSuccess$,
         this.goldToggleSuccess$,
+        this.saveProblemSuccess$,
     ).pipe(
         filter(allParams => allParams !== null),
         switchMap(({ params, queryParams }) => {
@@ -121,22 +145,6 @@ export class ProblemService {
 
     public loading$ = this.appMode$.pipe(map(mode => mode === undefined));
 
-    public saveProblem$ = this.submit$.pipe(
-        exhaustMap((problem) => {
-            const action = problem.id ? this.http.patch<SaveProblemResponse>(`/api/problem/${problem.id}/`, problem) :
-                this.http.post<SaveProblemResponse>(`/api/problem/`, problem);
-            return action.pipe(
-                catchError((error) => {
-                    this.toastService.show({
-                        header: $localize`Error saving problem`,
-                        body: error,
-                        type: 'danger',
-                    });
-                    return of({ id: null, error: 'Failed to save problem' });
-                })
-            );
-        })
-    );
 
     private newProblem$(baseParam: number | null): Observable<ProblemResponse> {
         if (baseParam !== null) {

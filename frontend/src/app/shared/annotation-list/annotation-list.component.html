@@ -77,7 +77,7 @@
                                 <strong>{{ event.actor }}</strong>
                                 @switch (event.annotationKind) {
                                     @case ("label") {
-                                        {{ event.eventKind }}
+                                        {{ event.eventKind === "created" ? "added" : "removed" }}
                                         a label
                                         <span class="label-pill ms-1">
                                             {{ event.description }}

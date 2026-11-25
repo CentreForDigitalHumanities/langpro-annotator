@@ -1,7 +1,10 @@
 from rest_framework import serializers
 from django.db import transaction
 
-from annotation.serializers import AnnotationEventSerializer, KnowledgeBaseAnnotationSerializer
+from annotation.serializers import (
+    AnnotationEventSerializer,
+    KnowledgeBaseAnnotationSerializer,
+)
 from annotation.models import (
     AnnotationSession,
     KnowledgeBaseAnnotation,
@@ -37,7 +40,9 @@ class ProblemSerializer(serializers.ModelSerializer):
     usedKbItems = UsedKnowledgeBaseItemSerializer(
         many=True, source="used_kb_items", read_only=True
     )
-    annotationEvents = AnnotationEventSerializer(many=True, source="annotation_events", read_only=True)
+    annotationEvents = AnnotationEventSerializer(
+        many=True, source="annotation_events", read_only=True
+    )
 
     class Meta:
         model = Problem

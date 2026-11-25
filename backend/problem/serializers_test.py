@@ -133,7 +133,9 @@ def test_create_single_kb_annotation(user_problem, annotator):
 
 
 @pytest.mark.django_db
-def test_update_single_kb_annotation(user_problem, kb_annotation_by_annotator, annotator):
+def test_update_single_kb_annotation(
+    user_problem, kb_annotation_by_annotator, annotator
+):
     """Test updating a single KB annotation for a problem."""
     kb_annotation_by_annotator.problem = user_problem
     kb_annotation_by_annotator.save()
@@ -178,7 +180,9 @@ def test_update_single_kb_annotation(user_problem, kb_annotation_by_annotator, a
 
 
 @pytest.mark.django_db
-def test_mark_kb_annotation_as_removed(user_problem, kb_annotation_by_annotator, annotator):
+def test_mark_kb_annotation_as_removed(
+    user_problem, kb_annotation_by_annotator, annotator
+):
     """Test marking a KB annotation as removed for a problem."""
     kb_annotation_by_annotator.problem = user_problem
     kb_annotation_by_annotator.save()
@@ -188,7 +192,9 @@ def test_mark_kb_annotation_as_removed(user_problem, kb_annotation_by_annotator,
     serializer = ProblemInputSerializer()
     serializer.handle_kb_annotations(user_problem, kb_input, annotator)  # type: ignore
 
-    assert not KnowledgeBaseAnnotation.objects.filter(pk=kb_annotation_by_annotator.pk).exists()
+    assert not KnowledgeBaseAnnotation.objects.filter(
+        pk=kb_annotation_by_annotator.pk
+    ).exists()
     event = AnnotationEvent.objects.get(
         event_type=AnnotationEvent.EventType.KNOWLEDGE_BASE,
         annotation_id=kb_annotation_by_annotator.pk,
@@ -234,9 +240,7 @@ def test_create_and_update_multiple_kb_annotations(
     serializer = ProblemInputSerializer()
     serializer.handle_kb_annotations(user_problem, kb_input, annotator)  # type: ignore
 
-    kb_annotations = KnowledgeBaseAnnotation.objects.filter(
-        problem=user_problem
-    )
+    kb_annotations = KnowledgeBaseAnnotation.objects.filter(problem=user_problem)
     assert (
         kb_annotations.count() == 3
     ), "There should be three new active KB annotations after update."
@@ -313,9 +317,7 @@ def test_create_update_and_remove_kb_annotations(
     assert removed_event.after_state is None
 
     # Verify new annotation was created.
-    active_annotations = KnowledgeBaseAnnotation.objects.filter(
-        problem=user_problem
-    )
+    active_annotations = KnowledgeBaseAnnotation.objects.filter(problem=user_problem)
     assert active_annotations.count() == 2
 
     new_annotation = active_annotations.exclude(id=kb1.pk).first()

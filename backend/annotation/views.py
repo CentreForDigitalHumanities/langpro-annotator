@@ -1,8 +1,7 @@
 from django.db import transaction
 from rest_framework.request import Request
 from rest_framework.response import Response
-from rest_framework.viewsets import ModelViewSet
-from rest_framework.generics import ListAPIView
+from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.permissions import (
     IsAuthenticated,
@@ -17,6 +16,7 @@ from annotation.models import (
     LabelAnnotation,
 )
 from annotation.serializers import (
+    AnnotationEventSerializer,
     LabelAnnotationSerializer,
     LabelSerializer,
     SaveLabelsInputSerializer,
@@ -27,7 +27,10 @@ from user.models import User
 from langpro_annotator.logger import logger
 
 
-class AnnotationEventsView(ListAPIView):
+class AnnotationEventsView(ReadOnlyModelViewSet):
+
+    queryset = AnnotationEvent.objects.select_related("actor", "problem").order_by("-occurred_at")
+    serializer_class = AnnotationEventSerializer
 
     def list(self, request, *args, **kwargs):
         search = request.query_params.get("search")
@@ -38,28 +41,13 @@ class AnnotationEventsView(ListAPIView):
             except (TypeError, ValueError):
                 problem_id = None
 
-        queryset = AnnotationEvent.objects.select_related("actor", "problem")
+        queryset = self.get_queryset()
         if problem_id is not None:
             queryset = queryset.filter(problem_id=problem_id)
 
-        events = [
-            {
-                "id": event.pk,
-                "session": event.session.pk,
-                "problemId": event.problem.pk,
-                "eventKind": event.action,
-                "annotationKind": event.event_type,
-                "timestamp": event.occurred_at.isoformat(),
-                "actor": event.actor.get_full_name() or event.actor.username,
-                "annotationId": event.annotation_id,
-                "beforeState": event.before_state,
-                "afterState": event.after_state,
-            }
-            for event in queryset
-        ]
+        serializer = self.serializer_class(queryset, many=True)
 
-        events.sort(key=lambda event: event["timestamp"], reverse=True)
-        return Response(events)
+        return Response(serializer.data)
 
 
 class SaveLabelAnnotationPermission(IsAuthenticated):

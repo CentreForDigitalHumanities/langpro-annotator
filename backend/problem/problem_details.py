@@ -100,15 +100,9 @@ def apply_status_filter(
         return qs
 
     has_active_kb = Exists(
-        KnowledgeBaseAnnotation.objects.filter(
-            problem=OuterRef("pk")
-        )
+        KnowledgeBaseAnnotation.objects.filter(problem=OuterRef("pk"))
     )
-    has_active_label = Exists(
-        LabelAnnotation.objects.filter(
-            problem=OuterRef("pk")
-        )
-    )
+    has_active_label = Exists(LabelAnnotation.objects.filter(problem=OuterRef("pk")))
 
     match status_param:
         case Problem.Status.GOLD:

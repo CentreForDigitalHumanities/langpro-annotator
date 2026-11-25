@@ -124,8 +124,7 @@ class Problem(models.Model):
         if self.gold:
             return Problem.Status.GOLD
         has_annotations = (
-            self.knowledgebaseannotations.exists()
-            or self.labelannotations.exists()
+            self.knowledgebaseannotations.exists() or self.labelannotations.exists()
         )
         return Problem.Status.SILVER if has_annotations else Problem.Status.BRONZE
 

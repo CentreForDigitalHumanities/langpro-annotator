@@ -210,7 +210,7 @@ class AnnotationEventSerializer(serializers.Serializer):
     eventKind = serializers.CharField(source="action")
     annotationKind = serializers.CharField(source="event_type")
     timestamp = serializers.DateTimeField(source="occurred_at")
-    actor = serializers.CharField(source="actor.get_full_name", default="Unknown")
+    actor = serializers.SerializerMethodField(read_only=True)
     beforeState = serializers.JSONField(allow_null=True, source="before_state")
     afterState = serializers.JSONField(allow_null=True, source="after_state")
 
@@ -227,3 +227,6 @@ class AnnotationEventSerializer(serializers.Serializer):
             "beforeState",
             "afterState",
         ]
+
+    def get_actor(self, event: AnnotationEvent) -> str:
+        return event.actor.get_full_name() or event.actor.username

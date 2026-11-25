@@ -33,7 +33,9 @@ def test_status_gold_with_annotation(db, non_user_problem, kb_annotation_by_anno
 
 
 @pytest.mark.django_db
-def test_status_silver_with_kb_annotation(db, non_user_problem, kb_annotation_by_annotator):
+def test_status_silver_with_kb_annotation(
+    db, non_user_problem, kb_annotation_by_annotator
+):
     """A problem with an active KB annotation and gold=False is silver."""
     kb_annotation_by_annotator.problem = non_user_problem
     kb_annotation_by_annotator.save()

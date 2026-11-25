@@ -69,7 +69,11 @@ class TestLabelViewGetPermissions:
 
 class TestAnnotationsView:
     def test_lists_combined_annotations(
-        self, api_client, kb_annotation_by_annotator, label_annotation_by_annotator, annotator
+        self,
+        api_client,
+        kb_annotation_by_annotator,
+        label_annotation_by_annotator,
+        annotator,
     ):
         response = api_client.get("/api/annotations/")
 
@@ -86,7 +90,12 @@ class TestAnnotationsView:
         assert response.data[0]["timestamp"] >= response.data[1]["timestamp"]
 
     def test_search_filters_combined_annotations_by_problem_id(
-        self, api_client, sample_problem, kb_annotation_by_annotator, label_annotation_by_annotator, annotator
+        self,
+        api_client,
+        sample_problem,
+        kb_annotation_by_annotator,
+        label_annotation_by_annotator,
+        annotator,
     ):
         response = api_client.get(f"/api/annotations/?search={sample_problem.pk}")
 

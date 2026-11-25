@@ -6,17 +6,18 @@ import { faPlus, faMinus, faBook, faTag, faPen, faCircleCheck } from "@fortaweso
 import {
     AnnotationEvent,
     KB_RELATIONSHIP_SYMBOLS,
-    KnowledgeBaseRelationship,
     AnnotationEventRecord,
-    KnowledgeBaseItem
+    KnowledgeBaseItem,
+    ProblemStatus
 } from "@/types";
 import { RouterModule } from "@angular/router";
 import { FilterCheckboxComponent } from "./filter-checkbox/filter-checkbox.component";
+import { StatusBadgeComponent } from "@/annotate/annotation-input/problem-details/status-badge/status-badge.component";
 
 @Component({
     selector: "la-annotation-list",
     standalone: true,
-    imports: [CommonModule, FontAwesomeModule, RouterModule, FilterCheckboxComponent],
+    imports: [CommonModule, FontAwesomeModule, RouterModule, FilterCheckboxComponent, StatusBadgeComponent],
     templateUrl: "./annotation-list.component.html",
     changeDetection: ChangeDetectionStrategy.Eager,
     styleUrl: "./annotation-list.component.scss",
@@ -68,6 +69,8 @@ export class AnnotationListComponent {
     public faBook = faBook;
     public faTag = faTag;
 
+    ProblemStatus = ProblemStatus;
+
     private isEventShown(event: AnnotationEventRecord): boolean {
         let shownBasedOnEventKind = false;
         let shownBasedOnAnnotationKind = false;
@@ -90,6 +93,9 @@ export class AnnotationListComponent {
                 break;
             case "knowledgeBase":
                 shownBasedOnAnnotationKind = this.showKB();
+                break;
+            case "status":
+                shownBasedOnAnnotationKind = this.showStatus();
                 break;
         }
 
@@ -116,6 +122,8 @@ function getEventDescription(event: AnnotationEvent): string {
         }
         case "label":
             return "label" in state ? state.label : "Unknown label";
+        case "status":
+            return "gold" in state ? (state.gold ? "Gold" : "Not Gold") : "Unknown status";
     }
 }
 

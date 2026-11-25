@@ -23,7 +23,7 @@ interface SNLIData {
     label5: string;
 }
 
-export type AnnotationKind = "label" | "knowledgeBase";
+export type AnnotationKind = "label" | "knowledgeBase" | "status";
 
 interface BaseAnnotation {
     id: number | null;
@@ -82,8 +82,8 @@ export interface AnnotationEvent {
     timestamp: string;
     actor: string;
     annotationId: number;
-    beforeState: { "label": string; } | KnowledgeBaseItem | null;
-    afterState: { "label": string; } | KnowledgeBaseItem | null;
+    beforeState: { "label": string; } | KnowledgeBaseItem | { "gold": boolean; } | null;
+    afterState: { "label": string; } | KnowledgeBaseItem | { "gold": boolean; } | null;
 }
 
 // A display-friendly representation of an annotation event,

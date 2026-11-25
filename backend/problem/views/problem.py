@@ -1,3 +1,4 @@
+from django.db import transaction
 from rest_framework.decorators import action
 from rest_framework.request import Request
 from rest_framework.response import Response
@@ -26,7 +27,12 @@ from problem.serializers import (
     VisibilityInputSerializer,
 )
 
-from annotation.models import KnowledgeBaseAnnotation, LabelAnnotation
+from annotation.models import (
+    AnnotationEvent,
+    AnnotationSession,
+    KnowledgeBaseAnnotation,
+    LabelAnnotation,
+)
 from annotation.serializers import (
     KnowledgeBaseAnnotationSerializer,
     LabelAnnotationSerializer,
@@ -56,7 +62,10 @@ class ChangeProblemVisibilityPermission(IsAuthenticated):
 
 class ChangeProblemStatusPermission(IsAuthenticated):
     def has_permission(self, request, view):
-        return super().has_permission(request, view) and request.user.can_change_problem_status
+        return (
+            super().has_permission(request, view)
+            and request.user.can_change_problem_status
+        )
 
 
 class ProblemView(ModelViewSet):
@@ -93,8 +102,16 @@ class ProblemView(ModelViewSet):
         problem = get_object_or_404(Problem, id=pk)
         serializer = GoldInputSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        problem.gold = serializer.validated_data["gold"]  # type: ignore
-        problem.save(update_fields=["gold"])
+        new_gold_status = serializer.validated_data["gold"]  # type: ignore
+
+        if problem.gold != new_gold_status:
+            with transaction.atomic():
+                problem.gold = new_gold_status
+                problem.save(update_fields=["gold"])
+                self.create_status_annotation_event(
+                    problem=problem, request=request, gold=new_gold_status
+                )
+
         return Response(
             {"gold": problem.gold, "status": problem.status}, status=HTTP_200_OK
         )
@@ -255,3 +272,24 @@ class ProblemView(ModelViewSet):
             serializer.handle_kb_annotations(problem=problem, kb_items=kb_items, user=user)  # type: ignore
 
         return Response({"id": problem.pk}, status=status)
+
+    def create_status_annotation_event(
+        self, request: Request, problem: Problem, gold: bool
+    ) -> None:
+        session = AnnotationSession.objects.create(user=request.user)
+
+        action = (
+            AnnotationEvent.Action.CREATED if gold else AnnotationEvent.Action.REMOVED
+        )
+        before_state = {"gold": not gold}
+        after_state = {"gold": gold}
+
+        AnnotationEvent.objects.create(
+            session=session,
+            problem=problem,
+            actor=request.user,
+            action=action,
+            event_type=AnnotationEvent.EventType.STATUS,
+            before_state=before_state,
+            after_state=after_state,
+        )

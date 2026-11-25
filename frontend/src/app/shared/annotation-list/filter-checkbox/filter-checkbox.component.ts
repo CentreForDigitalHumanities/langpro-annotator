@@ -1,7 +1,7 @@
 import { AnnotationEventKind, AnnotationKind } from "@/types";
 import { Component, computed, input, output } from "@angular/core";
 import { FontAwesomeModule, IconDefinition } from "@fortawesome/angular-fontawesome";
-import { faBook, faMinus, faPen, faPlus, faTag } from "@fortawesome/free-solid-svg-icons";
+import { faBook, faMedal, faMinus, faPen, faPlus, faTag } from "@fortawesome/free-solid-svg-icons";
 
 type FilterType = AnnotationEventKind | AnnotationKind;
 
@@ -35,6 +35,11 @@ const FILTER_PROPS: Record<FilterType, FilterProps> = {
     knowledgeBase: {
         icon: faBook,
         label: $localize`KB items`,
+        buttonClass: "btn-outline-secondary",
+    },
+    status: {
+        icon: faMedal,
+        label: $localize`Status`,
         buttonClass: "btn-outline-secondary",
     },
 };

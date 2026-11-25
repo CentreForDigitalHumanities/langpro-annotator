@@ -8,62 +8,41 @@
     >
         <div class="d-flex gap-2 flex-wrap">
             <div
-                class="btn-group btn-group-sm"
                 role="group"
                 aria-label="Filter by event kind"
                 i18n-aria-label
             >
-                <input
-                    type="checkbox"
-                    class="btn-check"
-                    id="filter-added"
+                <la-filter-checkbox
+                    label="created"
                     [checked]="showAdded()"
-                    (change)="showAdded.set(!showAdded())"
+                    (toggle)="showAdded.set(!showAdded())"
                 />
-                <label class="btn btn-outline-success" for="filter-added">
-                    <fa-icon [icon]="faPlus" class="me-2" />
-                    <ng-container i18n>Added</ng-container>
-                </label>
-                <input
-                    type="checkbox"
-                    class="btn-check"
-                    id="filter-removed"
+                <la-filter-checkbox
+                    label="removed"
                     [checked]="showRemoved()"
-                    (change)="showRemoved.set(!showRemoved())"
+                    (toggle)="showRemoved.set(!showRemoved())"
                 />
-                <label class="btn btn-outline-danger" for="filter-removed">
-                    <fa-icon [icon]="faMinus" class="me-2" />
-                    <ng-container i18n>Removed</ng-container>
-                </label>
+                <la-filter-checkbox
+                    label="updated"
+                    [checked]="showUpdated()"
+                    (toggle)="showUpdated.set(!showUpdated())"
+                />
             </div>
             <div
-                class="btn-group btn-group-sm"
                 role="group"
                 aria-label="Filter by annotation type"
                 i18n-aria-label
             >
-                <input
-                    type="checkbox"
-                    class="btn-check"
-                    id="filter-labels"
+                <la-filter-checkbox
+                    label="label"
                     [checked]="showLabels()"
-                    (change)="showLabels.set(!showLabels())"
+                    (toggle)="showLabels.set(!showLabels())"
                 />
-                <label class="btn btn-outline-secondary" for="filter-labels">
-                    <fa-icon [icon]="faTag" class="me-2" />
-                    <ng-container i18n>Labels</ng-container>
-                </label>
-                <input
-                    type="checkbox"
-                    class="btn-check"
-                    id="filter-kb"
+                <la-filter-checkbox
+                    label="knowledgeBase"
                     [checked]="showKB()"
-                    (change)="showKB.set(!showKB())"
+                    (toggle)="showKB.set(!showKB())"
                 />
-                <label class="btn btn-outline-secondary" for="filter-kb">
-                    <fa-icon [icon]="faBook" class="me-2" />
-                    <ng-container i18n>KB items</ng-container>
-                </label>
             </div>
         </div>
         <span class="text-muted small" i18n>
@@ -77,7 +56,8 @@
     } @else {
         <ul class="list-unstyled d-flex flex-column gap-2 mb-0">
             @for (event of events; track $index) {
-                @let added = event.eventKind === "added";
+                @let added = event.eventKind === "created";
+                @let updated = event.eventKind === "updated";
                 @let isLabel = event.annotationKind === "label";
                 <li>
                     <div
@@ -85,9 +65,9 @@
                     >
                         <div
                             class="text-white d-flex align-items-center justify-content-center px-2 flex-shrink-0"
-                            [class]="added ? 'bg-success' : 'bg-danger'"
+                            [class]="added ? 'bg-success' : updated ? 'bg-primary' : 'bg-danger'"
                         >
-                            <fa-icon [icon]="added ? faPlus : faMinus" />
+                            <fa-icon [icon]="added ? faPlus : updated ? faPen : faMinus" />
                         </div>
                         <div
                             class="card-body py-2 px-3 d-flex align-items-center justify-content-start gap-3"
@@ -95,21 +75,22 @@
                             <fa-icon [icon]="isLabel ? faTag : faBook" />
                             <span class="flex-grow-1">
                                 <strong>{{ event.actor }}</strong>
-                                {{ event.eventKind }}
-                                {{
-                                    isLabel
-                                        ? "a label"
-                                        : "a knowledge base item"
-                                }}:
-                                <span
-                                    [class]="
-                                        isLabel
-                                            ? 'label-pill ms-1'
-                                            : 'font-monospace'
-                                    "
-                                >
-                                    {{ event.description }}
-                                </span>
+                                @switch (event.annotationKind) {
+                                    @case ("label") {
+                                        {{ event.eventKind === "created" ? "added" : "removed" }}
+                                        a label
+                                        <span class="label-pill ms-1">
+                                            {{ event.description }}
+                                        </span>
+                                    }
+                                    @case ("knowledgeBase") {
+                                        {{ event.eventKind }}
+                                        <span class="font-monospace">
+                                            {{ event.description }}
+                                        </span>
+                                    }
+                                    @default never;
+                                }
                                 @if (showProblemLinks()) {
                                     <span>
                                         on

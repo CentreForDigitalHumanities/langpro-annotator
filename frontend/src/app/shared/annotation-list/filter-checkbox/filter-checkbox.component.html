@@ -1,0 +1,11 @@
+<input
+    type="checkbox"
+    class="btn-check"
+    id="filter-{{ label() }}"
+    [checked]="checked()"
+    (change)="toggle.emit()"
+/>
+<label class="btn {{ filterProps().buttonClass }}" for="filter-{{ label() }}">
+    <fa-icon [icon]="filterProps().icon" class="me-2" />
+    {{ filterProps().label }}
+</label>

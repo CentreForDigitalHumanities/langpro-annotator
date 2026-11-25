@@ -3,8 +3,6 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { ProblemService } from '@/services/problem.service';
-import { toSignal } from '@angular/core/rxjs-interop';
-import { AuthService } from '@/services/auth.service';
 import { map, combineLatest, Subject, startWith, defer, Observable, filter } from 'rxjs';
 import { AsyncPipe } from '@angular/common';
 import { getAttachedByText } from '@/util';
@@ -26,7 +24,6 @@ export type ManageLabelsModalResult = ReturnType<SelectedLabelsForm['getRawValue
 })
 export class ManageLabelsModalComponent implements OnInit {
     private problemService = inject(ProblemService);
-    private authService = inject(AuthService);
     private destroyRef = inject(DestroyRef);
 
     public form: SelectedLabelsForm = new FormGroup({
@@ -106,17 +103,11 @@ export class ManageLabelsModalComponent implements OnInit {
 
     public getAttachedBy = getAttachedByText;
 
-    private currentUserName = toSignal(
-        this.authService.currentUser$.pipe(map((user) => user?.username))
-    );
-
     private convertSelectedIdsToAnnotations(selectedIds: number[], allLabels: Label[]): LabelAnnotation[] {
         const existingAnnotationMap = new Map(
             this.currentAnnotations.map(a => [a.label.id, a])
         );
         const allLabelsMap = new Map(allLabels.map(l => [l.id, l]));
-        const currentUser = this.currentUserName() ?? $localize`Unknown user`;
-
         return selectedIds.map(labelId => {
             // Try to find existing annotation first
             const existing = existingAnnotationMap.get(labelId);
@@ -124,11 +115,11 @@ export class ManageLabelsModalComponent implements OnInit {
                 return existing;
             }
 
-            return this.createAnnotationForId(labelId, allLabelsMap, currentUser);
+            return this.createAnnotationForId(labelId, allLabelsMap);
         }).filter(annotation => annotation !== null);
     }
 
-    private createAnnotationForId(labelId: number, allLabels: Map<number, Label>, currentUser: string): LabelAnnotation | null {
+    private createAnnotationForId(labelId: number, allLabels: Map<number, Label>): LabelAnnotation | null {
         const label = allLabels.get(labelId);
         if (!label) {
             return null;
@@ -137,12 +128,7 @@ export class ManageLabelsModalComponent implements OnInit {
         return {
             id: null,
             label,
-            createdAt: new Date().toISOString(),
-            createdBy: currentUser,
             attachedByCurrentUser: true,
-            session: null,
-            removedAt: null,
-            removedBy: null,
             notes: '',
             removable: true,
         } as LabelAnnotation;

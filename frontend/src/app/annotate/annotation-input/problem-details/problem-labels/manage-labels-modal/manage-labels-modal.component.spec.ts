@@ -40,13 +40,9 @@ describe("ManageLabelsModalComponent", () => {
         annotationKind: "label",
         problem: 1,
         label: testLabel1,
-        createdAt: "2023-01-01T12:00:00Z",
-        createdBy: "Other User",
+        attachedBy: "test-user",
         attachedByCurrentUser: false,
         removable: true,
-        session: null,
-        removedAt: null,
-        removedBy: null,
         notes: '',
     };
 
@@ -152,7 +148,6 @@ describe("ManageLabelsModalComponent", () => {
         expect(shownLabels?.[0].label).toEqual(testLabel1);
         expect(shownLabels?.[0].id).toBeNull();
         expect(shownLabels?.[0].attachedByCurrentUser).toBe(true);
-        expect(shownLabels?.[0].createdBy).toBe("Current User");
     });
 
     it("should preserve existing LabelAnnotation objects in shownLabels$", async () => {
@@ -164,7 +159,6 @@ describe("ManageLabelsModalComponent", () => {
         expect(shownLabels?.length).toBe(1);
         expect(shownLabels?.[0]).toBe(testAttachedLabel);
         expect(shownLabels?.[0].id).toBe(999);
-        expect(shownLabels?.[0].createdBy).toBe("Other User");
     });
 
     it("should close modal with transformed data", () => {
@@ -187,14 +181,11 @@ describe("ManageLabelsModalComponent", () => {
         const annotation: LabelAnnotation = {
             ...testAttachedLabel,
             attachedByCurrentUser: true,
-            createdBy: "Current User",
-            createdAt: "2024-03-15T10:30:00Z"
         };
 
         const text = component.getAttachedBy(annotation);
 
         expect(text).toContain("you");
-        expect(text).toContain('15 March 2024');
     });
 
     it("should handle unknown user when creating new annotations", async () => {
@@ -203,8 +194,6 @@ describe("ManageLabelsModalComponent", () => {
         component.form.controls.selectedLabelIds.setValue([testLabel1.id]);
 
         const shownLabels = await firstValueFrom(component.shownLabels$);
-
-        expect(shownLabels?.[0].createdBy).toBe("Unknown user");
     });
 
     it("should set loadingLabels$ to false after labels are available", async () => {

@@ -27,12 +27,7 @@ export type AnnotationKind = "label" | "knowledgeBase";
 
 interface BaseAnnotation {
     id: number | null;
-    session: number | null;
     problem: number;
-    createdAt: string;
-    createdBy: string;
-    removedAt: string | null;
-    removedBy: string | null;
     notes: string;
     removable: boolean;
     annotationKind: AnnotationKind;
@@ -43,6 +38,12 @@ export enum KnowledgeBaseRelationship {
     SUBSET = "subset",
     DISJOINT = "disjoint",
 }
+
+export const KB_RELATIONSHIP_SYMBOLS: Record<KnowledgeBaseRelationship, string> = {
+    [KnowledgeBaseRelationship.EQUAL]: "≡",
+    [KnowledgeBaseRelationship.SUBSET]: "⊑",
+    [KnowledgeBaseRelationship.DISJOINT]: "∥",
+};
 
 export interface KnowledgeBaseItem {
     entity1: string;
@@ -64,9 +65,33 @@ export interface LabelAnnotation extends BaseAnnotation {
     annotationKind: "label";
     label: Label;
     attachedByCurrentUser: boolean;
+    attachedBy: string;
 }
 
 export type CombinedAnnotation = LabelAnnotation | KnowledgeBaseAnnotation;
+
+export type AnnotationEventKind = "created" | "updated" | "removed";
+
+// AnnotationEvents as received from the backend.
+export interface AnnotationEvent {
+    id: number;
+    session: number;
+    problemId: number;
+    eventKind: AnnotationEventKind;
+    annotationKind: AnnotationKind;
+    timestamp: string;
+    actor: string;
+    annotationId: number;
+    beforeState: { "label": string; } | KnowledgeBaseItem | null;
+    afterState: { "label": string; } | KnowledgeBaseItem | null;
+}
+
+// A display-friendly representation of an annotation event,
+// for use in AnnotationList.
+export type AnnotationEventRecord = Pick<AnnotationEvent, "problemId" | "eventKind" | "annotationKind" | "timestamp" | "actor"> & {
+    description: string;
+};
+
 
 export interface Sentence {
     text: string;
@@ -84,6 +109,7 @@ interface ProblemBase {
     status: ProblemStatus;
     kbAnnotations: KnowledgeBaseAnnotation[];
     labelAnnotations: LabelAnnotation[];
+    annotationEvents: AnnotationEvent[];
     langproPrediction: EntailmentLabel | null;
     usedKbItems: KnowledgeBaseItem[];
 }

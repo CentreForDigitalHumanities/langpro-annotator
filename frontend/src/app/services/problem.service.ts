@@ -185,6 +185,7 @@ export class ProblemService {
                     ...annotation,
                     id: null,
                 })) ?? [],
+                annotationEvents: [],
             }
         };
     }

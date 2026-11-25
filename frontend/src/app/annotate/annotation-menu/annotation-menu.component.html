@@ -1,4 +1,5 @@
 @let proofs = proofs$ | async;
+@let annotationEvents = problemAnnotations$ | async;
 
 <ul ngbNav #nav="ngbNav" [(activeId)]="active" class="nav-tabs flex-nowrap">
     <li [ngbNavItem]="1">
@@ -50,12 +51,18 @@
         <button ngbNavLink>
             <fa-icon [icon]="faPenNib" class="me-2" aria-hidden="true" />
             <span i18n>Annotation log</span>
+            <div
+                class="badge ms-1"
+                [class]="active === 4 ? 'text-bg-secondary' : 'text-bg-primary'"
+            >
+                {{ annotationEvents?.length || 0 }}
+            </div>
         </button>
         <ng-template ngbNavContent>
-            @if (problemAnnotations$ | async; as annotations) {
+            @if (annotationEvents) {
                 <la-annotation-list
                     [showProblemLinks]="false"
-                    [annotations]="annotations"
+                    [annotations]="annotationEvents"
                 />
             }
         </ng-template>

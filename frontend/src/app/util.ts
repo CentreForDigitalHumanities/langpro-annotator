@@ -10,8 +10,8 @@ function sortAnnotations(labelAnnotations: LabelAnnotation[]): LabelAnnotation[]
 }
 
 function getAttachedByText(annotation: LabelAnnotation): string {
-    const attachedUser = annotation.attachedByCurrentUser ? $localize`you` : annotation.createdBy;
-    return $localize`Attached by ${attachedUser} on ${formatDate(annotation.createdAt)}`;
+    const attachedUser = annotation.attachedByCurrentUser ? $localize`you` : annotation.attachedBy;
+    return $localize`Attached by ${attachedUser}`;
 }
 
 /**

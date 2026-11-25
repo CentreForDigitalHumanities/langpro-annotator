@@ -1,8 +1,9 @@
 import pytest
-from django.utils import timezone
 from rest_framework import status
 
 from annotation.models import (
+    AnnotationEvent,
+    AnnotationSession,
     Label,
     LabelAnnotation,
 )
@@ -23,32 +24,6 @@ def another_label(db):
     return Label.objects.create(
         text="Another Label",
         description="Another test label.",
-    )
-
-
-@pytest.fixture
-def label_annotation_by_annotator(
-    db, sample_problem, sample_label, annotator, annotator_session
-):
-    """Creates a label_annotation attached by an annotator."""
-    return LabelAnnotation.objects.create(
-        problem=sample_problem,
-        label=sample_label,
-        session=annotator_session,
-        created_by=annotator,
-    )
-
-
-@pytest.fixture
-def label_annotation_by_master(
-    db, sample_problem, another_label, master_annotator, master_annotator_session
-):
-    """Creates a label_annotation attached by a master annotator."""
-    return LabelAnnotation.objects.create(
-        problem=sample_problem,
-        label=another_label,
-        session=master_annotator_session,
-        created_by=master_annotator,
     )
 
 
@@ -94,33 +69,39 @@ class TestLabelViewGetPermissions:
 
 class TestAnnotationsView:
     def test_lists_combined_annotations(
-        self, api_client, kb_annotation, label_annotation
+        self,
+        api_client,
+        kb_annotation_by_annotator,
+        label_annotation_by_annotator,
+        annotator,
     ):
-        kb_annotation.created_at = timezone.now()
-        kb_annotation.save()
-
-        # Make sure there is a difference in created_at timestamps to test sorting.
-        label_annotation.created_at = timezone.now() - timezone.timedelta(days=1)
-        label_annotation.save()
-
         response = api_client.get("/api/annotations/")
 
         assert response.status_code == status.HTTP_200_OK
         assert len(response.data) == 2
-        assert {annotation["annotationKind"] for annotation in response.data} == {
+        assert {event["eventKind"] for event in response.data} == {
+            "created",
+        }
+        assert {event["annotationKind"] for event in response.data} == {
             "knowledgeBase",
             "label",
         }
         # Make sure sorting works.
-        assert response.data[0]["createdAt"] >= response.data[1]["createdAt"]
+        assert response.data[0]["timestamp"] >= response.data[1]["timestamp"]
 
     def test_search_filters_combined_annotations_by_problem_id(
-        self, api_client, sample_problem, kb_annotation, label_annotation
+        self,
+        api_client,
+        sample_problem,
+        kb_annotation_by_annotator,
+        label_annotation_by_annotator,
+        annotator,
     ):
         response = api_client.get(f"/api/annotations/?search={sample_problem.pk}")
 
         assert response.status_code == status.HTTP_200_OK
         assert len(response.data) == 2
+        assert {event["eventKind"] for event in response.data} == {"created"}
         assert {event["annotationKind"] for event in response.data} == {
             "knowledgeBase",
             "label",
@@ -170,7 +151,13 @@ class TestSavelabel_annotationsPermissions:
         label_annotation = LabelAnnotation.objects.get(
             problem=sample_problem, label=sample_label
         )
-        assert label_annotation.created_by == annotator
+        event = AnnotationEvent.objects.get(
+            event_type=AnnotationEvent.EventType.LABEL,
+            annotation_id=label_annotation.pk,
+            action=AnnotationEvent.Action.CREATED,
+        )
+        assert event.actor == annotator
+        assert event.problem == sample_problem
 
     def test_master_annotator_can_save_label_annotations(
         self, api_client, master_annotator, sample_problem, sample_label
@@ -201,10 +188,15 @@ class TestRemoveLabelAnnotationPermissions:
         response = api_client.post("/api/label/", data, format="json")
         assert response.status_code == status.HTTP_200_OK
 
-        # Verify label_annotation was marked as removed
-        label_annotation_by_annotator.refresh_from_db()
-        assert label_annotation_by_annotator.removed_at is not None
-        assert label_annotation_by_annotator.removed_by == annotator
+        assert not LabelAnnotation.objects.filter(
+            pk=label_annotation_by_annotator.pk
+        ).exists()
+        event = AnnotationEvent.objects.get(
+            event_type=AnnotationEvent.EventType.LABEL,
+            annotation_id=label_annotation_by_annotator.pk,
+            action=AnnotationEvent.Action.REMOVED,
+        )
+        assert event.actor == annotator
 
     def test_annotator_cannot_remove_others_label_annotation(
         self, api_client, annotator, sample_problem, label_annotation_by_master
@@ -224,7 +216,7 @@ class TestRemoveLabelAnnotationPermissions:
 
         # Verify label_annotation was NOT removed
         label_annotation_by_master.refresh_from_db()
-        assert label_annotation_by_master.removed_at is None
+        assert LabelAnnotation.objects.filter(pk=label_annotation_by_master.pk).exists()
 
     def test_master_annotator_can_remove_own_label_annotation(
         self, api_client, master_annotator, sample_problem, label_annotation_by_master
@@ -237,9 +229,15 @@ class TestRemoveLabelAnnotationPermissions:
         }
         response = api_client.post("/api/label/", data, format="json")
         assert response.status_code == status.HTTP_200_OK
-
-        label_annotation_by_master.refresh_from_db()
-        assert label_annotation_by_master.removed_at is not None
+        assert not LabelAnnotation.objects.filter(
+            pk=label_annotation_by_master.pk
+        ).exists()
+        assert AnnotationEvent.objects.filter(
+            event_type=AnnotationEvent.EventType.LABEL,
+            annotation_id=label_annotation_by_master.pk,
+            action=AnnotationEvent.Action.REMOVED,
+            actor=master_annotator,
+        ).exists()
 
     def test_master_annotator_can_remove_others_label_annotation(
         self,
@@ -257,9 +255,15 @@ class TestRemoveLabelAnnotationPermissions:
         response = api_client.post("/api/label/", data, format="json")
         assert response.status_code == status.HTTP_200_OK
 
-        label_annotation_by_annotator.refresh_from_db()
-        assert label_annotation_by_annotator.removed_at is not None
-        assert label_annotation_by_annotator.removed_by == master_annotator
+        assert not LabelAnnotation.objects.filter(
+            pk=label_annotation_by_annotator.pk
+        ).exists()
+        assert AnnotationEvent.objects.filter(
+            event_type=AnnotationEvent.EventType.LABEL,
+            annotation_id=label_annotation_by_annotator.pk,
+            action=AnnotationEvent.Action.REMOVED,
+            actor=master_annotator,
+        ).exists()
 
 
 class TestLabelAnnotationAddAndRemove:
@@ -278,7 +282,7 @@ class TestLabelAnnotationAddAndRemove:
         assert response.status_code == status.HTTP_200_OK
 
         assert LabelAnnotation.objects.filter(
-            problem=sample_problem, label=sample_label, removed_at__isnull=True
+            problem=sample_problem, label=sample_label
         ).exists()
 
     def test_adding_multiple_labels(
@@ -294,7 +298,7 @@ class TestLabelAnnotationAddAndRemove:
         assert response.status_code == status.HTTP_200_OK
 
         active_label_annotations = LabelAnnotation.objects.filter(
-            problem=sample_problem, removed_at__isnull=True
+            problem=sample_problem
         )
         assert active_label_annotations.count() == 2
 
@@ -322,9 +326,15 @@ class TestLabelAnnotationAddAndRemove:
         # Original label_annotation should still be active
         label_annotation_by_annotator.refresh_from_db()
         assert label_annotation_by_annotator.id == original_label_annotation_id
-        assert label_annotation_by_annotator.removed_at is None
 
         # New label_annotation should be created
-        assert LabelAnnotation.objects.filter(
-            problem=sample_problem, label=another_label, removed_at__isnull=True
+        new_annotation = LabelAnnotation.objects.get(
+            problem=sample_problem, label=another_label
+        )
+
+        # New AnnotationEvent should be created for the new label
+        assert AnnotationEvent.objects.filter(
+            problem=sample_problem,
+            annotation_id=new_annotation.pk,
+            action=AnnotationEvent.Action.CREATED,
         ).exists()

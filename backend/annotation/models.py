@@ -151,6 +151,7 @@ class AnnotationEvent(models.Model):
     class EventType(models.TextChoices):
         KNOWLEDGE_BASE = "knowledgeBase", "Knowledge base"
         LABEL = "label", "Label"
+        STATUS = "status", "Status"
 
     class Action(models.TextChoices):
         CREATED = "created", "Created"

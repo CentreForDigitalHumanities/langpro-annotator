@@ -43,6 +43,11 @@
                     [checked]="showKB()"
                     (toggle)="showKB.set(!showKB())"
                 />
+                <la-filter-checkbox
+                    label="status"
+                    [checked]="showStatus()"
+                    (toggle)="showStatus.set(!showStatus())"
+                />
             </div>
         </div>
         <span class="text-muted small" i18n>
@@ -88,6 +93,15 @@
                                         <span class="font-monospace">
                                             {{ event.description }}
                                         </span>
+                                    }
+                                    @case ("status") {
+                                        {{ event.eventKind === "created" ? "added" : "removed" }}
+                                        <la-status-badge
+                                            [status]="ProblemStatus.GOLD"
+                                            [showTooltip]="false"
+                                            inline
+                                        />
+                                        status
                                     }
                                     @default never;
                                 }

@@ -1,6 +1,6 @@
 import { statusLabels } from '@/shared/displayTextMappings';
 import { ProblemStatus } from '@/types';
-import { Component, input, ChangeDetectionStrategy } from '@angular/core';
+import { Component, input, ChangeDetectionStrategy, booleanAttribute } from '@angular/core';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faMedal } from '@fortawesome/free-solid-svg-icons';
 import { NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
@@ -14,6 +14,8 @@ import { NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
 })
 export class StatusBadgeComponent {
     public readonly status = input.required<ProblemStatus>();
+    public inline = input<boolean>(false, { transform: booleanAttribute });
+    public showTooltip = input<boolean>(true);
     public statusLabels = statusLabels;
     public faMedal = faMedal;
     public ProblemStatus = ProblemStatus;

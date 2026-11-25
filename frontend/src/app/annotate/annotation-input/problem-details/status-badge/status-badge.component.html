@@ -1,9 +1,10 @@
 <div
-    class="badge d-flex align-items-center justify-content-center gap-1 py-2"
+    class="badge align-items-center justify-content-center gap-1 py-2"
+    [class]="inline() ? 'd-inline-flex' : 'd-flex'"
     [class.text-bg-warning]="status() === ProblemStatus.GOLD"
     [class.text-bg-secondary]="status() === ProblemStatus.SILVER"
     [class.text-bg-light]="status() === ProblemStatus.BRONZE"
-    [ngbTooltip]="statusLabels[status()]"
+    [ngbTooltip]="showTooltip() ? statusLabels[status()] : null"
     aria-hidden="true"
 >
     <fa-icon [icon]="faMedal" />
